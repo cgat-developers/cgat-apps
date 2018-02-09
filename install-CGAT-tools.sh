@@ -183,6 +183,63 @@ conda clean --packages -y
 }
 
 
+# helper function to install cgat-core
+install_cgat_core() {
+
+log "install cgat core"
+
+OLDWD=`pwd`
+cd $CGAT_HOME
+
+if [[ $CODE_DOWNLOAD_TYPE -eq 0 ]] ; then
+   # get the latest version from Git Hub in zip format
+   curl -LOk https://github.com/cgat-developers/cgat-core/archive/$SCRIPTS_BRANCH.zip
+   unzip $SCRIPTS_BRANCH.zip
+   rm $SCRIPTS_BRANCH.zip
+   if [[ ${RELEASE} ]] ; then
+      NEW_NAME=`echo $SCRIPTS_BRANCH | sed 's/^v//g'`
+      mv cgat-core-$NEW_NAME/ cgat-core/
+   else
+      mv cgat-core-$SCRIPTS_BRANCH/ cgat-core/
+   fi
+elif [[ $CODE_DOWNLOAD_TYPE -eq 1 ]] ; then
+   # get latest version from Git Hub with git clone
+   git clone --branch=$SCRIPTS_BRANCH https://github.com/cgat-developers/cgat-core.git
+elif [[ $CODE_DOWNLOAD_TYPE -eq 2 ]] ; then
+   # get latest version from Git Hub with git clone
+   git clone --branch=$SCRIPTS_BRANCH git@github.com:cgat-developers/cgat-core.git
+else
+   report_error " Unknown download type for CGAT core... "
+fi
+
+cd cgat-core/
+
+# remove install_requires (no longer required with conda package)
+sed -i'' -e '/REPO_REQUIREMENT/,/pass/d' setup.py
+sed -i'' -e '/# dependencies/,/dependency_links=dependency_links,/d' setup.py
+python setup.py develop
+
+if [[ $? -ne 0 ]] ; then
+   echo
+   echo " There was a problem doing: 'python setup.py develop' "
+   echo " Installation did not finish properly. "
+   echo
+   echo " Please submit this issue via Git Hub: "
+   echo " https://github.com/cgat-developers/cgat-core/issues "
+   echo
+   print_env_vars
+
+fi # if-$?
+
+# revert setup.py if downloaded with git
+[[ $CODE_DOWNLOAD_TYPE -ge 1 ]] && git checkout -- setup.py
+
+# go back to old working directory
+cd $OLDWD
+
+} # install_cgat_core
+
+
 # proceed with conda installation
 conda_install() {
 
@@ -309,6 +366,9 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       # Set up other environment variables
       setup_env_vars
 
+      # install cgat-core
+      install_cgat_core
+
       # brute force: modify console_scripts variable/entry point for cgat command
       sed -i'' -e 's/CGATScripts/scripts/g' setup.py
 
@@ -386,6 +446,9 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL ]] ; then
 
    # show conda environment used for testing
    conda env export
+
+   # install cgat-core
+   install_cgat_core
 
    # python preparation
    log "install CGAT code into conda environment"
