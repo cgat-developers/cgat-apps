@@ -226,7 +226,7 @@ if [[ $? -ne 0 ]] ; then
    echo " Installation did not finish properly. "
    echo
    echo " Please submit this issue via Git Hub: "
-   echo " https://github.com/cgat-developers/cgat-core/issues "
+   echo " https://github.com/cgat-developers/cgat-apps/issues "
    echo
    print_env_vars
 
@@ -685,12 +685,10 @@ test_release() {
 # function to display help message
 help_message() {
 echo
-echo " This script uses Conda to install cgat-apps"
-echo
-echo " The install folder will be: $HOME/cgat-install"
-echo
-echo " To install cgat-apps, please type:"
+echo " This script uses Conda to install cgat-apps. To proceed, please type:"
 echo " ./install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
+echo
+echo " The default install folder will be: $HOME/cgat-install"
 echo
 echo " It will create a new Conda environment ready to run the CGAT code."
 echo
