@@ -1,0 +1,16 @@
+
+# This environment will include other dependencies that have not been detected automatically
+# but are required to run the scripts
+
+name: cgat-s
+
+channels:
+- bioconda
+- conda-forge
+- defaults
+
+dependencies:
+- ucsc-bigwiginfo=332
+- graphviz=2.38.0
+# manually required for pysam=0.13.0 env
+- pysam=0.13.0

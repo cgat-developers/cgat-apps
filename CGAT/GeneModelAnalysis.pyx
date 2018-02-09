@@ -35,7 +35,6 @@ import pysam
 
 try:
     import bx
-    import bx.bbi.bigwig_file
     import bx.intervals.intersection
 except ImportError:
     # bx not py3 compatible
