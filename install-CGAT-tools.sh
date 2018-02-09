@@ -42,7 +42,7 @@ error_handler() {
    echo " ${SCRIPT_NAME} ${SCRIPT_PARAMS}"
    echo
    echo " Please copy and paste this error and report it via Git Hub: "
-   echo " https://github.com/CGATOxford/cgat/issues "
+   echo " https://github.com/cgat-developers/cgat-apps/issues "
    print_env_vars
    echo " ########################################################## "
 }
@@ -105,7 +105,7 @@ else
    fi
 
    if [[ $INSTALL_PRODUCTION ]] ; then
-      CONDA_INSTALL_TYPE="cgat-scripts"
+      CONDA_INSTALL_TYPE="scripts-production.yml"
    elif [[ $INSTALL_DEVEL ]] ; then
       CONDA_INSTALL_TYPE="scripts-devel.yml"
    elif [[ $INSTALL_TEST ]] || [[ $INSTALL_UPDATE ]] ; then
@@ -164,6 +164,7 @@ echo " CONDA_INSTALL_TYPE: "$CONDA_INSTALL_TYPE
 echo " CONDA_INSTALL_ENV: "$CONDA_INSTALL_ENV
 echo " PYTHONPATH: "$PYTHONPATH
 [[ ! $INSTALL_TEST ]] && echo " INSTALL_BRANCH: "$INSTALL_BRANCH
+[[ ! $INSTALL_TEST ]] && echo " CORE_BRANCH: "$CORE_BRANCH
 [[ ! $INSTALL_TEST ]] && echo " RELEASE: "$RELEASE
 [[ ! $INSTALL_TEST ]] && echo " CODE_DOWNLOAD_TYPE: "$CODE_DOWNLOAD_TYPE
 echo
@@ -181,6 +182,63 @@ conda clean --lock
 conda clean --tarballs -y
 conda clean --packages -y
 }
+
+
+# helper function to install cgat-core
+install_cgat_core() {
+
+log "install cgat core"
+
+OLDWD=`pwd`
+cd $CGAT_HOME
+
+if [[ $CODE_DOWNLOAD_TYPE -eq 0 ]] ; then
+   # get the latest version from Git Hub in zip format
+   curl -LOk https://github.com/cgat-developers/cgat-core/archive/$CORE_BRANCH.zip
+   unzip $CORE_BRANCH.zip
+   rm $CORE_BRANCH.zip
+   if [[ ${RELEASE} ]] ; then
+      NEW_NAME=`echo $CORE_BRANCH | sed 's/^v//g'`
+      mv cgat-core-$NEW_NAME/ cgat-core/
+   else
+      mv cgat-core-$CORE_BRANCH/ cgat-core/
+   fi
+elif [[ $CODE_DOWNLOAD_TYPE -eq 1 ]] ; then
+   # get latest version from Git Hub with git clone
+   git clone --branch=$CORE_BRANCH https://github.com/cgat-developers/cgat-core.git
+elif [[ $CODE_DOWNLOAD_TYPE -eq 2 ]] ; then
+   # get latest version from Git Hub with git clone
+   git clone --branch=$CORE_BRANCH git@github.com:cgat-developers/cgat-core.git
+else
+   report_error " Unknown download type for CGAT core... "
+fi
+
+cd cgat-core/
+
+# remove install_requires (no longer required with conda package)
+sed -i'' -e '/REPO_REQUIREMENT/,/pass/d' setup.py
+sed -i'' -e '/# dependencies/,/dependency_links=dependency_links,/d' setup.py
+python setup.py develop
+
+if [[ $? -ne 0 ]] ; then
+   echo
+   echo " There was a problem doing: 'python setup.py develop' "
+   echo " Installation did not finish properly. "
+   echo
+   echo " Please submit this issue via Git Hub: "
+   echo " https://github.com/cgat-developers/cgat-apps/issues "
+   echo
+   print_env_vars
+
+fi # if-$?
+
+# revert setup.py if downloaded with git
+[[ $CODE_DOWNLOAD_TYPE -ge 1 ]] && git checkout -- setup.py
+
+# go back to old working directory
+cd $OLDWD
+
+} # install_cgat_core
 
 
 # proceed with conda installation
@@ -249,15 +307,11 @@ log "installing CGAT environment"
 # Now using conda environment files:
 # https://conda.io/docs/using/envs.html#use-environment-from-file
 
-if [[ $INSTALL_PRODUCTION ]] ; then
-   conda create --quiet --name ${CONDA_INSTALL_ENV} cgat-scripts python=3.6 --override-channels --channel bioconda --channel conda-forge --channel defaults --yes
-else
-   [[ -z ${TRAVIS_BRANCH} ]] && TRAVIS_BRANCH=${INSTALL_BRANCH}
-   curl -o env.yml -O https://raw.githubusercontent.com/CGATOxford/cgat/${TRAVIS_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE}
-   conda env create --quiet --file env.yml
-   cat env.yml
-   conda env export --name cgat-s
-fi
+[[ -z ${TRAVIS_BRANCH} ]] && TRAVIS_BRANCH=${INSTALL_BRANCH}
+curl -o env.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE}
+conda env create --quiet --file env.yml
+cat env.yml
+conda env export --name cgat-s
 
 # activate cgat environment
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
@@ -274,7 +328,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
    if [[ $INSTALL_DEVEL ]] || [[ $JENKINS_INSTALL ]] ; then
 
       # install extra deps
-      curl -o env-extra.yml -O https://raw.githubusercontent.com/CGATOxford/cgat/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
+      curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
       conda env update --quiet --file env-extra.yml
       conda env export --name cgat-s
 
@@ -286,32 +340,35 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
          if [[ $CODE_DOWNLOAD_TYPE -eq 0 ]] ; then
             # get the latest version from Git Hub in zip format
-            curl -LOk https://github.com/CGATOxford/cgat/archive/$INSTALL_BRANCH.zip
+            curl -LOk https://github.com/cgat-developers/cgat-apps/archive/$INSTALL_BRANCH.zip
             unzip $INSTALL_BRANCH.zip
             rm $INSTALL_BRANCH.zip
             if [[ ${RELEASE} ]] ; then
                NEW_NAME=`echo $INSTALL_BRANCH | sed 's/^v//g'`
-               mv cgat-$NEW_NAME/ cgat-scripts/
+               mv cgat-apps-$NEW_NAME/ cgat-apps/
             else
-               mv cgat-$INSTALL_BRANCH/ cgat-scripts/
+               mv cgat-apps-$INSTALL_BRANCH/ cgat-apps/
             fi
          elif [[ $CODE_DOWNLOAD_TYPE -eq 1 ]] ; then
             # get latest version from Git Hub with git clone
-            git clone --branch=$INSTALL_BRANCH https://github.com/CGATOxford/cgat.git $CGAT_HOME/cgat-scripts
+            git clone --branch=$INSTALL_BRANCH https://github.com/cgat-developers/cgat-apps.git
          elif [[ $CODE_DOWNLOAD_TYPE -eq 2 ]] ; then
             # get latest version from Git Hub with git clone
-            git clone --branch=$INSTALL_BRANCH git@github.com:CGATOxford/cgat.git $CGAT_HOME/cgat-scripts
+            git clone --branch=$INSTALL_BRANCH git@github.com:cgat-developers/cgat-apps.git
          else
             report_error " Unknown download type for CGAT code... "
          fi
 
-         # make sure you are in the CGAT_HOME/cgat-scripts folder
-         cd $CGAT_HOME/cgat-scripts
+         # make sure you are in the CGAT_HOME/cgat-apps folder
+         cd $CGAT_HOME/cgat-apps
 
       fi
 
       # Set up other environment variables
       setup_env_vars
+
+      # install cgat-core
+      install_cgat_core
 
       # brute force: modify console_scripts variable/entry point for cgat command
       sed -i'' -e 's/CGATScripts/scripts/g' setup.py
@@ -328,7 +385,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
          echo " Installation did not finish properly. "
          echo 
          echo " Please submit this issue via Git Hub: "
-         echo " https://github.com/CGATOxford/cgat/issues "
+         echo " https://github.com/cgat-developers/cgat-apps/issues "
 	 echo
 
          print_env_vars
@@ -347,7 +404,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       echo " Installation did not finish properly. "
       echo
       echo " Please submit this issue via Git Hub: "
-      echo " https://github.com/CGATOxford/cgat/issues "
+      echo " https://github.com/cgat-developers/cgat-apps/issues "
       echo
 
       print_env_vars
@@ -391,6 +448,9 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL ]] ; then
    # show conda environment used for testing
    conda env export
 
+   # install cgat-core
+   install_cgat_core
+
    # python preparation
    log "install CGAT code into conda environment"
    cd $CGAT_HOME
@@ -429,8 +489,8 @@ else
    if [[ -z "${RET}" ]] ; then
       # this is "cgat-devel" so tests can be run
 
-      # make sure you are in the CGAT_HOME/cgat-scripts folder
-      cd $CGAT_HOME/cgat-scripts
+      # make sure you are in the CGAT_HOME/cgat-apps folder
+      cd $CGAT_HOME/cgat-apps
 
       # remove install_requires (no longer required with conda package)
       sed -i'' -e '/REPO_REQUIREMENT/,/pass/d' setup.py
@@ -497,7 +557,7 @@ if [[ ! $? -eq 0 ]] ; then
    echo " There was a problem updating the installation. "
    echo 
    echo " Please submit this issue via Git Hub: "
-   echo " https://github.com/CGATOxford/cgat/issues "
+   echo " https://github.com/cgat-developers/cgat-apps/issues "
    echo 
 
 else 
@@ -587,17 +647,34 @@ test_mix_branch_release() {
 }
 
 
+# test whether a branch exists in the cgat-core repository
+# https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
+test_core_branch() {
+   RELEASE_TEST=0
+   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/README.md || RELEASE_TEST=$?
+   if [[ ${RELEASE_TEST} -ne 0 ]] ; then
+      echo
+      echo " The branch provided for cgat-core does not exist: ${CORE_BRANCH}"
+      echo
+      echo " Please have a look at valid branches here: "
+      echo " https://github.com/cgat-developers/cgat-core/branches"
+      echo
+      report_error " Please use a valid branch and try again."
+   fi
+}
+
+
 # test whether a release exists or not
 # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
 test_release() {
    RELEASE_TEST=0
-   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/CGATOxford/cgat/${RELEASE}/README.rst || RELEASE_TEST=$?
+   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-apps/${RELEASE}/README.rst || RELEASE_TEST=$?
    if [[ ${RELEASE_TEST} -ne 0 ]] ; then
       echo
       echo " The release number provided does not exist: ${RELEASE}"
       echo
       echo " Please have a look at valid releases here: "
-      echo " https://github.com/CGATOxford/cgat/releases"
+      echo " https://github.com/cgat-developers/cgat-apps/releases"
       echo
       echo " An example of valid release is: --release v0.3.1"
       report_error " Please use a valid release and try again."
@@ -608,23 +685,21 @@ test_release() {
 # function to display help message
 help_message() {
 echo
-echo " This script uses Conda to install the CGAT Code Collection:"
-echo " https://www.cgat.org/downloads/public/cgat/documentation/"
-echo
-echo " If you only need to use the scripts published here:"
-echo "   https://doi.org/10.1093/bioinformatics/btt756"
-echo " type:"
-echo " ./install-CGAT-tools.sh --production [--location </full/path/to/folder/without/trailing/slash>]"
-echo
-echo " The default location is: $HOME/cgat-install"
-echo
-echo " Otherwise, if you prefer to use the latest development version of the scripts instead, type:"
+echo " This script uses Conda to install cgat-apps. To proceed, please type:"
 echo " ./install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
 echo
-echo " Both installations create a new Conda environment ready to run the CGAT code."
+echo " The default install folder will be: $HOME/cgat-install"
+echo
+echo " It will create a new Conda environment ready to run the CGAT code."
 echo
 echo " It is also possible to install/test a specific branch of the code on github:"
 echo " ./install-CGAT-tools.sh --devel --branch <name-of-branch> [--location </full/path/to/folder/without/trailing/slash>]"
+echo
+echo " By default, cgat-apps will install the master branch of cgat-core:"
+echo " https://github.com/cgat-developers/cgat-core"
+echo
+echo " Change that with:"
+echo " ./install-CGAT-tools.sh --devel --core-branch <name-of-branch>"
 echo
 echo " To test the installation:"
 echo " ./install-CGAT-tools.sh --test [--location </full/path/to/folder/without/trailing/slash>]"
@@ -636,7 +711,7 @@ echo " To uninstall the CGAT code:"
 echo " ./install-CGAT-tools.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " Please submit any issues via Git Hub:"
-echo " https://github.com/CGATOxford/cgat/issues"
+echo " https://github.com/cgat-developers/cgat-apps/issues"
 echo
 exit 1
 } # help_message
@@ -672,6 +747,8 @@ CGAT_HOME=
 CODE_DOWNLOAD_TYPE=0
 # which github branch to use (default: master)
 INSTALL_BRANCH="master"
+# which github branch to use for cgat-core (default: master)
+CORE_BRANCH="master"
 # Install a released version?
 RELEASE=
 
@@ -750,6 +827,12 @@ case $key in
     --branch)
     INSTALL_BRANCH="$2"
     test_mix_branch_release
+    shift 2
+    ;;
+
+    --core-branch)
+    CORE_BRANCH="$2"
+    test_core_branch
     shift 2
     ;;
 

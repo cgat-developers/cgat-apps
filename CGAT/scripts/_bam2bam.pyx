@@ -4,8 +4,18 @@ import struct
 from pysam.libchtslib cimport *
 from pysam.libcalignmentfile cimport *
 
+import collections, array, struct, itertools
+import CGATCore.Experiment as E
 
-import CGAT.Experiment as E
+
+cdef class SetNH:
+
+    cdef iter
+    cdef stack
+
+    def __cinit__(self, iter ):
+        self.iter = itertools.groupby(iter, lambda x: x.qname)
+        self.stack = []
 
 
 def filter_bam(AlignmentFile input_samfile,
