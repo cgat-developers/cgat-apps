@@ -293,10 +293,10 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
             fi
          elif [[ $CODE_DOWNLOAD_TYPE -eq 1 ]] ; then
             # get latest version from Git Hub with git clone
-            git clone --branch=$INSTALL_BRANCH https://github.com/cgat-developers/cgat-apps.git $CGAT_HOME/cgat-apps
+            git clone --branch=$INSTALL_BRANCH https://github.com/cgat-developers/cgat-apps.git
          elif [[ $CODE_DOWNLOAD_TYPE -eq 2 ]] ; then
             # get latest version from Git Hub with git clone
-            git clone --branch=$INSTALL_BRANCH git@github.com:cgat-developers/cgat-apps.git $CGAT_HOME/cgat-apps
+            git clone --branch=$INSTALL_BRANCH git@github.com:cgat-developers/cgat-apps.git
          else
             report_error " Unknown download type for CGAT code... "
          fi
