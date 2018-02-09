@@ -42,7 +42,7 @@ error_handler() {
    echo " ${SCRIPT_NAME} ${SCRIPT_PARAMS}"
    echo
    echo " Please copy and paste this error and report it via Git Hub: "
-   echo " https://github.com/CGATOxford/cgat/issues "
+   echo " https://github.com/cgat-developers/cgat-apps/issues "
    print_env_vars
    echo " ########################################################## "
 }
@@ -105,7 +105,7 @@ else
    fi
 
    if [[ $INSTALL_PRODUCTION ]] ; then
-      CONDA_INSTALL_TYPE="cgat-scripts"
+      CONDA_INSTALL_TYPE="scripts-production.yml"
    elif [[ $INSTALL_DEVEL ]] ; then
       CONDA_INSTALL_TYPE="scripts-devel.yml"
    elif [[ $INSTALL_TEST ]] || [[ $INSTALL_UPDATE ]] ; then
@@ -249,15 +249,11 @@ log "installing CGAT environment"
 # Now using conda environment files:
 # https://conda.io/docs/using/envs.html#use-environment-from-file
 
-if [[ $INSTALL_PRODUCTION ]] ; then
-   conda create --quiet --name ${CONDA_INSTALL_ENV} cgat-scripts python=3.6 --override-channels --channel bioconda --channel conda-forge --channel defaults --yes
-else
-   [[ -z ${TRAVIS_BRANCH} ]] && TRAVIS_BRANCH=${INSTALL_BRANCH}
-   curl -o env.yml -O https://raw.githubusercontent.com/CGATOxford/cgat/${TRAVIS_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE}
-   conda env create --quiet --file env.yml
-   cat env.yml
-   conda env export --name cgat-s
-fi
+[[ -z ${TRAVIS_BRANCH} ]] && TRAVIS_BRANCH=${INSTALL_BRANCH}
+curl -o env.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE}
+conda env create --quiet --file env.yml
+cat env.yml
+conda env export --name cgat-s
 
 # activate cgat environment
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
@@ -274,7 +270,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
    if [[ $INSTALL_DEVEL ]] || [[ $JENKINS_INSTALL ]] ; then
 
       # install extra deps
-      curl -o env-extra.yml -O https://raw.githubusercontent.com/CGATOxford/cgat/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
+      curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
       conda env update --quiet --file env-extra.yml
       conda env export --name cgat-s
 
@@ -286,27 +282,27 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
          if [[ $CODE_DOWNLOAD_TYPE -eq 0 ]] ; then
             # get the latest version from Git Hub in zip format
-            curl -LOk https://github.com/CGATOxford/cgat/archive/$INSTALL_BRANCH.zip
+            curl -LOk https://github.com/cgat-developers/cgat-apps/archive/$INSTALL_BRANCH.zip
             unzip $INSTALL_BRANCH.zip
             rm $INSTALL_BRANCH.zip
             if [[ ${RELEASE} ]] ; then
                NEW_NAME=`echo $INSTALL_BRANCH | sed 's/^v//g'`
-               mv cgat-$NEW_NAME/ cgat-scripts/
+               mv cgat-apps-$NEW_NAME/ cgat-apps/
             else
-               mv cgat-$INSTALL_BRANCH/ cgat-scripts/
+               mv cgat-apps-$INSTALL_BRANCH/ cgat-apps/
             fi
          elif [[ $CODE_DOWNLOAD_TYPE -eq 1 ]] ; then
             # get latest version from Git Hub with git clone
-            git clone --branch=$INSTALL_BRANCH https://github.com/CGATOxford/cgat.git $CGAT_HOME/cgat-scripts
+            git clone --branch=$INSTALL_BRANCH https://github.com/cgat-developers/cgat-apps.git $CGAT_HOME/cgat-apps
          elif [[ $CODE_DOWNLOAD_TYPE -eq 2 ]] ; then
             # get latest version from Git Hub with git clone
-            git clone --branch=$INSTALL_BRANCH git@github.com:CGATOxford/cgat.git $CGAT_HOME/cgat-scripts
+            git clone --branch=$INSTALL_BRANCH git@github.com:cgat-developers/cgat-apps.git $CGAT_HOME/cgat-apps
          else
             report_error " Unknown download type for CGAT code... "
          fi
 
-         # make sure you are in the CGAT_HOME/cgat-scripts folder
-         cd $CGAT_HOME/cgat-scripts
+         # make sure you are in the CGAT_HOME/cgat-apps folder
+         cd $CGAT_HOME/cgat-apps
 
       fi
 
@@ -328,7 +324,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
          echo " Installation did not finish properly. "
          echo 
          echo " Please submit this issue via Git Hub: "
-         echo " https://github.com/CGATOxford/cgat/issues "
+         echo " https://github.com/cgat-developers/cgat-apps/issues "
 	 echo
 
          print_env_vars
@@ -347,7 +343,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       echo " Installation did not finish properly. "
       echo
       echo " Please submit this issue via Git Hub: "
-      echo " https://github.com/CGATOxford/cgat/issues "
+      echo " https://github.com/cgat-developers/cgat-apps/issues "
       echo
 
       print_env_vars
@@ -429,8 +425,8 @@ else
    if [[ -z "${RET}" ]] ; then
       # this is "cgat-devel" so tests can be run
 
-      # make sure you are in the CGAT_HOME/cgat-scripts folder
-      cd $CGAT_HOME/cgat-scripts
+      # make sure you are in the CGAT_HOME/cgat-apps folder
+      cd $CGAT_HOME/cgat-apps
 
       # remove install_requires (no longer required with conda package)
       sed -i'' -e '/REPO_REQUIREMENT/,/pass/d' setup.py
@@ -497,7 +493,7 @@ if [[ ! $? -eq 0 ]] ; then
    echo " There was a problem updating the installation. "
    echo 
    echo " Please submit this issue via Git Hub: "
-   echo " https://github.com/CGATOxford/cgat/issues "
+   echo " https://github.com/cgat-developers/cgat-apps/issues "
    echo 
 
 else 
@@ -591,13 +587,13 @@ test_mix_branch_release() {
 # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
 test_release() {
    RELEASE_TEST=0
-   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/CGATOxford/cgat/${RELEASE}/README.rst || RELEASE_TEST=$?
+   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-apps/${RELEASE}/README.rst || RELEASE_TEST=$?
    if [[ ${RELEASE_TEST} -ne 0 ]] ; then
       echo
       echo " The release number provided does not exist: ${RELEASE}"
       echo
       echo " Please have a look at valid releases here: "
-      echo " https://github.com/CGATOxford/cgat/releases"
+      echo " https://github.com/cgat-developers/cgat-apps/releases"
       echo
       echo " An example of valid release is: --release v0.3.1"
       report_error " Please use a valid release and try again."
@@ -636,7 +632,7 @@ echo " To uninstall the CGAT code:"
 echo " ./install-CGAT-tools.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " Please submit any issues via Git Hub:"
-echo " https://github.com/CGATOxford/cgat/issues"
+echo " https://github.com/cgat-developers/cgat-apps/issues"
 echo
 exit 1
 } # help_message
