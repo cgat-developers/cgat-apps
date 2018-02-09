@@ -164,6 +164,7 @@ echo " CONDA_INSTALL_TYPE: "$CONDA_INSTALL_TYPE
 echo " CONDA_INSTALL_ENV: "$CONDA_INSTALL_ENV
 echo " PYTHONPATH: "$PYTHONPATH
 [[ ! $INSTALL_TEST ]] && echo " INSTALL_BRANCH: "$INSTALL_BRANCH
+[[ ! $INSTALL_TEST ]] && echo " CORE_BRANCH: "$CORE_BRANCH
 [[ ! $INSTALL_TEST ]] && echo " RELEASE: "$RELEASE
 [[ ! $INSTALL_TEST ]] && echo " CODE_DOWNLOAD_TYPE: "$CODE_DOWNLOAD_TYPE
 echo
@@ -193,21 +194,21 @@ cd $CGAT_HOME
 
 if [[ $CODE_DOWNLOAD_TYPE -eq 0 ]] ; then
    # get the latest version from Git Hub in zip format
-   curl -LOk https://github.com/cgat-developers/cgat-core/archive/$SCRIPTS_BRANCH.zip
-   unzip $SCRIPTS_BRANCH.zip
-   rm $SCRIPTS_BRANCH.zip
+   curl -LOk https://github.com/cgat-developers/cgat-core/archive/$CORE_BRANCH.zip
+   unzip $CORE_BRANCH.zip
+   rm $CORE_BRANCH.zip
    if [[ ${RELEASE} ]] ; then
-      NEW_NAME=`echo $SCRIPTS_BRANCH | sed 's/^v//g'`
+      NEW_NAME=`echo $CORE_BRANCH | sed 's/^v//g'`
       mv cgat-core-$NEW_NAME/ cgat-core/
    else
-      mv cgat-core-$SCRIPTS_BRANCH/ cgat-core/
+      mv cgat-core-$CORE_BRANCH/ cgat-core/
    fi
 elif [[ $CODE_DOWNLOAD_TYPE -eq 1 ]] ; then
    # get latest version from Git Hub with git clone
-   git clone --branch=$SCRIPTS_BRANCH https://github.com/cgat-developers/cgat-core.git
+   git clone --branch=$CORE_BRANCH https://github.com/cgat-developers/cgat-core.git
 elif [[ $CODE_DOWNLOAD_TYPE -eq 2 ]] ; then
    # get latest version from Git Hub with git clone
-   git clone --branch=$SCRIPTS_BRANCH git@github.com:cgat-developers/cgat-core.git
+   git clone --branch=$CORE_BRANCH git@github.com:cgat-developers/cgat-core.git
 else
    report_error " Unknown download type for CGAT core... "
 fi
@@ -646,6 +647,23 @@ test_mix_branch_release() {
 }
 
 
+# test whether a branch exists in the cgat-core repository
+# https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
+test_core_branch() {
+   RELEASE_TEST=0
+   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/README.md || RELEASE_TEST=$?
+   if [[ ${RELEASE_TEST} -ne 0 ]] ; then
+      echo
+      echo " The branch provided for cgat-core does not exist: ${CORE_BRANCH}"
+      echo
+      echo " Please have a look at valid branches here: "
+      echo " https://github.com/cgat-developers/cgat-core/branches"
+      echo
+      report_error " Please use a valid branch and try again."
+   fi
+}
+
+
 # test whether a release exists or not
 # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
 test_release() {
@@ -667,23 +685,23 @@ test_release() {
 # function to display help message
 help_message() {
 echo
-echo " This script uses Conda to install the CGAT Code Collection:"
-echo " https://www.cgat.org/downloads/public/cgat/documentation/"
+echo " This script uses Conda to install cgat-apps"
 echo
-echo " If you only need to use the scripts published here:"
-echo "   https://doi.org/10.1093/bioinformatics/btt756"
-echo " type:"
-echo " ./install-CGAT-tools.sh --production [--location </full/path/to/folder/without/trailing/slash>]"
+echo " The install folder will be: $HOME/cgat-install"
 echo
-echo " The default location is: $HOME/cgat-install"
-echo
-echo " Otherwise, if you prefer to use the latest development version of the scripts instead, type:"
+echo " To install cgat-apps, please type:"
 echo " ./install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
 echo
-echo " Both installations create a new Conda environment ready to run the CGAT code."
+echo " It will create a new Conda environment ready to run the CGAT code."
 echo
 echo " It is also possible to install/test a specific branch of the code on github:"
 echo " ./install-CGAT-tools.sh --devel --branch <name-of-branch> [--location </full/path/to/folder/without/trailing/slash>]"
+echo
+echo " By default, cgat-apps will install the master branch of cgat-core:"
+echo " https://github.com/cgat-developers/cgat-core"
+echo
+echo " Change that with:"
+echo " ./install-CGAT-tools.sh --devel --core-branch <name-of-branch>"
 echo
 echo " To test the installation:"
 echo " ./install-CGAT-tools.sh --test [--location </full/path/to/folder/without/trailing/slash>]"
@@ -731,6 +749,8 @@ CGAT_HOME=
 CODE_DOWNLOAD_TYPE=0
 # which github branch to use (default: master)
 INSTALL_BRANCH="master"
+# which github branch to use for cgat-core (default: master)
+CORE_BRANCH="master"
 # Install a released version?
 RELEASE=
 
@@ -809,6 +829,12 @@ case $key in
     --branch)
     INSTALL_BRANCH="$2"
     test_mix_branch_release
+    shift 2
+    ;;
+
+    --core-branch)
+    CORE_BRANCH="$2"
+    test_core_branch
     shift 2
     ;;
 
