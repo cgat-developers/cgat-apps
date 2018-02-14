@@ -323,7 +323,7 @@ def main(argv=None):
     parser.set_defaults(paired=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.method == "make_index":
         if options.program == "kallisto":
@@ -373,7 +373,7 @@ def main(argv=None):
         pass
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

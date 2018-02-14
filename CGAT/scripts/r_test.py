@@ -61,11 +61,11 @@ def main(argv=None):
         header="value",
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_pipe_options=True)
 
     if options.filename_input:
-        infile = IOTools.openFile(options.filename_input, "r")
+        infile = IOTools.open_file(options.filename_input, "r")
     else:
         infile = sys.stdin
 
@@ -87,7 +87,7 @@ def main(argv=None):
             xargs.append(arg)
 
     if options.filename_input2:
-        infile = IOTools.openFile(options.filename_input2, "r")
+        infile = IOTools.open_file(options.filename_input2, "r")
         values2, errors2 = IOTools.ReadList(infile,
                                             map_function=float)
         infile.close()
@@ -132,7 +132,7 @@ def main(argv=None):
         options.stdout.write("1-power\t%5.2e\n" % (1.0 - power))
         options.stdout.write("diff_at_power95\t%f\n" % diff_at_power95)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

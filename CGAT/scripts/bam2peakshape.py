@@ -550,7 +550,7 @@ def main(argv=None):
     parser = buildOptionParser(argv)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) != 2:
         raise ValueError(
@@ -578,7 +578,7 @@ def main(argv=None):
             smooth_method=options.smooth_method)
 
     features_per_interval, bins = buildDensityMatrices(
-        Bed.iterator(IOTools.openFile(bedfile)),
+        Bed.iterator(IOTools.open_file(bedfile)),
         fg_file,
         control_files,
         counter,
@@ -593,7 +593,7 @@ def main(argv=None):
 
     if len(features_per_interval) == 0:
         E.warn("no data - no output")
-        E.Stop()
+        E.stop()
         return
 
     outputFeatureTable(options.stdout, features_per_interval, bins)
@@ -651,7 +651,7 @@ def main(argv=None):
                    sort_orders=options.sort_orders)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

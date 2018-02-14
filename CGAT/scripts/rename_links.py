@@ -65,7 +65,7 @@ def main(argv=None):
         new_pattern=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.old_pattern is None or options.new_pattern is None:
         raise ValueError("please specify both an old and a new pattern")
@@ -111,7 +111,7 @@ def main(argv=None):
         options.stdlog.write(
             "# ndirs=%i, nvisited=%i, nchanged=%i\n" % (ninput, nvisited, nchanged))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

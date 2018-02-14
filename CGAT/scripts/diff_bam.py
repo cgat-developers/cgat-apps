@@ -163,7 +163,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     read_length = 50
     max_distance = read_length
@@ -237,7 +237,7 @@ def main(argv=None):
     E.info("ninput=%i, noutput=%i" % (ninput, noutput))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

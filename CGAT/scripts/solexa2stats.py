@@ -66,7 +66,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = options.stdin
     outfile = options.stdout
@@ -100,7 +100,7 @@ def main(argv=None):
         outfile.write("%i\t%i\n" % (key, counts[key]))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

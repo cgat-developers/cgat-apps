@@ -105,7 +105,7 @@ def main(argv=sys.argv):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     igv_process = None
     if options.new_instance:
@@ -167,7 +167,7 @@ def main(argv=sys.argv):
         E.info('shutting down IGV')
         igv_process.send_signal(signal.SIGKILL)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

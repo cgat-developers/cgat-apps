@@ -132,7 +132,7 @@ def main(argv=None):
             print("# skipped because file not present: %s" % filename)
             continue
 
-        file = IOTools.openFile(filename, "r")
+        file = IOTools.open_file(filename, "r")
 
         lines = [x for x in file if x[0] != "#"]
 

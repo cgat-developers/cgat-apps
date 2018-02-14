@@ -70,7 +70,7 @@ def main(argv=None):
                       help="base position in which to replace with an N")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if not options.infile:
         raise ValueError("need to specify input fastq file")
@@ -82,7 +82,7 @@ def main(argv=None):
     replace(options.infile, options.base_position)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

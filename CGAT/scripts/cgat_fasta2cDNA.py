@@ -39,7 +39,7 @@ def makeSplicedFasta(infile):
     '''
 
     fasta_dict = {}
-    with IOTools.openFile(infile) as fafile:
+    with IOTools.open_file(infile) as fafile:
         for line in fafile.readlines():
             if line[0] == '>':
                 header = line.rstrip("\n")
@@ -64,14 +64,14 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = argv[-1]
     for record in makeSplicedFasta(infile):
         options.stdout.write(record)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

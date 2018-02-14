@@ -94,13 +94,13 @@ def main(argv=None):
         filename_mask_regions=None,
         mask_char="N")
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     # read segments to mask
 
     if options.filename_mask_regions:
         mask_regions = {}
-        infile = IOTools.openFile(options.filename_mask_regions, "r")
+        infile = IOTools.open_file(options.filename_mask_regions, "r")
         nregions = 0
         for line in infile:
             if line[0] == "#":
@@ -123,7 +123,7 @@ def main(argv=None):
         mask_regions = None
 
     if options.filename_sequence:
-        infile = IOTools.openFile(options.filename_sequence, "r")
+        infile = IOTools.open_file(options.filename_sequence, "r")
     else:
         infile = sys.stdin
 
@@ -207,7 +207,7 @@ def main(argv=None):
         options.stdlog.write("# nkeys=%i, nwritten=%i, nmasked=%i, nerrors=%i\n" % (
             total_keys, total_written, total_masked, nerrors))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

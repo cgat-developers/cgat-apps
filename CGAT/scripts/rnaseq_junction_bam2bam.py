@@ -100,14 +100,14 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     genomefile, referencenames, referencelengths = None, None, None
 
     if options.filename_genome_bam:
         genomefile = pysam.AlignmentFile(options.filename_genome_bam, "rb")
     elif options.filename_contigs:
-        contigs = IOTools.ReadMap(IOTools.openFile(options.filename_contigs))
+        contigs = IOTools.ReadMap(IOTools.open_file(options.filename_contigs))
         data = list(zip(*list(contigs.items())))
         referencenames, referencelengths = data[0], list(map(int, data[1]))
     else:
@@ -207,7 +207,7 @@ def main(argv=None):
     E.info("%s" % str(c))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

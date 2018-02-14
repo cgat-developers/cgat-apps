@@ -89,14 +89,14 @@ def main(argv=None):
         filename_fields=None,
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_csv_options=True,
                               quiet=True)
 
     input_fields = args
 
     if options.filename_fields:
-        input_fields = [x[:-1].split("\t")[0] for x in [x for x in IOTools.openFile(options.filename_fields, "r").readlines() if x[0] != "#"]]
+        input_fields = [x[:-1].split("\t")[0] for x in [x for x in IOTools.open_file(options.filename_fields, "r").readlines() if x[0] != "#"]]
 
     if options.unique:
         outfile = UniqueBuffer(options.stdout)
@@ -107,7 +107,7 @@ def main(argv=None):
         line = options.stdin.readline()
 
         if not line:
-            E.Stop()
+            E.stop()
             sys.exit(0)
 
         if line[0] == "#":
@@ -171,7 +171,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nerrors=%i" % (ninput, noutput, nerrors))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -326,7 +326,7 @@ def main(argv=None):
         footer="",
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if len(args) == 0:
         raise ValueError("please supply at least one input file")
@@ -437,7 +437,7 @@ def main(argv=None):
         if not doEps:
             print("showpage")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

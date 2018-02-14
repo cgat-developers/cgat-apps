@@ -301,7 +301,7 @@ def cropGFF(gffs, filename_gff):
     # read regions to crop with and convert intervals to intersectors
     E.info("reading gff for cropping: started.")
 
-    other_gffs = GTF.iterator(IOTools.openFile(filename_gff, "r"))
+    other_gffs = GTF.iterator(IOTools.open_file(filename_gff, "r"))
 
     cropper = GTF.readAsIntervals(other_gffs)
 
@@ -527,13 +527,13 @@ def main(argv=None):
         assembly_extras=None
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     contigs = None
     genome_fasta = None
     if options.input_filename_contigs:
         contigs = Genomics.readContigSizes(
-            IOTools.openFile(options.input_filename_contigs, "r"))
+            IOTools.open_file(options.input_filename_contigs, "r"))
 
     if options.genome_file:
         genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -575,7 +575,7 @@ def main(argv=None):
 
     if options.input_filename_agp:
         agp = AGP.AGP()
-        agp.readFromFile(IOTools.openFile(options.input_filename_agp, "r"))
+        agp.readFromFile(IOTools.open_file(options.input_filename_agp, "r"))
     else:
         agp = None
 
@@ -854,7 +854,7 @@ def main(argv=None):
 
             options.stdout.write(str(gff) + "\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

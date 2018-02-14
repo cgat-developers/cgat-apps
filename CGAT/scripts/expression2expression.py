@@ -163,7 +163,7 @@ def main(argv=None):
     parser.add_option("--quantile", dest="quantile", type="int",
                       help="see pipeline.ini for explanation")
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = argv[-1]
 
@@ -216,7 +216,7 @@ def main(argv=None):
                       index_label="gene_id")
 
     # Write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -317,7 +317,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     gffs = GFF3.flat_file_iterator(options.stdin)
 
@@ -330,7 +330,7 @@ def main(argv=None):
     if options.read_twice:
         # Will throw IOError if options.stdin is not a normal file
         second_gff = GFF3.flat_file_iterator(
-            IOTools.openFile(options.stdin.name))
+            IOTools.open_file(options.stdin.name))
 
         if options.by_chrom:
             second_gff = GFF3.chrom_iterator(second_gff)
@@ -361,7 +361,7 @@ def main(argv=None):
             convert_set(chunk, None, None, options)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

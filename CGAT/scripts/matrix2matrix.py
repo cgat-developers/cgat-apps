@@ -141,7 +141,7 @@ def main(argv=None):
         missing=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     options.parameters = options.parameters.split(",")
 
@@ -456,7 +456,7 @@ def main(argv=None):
                                 row_headers=row_headers,
                                 col_headers=col_headers)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

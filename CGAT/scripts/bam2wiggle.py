@@ -220,7 +220,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) >= 1:
         options.samfile = args[0]
@@ -241,7 +241,7 @@ def main(argv=None):
     # Create dictionary of contig sizes
     contig_sizes = dict(list(zip(samfile.references, samfile.lengths)))
     # write contig sizes
-    outfile_size = IOTools.openFile(tmpfile_sizes, "w")
+    outfile_size = IOTools.open_file(tmpfile_sizes, "w")
     for contig, size in sorted(contig_sizes.items()):
         outfile_size.write("%s\t%s\n" % (contig, size))
     outfile_size.close()
@@ -271,10 +271,10 @@ def main(argv=None):
             raise OSError("could not find %s in path." % executable_name)
 
         # Open outout file
-        outfile = IOTools.openFile(tmpfile_wig, "w")
+        outfile = IOTools.open_file(tmpfile_wig, "w")
         E.info("starting output to %s" % tmpfile_wig)
     else:
-        outfile = IOTools.openFile(tmpfile_wig, "w")
+        outfile = IOTools.open_file(tmpfile_wig, "w")
         E.info("starting output to stdout")
 
     # Set up output write functions
@@ -465,7 +465,7 @@ def main(argv=None):
     # Cleanup temp files
     shutil.rmtree(tmpdir)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

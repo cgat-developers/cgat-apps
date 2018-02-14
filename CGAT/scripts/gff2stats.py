@@ -200,7 +200,7 @@ def main(argv=sys.argv):
         is_gtf=False,
     )
 
-    (options, args) = E.Start(parser, add_output_options=True)
+    (options, args) = E.start(parser, add_output_options=True)
 
     if len(args) == 0:
         files = [options.stdin]
@@ -218,7 +218,7 @@ def main(argv=sys.argv):
             infile = f
             options.stdout.write("stdin")
         else:
-            infile = IOTools.openFile(f)
+            infile = IOTools.open_file(f)
             options.stdout.write(f)
 
         counters = []
@@ -241,7 +241,7 @@ def main(argv=sys.argv):
         if infile != sys.stdin:
             infile.close()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

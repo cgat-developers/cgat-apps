@@ -118,7 +118,7 @@ def main(argv=None):
         help="output proportions - overides the default output")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # do not allow greater than octonucleotide
     assert options.kmer <= 8, "cannot handle kmer of length %i" % options.kmer
@@ -178,7 +178,7 @@ def main(argv=None):
 
     E.info("written kmer counts for %i contigs" % total_entries)
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

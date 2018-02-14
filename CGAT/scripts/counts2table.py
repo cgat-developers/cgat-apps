@@ -341,7 +341,7 @@ def main(argv=None):
         Rimage=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     RH = None
     if options.Rhistory or options.Rimage:
@@ -357,7 +357,7 @@ def main(argv=None):
 
     # create Design object
     design = Expression.ExperimentalDesign(
-        pd.read_csv(IOTools.openFile(options.input_filename_design, "r"),
+        pd.read_csv(IOTools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
 
     if len(set(design.table[options.contrast])) > 2:
@@ -408,7 +408,7 @@ def main(argv=None):
 
         # create Design object
         design = Expression.ExperimentalDesign(
-            pd.read_csv(IOTools.openFile(options.input_filename_design, "r"),
+            pd.read_csv(IOTools.open_file(options.input_filename_design, "r"),
                         sep="\t", index_col=0, comment="#"))
 
         # validate design against counts and model
@@ -431,7 +431,7 @@ def main(argv=None):
                 sys.stdin, sep="\t", index_col=0, comment="#"))
         else:
             counts = Counts.Counts(pd.io.parsers.read_csv(
-                IOTools.openFile(options.input_filename_tags, "r"),
+                IOTools.open_file(options.input_filename_tags, "r"),
                 sep="\t", index_col=0, comment="#"))
 
         # validate design against counts and model
@@ -506,7 +506,7 @@ def main(argv=None):
 
     # write out summary tables for each comparison/contrast
     for test_group in list(results.Summary.keys()):
-        outf = IOTools.openFile("_".join(
+        outf = IOTools.open_file("_".join(
             [outfile_prefix, test_group, "summary.tsv"]), "w")
         outf.write("category\tcounts\n%s\n"
                    % results.Summary[test_group].asTable())
@@ -517,7 +517,7 @@ def main(argv=None):
     if options.Rimage:
         RH.saveImage(options.Rimage)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

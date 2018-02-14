@@ -49,7 +49,7 @@ def main(argv=None):
         format="flat"
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     last_e = None
     for line in sys.stdin:
@@ -85,7 +85,7 @@ def main(argv=None):
 
     print(str(last_e))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

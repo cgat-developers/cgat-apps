@@ -80,7 +80,7 @@ def main(argv=None):
         shorten_region=0,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     fasta = IndexedFasta.IndexedFasta(options.genome_file)
 
@@ -159,7 +159,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

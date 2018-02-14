@@ -158,15 +158,15 @@ def main(argv=None):
         sample_size=0,
     )
 
-    (options, args) = E.Start(parser, argv)
+    (options, args) = E.start(parser, argv)
 
     assert options.genome_file, "please supply an indexed genome."
 
     if options.output_filename_pattern:
-        outfile_stats = IOTools.openFile(options.output_filename_pattern % "stats", "w")
+        outfile_stats = IOTools.open_file(options.output_filename_pattern % "stats", "w")
         outfile_stats.write(
             "id\tlen\tnreads\tlen_mean\tlen_std\tcov_mean\tcov_std\n")
-        outfile_map = IOTools.openFile(options.output_filename_pattern % "map", "w")
+        outfile_map = IOTools.open_file(options.output_filename_pattern % "map", "w")
         outfile_map.write("id\ttranscript\n")
     else:
         outfile_stats = None
@@ -360,7 +360,7 @@ def main(argv=None):
         options.stdlog.write(
             "# ninput=%i, noutput=%i, nskipped=%i\n" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == '__main__':
     main()

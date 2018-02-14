@@ -116,7 +116,7 @@ def doOntologyAnalysis(gene_lists, options):
     E.info("reading association of categories and genes from %s" %
            (options.filename_assignments))
     gene2gos, go2infos = GO.ReadGene2GOFromFile(
-        IOTools.openFile(options.filename_assignments))
+        IOTools.open_file(options.filename_assignments))
     E.info("read %i ontologies" % (len(gene2gos)))
 
     #############################################################
@@ -308,7 +308,7 @@ def main(argv=None):
                         qvalue_lambda=None,
                         )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # collect all gene lists
     # gene lists are tuples of fg/bg.
@@ -374,7 +374,7 @@ def main(argv=None):
         doOntologyAnalysis(gene_lists, options)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

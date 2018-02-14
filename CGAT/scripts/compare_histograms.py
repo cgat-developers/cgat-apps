@@ -72,7 +72,7 @@ def main(argv=None):
         number_format="%6.4f"
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_pipe_options=True)
 
     if options.xrange:
@@ -114,7 +114,7 @@ def main(argv=None):
                                      (legend[y], legend[x],
                                       options.number_format % d2))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

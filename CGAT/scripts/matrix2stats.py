@@ -96,7 +96,7 @@ def main(argv=None):
         iteration=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     lines = [x for x in sys.stdin.readlines() if x[0] != "#"]
 
@@ -133,7 +133,7 @@ def main(argv=None):
 
         if options.write_separators:
             probabilities = IOTools.ReadMap(
-               IOTools.openFile(param, "r"), map_functions=(str, float))
+               IOTools.open_file(param, "r"), map_functions=(str, float))
         else:
             probability = float(param)
 
@@ -224,7 +224,7 @@ def main(argv=None):
     E.info("# ninput=%i, noutput=%i, nskipped=%i\n" %
            (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

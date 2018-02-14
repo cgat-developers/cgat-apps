@@ -55,7 +55,7 @@ def main(argv=None):
         help="ID pattern to filter (filter is case insensitive) eg. pax6. "
         "Multiple patterns should be specified as a comma separated list")
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.filter_pattern:
         patterns = [x.strip() for x in options.filter_pattern.split(",")]
@@ -123,7 +123,7 @@ def main(argv=None):
 
     options.stdout.write("".join(filtered_motifs))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

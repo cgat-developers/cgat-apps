@@ -220,7 +220,7 @@ def main(argv=None):
         no_legend=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     options.symbols = options.symbols.split(",")
 
@@ -269,7 +269,7 @@ def main(argv=None):
         if filename == "-":
             infile = sys.stdin
         else:
-            infile = IOTools.openFile(filename)
+            infile = IOTools.open_file(filename)
 
         try:
             data, legend, colors = readTable(infile,
@@ -401,7 +401,7 @@ def main(argv=None):
     else:
         pylab.show()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

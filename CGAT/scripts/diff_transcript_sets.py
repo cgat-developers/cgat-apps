@@ -119,7 +119,7 @@ def main(argv=None):
         output_pattern="%s",
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     options.filename1, options.filename2 = args
 
@@ -201,12 +201,12 @@ def main(argv=None):
                     g2.difference(g1), ids2, options)
 
             if output_set:
-                outfile = IOTools.openFile(options.output_pattern % (choice), "w")
+                outfile = IOTools.open_file(options.output_pattern % (choice), "w")
                 for x in output_set:
                     outfile.write("%s\n" % (x,))
                 outfile.close()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

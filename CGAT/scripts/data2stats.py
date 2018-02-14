@@ -196,7 +196,7 @@ def main(argv=None):
         separator="\t"
     )
 
-    (options, args) = E.Start(parser, quiet=True)
+    (options, args) = E.start(parser, quiet=True)
 
     if options.columns not in ("all", "all-but-first", "variable"):
         options.columns = [int(x) - 1 for x in options.columns.split(",")]
@@ -349,7 +349,7 @@ def main(argv=None):
             PrintValues(outfile, [[], ], options, None, titles)
 
     if options.loglevel >= 1:
-        E.Stop()
+        E.stop()
 
 
 if __name__ == "__main__":

@@ -73,7 +73,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: fastas2fasta.py 2782 2009-09-10 11:40:29Z andreas $",
                             usage=globals()["__doc__"])
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) < 2:
         raise ValueError(
@@ -81,7 +81,7 @@ def main(argv=None):
 
     iterators = []
     for a in args:
-        iterators.append(FastaIterator.FastaIterator(IOTools.openFile(a, "r")))
+        iterators.append(FastaIterator.FastaIterator(IOTools.open_file(a, "r")))
 
     ninput, noutput, nerrors = 0, 0, 0
 
@@ -113,7 +113,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nerrors=%i" % (ninput, noutput, nerrors))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -362,7 +362,7 @@ def main(argv=None):
         write_separators=True,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.full2sparse:
         # convert a full matrix to a sparse matrix
@@ -371,7 +371,7 @@ def main(argv=None):
 
         if options.row_names:
             row_tokens = [x[:-1].split("\t")[0]
-                          for x in IOTools.openFile(options.row_names, "r").readlines()]
+                          for x in IOTools.open_file(options.row_names, "r").readlines()]
         else:
             row_tokens = None
 
@@ -389,7 +389,7 @@ def main(argv=None):
                 if not col_tokens:
                     if options.col_names:
                         col_tokens = [x[:-1].split("\t")[0]
-                                      for x in IOTools.openFile(options.col_names, "r").readlines()]
+                                      for x in IOTools.open_file(options.col_names, "r").readlines()]
 
                     else:
                         if not row_tokens:
@@ -412,7 +412,7 @@ def main(argv=None):
         nskipped = 0
 
         if options.filename_map:
-            outfile_map = IOTools.openFile(options.filename_map, "w")
+            outfile_map = IOTools.open_file(options.filename_map, "w")
             outfile_map.write(
                 "## Map between matrices in input file and output matrices.\nnew\told\n")
 
@@ -435,7 +435,7 @@ def main(argv=None):
 
         if options.file_row_names:
             row_tokens = [x[:-1].split("\t")[0]
-                          for x in IOTools.openFile(options.file_row_names, "r").readlines()]
+                          for x in IOTools.open_file(options.file_row_names, "r").readlines()]
             for row_token in row_tokens:
                 map_token2row[row_token] = len(map_token2row)
 
@@ -445,7 +445,7 @@ def main(argv=None):
 
         if options.file_col_names:
             col_tokens = [x[:-1].split("\t")[0]
-                          for x in IOTools.openFile(options.file_col_names, "r").readlines()]
+                          for x in IOTools.open_file(options.file_col_names, "r").readlines()]
             for col_token in col_tokens:
                 map_token2col[col_token] = len(map_token2col)
 
@@ -480,7 +480,7 @@ def main(argv=None):
         if options.filename_map:
             outfile_map.close()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

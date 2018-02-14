@@ -582,7 +582,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     # Keep for backwards compatability
     if len(args) == 2:
@@ -596,7 +596,7 @@ def main(argv=None):
     if options.gtffile == "-":
         options.gtffile = options.stdin
     else:
-        options.gtffile = IOTools.openFile(options.gtffile)
+        options.gtffile = IOTools.open_file(options.gtffile)
 
     if len(options.infiles) == 0:
         raise ValueError("no bam/wig/bed files specified")
@@ -791,14 +791,14 @@ def main(argv=None):
     for c in counters:
         c.setNormalization(options.transcript_normalization)
         if options.output_all_profiles:
-            c.setOutputProfiles(IOTools.openFile(E.getOutputFile(c.name) +
+            c.setOutputProfiles(IOTools.open_file(E.getOutputFile(c.name) +
                                                  ".profiles.tsv.gz", "w"))
 
     if options.input_filename_counts:
         # read counts from file
         E.info("reading counts from %s" % options.input_filename_counts)
         all_counts = pandas.read_csv(
-            IOTools.openFile(options.input_filename_counts),
+            IOTools.open_file(options.input_filename_counts),
             sep='\t', header=0, index_col=0)
 
         if len(counters) != 1:
@@ -840,7 +840,7 @@ def main(argv=None):
         matrix.shape = len(profiles), len(profiles[0])
         matrix = matrix.transpose()
 
-        with IOTools.openFile(E.getOutputFile(counter.name) +
+        with IOTools.open_file(E.getOutputFile(counter.name) +
                               ".matrix.tsv.gz", "w") as outfile:
             outfile.write("bin\tregion\tregion_bin\t%s\n" % "\t".join(
                 options.profile_normalizations))
@@ -856,7 +856,7 @@ def main(argv=None):
                 outfile.write("%s\n" %
                               ("\t".join([str(x) for x in cols[-1]])))
 
-        with IOTools.openFile(E.getOutputFile(counter.name) +
+        with IOTools.open_file(E.getOutputFile(counter.name) +
                               ".lengths.tsv.gz", "w") as outfile:
             counter.writeLengthStats(outfile)
 
@@ -958,7 +958,7 @@ def main(argv=None):
                 plt.savefig(os.path.expanduser(fn))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

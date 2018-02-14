@@ -63,7 +63,7 @@ def main(argv=None):
                       help="bamfile", default="")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     # Check the aligner is supported
     if options.aligner != "bwa":
@@ -120,7 +120,7 @@ def main(argv=None):
         header = "\t".join(["pair_criteria", "n_proper_pairs",
                             "percent_proper_pairs"])
 
-        with IOTools.openFile(options.report, "w") as report:
+        with IOTools.open_file(options.report, "w") as report:
             report.write(header + "\n")
             for x in [("unique", uniq_map), ("best", best_map),
                       ("unique_or_best", uORb_map)]:

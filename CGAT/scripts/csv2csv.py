@@ -48,7 +48,7 @@ def main(argv=None):
         "-s", "--method=sort --sort-order", dest="sort", type="string",
         help="fields to take (in sorted order).")
 
-    (options, args) = E.Start(parser, add_csv_options=True)
+    (options, args) = E.start(parser, add_csv_options=True)
 
     reader = csv.DictReader(E.stdin, dialect=options.csv_dialect)
 
@@ -69,7 +69,7 @@ def main(argv=None):
         row = IOTools.convertDictionary(row)
         writer.writerow(row)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -114,13 +114,13 @@ def main(argv=None):
         help="supply read2 fastq file")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if args and len(args) == 2:
         options.fastq1, options.fastq2 = args
 
-    fastq1 = IOTools.openFile(options.fastq1)
-    fastq2 = IOTools.openFile(options.fastq2)
+    fastq1 = IOTools.open_file(options.fastq1)
+    fastq2 = IOTools.open_file(options.fastq2)
 
     E.info("iterating over fastq files")
     f1_count = 0
@@ -145,7 +145,7 @@ def main(argv=None):
     E.info("output: %i pairs" % f1_count)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

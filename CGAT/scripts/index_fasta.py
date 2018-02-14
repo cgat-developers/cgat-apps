@@ -225,7 +225,7 @@ def main(argv=None):
         force=False,
         translator=None)
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.synonyms:
         synonyms = {}
@@ -326,7 +326,7 @@ def main(argv=None):
             translator=options.translator,
             force=options.force)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

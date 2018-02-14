@@ -51,7 +51,7 @@ def readCogMap(cog_map):
     return a dictionary mapping gene to cog
     '''
     gene2cog = {}
-    for line in IOTools.openFile(cog_map):
+    for line in IOTools.open_file(cog_map):
         data = line[:-1].split("\t")
         gene2cog[data[0]] = data[1]
     return gene2cog
@@ -97,7 +97,7 @@ def main(argv=None):
                         nsamples=10000)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.evaluate_cog:
         assert options.cog_map, """must specify an annotation
@@ -179,7 +179,7 @@ def main(argv=None):
             options.stdout.write("\t".join([ref, str(count)]) + "\n")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

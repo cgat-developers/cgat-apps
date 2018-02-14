@@ -45,7 +45,7 @@ def main(argv=None):
     parser.set_defaults(keep_header=0)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     inf = options.stdin
     outf = options.stdout
@@ -64,7 +64,7 @@ def main(argv=None):
     E.info(c)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

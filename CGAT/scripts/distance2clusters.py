@@ -146,7 +146,7 @@ parses command line options in sys.argv, unless *argv* is given.
     parser.add_option("--image-dir", dest="images_dir", type="string",
                       help="directory to write plots/figures to")
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = argv[-1]
 
@@ -195,7 +195,7 @@ parses command line options in sys.argv, unless *argv* is given.
                       index_label="gene_id")
 
     # Write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

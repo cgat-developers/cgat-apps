@@ -73,7 +73,7 @@ def main(argv=None):
         function="x",
         value_format="%6.4f")
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.xrange:
         options.xrange = list(map(float, options.xrange.split(",")))
@@ -88,7 +88,7 @@ def main(argv=None):
         options.stdout.write("\t".join([options.value_format % x for x in (x, f(x))]) + "\n")
         x += options.xrange[2]
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -93,7 +93,7 @@ def main(argv=None):
                       help="list of SNPs to include")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     parser.set_defaults(mafs=None,
                         subset=None,
@@ -168,7 +168,7 @@ def main(argv=None):
                     ovfile.write("%s\n" % ovar)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

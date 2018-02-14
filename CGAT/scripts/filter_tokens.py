@@ -78,7 +78,7 @@ def main(argv=None):
         tokens=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.columns:
         options.columns = [int(x) - 1 for x in options.columns.split(",")]
@@ -99,7 +99,7 @@ def main(argv=None):
         keys[a] = 1
 
     if options.filename_tokens:
-        infile = IOTools.openFile(options.filename_tokens, "r")
+        infile = IOTools.open_file(options.filename_tokens, "r")
         for line in infile:
             if line[0] == "#":
                 continue
@@ -159,7 +159,7 @@ def main(argv=None):
         options.stdlog.write(
             "# input=%i, kept=%i, discarded=%i\n" % (ninput, nkept, ninput - nkept))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -160,7 +160,7 @@ class Counter:
         """read and index."""
 
         idx = {}
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         for e in GTF.readFromFile(infile):
             if e.contig not in idx:
                 idx[e.contig] = NCL.NCLSimple()
@@ -173,7 +173,7 @@ class Counter:
         overlapping_genes = set()
         genes = set()
         # iterate over exons
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         it = GTF.iterator(infile)
 
         nexons, nexons_overlapping = 0, 0
@@ -277,7 +277,7 @@ class CounterGenes(Counter):
         overlapping_genes = set()
         genes = set()
         # iterate over exons
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         it = GTF.iterator(infile)
 
         for this in it:
@@ -363,14 +363,14 @@ def main(argv=None):
         output_only_genes=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) < 2:
         print(USAGE)
         raise ValueError("at least two arguments required")
 
     if options.filename_update:
-        infile = IOTools.openFile(options.filename_update, "r")
+        infile = IOTools.open_file(options.filename_update, "r")
         previous_results = {}
         for line in infile:
             if line.startswith("#"):
@@ -429,7 +429,7 @@ def main(argv=None):
 
     E.info("nupdated=%i, ncomputed=%i" % (nupdated, ncomputed))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

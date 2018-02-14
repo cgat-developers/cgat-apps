@@ -273,12 +273,12 @@ def main(argv=None):
         premrna_fasta=None
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.paired:
         assert options.fastq2_out, ("must specify a second fastq outfile for "
                                     "paired end (--output-fastq2)")
-        outf2 = IOTools.openFile(options.fastq2_out, "w")
+        outf2 = IOTools.open_file(options.fastq2_out, "w")
 
     if options.premrna_fraction:
         assert options.premrna_fasta, ("must specfify the location of the"
@@ -290,7 +290,7 @@ def main(argv=None):
 
     if options.premrna_fraction:
         iterator = FastaIterator.iterate_together(
-            options.stdin, IOTools.openFile(options.premrna_fasta))
+            options.stdin, IOTools.open_file(options.premrna_fasta))
     else:
         iterator = FastaIterator.FastaIterator(options.stdin)
 
@@ -425,7 +425,7 @@ def main(argv=None):
     if options.paired:
         outf2.close()
 
-    with IOTools.openFile(options.output_counts, "w") as counts_out:
+    with IOTools.open_file(options.output_counts, "w") as counts_out:
 
         counts_out.write("%s\n" % "\t".join(("id", "read_count", "tpm")))
 
@@ -445,7 +445,7 @@ def main(argv=None):
                sum_counts + c['pre_counts'], sum_counts, c['pre_counts'],
                sum_copies + c['pre_copies'], sum_copies, c['pre_copies']))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

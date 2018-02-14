@@ -181,7 +181,7 @@ def main(argv=None):
         format="gff",
     )
 
-    (options, args) = E.Start(parser, add_output_options=True)
+    (options, args) = E.start(parser, add_output_options=True)
 
     if "all" in options.methods:
         options.methods = ("hist", "stats", "overlaps")
@@ -295,7 +295,7 @@ def main(argv=None):
             len(values_within),
             noverlaps))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -281,7 +281,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if options.input_filename_tags == "-":
         fh = tempfile.NamedTemporaryFile(delete=False, mode="w+t")
@@ -419,7 +419,7 @@ def main(argv=None):
     if options.save_r_environment:
         R['save.image'](options.save_r_environment)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

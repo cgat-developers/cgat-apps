@@ -373,7 +373,7 @@ def main(argv=None):
         is_gtf=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     #    test_transform_third_codon()
 
@@ -462,7 +462,7 @@ def main(argv=None):
         options.stdout.write("# ninput_windows=%i, noutput_contigs=%i, ninput_contigs=%i, nskipped_windows=%i, nskipped_data=%i\n" %
                              (len(windows), noutput_contigs, len(contigs), ncontigs_skipped_windows, ncontigs_skipped_data))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

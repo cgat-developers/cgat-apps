@@ -49,7 +49,7 @@ def main(argv=None):
     parser.set_defaults(
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     query_bitsets, target_bitsets = {}, {}
 
@@ -97,7 +97,7 @@ def main(argv=None):
     options.stdout.write("# target\n")
     printBitset(options.stdout, target_bitsets)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

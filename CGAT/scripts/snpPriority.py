@@ -146,7 +146,7 @@ def main(argv=None):
                         )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = argv[-1]
 
@@ -176,7 +176,7 @@ def main(argv=None):
     elif options.method == "PICS":
         snp_list = {}
         if options.snp_set and not options.flat_prior:
-            with IOTools.openFile(options.snp_set, "r") as sfile:
+            with IOTools.open_file(options.snp_set, "r") as sfile:
                 for line in sfile.readlines():
                     snp = line.split("\t")[0]
                     try:
@@ -199,7 +199,7 @@ def main(argv=None):
                                            params=dist_params)
 
         elif options.snp_set and options.flat_prior:
-            with IOTools.openFile(options.snp_set, "r") as sfile:
+            with IOTools.open_file(options.snp_set, "r") as sfile:
                 for line in sfile.readlines():
                     snp = line.split("\t")[0]
                     snp_list[snp] = 1.0
@@ -289,7 +289,7 @@ def main(argv=None):
                      sep="\t")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

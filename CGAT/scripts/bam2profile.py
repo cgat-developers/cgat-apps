@@ -220,7 +220,7 @@ def main(argv=None):
                         )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) == 0:
         args.append("-")
@@ -281,7 +281,7 @@ def main(argv=None):
                        "\t".join(map(str, counts))))
 
     # write footer and output benchmarkinformation.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

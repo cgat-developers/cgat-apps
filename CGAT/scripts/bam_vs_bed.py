@@ -136,7 +136,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     filename_bam = options.filename_bam
     filename_bed = options.filename_bed
@@ -161,7 +161,7 @@ def main(argv=None):
     options.stdout.write("category\talignments\n")
 
     # get number of columns of reference bed file
-    for bed in Bed.iterator(IOTools.openFile(filename_bed)):
+    for bed in Bed.iterator(IOTools.open_file(filename_bed)):
         ncolumns_bed = bed.columns
         break
     E.info("assuming %s is bed%i format" % (filename_bed, ncolumns_bed))
@@ -183,7 +183,7 @@ def main(argv=None):
         total = IOTools.getNumLines(filename_bam)
         # get bed format
         ncolumns_bam = 0
-        for bed in Bed.iterator(IOTools.openFile(filename_bam)):
+        for bed in Bed.iterator(IOTools.open_file(filename_bam)):
             ncolumns_bam = bed.columns
             break
 
@@ -262,7 +262,7 @@ def main(argv=None):
         options.stdout.write("%s\t%i\n" % (key, counts))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

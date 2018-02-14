@@ -62,7 +62,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     rows = []
     labels = {}
@@ -111,7 +111,7 @@ def main(argv=None):
         outfile.write('%s\n' % ('\t'.join(map(str, row))))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -46,7 +46,7 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id: vcfstats_sqlite.py 0001 2011-04-13 davids $", usage=globals()["__doc__"])
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     options.filenames = args
 
@@ -57,10 +57,10 @@ def main(argv=None):
     E.info("Parsing %i file(s)" % len(options.filenames))
 
     # set up output files
-    vcf_file = IOTools.openFile('vcfstats.txt', 'w')
-    indel_file = IOTools.openFile('indelstats.txt', 'w')
-    snp_file = IOTools.openFile('snpstats.txt', 'w')
-    shared_file = IOTools.openFile('sharedstats.txt', 'w')
+    vcf_file = IOTools.open_file('vcfstats.txt', 'w')
+    indel_file = IOTools.open_file('indelstats.txt', 'w')
+    snp_file = IOTools.open_file('snpstats.txt', 'w')
+    shared_file = IOTools.open_file('sharedstats.txt', 'w')
 
     for fileno, filename in enumerate(options.filenames):
 
@@ -68,7 +68,7 @@ def main(argv=None):
         trackname = prefix.replace(".vcfstats", "")
 
         if os.path.exists(filename):
-            lines = [x for x in IOTools.openFile(filename, "r").readlines()]
+            lines = [x for x in IOTools.open_file(filename, "r").readlines()]
         else:
             lines = []
 
@@ -204,7 +204,7 @@ def main(argv=None):
     indel_file.close()
     snp_file.close()
 
-    E.Stop()
+    E.stop()
     sys.exit(0)
 
 

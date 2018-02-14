@@ -109,11 +109,11 @@ def main(argv=None):
         suffixes=[])
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.filename_map:
         map_regex2dest = IOTools.readMap(
-            IOTools.openFile(options.filename_map))
+            IOTools.open_file(options.filename_map))
         map_regex2dest = dict([(re.compile(x), y) for x, y in
                                list(map_regex2dest.items())])
 
@@ -159,7 +159,7 @@ def main(argv=None):
                                dest))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -134,7 +134,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     prefix = options.database[:-len(".db")]
 
@@ -150,11 +150,11 @@ def main(argv=None):
     )
 
     # gtf = GTF.readAndIndex(
-    #     GTF.iterator( IOTools.openFile( options.filename_gtf ) ) )
+    #     GTF.iterator( IOTools.open_file( options.filename_gtf ) ) )
 
     counts = E.Counter()
 
-    outfile_notfound = IOTools.openFile("notfound.table", "w")
+    outfile_notfound = IOTools.open_file("notfound.table", "w")
 
     options.stdout.write("probeset_id\tgene_id\tngenes\n")
 
@@ -173,7 +173,7 @@ def main(argv=None):
     E.info("%s" % str(counts))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

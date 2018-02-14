@@ -995,7 +995,7 @@ class GOGraph(networkx.DiGraph):
         parser = make_parser()
         handler = GOOboXmlHandler(self)
         parser.setContentHandler(handler)
-        f = IOTools.openFile(GOOboXmlFileName, 'r')
+        f = IOTools.open_file(GOOboXmlFileName, 'r')
         parser.parse(f)
         f.close()
         self.synonyms = handler.synonyms
@@ -1030,7 +1030,7 @@ class GOGraph(networkx.DiGraph):
     # @param filename The filename of the pickle to use
     def savePickle(self, filename="gograph.pickle"):
         try:
-            f = IOTools.openFile(filename, 'wb')
+            f = IOTools.open_file(filename, 'wb')
             pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
             f.close()
         except:
@@ -1041,7 +1041,7 @@ class GOGraph(networkx.DiGraph):
     @classmethod
     def loadPickle(klass, filename="gograph.pickle"):
         try:
-            f = IOTools.openFile(filename, 'rb')
+            f = IOTools.open_file(filename, 'rb')
             g = pickle.load(f)
             return g
         except:
@@ -1504,7 +1504,7 @@ def clusterSimrelMatrix(matrix, terms, ancestors, p,
     return matrix, terms, clusters
 
 
-@E.cachedfunction
+@E.cached_function
 def readGOGraph(filename_obo, namespace):
     E.info("reading GO graph from %s: namespace =%s" %
            (filename_obo, namespace))
@@ -1595,7 +1595,7 @@ def main(argv):
                         reverse_palette=False,
                         )
 
-    options, args = E.Start(parser, argv, add_output_options=True)
+    options, args = E.start(parser, argv, add_output_options=True)
 
     map_ontology2namespace = {
         'biol_process': "biological_process",
@@ -1611,7 +1611,7 @@ def main(argv):
         all_term2pvalue, all_term2log2fold = readPValues(options.stdin)
     else:
         E.info("reading pvalues from %s " % options.filename_pvalues)
-        with IOTools.openFile(options.filename_pvalues) as infile:
+        with IOTools.open_file(options.filename_pvalues) as infile:
             all_term2pvalue, all_term2log2fold = readPValues(infile)
 
     E.info("read %i pvalue and %i fold assignments" %
@@ -1628,12 +1628,12 @@ def main(argv):
         fn = buildFilename(test_ontology, "ancestors", "tsv.gz")
         if os.path.exists(fn):
             E.info("reading ancestor information from %s" % fn)
-            with IOTools.openFile(fn) as infile:
+            with IOTools.open_file(fn) as infile:
                 ancestors = readAncestors(infile)
         else:
             graph = readGOGraph(options.filename_obo, namespace)
             ancestors = computeAncestors(graph, graph.nodes())
-            with IOTools.openFile(fn, "w") as outfile:
+            with IOTools.open_file(fn, "w") as outfile:
                 outfile.write("goid\tancestors\n")
                 outfile.write(
                     "".join(["%s\t%s\n" %
@@ -1647,7 +1647,7 @@ def main(argv):
         E.info("reading gene to go assignments from %s " % options.filename_go)
         all_gene2gos, all_go2infos = \
             GO.ReadGene2GOFromFile(
-                IOTools.openFile(options.filename_go),
+                IOTools.open_file(options.filename_go),
                 synonyms=graph.synonyms,
                 obsolete=graph.obsoletes)
 
@@ -1661,7 +1661,7 @@ def main(argv):
 
         if len(term2pvalue) == 0:
             E.warn("no data - no output produced")
-            E.Stop()
+            E.stop()
             return
 
         go2info = all_go2infos[test_ontology]
@@ -1671,7 +1671,7 @@ def main(argv):
 
         if options.filename_bg:
             background = IOTools.readList(
-                IOTools.openFile(options.filename_bg))
+                IOTools.open_file(options.filename_bg))
         else:
             background = list(gene2gos.keys())
 
@@ -1683,11 +1683,11 @@ def main(argv):
         fn = buildFilename(test_ontology, "termfrequencies", "tsv.gz")
         if os.path.exists(fn):
             E.info("reading term frequencies from %s" % fn)
-            with IOTools.openFile(fn) as infile:
+            with IOTools.open_file(fn) as infile:
                 counts, p = readTermFrequencies(infile)
         else:
             counts, p = computeTermFrequencies(graph, go2genes)
-            with IOTools.openFile(fn, "w") as outfile:
+            with IOTools.open_file(fn, "w") as outfile:
                 outfile.write("goid\tfrequency\tcounts\n")
                 for k in list(counts.keys()):
                     outfile.write("%s\t%f\t%s\n" %
@@ -1697,19 +1697,19 @@ def main(argv):
         fn = buildFilename(test_ontology, "simrel", "matrix.gz")
         if os.path.exists(fn):
             E.info("reading simrel matrix from %s" % fn)
-            with IOTools.openFile(fn, "r") as infile:
+            with IOTools.open_file(fn, "r") as infile:
                 matrix, terms = readSimrelMatrix(infile)
         else:
             matrix, terms = buildSimrelMatrix(go2genes, go2info, ancestors, p)
             E.info("writing simrel matrix to file")
-            with IOTools.openFile(fn, "w") as outfile:
+            with IOTools.open_file(fn, "w") as outfile:
                 IOTools.writeMatrix(outfile, matrix, terms, terms)
 
         fn = buildFilename(test_ontology, "cluster", "matrix.gz")
 
         if os.path.exists(fn):
             E.info("reading clustered matrix matrix from %s" % fn)
-            with IOTools.openFile(fn, "r") as infile:
+            with IOTools.open_file(fn, "r") as infile:
                 matrix, terms = readSimrelMatrix(infile)
         else:
             matrix, terms, clusters = clusterSimrelMatrix(matrix, terms,
@@ -1723,12 +1723,12 @@ def main(argv):
 
             E.info("after clustering: %i x %i matrix" %
                    (len(terms), len(terms)))
-            with IOTools.openFile(fn, "w") as outfile:
+            with IOTools.open_file(fn, "w") as outfile:
                 IOTools.writeMatrix(outfile, matrix, terms, terms)
 
             fn = buildFilename(test_ontology, "cluster", "tsv")
 
-            with IOTools.openFile(fn, "w") as outfile:
+            with IOTools.open_file(fn, "w") as outfile:
                 outfile.write(
                     "\t".join(("rep",
                                "mem",
@@ -1814,7 +1814,7 @@ def main(argv):
         plt.savefig(fn)
 
         fn = buildFilename(test_ontology, "graph", "tsv.gz")
-        with IOTools.openFile(fn, "w") as outfile:
+        with IOTools.open_file(fn, "w") as outfile:
             outfile.write("goid\tx\ty\tpvalue\tl2fold\tdescription\n")
             for term in terms:
                 outfile.write("%s\t%f\t%f\t%f\t%f\t%s\n" %
@@ -1825,7 +1825,7 @@ def main(argv):
                                term2log2fold[term],
                                go2info.get(term, "na")))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

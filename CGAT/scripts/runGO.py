@@ -334,11 +334,11 @@ def main(argv=None):
                         filename_gene2name=None
                         )
 
-    (options, args) = E.Start(parser, add_database_options=True)
+    (options, args) = E.start(parser, add_database_options=True)
 
     if options.go2goslim:
         GO.convertGo2Goslim(options)
-        E.Stop()
+        E.stop()
         sys.exit(0)
 
     if options.fdr and options.sample == 0:
@@ -356,12 +356,12 @@ def main(argv=None):
 
         dbhandle = connectToEnsembl(options)
 
-        outfile = IOTools.openFile(options.filename_dump, "w", create_dir=True)
+        outfile = IOTools.open_file(options.filename_dump, "w", create_dir=True)
         GO.DumpGOFromDatabase(outfile,
                               dbhandle,
                               options)
         outfile.close()
-        E.Stop()
+        E.stop()
         sys.exit(0)
 
     #############################################################
@@ -369,14 +369,14 @@ def main(argv=None):
     if options.filename_input:
         E.info("reading association of categories and genes from %s" %
                (options.filename_input))
-        infile = IOTools.openFile(options.filename_input)
+        infile = IOTools.open_file(options.filename_input)
         gene2gos, go2infos = GO.ReadGene2GOFromFile(infile)
         infile.close()
 
     if options.filename_gene2name:
         E.info("reading gene identifier to gene name mapping from %s" %
                options.filename_gene2name)
-        infile = IOTools.openFile(options.filename_gene2name)
+        infile = IOTools.open_file(options.filename_gene2name)
         gene2name = IOTools.readMap(infile, has_header=True)
         infile.close()
         E.info("read %i gene names for %i gene identifiers" %
@@ -391,7 +391,7 @@ def main(argv=None):
     if options.filename_ontology:
         E.info("reading ontology from %s" % (options.filename_ontology))
 
-        infile = IOTools.openFile(options.filename_ontology)
+        infile = IOTools.open_file(options.filename_ontology)
         ontology = GO.readOntology(infile)
         infile.close()
 
@@ -554,7 +554,7 @@ def main(argv=None):
             # read GO slims and map GO categories to GO slim categories
             if options.filename_slims:
                 go_slims = GO.GetGOSlims(
-                    IOTools.openFile(options.filename_slims, "r"))
+                    IOTools.open_file(options.filename_slims, "r"))
 
                 if options.loglevel >= 1:
                     v = set()
@@ -571,7 +571,7 @@ def main(argv=None):
                     if options.filename_map_slims == "-":
                         outfile = options.stdout
                     else:
-                        outfile = IOTools.openFile(
+                        outfile = IOTools.open_file(
                             options.filename_map_slims, "w")
 
                     outfile.write("GO\tGOSlim\n")
@@ -622,7 +622,7 @@ def main(argv=None):
 
                 E.info("nfg=%i, nbg=%i, nng=%i" % (len(fg), len(bg), len(ng)))
 
-                E.Stop()
+                E.stop()
                 sys.exit(0)
 
             #############################################################
@@ -860,7 +860,7 @@ def main(argv=None):
     outfile_summary = options.stdout
     outfile_summary.write("".join(summary))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

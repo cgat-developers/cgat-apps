@@ -40,7 +40,7 @@ import CGATCore.Experiment as E
 
 def reverse_readline(filename, buf_size=8192):
     """a generator that returns the lines of a file in reverse order"""
-    with IOTools.openFile(filename) as fh:
+    with IOTools.open_file(filename) as fh:
         segment = None
         offset = 0
         fh.seek(0, os.SEEK_END)
@@ -109,7 +109,7 @@ def main(argv=None):
         )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.multiple:
         options.multiple = dict([x.split("=") for x in options.multiple])
@@ -178,7 +178,7 @@ def main(argv=None):
             outfile.write(line + "\n")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

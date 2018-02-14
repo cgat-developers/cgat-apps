@@ -111,7 +111,7 @@ def main(argv=None):
                         pattern_window="(\S+):(\d+)-(\d+)"),
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     outfiles = IOTools.FilePool(options.output_filename_pattern)
 
@@ -249,7 +249,7 @@ def main(argv=None):
     E.info("%s" % counter)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -552,7 +552,7 @@ def main(argv=None):
         invert_match=False,
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     options.parameters = options.parameters.split(",")
 
@@ -658,7 +658,7 @@ def main(argv=None):
         patterns = []
 
         if options.file:
-            infile = IOTools.openFile(options.file, "r")
+            infile = IOTools.open_file(options.file, "r")
             for line in infile:
                 if line[0] == "#":
                     continue
@@ -755,7 +755,7 @@ def main(argv=None):
                             format % e1,
                             format % e2,
                             format % ((e1 + e2) / 2)))
-                E.Stop()
+                E.stop()
                 sys.exit(0)
 
             elif method == "rank":
@@ -827,7 +827,7 @@ def main(argv=None):
                 other_table_name = options.parameters[0]
                 del options.parameters[0]
                 other_fields, other_table = CSV.readTable(
-                    IOTools.openFile(other_table_name, "r"),
+                    IOTools.open_file(other_table_name, "r"),
                     with_header=options.has_headers,
                     as_rows=False)
 
@@ -874,7 +874,7 @@ def main(argv=None):
                     "\t".join(map(str,
                                   [table[c][r] for c in range(ncols)])) + "\n")
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

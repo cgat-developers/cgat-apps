@@ -65,7 +65,7 @@ def testSignificanceOfMatrices(background,
     interval_sets = {"foreground": set(), "background": set()}
     for name, fn in (("background", background),
                      ("foreground", foreground)):
-        inf = IOTools.openFile(fn)
+        inf = IOTools.open_file(fn)
         if header_line:
             inf.readline()
         for line in inf:
@@ -108,7 +108,7 @@ def testSignificanceOfMatrices(background,
             ids_tfs[names].update(tfs)
             all_tfs.update(tfs)
 
-    outf = IOTools.openFile(outfile, "w")
+    outf = IOTools.open_file(outfile, "w")
     outf.write("matrix_id\toddsRatio\t95CI_low\t95_CI_hi\tpvalue\t"
                "nforeground\tnbackground\ttforeground\ttbackground\tqvalue\n")
 
@@ -206,7 +206,7 @@ def main(argv=None):
                       help="geneset header")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     testSignificanceOfMatrices(options.background,
                                options.foreground,
@@ -217,7 +217,7 @@ def main(argv=None):
                                options.direction)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

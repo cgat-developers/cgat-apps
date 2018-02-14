@@ -95,7 +95,7 @@ def main(argv=None):
                       "to subset from the phenotypes file")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = argv[-1]
     if options.task == "set_factors":
@@ -244,7 +244,7 @@ def main(argv=None):
         pass
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

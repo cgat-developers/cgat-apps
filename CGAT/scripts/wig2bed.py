@@ -136,7 +136,7 @@ def main(argv=sys.argv):
                         threshold=10,
                         max_distance=0)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if options.bigwig_file:
         bigwig_file = pyBigWig.open(options.bigwig_file)
@@ -193,7 +193,7 @@ def main(argv=sys.argv):
     outfile.write("".join(["%s\t%i\t%i\n" % x for x in processor]))
     outfile.write("\n")
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

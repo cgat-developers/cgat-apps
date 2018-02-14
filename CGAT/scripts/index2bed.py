@@ -83,7 +83,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.remove_regex:
         remove_regex = re.compile(options.remove_regex)
@@ -101,7 +101,7 @@ def main(argv=None):
                 "could not parse window size '%s': should be size[,increment]" % options.fixed_width_windows)
 
     if options.gff_file:
-        infile = IOTools.openFile(options.gff_file, "r")
+        infile = IOTools.open_file(options.gff_file, "r")
         gff = GTF.readFromFile(infile)
         infile.close()
         for g in gff:
@@ -149,7 +149,7 @@ def main(argv=None):
     E.info(str(counter))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

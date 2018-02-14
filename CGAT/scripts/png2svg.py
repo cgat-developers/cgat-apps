@@ -266,7 +266,7 @@ class PngPlot:
 
         self.mRoot.toXml(tfile)
 
-        lines = IOTools.openFile(tfile, "r").readlines()
+        lines = IOTools.open_file(tfile, "r").readlines()
 
         outfile.write(string.join(lines, ""))
         outfile.write("\n")
@@ -413,7 +413,7 @@ def main(argv=None):
         canvas_height=1000,
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if len(args) > 0:
         # read filenames from the command line
@@ -446,7 +446,7 @@ def main(argv=None):
 
     plot.writeToFile(sys.stdout)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -121,7 +121,7 @@ def main(argv=None):
         dpi=80,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     # import matplotlib/pylab. Has to be done here
     # for batch scripts without GUI.
@@ -211,7 +211,7 @@ def main(argv=None):
         if args[0] == "-":
             infile = sys.stdin
         else:
-            infile = IOTools.openFile(args[0], "r")
+            infile = IOTools.open_file(args[0], "r")
     else:
         infile = sys.stdin
 
@@ -230,7 +230,7 @@ def main(argv=None):
         infile.close()
     if len(data) == 0:  # or data is None:
         E.info("empty table: no plot")
-        E.Stop()
+        E.stop()
         return
 
     nrows, ncols = data.shape
@@ -367,7 +367,7 @@ def main(argv=None):
         E.info("nplotted=%i, nskipped=%i" % (nplotted, nskipped))
 
     if len(lines) == 0:
-        E.Stop()
+        E.stop()
         return
 
     if options.legend_location != "none":
@@ -406,7 +406,7 @@ def main(argv=None):
     else:
         pylab.show()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

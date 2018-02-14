@@ -338,7 +338,7 @@ def main(argv=None):
                         maf_snpcol="SNP")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # check all files contain necessary fields
     if options.trait1_res.endswith(".gz"):
@@ -555,7 +555,7 @@ def main(argv=None):
                   sep="\t")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

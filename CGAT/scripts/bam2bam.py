@@ -380,7 +380,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
     # random.seed(options.random_seed)
     bamfiles = []
 
@@ -413,7 +413,7 @@ def main(argv=None):
             E.warn('ignoring link %s' % bamfile)
             continue
 
-        if IOTools.isEmpty(bamfile):
+        if IOTools.is_empty(bamfile):
             E.warn('ignoring empty file %s' % bamfile)
             continue
 
@@ -426,7 +426,7 @@ def main(argv=None):
             else:
                 pysam_out = pysam.AlignmentFile("-", "wb", template=pysam_in)
         else:
-            if IOTools.isEmpty(bamfile):
+            if IOTools.is_empty(bamfile):
                 E.warn('skipping empty file %s' % bamfile)
                 continue
             tmpfile = tempfile.NamedTemporaryFile(delete=False, prefix="ctmp")
@@ -667,7 +667,7 @@ def main(argv=None):
             pysam.index(bamfile)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

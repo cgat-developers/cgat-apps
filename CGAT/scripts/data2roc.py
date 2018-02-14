@@ -128,11 +128,11 @@ def main(argv=None):
         multiple=False,
         bin_by_score=True)
 
-    options, args = E.Start(parser, argv=sys.argv)
+    options, args = E.start(parser, argv=sys.argv)
 
     if options.multiple:
         doMultiple(options)
-        E.Stop()
+        E.stop()
         sys.exit(0)
 
     true_positives = 0
@@ -236,7 +236,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

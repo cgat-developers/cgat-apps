@@ -52,7 +52,7 @@ def main(argv=None):
                       help="supply help")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     params = {'db': 'gds',
               'term': 'transcriptome[All Fields] AND "Homo sapiens"[Organism] AND high throughput sequencing[Platform Technology Type]',
@@ -121,7 +121,7 @@ def main(argv=None):
     url_pmid = "http://www.ncbi.nlm.nih.gov/pubmed/%s"
     url_geo = "http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=%s"
 
-    outfile_uid = IOTools.openFile("uids.tsv", "w")
+    outfile_uid = IOTools.open_file("uids.tsv", "w")
     outfile_uid.write("uid\tdescription\tpmid\taccession\n")
     for uid in uids:
         outfile_uid.write("\t".join(map(str,
@@ -130,7 +130,7 @@ def main(argv=None):
                                          url_pmid % map_uid2pmid.get(uid, ""),
                                          url_geo % map_uid2accession.get(uid, "")))) + "\n")
 
-    outfile_pmid = IOTools.openFile("pmid.tsv", "w")
+    outfile_pmid = IOTools.open_file("pmid.tsv", "w")
     outfile_pmid.write("pmid\tyear\tjournal\ttitle\tabstract\tgeo\n")
 
     E.info("retrieving pubmed records")
@@ -173,7 +173,7 @@ def main(argv=None):
                                           url_geo % map_pmid2accession.get(pmid, "")))) + "\n")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

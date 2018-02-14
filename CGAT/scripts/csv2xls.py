@@ -57,7 +57,7 @@ def main(argv=None):
         output_filename=None,
     )
 
-    (options, args) = E.Start(parser, add_csv_options=True)
+    (options, args) = E.start(parser, add_csv_options=True)
 
     if not options.output_filename:
         raise ValueError("please specify an output filename.")
@@ -66,7 +66,7 @@ def main(argv=None):
 
     for filename in args:
 
-        lines = [x for x in IOTools.openFile(filename, "r").readlines()
+        lines = [x for x in IOTools.open_file(filename, "r").readlines()
                  if x[0] != "#"]
 
         if len(lines) == 0:
@@ -98,7 +98,7 @@ def main(argv=None):
 
     w.save(options.output_filename)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

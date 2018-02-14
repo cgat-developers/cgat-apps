@@ -122,7 +122,7 @@ def main(argv=None):
                       "2 risk alleles - NOT IMPLIMENTED")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # required files are .ped file, .map file and gwas results file
     E.info("reading GWAS results file: %s" % options.gwas)
@@ -201,7 +201,7 @@ def main(argv=None):
     hist_df.to_csv(options.stdout, sep="\t", index=None)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -62,7 +62,7 @@ parses command line options in sys.argv, unless *argv* is given.
                       help="directory to save hilbert curves image files to")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infile = argv[-1]
     pref = infile.split("/")[1].split(".")[0]
@@ -91,7 +91,7 @@ parses command line options in sys.argv, unless *argv* is given.
       '''image.dir="%(image_dir)s", datName="%(header)s")''' % locals())
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

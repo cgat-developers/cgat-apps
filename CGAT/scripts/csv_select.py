@@ -67,7 +67,7 @@ def main(argv=None):
         filename_fields=None,
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_csv_options=True,
                               quiet=True)
 
@@ -111,7 +111,7 @@ def main(argv=None):
 
     E.info("%s" % counter)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

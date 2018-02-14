@@ -52,7 +52,7 @@ def main(argv=None):
         normalize=True,
     )
 
-    (options, args) = E.Start(parser, add_csv_options=True)
+    (options, args) = E.start(parser, add_csv_options=True)
 
     fields, table = CSV.readTable(sys.stdin, dictreader=CSV.DictReaderLarge)
 
@@ -149,8 +149,8 @@ def main(argv=None):
                                   coverage_full5prime[x],
                                   coverage_full3prime[x])]) + "\n")
 
-    outfile5 = IOTools.openFile(options.output_filename_pattern % "reads5", "w")
-    outfile3 = IOTools.openFile(options.output_filename_pattern % "reads3", "w")
+    outfile5 = IOTools.open_file(options.output_filename_pattern % "reads5", "w")
+    outfile3 = IOTools.open_file(options.output_filename_pattern % "reads3", "w")
 
     outfile5.write("\t".join(["distance", ] + ["reads%i" % options.maximum_reads[y]
                                                for y in range(len(options.maximum_reads))]) + "\n")
@@ -165,7 +165,7 @@ def main(argv=None):
     E.info("ninput=%i, noutput=%i, nmaxreads=%i, nfull=%i, nmincov=%i, nskipped=%i, nlength=%i" %
            (ninput, noutput, nmaxreads, nfull, nmincov, nskipped, nlength))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -660,7 +660,7 @@ class CounterGenes(Counter):
         exons = IndexedGenome.IndexedGenome()
         nexons = 0
 
-        inf = IOTools.openFile(filename_exons, "r")
+        inf = IOTools.open_file(filename_exons, "r")
         for g in GTF.iterator(inf):
             exons.add(g.contig, g.start, g.end, g)
             nexons += 1
@@ -761,7 +761,7 @@ class CounterTranscripts(Counter):
         self.mExons = {}
         nexons = 0
         ntranscripts = 0
-        inf = IOTools.openFile(filename_exons, "r")
+        inf = IOTools.open_file(filename_exons, "r")
         for gtfs in GTF.transcript_iterator(GTF.iterator(inf)):
             start, end = min([x.start for x in gtfs]), max(
                 [x.end for x in gtfs])
@@ -781,12 +781,12 @@ class CounterTranscripts(Counter):
         # create counter
         self.mCounts = collections.defaultdict(int)
 
-        self.mOutfileIntron = IOTools.openFile(
+        self.mOutfileIntron = IOTools.open_file(
             self.mFilenamePattern % "intron", "w")
         self.mOutfileIntron.write(
             "transcript_id\tcontig\tsnp_position\tvariant_type\tvariant_code\tvariant_seq\texon_id\tnexon\tcode\torig_name\torig_seq5\torig_seq3\tvariant_name\tvariant_seq5\tvariant_seq3\tintron_start\tintron_end\tstrand\tnc_start\tnc_end\n")
 
-        self.mOutfileCds = IOTools.openFile(self.mFilenamePattern % "cds", "w")
+        self.mOutfileCds = IOTools.open_file(self.mFilenamePattern % "cds", "w")
         self.mOutfileCds.write("\t".join((
             "transcript_id",
             "contig",
@@ -809,12 +809,12 @@ class CounterTranscripts(Counter):
             "cds_end",
             "cds_len")) + "\n")
 
-        self.mOutfileTranscripts = IOTools.openFile(
+        self.mOutfileTranscripts = IOTools.open_file(
             self.mFilenamePattern % "translation", "w")
         self.mOutfileTranscripts.write(
             "transcript_id\tvariant_id\tlast_exon_start\t%s\tseq_na\tseq_aa\n" % "\t".join(TranslationEffect._fields))
 
-        self.mOutfileSplicing = IOTools.openFile(
+        self.mOutfileSplicing = IOTools.open_file(
             self.mFilenamePattern % "splicing", "w")
         self.mOutfileSplicing.write(
             "transcript_id\tvariant_id\t%s\n" % "\t".join(SplicingEffect._fields))
@@ -2180,7 +2180,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     ninput, nskipped, noutput = 0, 0, 0
 
@@ -2192,7 +2192,7 @@ def main(argv=None):
 
     if options.filename_seleno:
         seleno = set(
-            IOTools.readList(IOTools.openFile(options.filename_seleno, "r")))
+            IOTools.readList(IOTools.open_file(options.filename_seleno, "r")))
     else:
         seleno = {}
 
@@ -2250,7 +2250,7 @@ def main(argv=None):
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

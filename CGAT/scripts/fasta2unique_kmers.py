@@ -157,7 +157,7 @@ def main(argv=None):
         kmer=10,
         subset=None)
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     E.info("%s\n" % using("start"))
 
@@ -165,7 +165,7 @@ def main(argv=None):
 
     k = KmerCounter()
 
-    Iterator = FastaIterator.iterate(IOTools.openFile(options.fasta))
+    Iterator = FastaIterator.iterate(IOTools.open_file(options.fasta))
 
     # total entries also acts as the index for the entry_id
     total_entries = 0
@@ -182,7 +182,7 @@ def main(argv=None):
             "to perform a gene-level unique kmer count, "
             "you must supply a transcript2gene map (--genemap)")
         t2g = {}
-        with IOTools.openFile(options.genemap, "r") as inf:
+        with IOTools.open_file(options.genemap, "r") as inf:
             for line in inf:
                 transcript, gene = line.strip().split("\t")
                 t2g[transcript] = gene
@@ -244,7 +244,7 @@ def main(argv=None):
         E.info("1st shred complete for %i transcripts" % total_entries)
 
     total_entries = 0
-    Iterator = FastaIterator.iterate(IOTools.openFile(options.fasta))
+    Iterator = FastaIterator.iterate(IOTools.open_file(options.fasta))
 
     # iterate fasta entries, shread and count unique kmers
     if options.method == 'gene':
@@ -330,7 +330,7 @@ def main(argv=None):
     # write footer and output benchmark information.
     E.info("%s\n" % using("end"))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -159,7 +159,7 @@ def main(argv=None):
         segment_length=32,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.genome_file:
         genome = IndexedFasta.IndexedFasta(options.genome_file)
@@ -241,7 +241,7 @@ def main(argv=None):
     if options.loglevel >= 1:
         options.stdlog.write("# ninput=%i, noutput=%i\n" % (ninput, noutput))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

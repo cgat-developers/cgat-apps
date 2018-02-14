@@ -99,7 +99,7 @@ def main(argv=None):
         min_quality=10)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.change_format:
         iterator = Fastq.iterate_convert(options.stdin,
@@ -140,7 +140,7 @@ def main(argv=None):
                                           str(mean_quality),
                                           str(median_quality),
                                           bases_below_min))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

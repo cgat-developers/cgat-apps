@@ -155,7 +155,7 @@ def main(argv=None):
         bed_format='6',
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) == 0:
         args.append("-")
@@ -207,7 +207,7 @@ def main(argv=None):
                            read.mapq,
                            strand))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

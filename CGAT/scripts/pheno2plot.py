@@ -126,7 +126,7 @@ def main(argv=None):
                       help="categorical variable level to dichotomise on")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     parser.set_defaults(y_col=None,
                         group_by=None,
@@ -185,7 +185,7 @@ def main(argv=None):
                            var_type=options.var_type)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

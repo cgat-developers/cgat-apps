@@ -99,7 +99,7 @@ def main(argv=None):
                       help="PATH to save any plots to")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.task == "flag_hets":
         # calculate heterozygosity rates, find and flag
@@ -143,7 +143,7 @@ def main(argv=None):
         pass
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

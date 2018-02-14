@@ -165,7 +165,7 @@ def main(argv=None):
         chromosome=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.filename_map == "":
         raise ValueError("please specify the file with the "
@@ -176,7 +176,7 @@ def main(argv=None):
 
     map_position, map_chromosome, map_chromosome2id, \
         map_id2chromosome = readLiftOver(
-            IOTools.openFile(options.filename_map, "r"),
+            IOTools.open_file(options.filename_map, "r"),
             options.chromosome)
 
     l = 0
@@ -212,7 +212,7 @@ def main(argv=None):
                     pass
                     # print "%s\t%i\tna" % (chromosome, x )
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

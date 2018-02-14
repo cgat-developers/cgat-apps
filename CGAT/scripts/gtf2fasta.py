@@ -512,7 +512,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if not options.genome_file:
         raise ValueError("an indexed genome is required.")
@@ -524,7 +524,7 @@ def main(argv=None):
     annotateGenome(iterator, fasta, options)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

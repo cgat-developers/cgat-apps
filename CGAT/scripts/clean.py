@@ -42,7 +42,7 @@ import CGATCore.Experiment as E
 def getLastLine(filename, read_size=1024):
     """return last line of a file.
     """
-    f = IOTools.openFile(
+    f = IOTools.open_file(
         filename, 'rU')    # U is to open it with Universal newline support
     offset = read_size
     f.seek(0, 2)
@@ -110,7 +110,7 @@ def main(argv=None):
                         dry_run=False,
                         )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_pipe_options=True)
 
     if args:
@@ -149,7 +149,7 @@ def main(argv=None):
         options.stdlog.write("# ndirs=%i, nfiles=%i, ndeleted=%i\n" %
                              (ndirs, nfiles, ndeleted))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -149,7 +149,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) != 1:
         raise ValueError("please supply one bam file")
@@ -163,7 +163,7 @@ def main(argv=None):
     if options.filename_map:
         E.info("reading map")
         id_map = IOTools.readMap(
-            IOTools.openFile(options.filename_map), has_header=True)
+            IOTools.open_file(options.filename_map), has_header=True)
         id_map = dict([(y, x) for x, y in id_map.items()])
     else:
         id_map = None
@@ -173,7 +173,7 @@ def main(argv=None):
         E.info("indexing geneset")
         mapped, missed = 0, 0
         for gtf in GTF.transcript_iterator(
-                GTF.iterator(IOTools.openFile(options.filename_gtf))):
+                GTF.iterator(IOTools.open_file(options.filename_gtf))):
             gtf.sort(key=lambda x: x.start)
             transcript_id = gtf[0].transcript_id
             if id_map:
@@ -192,7 +192,7 @@ def main(argv=None):
     if options.filename_regions:
         E.info("indexing regions")
         regions_to_remove = IndexedGenome.Simple()
-        for bed in Bed.iterator(IOTools.openFile(options.filename_regions)):
+        for bed in Bed.iterator(IOTools.open_file(options.filename_regions)):
             regions_to_remove.add(bed.contig, bed.start, bed.end)
         E.info("read %i regions" % len(regions_to_remove))
 
@@ -238,7 +238,7 @@ def main(argv=None):
                          ignore_junctions=junctions_samfile is None)
 
     if options.filename_stats:
-        outf = IOTools.openFile(options.filename_stats, "w")
+        outf = IOTools.open_file(options.filename_stats, "w")
         outf.write("category\tcounts\n%s\n" % c.asTable())
         outf.close()
 
@@ -251,7 +251,7 @@ def main(argv=None):
         output_mismapped.close()
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

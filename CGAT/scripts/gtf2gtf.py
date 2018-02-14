@@ -546,7 +546,7 @@ def main(argv=None):
         use_geneid=False,
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     ninput, noutput, nfeatures, ndiscarded = 0, 0, 0, 0
 
@@ -714,7 +714,7 @@ def main(argv=None):
     elif "add-protein-id" == options.method:
 
         transcript2protein = IOTools.readMap(
-            IOTools.openFile(options.filename_filter, "r"))
+            IOTools.open_file(options.filename_filter, "r"))
 
         missing = set()
         for gff in GTF.iterator(options.stdin):
@@ -888,7 +888,7 @@ def main(argv=None):
     elif options.method in ("rename-genes", "rename-transcripts"):
 
         map_old2new = IOTools.readMap(
-            IOTools.openFile(options.filename_filter, "r"))
+            IOTools.open_file(options.filename_filter, "r"))
 
         if options.method == "rename-transcripts":
             is_gene_id = False
@@ -1025,7 +1025,7 @@ def main(argv=None):
             if options.filename_filter:
 
                 ids = IOTools.readList(
-                    IOTools.openFile(options.filename_filter, "r"))
+                    IOTools.open_file(options.filename_filter, "r"))
                 E.info("read %i ids" % len(ids))
 
                 ids = set(ids)
@@ -1172,7 +1172,7 @@ def main(argv=None):
     elif options.method == "remove-overlapping":
 
         index = GTF.readAndIndex(
-            GTF.iterator(IOTools.openFile(options.filename_gff, "r")))
+            GTF.iterator(IOTools.open_file(options.filename_gff, "r")))
 
         for gffs in GTF.transcript_iterator(GTF.iterator(options.stdin)):
             ninput += 1
@@ -1418,7 +1418,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nfeatures=%i, ndiscarded=%i" %
            (ninput, noutput, nfeatures, ndiscarded))
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

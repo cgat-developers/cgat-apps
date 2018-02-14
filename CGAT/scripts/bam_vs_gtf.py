@@ -117,10 +117,10 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     exons = GTF.readAndIndex(
-        GTF.iterator(IOTools.openFile(options.filename_exons)))
+        GTF.iterator(IOTools.open_file(options.filename_exons)))
 
     pysam_in = pysam.AlignmentFile("-", "rb")
 
@@ -283,7 +283,7 @@ def main(argv=None):
         outfile.write("%s\t%i\n" % (k, v))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

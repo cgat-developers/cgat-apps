@@ -70,14 +70,14 @@ def main(argv=None):
         frame=3,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     ##################################################
     ##################################################
     ##################################################
     # read map
     ##################################################
-    infile = IOTools.openFile(options.filename_map)
+    infile = IOTools.open_file(options.filename_map)
     map_genes2genome = {}
     for match in Blat.iterator(infile):
         assert match.mQueryId not in map_genes2genome, "duplicate entry %s" % match.mQueryId
@@ -195,7 +195,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nmissed=%i" % (ninput, noutput, nmissed))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

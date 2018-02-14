@@ -55,7 +55,7 @@ def main(argv=None):
         filename_fields=None,
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_csv_options=True)
     mapper = {}
     for x in args:
@@ -66,7 +66,7 @@ def main(argv=None):
         line = options.stdin.readline()
 
         if not line:
-            E.Stop()
+            E.stop()
             sys.exit(0)
 
         if line[0] == "#":
@@ -96,7 +96,7 @@ def main(argv=None):
         options.stdout.write("# ninput=%i, noutput=%i, nreplaced=%i, nlines=%i\n" % (
             ninput, noutput, nreplaced, nlines))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

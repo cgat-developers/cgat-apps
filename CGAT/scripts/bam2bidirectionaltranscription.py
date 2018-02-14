@@ -135,10 +135,10 @@ def main(argv=None):
                         output_gtf=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     bam = pysam.AlignmentFile(options.bam)
-    gtffile = IOTools.openFile(options.annotation)
+    gtffile = IOTools.open_file(options.annotation)
 
     if options.merge_transcripts:
         iterable = GTF.merged_gene_iterator(GTF.iterator(gtffile))
@@ -150,7 +150,7 @@ def main(argv=None):
                         length=options.length, unique=options.unique)
 
     # reinitiate iterable
-    gtffile = IOTools.openFile(options.annotation)
+    gtffile = IOTools.open_file(options.annotation)
     if options.merge_transcripts:
         iterable = GTF.merged_gene_iterator(GTF.iterator(gtffile))
     else:
@@ -162,7 +162,7 @@ def main(argv=None):
     ################################################
     if options.analysis_type == "ratio":
         E.info("calculating ratio of sense / antisense")
-        outf = IOTools.openFile(options.outbase + "_ratio.tsv", "w")
+        outf = IOTools.open_file(options.outbase + "_ratio.tsv", "w")
         outf.write("gene_id\ttranscript_id\tasratio\n")
         total_unmapped = 0
         total_no_xs = 0
@@ -263,7 +263,7 @@ def main(argv=None):
                     bin_as.append(ratio)
             profile[gtf.gene_id] = bin_as
 
-        outf = IOTools.openFile(options.outbase + "_profile.tsv", "w")
+        outf = IOTools.open_file(options.outbase + "_profile.tsv", "w")
         outf.write("\t".join(list(profile.keys())) + "\n")
         for x in zip(*list(profile.values())):
             outf.write("\t".join(map(str, list(x))) + "\n")
@@ -323,7 +323,7 @@ def main(argv=None):
             sense[gtf.gene_id] = bin_s
             antisense[gtf.gene_id] = bin_as
 
-        outf = IOTools.openFile(options.outbase + "_shape.tsv", "w")
+        outf = IOTools.open_file(options.outbase + "_shape.tsv", "w")
         outf.write("\t".join(list(sense.keys())) + "\tstatus" + "\n")
         for x in zip(*list(sense.values())):
             outf.write("\t".join(map(str, list(x))) + "\tsense" + "\n")
@@ -336,7 +336,7 @@ def main(argv=None):
     E.info("number of reads with no XS tag %i" % total_no_xs)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

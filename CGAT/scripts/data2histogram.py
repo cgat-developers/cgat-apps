@@ -103,7 +103,7 @@ def main(argv=None):
         value_format="%6.4f",
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.columns != "all":
         options.columns = [int(x) - 1 for x in options.columns.split(",")]
@@ -215,7 +215,7 @@ def main(argv=None):
         if not vals:
             if options.loglevel >= 1:
                 options.stdlog.write("# no data\n")
-            E.Stop()
+            E.stop()
             sys.exit(0)
 
         for x in range(len(options.columns)):
@@ -268,7 +268,7 @@ def main(argv=None):
                             nonull=options.nonull,
                             format_bin=options.bin_format)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -166,7 +166,7 @@ def main(argv=None):
         fields="aligned,unaligned1,unaligned2,identical,transitions,transversions,jc69,t92",
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     options.filters = options.filters.split(",")
     options.fields = options.fields.split(",")
@@ -245,7 +245,7 @@ def main(argv=None):
                                                second_record.title,
                                                "\t".join(result)))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

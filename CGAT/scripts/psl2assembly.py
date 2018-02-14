@@ -134,7 +134,7 @@ class Builder(Processor):
         self.mIdFormat = options.output_format
 
         if self.options.output_filename_pattern:
-            self.mOutFile = IOTools.openFile(
+            self.mOutFile = IOTools.open_file(
                 self.options.output_filename_pattern % self.mName, "w")
         else:
             self.mOutFile = self.options.stdout
@@ -269,12 +269,12 @@ class BuilderTranscribedLocus(Builder):
         Builder.__init__(self, *args, **kwargs)
 
         if self.options.output_filename_pattern:
-            self.mOutFileFasta = IOTools.openFile(
+            self.mOutFileFasta = IOTools.open_file(
                 self.options.output_filename_pattern % self.mName + ".fasta", "w")
             if self.options.output_pileup:
-                self.mOutFilePileup = IOTools.openFile(
+                self.mOutFilePileup = IOTools.open_file(
                     self.options.output_filename_pattern % self.mName + ".pileup", "w")
-            self.mOutFileStrand = IOTools.openFile(
+            self.mOutFileStrand = IOTools.open_file(
                 self.options.output_filename_pattern % self.mName + ".strand", "w")
         else:
             self.mOutFileFasta = self.options.stdout
@@ -991,7 +991,7 @@ class BuilderPolyA(Builder):
         self.mOutFile.write(
             "id\ttails\tnremoved\tnstrands\tnmotifs\tninconsistent\n")
 
-        self.mOutFileTails = IOTools.openFile(
+        self.mOutFileTails = IOTools.open_file(
             self.options.output_filename_pattern % self.mName + ".tails", "w")
         self.mOutFileTails.write(
             "id\tpos\tstrand\tnmotifs\tmotifs\tnids\tids\n")
@@ -1178,7 +1178,7 @@ class Filter(Processor):
         Processor.__init__(self, *args, **kwargs)
 
         if self.options.output_filename_pattern:
-            self.mOutFile = IOTools.openFile(
+            self.mOutFile = IOTools.open_file(
                 self.options.output_filename_pattern % self.mName, "w")
         else:
             self.mOutFile = self.options.stdout
@@ -1769,14 +1769,14 @@ def main(argv=None):
                         force_merge=None,
                         )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if len(args) == 1:
         if options.from_zipped or args[0][-3:] == ".gz":
             import gzip
             infile = gzip.open(args[0], "r")
         else:
-            infile = IOTools.openFile(args[0], "r")
+            infile = IOTools.open_file(args[0], "r")
     else:
         infile = sys.stdin
 
@@ -1789,7 +1789,7 @@ def main(argv=None):
 
     if options.input_filename_coverage:
         map_id2coverage = readMapId2Coverage(
-           IOTools.openFile(options.input_filename_coverage, "r"))
+           IOTools.open_file(options.input_filename_coverage, "r"))
         E.info("read coverage information for %i ids" % len(map_id2coverage))
     else:
         map_id2coverage = None
@@ -2075,7 +2075,7 @@ def main(argv=None):
            (nskipped, nskipped_components,
             n_pre_filtered_reads, n_post_filtered_reads))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -550,7 +550,7 @@ def main(argv=sys.argv):
                         remove_inconsistent_names=False,
                         resolve_blocks=False)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     contigs = None
 
@@ -626,7 +626,7 @@ def main(argv=sys.argv):
 
     E.info("noutput=%i" % (noutput))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

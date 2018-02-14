@@ -59,7 +59,7 @@ def main(argv=None):
         is_cds=False,
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     options.stdout.write(
         "snpid\tidentifier\tpos\treference\tvariant\tcounts\tweight\n")
@@ -119,7 +119,7 @@ def main(argv=None):
                          "%6.4f" % (w[variant] / t),
                          )))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
