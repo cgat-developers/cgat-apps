@@ -272,7 +272,7 @@ def readMatrix(infile,
     return matrix, row_headers, col_headers
 
 
-def writeMatrix(outfile, matrix,
+def write_matrix(outfile, matrix,
                 format="full",
                 separator="\t",
                 value_format="%f",

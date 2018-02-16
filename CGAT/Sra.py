@@ -20,7 +20,7 @@ import itertools
 import CGATCore.Experiment as E
 import CGAT.Fastq as Fastq
 import CGATCore.IOTools as IOTools
-from future.moves.urllib.request import urlopen
+from urllib.request import urlopen
 
 
 def peek(sra, outdir=None):
@@ -81,9 +81,9 @@ def peek(sra, outdir=None):
             f = glob.glob(os.path.join(workdir, "*_[13].fastq.gz"))
 
     # check format of fastqs in .sra
-    fastq_format = Fastq.guessFormat(IOTools.openFile(f[0], "r"), raises=False)
+    fastq_format = Fastq.guessFormat(IOTools.open_file(f[0], "r"), raises=False)
     fastq_datatype = Fastq.guessDataType(
-        IOTools.openFile(f[0], "r"), raises=True)
+        IOTools.open_file(f[0], "r"), raises=True)
 
     if outdir is None:
         shutil.rmtree(workdir)

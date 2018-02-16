@@ -1528,7 +1528,7 @@ def writeExpressionResults(outfile, result):
     if outfile == sys.stdout:
         outf = outfile
     else:
-        outf = IOTools.openFile(outfile, "w")
+        outf = IOTools.open_file(outfile, "w")
 
     outf.write("%s\n" % "\t".join(GeneExpressionResult._fields))
     for x in sorted(result):
@@ -2404,7 +2404,7 @@ def runEdgeR(outfile,
 
     writeExpressionResults(outfile, results)
 
-    outf = IOTools.openFile("%(outfile_prefix)ssummary.tsv" % locals(), "w")
+    outf = IOTools.open_file("%(outfile_prefix)ssummary.tsv" % locals(), "w")
     outf.write("category\tcounts\n%s\n" % counts.asTable())
     outf.close()
 
@@ -2424,7 +2424,7 @@ def deseqOutputSizeFactors(outfile):
     '''output size factors - requires cds object.'''
     size_factors = r('''sizeFactors( cds )''')
     samples = r('''names(sizeFactors(cds))''')
-    with IOTools.openFile(outfile, "w") as outf:
+    with IOTools.open_file(outfile, "w") as outf:
         outf.write("sample\tfactor\n")
         for name, x in zip(samples, size_factors):
             outf.write("%s\t%s\n" % (name, str(x)))
@@ -3011,7 +3011,7 @@ def runDESeq(outfile,
         all_results += results
 
         E.info(counts)
-        outf = IOTools.openFile(
+        outf = IOTools.open_file(
             "%(outfile_groups_prefix)ssummary.tsv" % locals(), "w")
         outf.write("category\tcounts\n%s\n" % counts.asTable())
         outf.close()
@@ -3154,7 +3154,7 @@ def runDESeq2(outfile,
         raw_final = raw_final.append(raw_out, ignore_index=True)
 
         #  write the standardised output table
-        df_out.to_csv(IOTools.openFile(outfile_prefix + gfix + ".tsv.gz", "w"),
+        df_out.to_csv(IOTools.open_file(outfile_prefix + gfix + ".tsv.gz", "w"),
                       sep="\t",
                       index_label="test_id")
 
@@ -3182,7 +3182,7 @@ def readDesignFile(design_file):
     '''reads a design file.'''
 
     design = collections.OrderedDict()
-    with IOTools.openFile(design_file) as inf:
+    with IOTools.open_file(design_file) as inf:
         for line in inf:
             if line.startswith("track"):
                 continue
@@ -3253,12 +3253,12 @@ def plotDETagStats(infile, outfile_prefix,
     columns will be output as well.
     '''
 
-    table = pandas.read_csv(IOTools.openFile(infile),
+    table = pandas.read_csv(IOTools.open_file(infile),
                             sep="\t")
 
     if additional_file is not None:
         additional_table = pandas.read_csv(
-            IOTools.openFile(additional_file),
+            IOTools.open_file(additional_file),
             sep="\t")
         table = pandas.merge(table,
                              additional_table,
@@ -3626,7 +3626,7 @@ def loadTagDataPandas(tags_filename, design_filename):
 
     E.info("loading tag data from %s" % tags_filename)
 
-    inf = IOTools.openFile(tags_filename)
+    inf = IOTools.open_file(tags_filename)
     counts_table = pandas.read_csv(inf,
                                    sep="\t",
                                    index_col=0,
@@ -3638,7 +3638,7 @@ def loadTagDataPandas(tags_filename, design_filename):
 
     E.debug("sample names: %s" % list(counts_table.columns))
 
-    inf = IOTools.openFile(design_filename)
+    inf = IOTools.open_file(design_filename)
     design_table = pandas.read_csv(inf, sep="\t", index_col=0)
     inf.close()
 
@@ -4175,7 +4175,7 @@ def runEdgeRPandas(counts,
                                    results['l2fold'][x] < 1 for
                                    x in range(0, n_rows)])
 
-    outf = IOTools.openFile("%(outfile_prefix)ssummary.tsv" % locals(), "w")
+    outf = IOTools.open_file("%(outfile_prefix)ssummary.tsv" % locals(), "w")
     outf.write("category\tcounts\n%s\n" % counts.asTable())
     outf.close()
 
@@ -4217,7 +4217,7 @@ def outputSpikeIns(filename_tags,
 
     outfile.write("interval_id\t%s\t%s\n" %
                   ("\t".join(group1.columns), "\t".join(group2.columns)))
-    outf_info = IOTools.openFile(output_filename_pattern + "info.tsv.gz", "w")
+    outf_info = IOTools.open_file(output_filename_pattern + "info.tsv.gz", "w")
     outf_info.write("interval_id\tl10_expression\tl2fold\n")
 
     # important: convert to matrixes, otherwise there will be a per-name lookup
@@ -4283,7 +4283,7 @@ def outputSpikeIns(filename_tags,
     df.index = list(expression_bins) + [expression_max]
     df.columns = list(fold_change_bins) + [foldchange_max]
 
-    df.to_csv(IOTools.openFile(output_filename_pattern + "counts.tsv.gz", "w"),
+    df.to_csv(IOTools.open_file(output_filename_pattern + "counts.tsv.gz", "w"),
               sep="\t")
 
     E.info("output %i spike in intervals" % interval_id)

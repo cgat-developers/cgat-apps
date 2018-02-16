@@ -32,7 +32,7 @@ O'Reilly (www.oreilly.com) python books as information sources. A svg viewer
 is available from www.adobe.com
 '''
 
-from six import StringIO
+from io import StringIO
 import sys
 
 __version__ = "1.0"

@@ -77,7 +77,7 @@ Command line options
 '''
 
 import sys
-from future.moves.itertools import zip_longest
+from itertools import zip_longest
 
 import CGATCore.IOTools as IOTools
 import CGAT.Fastq as Fastq

@@ -2749,7 +2749,7 @@ if __name__ == "__main__":
                 infile.close()
 
             if filename_map_old2new:
-                map_old2new = IOTools.readMap(open(filename_map_old2new))
+                map_old2new = IOTools.read_map(open(filename_map_old2new))
                 if options.invert_map:
                     map_old2new = IOTools.invert_dictionary(
                         map_old2new, make_unique=True)

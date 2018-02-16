@@ -411,7 +411,7 @@ def main(argv=None):
             outfile.write("\t%i\t%i\t%i\t%i\t" %
                           (c.total, c.same, c.different, c.unique))
             outfile.write(
-                "\t".join([IOTools.prettyPercent(x, c.total) for x in c]))
+                "\t".join([IOTools.pretty_percent(x, c.total) for x in c]))
 
             totals.total1 += c.total
             totals.same1 += c.same
@@ -426,7 +426,7 @@ def main(argv=None):
             outfile.write("\t%i\t%i\t%i\t%i\t" %
                           (c.total, c.same, c.different, c.unique))
             outfile.write(
-                "\t".join([IOTools.prettyPercent(x, c.total) for x in c]))
+                "\t".join([IOTools.pretty_percent(x, c.total) for x in c]))
 
             totals.same2 += c.same
             totals.total2 += c.total
@@ -443,25 +443,25 @@ def main(argv=None):
                                       totals.same1,
                                       totals.different1,
                                       totals.unique1,
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.total1, totals.total1),
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.same1, totals.total1),
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.different1, totals.total1),
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.unique1, totals.total1),
                                       totals.total2,
                                       totals.same2,
                                       totals.different2,
                                       totals.unique2,
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.total2, totals.total2),
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.same2, totals.total2),
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.different2, totals.total2),
-                                      IOTools.prettyPercent(
+                                      IOTools.pretty_percent(
                                           totals.unique2, totals.total2),
                                       ))) + "\n")
 

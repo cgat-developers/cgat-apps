@@ -248,7 +248,7 @@ def buildMatrixFromTables(infiles, column, column_header=0, dtype=numpy.float,
 
     lists = []
     for infile in infiles:
-        data = pandas.read_table(IOTools.openFile(infile))
+        data = pandas.read_table(IOTools.open_file(infile))
         lists.append(list(zip(list(data[column_header]), list(data[column]))))
 
     return buildMatrixFromLists(lists, dtype=dtype, default=default)

@@ -110,6 +110,11 @@ Additional options available are:
     and ``--query-genome`` to be set.
 
 
+.. note::
+
+    This script requires bx to be installed as it depends on bx.bitset
+
+
 Command line options
 ---------------------
 
@@ -117,7 +122,6 @@ Command line options
 
 import os
 import sys
-import bx.bitset
 import collections
 import numpy
 
@@ -277,7 +281,7 @@ class ChainCounter():
         options.stdout.write(''.join(['\n', '\n'.join(report), '\n']))
 
     def _write_tabbed(self, name, lines, E):
-        outfile = E.openOutputFile(name)
+        outfile = E.open_output_file(name)
         outfile.write('\n'.join(lines))
         outfile.write('\n')
         outfile.close

@@ -377,7 +377,7 @@ def main(argv=None):
         E.info("reading gene identifier to gene name mapping from %s" %
                options.filename_gene2name)
         infile = IOTools.open_file(options.filename_gene2name)
-        gene2name = IOTools.readMap(infile, has_header=True)
+        gene2name = IOTools.read_map(infile, has_header=True)
         infile.close()
         E.info("read %i gene names for %i gene identifiers" %
                (len(set(gene2name.values())),
@@ -773,11 +773,11 @@ def main(argv=None):
                 go_results.mBackgroundCountsTotal)
             outfile.write(
                 "percent_genes_in_fg_with_association\t%s\tpercent genes in sample with GO assignments\n" % (
-                    IOTools.prettyPercent(len(go_results.mSampleGenes),
+                    IOTools.pretty_percent(len(go_results.mSampleGenes),
                                           len(foreground), "%5.2f")))
             outfile.write(
                 "percent_genes_in_bg_with_associations\t%s\tpercent genes background with GO assignments\n" % (
-                    IOTools.prettyPercent(len(go_results.mBackgroundGenes),
+                    IOTools.pretty_percent(len(go_results.mBackgroundGenes),
                                           nbackground, "%5.2f")))
             outfile.write(
                 "significant\t%i\tsignificant results reported\n" % nselected)
@@ -805,9 +805,9 @@ def main(argv=None):
                 len(go_results.mBackgroundGenes),
                 go_results.mSampleCountsTotal,
                 go_results.mBackgroundCountsTotal,
-                IOTools.prettyPercent(
+                IOTools.pretty_percent(
                     len(go_results.mSampleGenes), len(foreground), "%5.2f"),
-                IOTools.prettyPercent(
+                IOTools.pretty_percent(
                     len(go_results.mBackgroundGenes), nbackground, "%5.2f"),
                 ",".join(msgs)))) + "\n")
 

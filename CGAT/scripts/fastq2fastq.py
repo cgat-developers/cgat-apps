@@ -276,7 +276,7 @@ def main(argv=None):
                     options.stdout.write("%s\n" % record)
 
     elif options.method == "apply":
-        ids = set(IOTools.readList(IOTools.open_file(options.apply)))
+        ids = set(IOTools.read_list(IOTools.open_file(options.apply)))
 
         for record in Fastq.iterate(options.stdin):
             c.input += 1

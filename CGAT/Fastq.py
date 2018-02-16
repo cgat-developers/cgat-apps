@@ -429,6 +429,6 @@ def getReadLength(filename):
     read_length : int
     '''
 
-    with IOTools.openFile(filename) as infile:
+    with IOTools.open_file(filename) as infile:
         record = next(iterate(infile))
         return len(record.seq)

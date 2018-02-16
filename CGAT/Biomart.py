@@ -62,7 +62,7 @@ def importFromBiomart(outfile,
 
     result = R.getBM(attributes=keys, mart=mart)
 
-    outf = IOTools.openFile(outfile, "w")
+    outf = IOTools.open_file(outfile, "w")
     outf.write("\t".join([columns[x] for x in keys]) + "\n")
 
     # for x in ("mim_gene_accession", "mim_morbid_accession"):

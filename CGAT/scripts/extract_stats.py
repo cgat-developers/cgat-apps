@@ -2,15 +2,10 @@
 extract_stats.py - extract and process tables from CSVDB
 ========================================================
 
-:Author: Mike Morgan
-:Release: $Id$
-:Date: |today|
-:Tags: Python
-
 Purpose
 -------
 
-.. Extract tables from sqlite databases and process
+Extract tables from sqlite databases and process
 
 Usage
 -----
@@ -43,6 +38,11 @@ tasks
 `aggregate` - aggregate together multiple stats tables,
               and select relevant measures
 
+.. todo::
+    Needs to be refactored to use sqlalchemy or Database instead of
+    explicitely wrapping database frontends.
+
+
 '''
 
 import sys
@@ -51,8 +51,6 @@ import pandas as pd
 import pandas.io.sql as pdsql
 import numpy as np
 import re
-import sqlite3 as sql
-import MySQLdb
 
 
 def getTableFromDb(db, table, backend,

@@ -341,7 +341,7 @@ def annotateGenome(iterator, fasta, options, default_code=DEFAULT_CODE):
     counter = E.Counter()
 
     # output splice junctions
-    outfile_junctions = E.openOutputFile("junctions")
+    outfile_junctions = E.open_output_file("junctions")
     outfile_junctions.write(
         "contig\tstrand\tpos1\tpos2\tframe\tgene_id\ttranscript_id\n")
     for gtfs in iterator:
@@ -464,7 +464,7 @@ def annotateGenome(iterator, fasta, options, default_code=DEFAULT_CODE):
     outfile_junctions.close()
 
     E.info("started counting")
-    outfile = E.openOutputFile("counts")
+    outfile = E.open_output_file("counts")
     outputCounts(outfile, annotations)
     outfile.close()
 

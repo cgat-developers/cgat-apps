@@ -76,7 +76,7 @@ Reference
 ---------
 
 '''
-from future.moves.urllib.request import urlopen
+from urllib.request import urlopen
 import re
 import optparse
 import sys
@@ -962,7 +962,7 @@ def main(argv=None):
     results = []
 
     if options.gene_list_file:
-        infile = IOTools.openFile(options.gene_list_file)
+        infile = IOTools.open_file(options.gene_list_file)
         gene_list = [x.strip() for x in infile]
     elif options.gene_list:
         gene_list = options.gene_list.split(",")
@@ -1021,7 +1021,7 @@ def main(argv=None):
         sys.exit()
 
     if options.output_file:
-        outf = IOTools.openFile(options.output_file, "w")
+        outf = IOTools.open_file(options.output_file, "w")
     else:
         outf = sys.stdout
 

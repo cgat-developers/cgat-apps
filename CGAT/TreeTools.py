@@ -13,7 +13,7 @@ import Bio.Nexus.Nexus
 import Bio.Nexus.Trees
 import string
 import re
-from six import StringIO
+from io import StringIO
 from CGAT import Tree as Tree
 
 

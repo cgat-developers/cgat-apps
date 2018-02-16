@@ -84,7 +84,7 @@ class Counter:
 
         return "\t".join(h)
 
-    @E.cachedmethod
+    @E.cached_method
     def buildIndex(self, filename):
         return Bed.readAndIndex(IOTools.open_file(filename, "r"))
 
@@ -159,7 +159,7 @@ class Counter:
             self.mBases1, self.mBases2,
             self.mBasesOverlapping1, self.mBasesOverlapping2,
             self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
-            "\t".join([IOTools.prettyPercent(*x) for x in (
+            "\t".join([IOTools.pretty_percent(*x) for x in (
                 (self.mExonsOverlapping1, self.mExons1),
                 (self.mExonsOverlapping2, self.mExons2),
                 (self.mExonsUnique1, self.mExons1),

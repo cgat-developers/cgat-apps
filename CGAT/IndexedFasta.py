@@ -53,10 +53,8 @@ import CGATCore.IOTools as IOTools
 import CGAT.Genomics as Genomics
 from CGAT.AString import AString
 import pysam
-from future.moves import dbm
-from six import StringIO
-
-IS_PY3 = sys.version_info.major >= 3
+import dbm
+from io import StringIO
 
 
 class Uncompressor:
@@ -320,10 +318,7 @@ class MultipleFastaIterator:
             if self.format == "tar.gz" or self.format == "tar" or \
                (self.format == "auto" and filename.endswith("tar.gz")):
                 if filename == "-":
-                    if IS_PY3:
-                        tf = tarfile.open(fileobj=sys.stdin.buffer, mode="r|*")
-                    else:
-                        tf = tarfile.open(fileobj=sys.stdin, mode="r|*")
+                    tf = tarfile.open(fileobj=sys.stdin.buffer, mode="r|*")
                 else:
                     tf = tarfile.open(filename, mode="r")
                 for f in tf:
@@ -346,11 +341,11 @@ class MultipleFastaIterator:
                 continue
             elif self.format == "fasta.gz" or (self.format == "auto" and
                                                filename.endswith(".gz")):
-                infile = IOTools.openFile(filename, "r")
+                infile = IOTools.open_file(filename, "r")
             elif filename == "-":
                 infile = sys.stdin
             else:
-                infile = IOTools.openFile(filename, "r")
+                infile = IOTools.open_file(filename, "r")
 
             for x in _iter(infile):
                 yield x
@@ -925,10 +920,7 @@ class CGATIndexedFasta:
         elif as_array:
             return p
         else:
-            if IS_PY3:
-                return p.tostring().decode("ascii")
-            else:
-                return p.tostring()
+            return p.tostring().decode("ascii")
 
     def getRandomCoordinates(self, size):
         """returns coordinates for a random fragment of size #.

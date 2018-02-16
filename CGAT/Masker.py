@@ -18,7 +18,7 @@ import random
 from CGATCore import Experiment as E
 from CGAT import Genomics as Genomics
 from CGAT import FastaIterator as FastaIterator
-from six import StringIO
+from io import StringIO
 
 
 class Masker:

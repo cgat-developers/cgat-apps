@@ -110,12 +110,12 @@ def filterGTF(gtf, filterstring, tempout):
 
     elif "-in_file-" in filterstring:
         column, value = filterstring.split("-in_file-")
-        value = [line.strip() for line in IOTools.openFile(value)]
+        value = [line.strip() for line in IOTools.open_file(value)]
         filtertype = "in_file"
 
     elif "-notin_file-" in filterstring:
         column, value = filterstring.split("-notin_file-")
-        value = [line.strip() for line in IOTools.openFile(value)]
+        value = [line.strip() for line in IOTools.open_file(value)]
         filtertype = "notin_file"
 
     elif "-morethan-" in filterstring:
@@ -128,10 +128,10 @@ def filterGTF(gtf, filterstring, tempout):
         value = float(value)
         filtertype = "lessthan"
 
-    gfile = IOTools.openFile(gtf)
+    gfile = IOTools.open_file(gtf)
     G = GTF.iterator(gfile)
 
-    out = IOTools.openFile(tempout, "w")
+    out = IOTools.open_file(tempout, "w")
     for item in G:
         D = item.asDict()
         D['contig'] = item.contig

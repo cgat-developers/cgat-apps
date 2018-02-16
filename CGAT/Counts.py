@@ -1005,7 +1005,7 @@ def loadTagDataPandas(tags_filename, design_filename):
 
     E.debug("sample names: %s" % list(counts_table.columns))
 
-    inf = IOTools.openFile(design_filename)
+    inf = IOTools.open_file(design_filename)
     design_table = pd.read_csv(inf, sep="\t", index_col=0)
     inf.close()
 

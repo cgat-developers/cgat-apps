@@ -245,7 +245,7 @@ def main(argv=None):
                 nunspliced_overrun[overrun] += 1
 
     # output histograms
-    outfile = E.openOutputFile("overrun")
+    outfile = E.open_output_file("overrun")
     outfile.write(
         "bases\tunspliced_overrun_counts\tspliced_overrun_counts\tspliced_underrun_counts\n")
     _nspliced_overrun = nspliced_overrun[overrun_offset:]

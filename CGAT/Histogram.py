@@ -15,7 +15,6 @@ import sys
 import re
 import math
 import scipy
-import scipy.stats
 import bisect
 import numpy
 from functools import reduce
@@ -63,7 +62,7 @@ def CalculateFromTable(dbhandle,
     statement = "SELECT INTERVAL( %s, %s )-1 AS i, COUNT(*) %s GROUP BY i" % (
         field_name, i_string, from_statement)
 
-    return Convert(dbhandle.Execute(statement).fetchall(), intervals)
+    return convert(dbhandle.Execute(statement).fetchall(), intervals)
 
 
 def CalculateConst(values,
@@ -157,7 +156,7 @@ def Calculate(values,
 
         values = new_values
 
-    return Convert(scipy.stats.histogram2(values, intervals), intervals, no_empty_bins)
+    return convert(numpy.histogram(values, bins=intervals)[0], intervals, no_empty_bins)
 
 
 def Scale(h, scale=1.0):
@@ -169,7 +168,7 @@ def Scale(h, scale=1.0):
     return n
 
 
-def Convert(h, i, no_empty_bins=0):
+def convert(h, i, no_empty_bins=0):
     """add bins to histogram.
     """
     n = []

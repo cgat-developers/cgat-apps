@@ -420,7 +420,7 @@ def main(argv=None):
         pysam_in = pysam.AlignmentFile(options.stdin, "rb")
 
     if options.output_details:
-        outfile_details = E.openOutputFile("details", "w")
+        outfile_details = E.open_output_file("details", "w")
     else:
         outfile_details = None
 
@@ -444,7 +444,7 @@ def main(argv=None):
     outs.write("category\tcounts\tpercent\tof\n")
 
     def _write(outs, text, numerator, denominator, base):
-        percent = IOTools.prettyPercent(numerator, denominator)
+        percent = IOTools.pretty_percent(numerator, denominator)
         outs.write('%s\t%i\t%s\t%s\n' % (text,
                                          numerator,
                                          percent,
@@ -775,7 +775,7 @@ def main(argv=None):
                    (pairs_mapped, 0.0))
 
     if options.force_output or len(nm_filtered) > 0:
-        outfile = E.openOutputFile("nm", "w")
+        outfile = E.open_output_file("nm", "w")
         outfile.write("NM\talignments\n")
         if len(nm_filtered) > 0:
             for x in range(0, max(nm_filtered.keys()) + 1):
@@ -785,7 +785,7 @@ def main(argv=None):
         outfile.close()
 
     if options.force_output or len(nh_all) > 1:
-        outfile = E.openOutputFile("nh_all", "w")
+        outfile = E.open_output_file("nh_all", "w")
         outfile.write("NH\treads\n")
         if len(nh_all) > 0:
             writeNH(outfile, nh_all, max_hi)
@@ -795,7 +795,7 @@ def main(argv=None):
         outfile.close()
 
     if options.force_output or len(nh_filtered) > 1:
-        outfile = E.openOutputFile("nh", "w")
+        outfile = E.open_output_file("nh", "w")
         outfile.write("NH\treads\n")
         if len(nh_filtered) > 0:
             writeNH(outfile, nh_filtered, max_hi)
@@ -805,7 +805,7 @@ def main(argv=None):
         outfile.close()
 
     if options.force_output or len(mapq_all) > 1:
-        outfile = E.openOutputFile("mapq", "w")
+        outfile = E.open_output_file("mapq", "w")
         outfile.write("mapq\tall_reads\tfiltered_reads\n")
         for x in range(0, max(mapq_all.keys()) + 1):
             outfile.write("%i\t%i\t%i\n" % (x, mapq_all[x], mapq[x]))

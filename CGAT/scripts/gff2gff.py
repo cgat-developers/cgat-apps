@@ -124,6 +124,10 @@ Command line options
 
 import sys
 import re
+import collections
+import numpy
+import quicksect
+import pandas as pd
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools
 import CGAT.GTF as GTF
@@ -131,10 +135,6 @@ import CGAT.AGP as AGP
 import CGAT.Genomics as Genomics
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.Intervals as Intervals
-import collections
-import numpy
-import bx.intervals.intersection
-import pandas as pd
 
 
 def combineGFF(gffs,
@@ -307,9 +307,9 @@ def cropGFF(gffs, filename_gff):
 
     ntotal = 0
     for contig in list(cropper.keys()):
-        intersector = bx.intervals.intersection.Intersecter()
+        intersector = quicksect.IntervalTree()
         for start, end in cropper[contig]:
-            intersector.add_interval(bx.intervals.Interval(start, end))
+            intersector.add(quicksect.Interval(start, end))
             ntotal += 1
         cropper[contig] = intersector
 

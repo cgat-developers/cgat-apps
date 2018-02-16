@@ -40,7 +40,7 @@ Reference
 
 '''
 from CGAT import NCL as ncl
-from bx.intervals.intersection import Intersecter, Interval
+import quicksect
 
 
 class IndexedGenome:
@@ -105,7 +105,7 @@ class Quicksect(IndexedGenome):
     Permits finding closest interval in case there is
     no overlap.
     '''
-    index_factory = Intersecter
+    index_factory = quicksect.IntervalTree
 
     def __init__(self, *args, **kwargs):
         IndexedGenome.__init__(self, *args, **kwargs)
@@ -114,32 +114,32 @@ class Quicksect(IndexedGenome):
 
         if contig not in self.mIndex:
             self.mIndex[contig] = self.index_factory()
-        self.mIndex[contig].add_interval(Interval(start, end, value))
+        self.mIndex[contig].add(start, end, value)
 
     def get(self, contig, start, end):
         '''return intervals overlapping with key.'''
         if contig not in self.mIndex:
             raise KeyError("contig %s not in index" % contig)
 
-        return [(x.start, x.end, x.value)
-                for x in self.mIndex[contig].find(start, end)]
+        return [(x.start, x.end, x.data)
+                for x in self.mIndex[contig].find(quiksect.Interval(start, end))]
 
     def before(self, contig, start, end, num_intervals=1, max_dist=2500):
         '''get closest interval before *start*.'''
         if contig not in self.mIndex:
             raise KeyError("contig %s not in index" % contig)
-        return [(x.start, x.end, x.value)
+        return [(x.start, x.end, x.data)
                 for x in self.mIndex[contig].before_interval(
-                    Interval(start, end),
-                    num_intervals=1,
-                    max_dist=max_dist)]
+                        quicksect.Interval(start, end),
+                        num_intervals=1,
+                        max_dist=max_dist)]
 
     def after(self, contig, start, end, num_intervals=1, max_dist=2500):
         '''get closest interval after *end*.'''
         if contig not in self.mIndex:
             raise KeyError("contig %s not in index" % contig)
-        return [(x.start, x.end, x.value)
+        return [(x.start, x.end, x.data)
                 for x in self.mIndex[contig].after_interval(
-                    Interval(start, end),
-                    num_intervals=1,
-                    max_dist=max_dist)]
+                        quicksect.Interval(start, end),
+                        num_intervals=1,
+                        max_dist=max_dist)]

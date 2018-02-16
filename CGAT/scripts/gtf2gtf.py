@@ -713,7 +713,7 @@ def main(argv=None):
 
     elif "add-protein-id" == options.method:
 
-        transcript2protein = IOTools.readMap(
+        transcript2protein = IOTools.read_map(
             IOTools.open_file(options.filename_filter, "r"))
 
         missing = set()
@@ -887,8 +887,7 @@ def main(argv=None):
 
     elif options.method in ("rename-genes", "rename-transcripts"):
 
-        map_old2new = IOTools.readMap(
-            IOTools.open_file(options.filename_filter, "r"))
+        map_old2new = IOTools.read_map(IOTools.open_file(options.filename_filter, "r"))
 
         if options.method == "rename-transcripts":
             is_gene_id = False
@@ -1024,7 +1023,7 @@ def main(argv=None):
 
             if options.filename_filter:
 
-                ids = IOTools.readList(
+                ids = IOTools.read_list(
                     IOTools.open_file(options.filename_filter, "r"))
                 E.info("read %i ids" % len(ids))
 

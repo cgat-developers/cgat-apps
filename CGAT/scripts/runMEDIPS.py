@@ -308,14 +308,14 @@ def main(argv=None):
             %(chrstring)s
             nrit = 1)''' % locals())
 
-            R.png(E.getOutputFile("%s_saturation.png" % fn))
+            R.png(E.get_output_file("%s_saturation.png" % fn))
             R('''MEDIPS.plotSaturation(sr)''')
             R('''dev.off()''')
             R('''write.table(sr$estimation, file ='%s', sep='\t')''' %
-              E.getOutputFile("%s_saturation_estimation.tsv" % fn))
+              E.get_output_file("%s_saturation_estimation.tsv" % fn))
 
             outfile = IOTools.open_file(
-                E.getOutputFile("%s_saturation.tsv" % fn), "w")
+                E.get_output_file("%s_saturation.tsv" % fn), "w")
             outfile.write("category\tvalues\n")
             outfile.write(
                 "estimated_correlation\t%s\n" %
@@ -343,12 +343,12 @@ def main(argv=None):
             %(chrstring)s
             uniq=%(uniq)s)''' % locals())
 
-            R.png(E.getOutputFile("%s_cpg_coverage_pie.png" % fn))
+            R.png(E.get_output_file("%s_cpg_coverage_pie.png" % fn))
             R('''MEDIPS.plotSeqCoverage(seqCoverageObj=cr,
             type = "pie", cov.level = c(0, 1, 2, 3, 4, 5))''')
             R('''dev.off()''')
 
-            R.png(E.getOutputFile("%s_cpg_coverage_hist.png" % fn))
+            R.png(E.get_output_file("%s_cpg_coverage_hist.png" % fn))
             R('''MEDIPS.plotSeqCoverage(seqCoverageObj=cr,
             type = "hist", t=15)''')
             R('''dev.off()''')
@@ -356,11 +356,11 @@ def main(argv=None):
             # note: this file is large
             R('''write.table(cr$cov.res, file=gzfile('%s','w'),
             sep='\t')''' %
-              E.getOutputFile("%s_saturation_coveredpos.tsv.gz" % fn))
+              E.get_output_file("%s_saturation_coveredpos.tsv.gz" % fn))
 
     if 'enrichment' in options.toolset or do_all:
         E.info("CpG enrichment analysis")
-        outfile = IOTools.open_file(E.getOutputFile("enrichment.tsv.gz"), "w")
+        outfile = IOTools.open_file(E.get_output_file("enrichment.tsv.gz"), "w")
         slotnames = (("regions.CG", "regions_CG", "%i"),
                      ("regions.C", "regions_C", "%s"),
                      ("regions.G", "regions_G", "%f"),
@@ -449,7 +449,7 @@ def main(argv=None):
 
                 R('''write.table(cor.matrix,
                 file='%s',
-                sep="\t")''' % E.getOutputFile("correlation"))
+                sep="\t")''' % E.get_output_file("correlation"))
 
             if "dmr" in options.toolset or do_all:
                 # Data that does not fit the model causes
@@ -483,12 +483,12 @@ def main(argv=None):
                 file=gzfile('%s', 'w'),
                 sep="\t",
                 row.names=F,
-                quote=F)''' % E.getOutputFile("data.tsv.gz"))
+                quote=F)''' % E.get_output_file("data.tsv.gz"))
 
                 # save R session
                 if options.output_rdata:
                     R('''save.image(file='%s', safe=FALSE)''' %
-                      E.getOutputFile("session.RData"))
+                      E.get_output_file("session.RData"))
 
     # DMR analysis - test for windows and output
     if "dmr" in options.toolset:
@@ -507,7 +507,7 @@ def main(argv=None):
         R('''write.table(tested,
         file=gzfile('%s', 'w'),
         sep="\t",
-        quote=F)''' % E.getOutputFile("significant_windows.gz"))
+        quote=F)''' % E.get_output_file("significant_windows.gz"))
 
         # select gain and merge adjacent windows
         try:
@@ -522,7 +522,7 @@ def main(argv=None):
             sep="\t",
             quote=F,
             row.names=FALSE,
-            col.names=FALSE); close(of)''' % E.getOutputFile("gain.bed.gz"))
+            col.names=FALSE); close(of)''' % E.get_output_file("gain.bed.gz"))
         except rpy2.rinterface.RRuntimeError as msg:
             E.warn("could not compute gain windows: msg=%s" % msg)
         # select loss and merge adjacent windows
@@ -539,12 +539,12 @@ def main(argv=None):
             sep="\t",
             quote=F,
             row.names=F,
-            col.names=F); close(of)''' % E.getOutputFile("loss.bed.gz"))
+            col.names=F); close(of)''' % E.get_output_file("loss.bed.gz"))
         except rpy2.rinterface.RRuntimeError as msg:
             E.warn("could not compute loss windows: msg=%s" % msg)
 
     # if "rpm" in options.toolset or do_all:
-    #     outputfile = E.getOutputFile("rpm.wig")
+    #     outputfile = E.get_output_file("rpm.wig")
     #     R('''MEDIPS.exportWIG(file = '%(outputfile)s',
     #     data = CONTROL.SET, raw = T, descr = "rpm")''' %
     #       locals())
@@ -554,7 +554,7 @@ def main(argv=None):
     #         compress(outputfile)
 
     # if "rms" in options.toolset or do_all:
-    #     outputfile = E.getOutputFile("rms.wig")
+    #     outputfile = E.get_output_file("rms.wig")
     #     R('''MEDIPS.exportWIG(file = '%(outputfile)s',
     #     data = CONTROL.SET, raw = F, descr = "rms")''' %
     #       locals())

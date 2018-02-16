@@ -117,7 +117,7 @@ import sys
 import string
 import re
 import random
-from future.moves.itertools import zip_longest
+from itertools import zip_longest
 
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools

@@ -607,7 +607,7 @@ def getNumColumns(filename):
     ncolumns : int
        The number of columns. If the file is empty, 0 is returned.
     '''
-    with IOTools.openFile(filename) as inf:
+    with IOTools.open_file(filename) as inf:
         for line in inf:
             if line.startswith("#"):
                 continue

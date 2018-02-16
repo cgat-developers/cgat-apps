@@ -791,7 +791,7 @@ def main(argv=None):
     for c in counters:
         c.setNormalization(options.transcript_normalization)
         if options.output_all_profiles:
-            c.setOutputProfiles(IOTools.open_file(E.getOutputFile(c.name) +
+            c.setOutputProfiles(IOTools.open_file(E.get_output_file(c.name) +
                                                  ".profiles.tsv.gz", "w"))
 
     if options.input_filename_counts:
@@ -840,7 +840,7 @@ def main(argv=None):
         matrix.shape = len(profiles), len(profiles[0])
         matrix = matrix.transpose()
 
-        with IOTools.open_file(E.getOutputFile(counter.name) +
+        with IOTools.open_file(E.get_output_file(counter.name) +
                               ".matrix.tsv.gz", "w") as outfile:
             outfile.write("bin\tregion\tregion_bin\t%s\n" % "\t".join(
                 options.profile_normalizations))
@@ -856,7 +856,7 @@ def main(argv=None):
                 outfile.write("%s\n" %
                               ("\t".join([str(x) for x in cols[-1]])))
 
-        with IOTools.open_file(E.getOutputFile(counter.name) +
+        with IOTools.open_file(E.get_output_file(counter.name) +
                               ".lengths.tsv.gz", "w") as outfile:
             counter.writeLengthStats(outfile)
 
@@ -892,7 +892,7 @@ def main(argv=None):
 
                 figname = counter.name + ".full"
 
-                fn = E.getOutputFile(figname) + ".png"
+                fn = E.get_output_file(figname) + ".png"
                 plt.savefig(os.path.expanduser(fn))
 
                 plt.figure()
@@ -917,7 +917,7 @@ def main(argv=None):
 
                 figname = counter.name + ".detail"
 
-                fn = E.getOutputFile(figname) + ".png"
+                fn = E.get_output_file(figname) + ".png"
                 plt.savefig(os.path.expanduser(fn))
 
             elif method == "tssprofile":
@@ -943,7 +943,7 @@ def main(argv=None):
                          counter.aggregate_counts[1])
                 plt.legend(counter.fields[:2])
 
-                fn = E.getOutputFile(counter.name) + ".png"
+                fn = E.get_output_file(counter.name) + ".png"
                 plt.savefig(os.path.expanduser(fn))
 
             elif method == "midpointprofile":
@@ -954,7 +954,7 @@ def main(argv=None):
                 plt.plot(numpy.arange(0, options.resolution_downstream),
                          counter.aggregate_counts[1])
 
-                fn = E.getOutputFile(counter.name) + ".png"
+                fn = E.get_output_file(counter.name) + ".png"
                 plt.savefig(os.path.expanduser(fn))
 
     # write footer and output benchmark information.

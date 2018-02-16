@@ -19,6 +19,8 @@ import bisect
 import array
 import collections
 import itertools
+import quicksect
+
 import CGAT.GTF as GTF
 import CGAT.Bed as Bed
 import CGATCore.IOTools as IOTools
@@ -32,13 +34,6 @@ import CGAT.IndexedGenome as IndexedGenome
 
 import numpy
 import pysam
-
-try:
-    import bx
-    import bx.intervals.intersection
-except ImportError:
-    # bx not py3 compatible
-    pass
 
 try:
     import alignlib_lite
@@ -76,7 +71,7 @@ def readIntervalsFromGFF(filename_gff, source, feature,
             E.info("loading data from %s for source '%s' and feature '%s'" %
                    (filename_gff, source, feature))
 
-            infile = IOTools.openFile(filename_gff, "r")
+            infile = IOTools.open_file(filename_gff, "r")
             if format == "gtf":
                 iterator_gff = GTF.iterator(infile)
             elif format == "gff":
@@ -115,7 +110,7 @@ def readIntervalsFromGFF(filename_gff, source, feature,
         if use_strand:
             raise NotImplementedError(
                 "stranded comparison not implemented for bed format")
-        iterator = Bed.iterator(IOTools.openFile(filename_gff, "r"))
+        iterator = Bed.iterator(IOTools.open_file(filename_gff, "r"))
         e = collections.defaultdict(list)
         if with_values:
             for bed in iterator:
@@ -2029,14 +2024,13 @@ class CounterOverlap(Counter):
 
         # convert intervals to intersectors
         for key in list(e.keys()):
-            intersector = bx.intervals.intersection.Intersecter()
+            intersector = quicksect.IntervalTree()
             if self.mWithValues or self.mWithRecords:
                 for start, end, value in e[key]:
-                    intersector.add_interval(
-                        bx.intervals.Interval(start, end, value=value))
+                    intersector.add(start, end, value)
             else:
                 for start, end in e[key]:
-                    intersector.add_interval(bx.intervals.Interval(start, end))
+                    intersector.add(start, end)
 
             e[key] = intersector
 
@@ -2057,7 +2051,7 @@ class CounterOverlap(Counter):
         intervals = []
         if contig in self.mIntersectors:
             for start, end in segments:
-                r = self.mIntersectors[contig].find(start, end)
+                r = self.mIntersectors[contig].find(quicksect.Interval(start, end))
                 intervals += [(x.start, x.end) for x in r]
                 if r:
                     n += 1
@@ -2414,7 +2408,7 @@ class Classifier(Counter):
         E.info("loading data from %s" % (filename_gff[0]))
 
         gffs = []
-        infile = IOTools.openFile(filename_gff[0], "r")
+        infile = IOTools.open_file(filename_gff[0], "r")
         for g in GTF.iterator(infile):
             gffs.append(g)
 
@@ -2638,7 +2632,7 @@ class ClassifierRNASeq(Counter):
         transcripts = {}
         transcript_intervals = IndexedGenome.Quicksect()
 
-        f = IOTools.openFile(filename_gff[0])
+        f = IOTools.open_file(filename_gff[0])
 
         for t in GTF.transcript_iterator(GTF.iterator(f)):
             t.sort(key=lambda x: x.start)
@@ -3057,7 +3051,7 @@ class ClassifierRNASeqSplicing(Counter):
         transcripts = {}
         transcript_intervals = IndexedGenome.Quicksect()
 
-        f = IOTools.openFile(filename_gff[0])
+        f = IOTools.open_file(filename_gff[0])
 
         for t in GTF.transcript_iterator(GTF.iterator(f)):
             t.sort(key=lambda x: x.start)
@@ -3831,9 +3825,9 @@ class CounterOverrun(Counter):
 
         # convert intervals to intersectors
         for contig in list(e.keys()):
-            intersector = bx.intervals.intersection.Intersecter()
+            intersector = quicksect.IntervalTree()
             for start, end in e[contig]:
-                intersector.add_interval(bx.intervals.Interval(start, end))
+                intersector.add(start, end)
 
             e[contig] = intersector
 
@@ -3854,7 +3848,7 @@ class CounterOverrun(Counter):
         intervals = []
         if contig in self.mIntersectors:
             for start, end in segments:
-                r = self.mIntersectors[contig].find(start, end)
+                r = self.mIntersectors[contig].find(quicksect.Interval(start, end))
                 intervals += [(x.start, x.end) for x in r]
                 if r:
                     n += 1
@@ -4780,7 +4774,7 @@ class CounterReadExtension(Counter):
 
         # read territories
         self.territories = {}
-        for gtf in GTF.iterator(IOTools.openFile(filename_territories_gff)):
+        for gtf in GTF.iterator(IOTools.open_file(filename_territories_gff)):
             if gtf.gene_id in self.territories:
                 raise ValueError(
                     "need territories - multiple entries for gene %s" %
@@ -4790,7 +4784,7 @@ class CounterReadExtension(Counter):
 
         # read known UTRs
         self.UTRs = collections.defaultdict(list)
-        for gtf in GTF.iterator(IOTools.openFile(filename_utrs_gff)):
+        for gtf in GTF.iterator(IOTools.open_file(filename_utrs_gff)):
             if gtf.feature in ("UTR5", "UTR3", "UTR"):
                 self.UTRs[gtf.gene_id].append((gtf.contig, gtf.start, gtf.end))
 

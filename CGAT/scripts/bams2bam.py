@@ -162,7 +162,7 @@ def main(argv=None):
 
     if options.filename_map:
         E.info("reading map")
-        id_map = IOTools.readMap(
+        id_map = IOTools.read_map(
             IOTools.open_file(options.filename_map), has_header=True)
         id_map = dict([(y, x) for x, y in id_map.items()])
     else:

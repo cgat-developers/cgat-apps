@@ -97,10 +97,10 @@ Command line options
 '''
 import sys
 import os
+import quicksect
 import CGATCore.Experiment as E
-import CGAT.GTF as GTF
 import CGATCore.IOTools as IOTools
-import bx.intervals.intersection
+import CGAT.GTF as GTF
 
 
 def GetNextLine(infile):
@@ -244,9 +244,8 @@ def main(argv=None):
     for e in GTF.readFromFile(IOTools.open_file(input_filename2, "r")):
         genes2.add(e.gene_id)
         if e.contig not in idx:
-            idx[e.contig] = bx.intervals.intersection.Intersecter()
-        idx[e.contig].add_interval(
-            bx.intervals.Interval(e.start, e.end, value=e))
+            idx[e.contig] = quicksect.IntervalTree()
+        idx[e.contig].add(e.start, e.end, e)
 
     overlaps_genes = []
 
@@ -266,11 +265,11 @@ def main(argv=None):
             genes1.add(this.gene_id)
 
             try:
-                intervals = idx[this.contig].find(this.start, this.end)
+                intervals = idx[this.contig].find(quicksect.Interval(this.start, this.end))
             except KeyError:
                 continue
 
-            others = [x.value for x in intervals]
+            others = [x.data for x in intervals]
             for other in others:
                 overlapping_genes.add((this.gene_id, other.gene_id))
 

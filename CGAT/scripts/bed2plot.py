@@ -155,7 +155,7 @@ def main(argv=sys.argv):
 
             igv.go("%s:%i-%i" % (bed.contig, start, end))
 
-            fn = E.getOutputFile("%s.%s" % (name, options.format))
+            fn = E.get_output_file("%s.%s" % (name, options.format))
             E.info("writing snapshot to '%s'" % fn)
             igv.save(fn)
 

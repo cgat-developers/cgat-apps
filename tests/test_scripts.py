@@ -36,14 +36,9 @@ import platform
 
 import TestUtils
 
-from nose.tools import ok_
-
-PYTHON_VERSION = platform.python_version()
-IS_PY3 = sys.version_info.major >= 3
-
 TRAVIS = os.environ.get("TRAVIS", False) == "true"
 JENKINS = os.environ.get("USER", "") == "jenkins"
-
+PYTHON_VERSION = platform.python_version()
 SUBDIRS = ("gpipe", "optic")
 
 # Setup logging
@@ -66,15 +61,14 @@ def check_main(script):
     #         (file, pathname, description) =
     #                imp.find_module( basename[:-3], [path,])
     #         module = imp.load_module( basename, file, pathname, description)
-    #     ok_( "main" in dir(module), "no main function" )
+    #     assert ( "main" in dir(module), "no main function" )
 
     # subsitute gpipe and other subdirectories.
     for s in SUBDIRS:
         script = re.sub("%s_" % s, "%s/" % s, script)
 
     # check for text match
-    ok_([x for x in open(script) if x.startswith("def main(")],
-        "no main function")
+    assert [x for x in open(script) if x.startswith("def main(")], "no main function"
 
 
 def compute_checksum(filename):
@@ -216,7 +210,7 @@ def check_script(test_name, script, stdin,
 
     if not DEBUG:
         shutil.rmtree(tmpdir)
-    ok_(not fail, msg)
+    assert not fail, msg
 
 
 def test_scripts():
@@ -334,13 +328,11 @@ def _read(fn):
         with open(fn, "rb") as inf:
             data = inf.read()
 
-    if IS_PY3:
-        try:
-            data = data.decode("ascii")
-        except UnicodeDecodeError:
-            return data
+    try:
+        data = data.decode("ascii")
+    except UnicodeDecodeError:
+        return data
 
-    data = [x for x in data.splitlines()
-            if not x.startswith("#")]
+    data = [x for x in data.splitlines() if not x.startswith("#")]
 
     return data

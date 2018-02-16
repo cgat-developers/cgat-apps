@@ -115,7 +115,7 @@ import CGAT.GTF as GTF
 def printValues(contig, max_size, window_size, values, options):
     """output values."""
 
-    outfile = E.openOutputFile(contig, "w")
+    outfile = E.open_output_file(contig, "w")
 
     outfile.write("abs_pos\trel_pos")
 

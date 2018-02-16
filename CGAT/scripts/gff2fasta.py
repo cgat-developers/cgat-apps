@@ -118,6 +118,7 @@ Command line options
 '''
 
 import sys
+import quicksect
 import CGATCore.Experiment as E
 import CGAT.GTF as GTF
 import CGAT.Genomics as Genomics
@@ -125,7 +126,6 @@ import CGATCore.IOTools as IOTools
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.Intervals as Intervals
 import CGAT.Masker as Masker
-import bx.intervals.intersection
 
 
 def main(argv=None):
@@ -255,9 +255,9 @@ def main(argv=None):
 
         # convert intervals to intersectors
         for contig in list(e.keys()):
-            intersector = bx.intervals.intersection.Intersecter()
+            intersector = quicksect.IntervalTree()
             for start, end in e[contig]:
-                intersector.add_interval(bx.intervals.Interval(start, end))
+                intersector.add(start, end)
             masks[contig] = intersector
 
     ninput, noutput, nmasked, nskipped_masked = 0, 0, 0, 0
@@ -309,7 +309,7 @@ def main(argv=None):
                 masked_regions = []
                 for start, end in intervals:
                     masked_regions += [(x.start, x.end)
-                                       for x in masks[contig].find(start, end)]
+                                       for x in masks[contig].find(quicksect.Interval(start, end))]
 
                 masked_regions = Intervals.combine(masked_regions)
                 if len(masked_regions):

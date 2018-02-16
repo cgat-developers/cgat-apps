@@ -204,7 +204,7 @@ def main(argv=None):
     if "overlaps" in options.methods:
         if not options.output_filename_pattern:
             options.output_filename_pattern = "%s"
-        outfile_overlaps = E.openOutputFile("overlaps")
+        outfile_overlaps = E.open_output_file("overlaps")
     else:
         outfile_overlaps = None
 
@@ -235,7 +235,7 @@ def main(argv=None):
         last = this
 
     if "hist" in options.methods:
-        outfile = E.openOutputFile("hist")
+        outfile = E.open_output_file("hist")
         h_within = Histogram.Calculate(
             values_within,
             no_empty_bins=options.no_empty_bins,
@@ -269,7 +269,7 @@ def main(argv=None):
         outfile.close()
 
     if "stats" in options.methods:
-        outfile = E.openOutputFile("stats")
+        outfile = E.open_output_file("stats")
         outfile.write("data\t%s\n" % Stats.Summary().getHeader())
         if options.output_section in ("size", "all"):
             outfile.write("size\t%s\n" % str(Stats.Summary(values_within)))
@@ -279,13 +279,13 @@ def main(argv=None):
         outfile.close()
 
     if "values" in options.methods:
-        outfile = E.openOutputFile("distances")
+        outfile = E.open_output_file("distances")
         outfile.write("distance\n%s\n" % "\n".join(map(str, values_between)))
         outfile.close()
-        outfile = E.openOutputFile("sizes")
+        outfile = E.open_output_file("sizes")
         outfile.write("size\n%s\n" % "\n".join(map(str, values_within)))
         outfile.close()
-        outfile = E.openOutputFile("overlaps")
+        outfile = E.open_output_file("overlaps")
         outfile.write("overlap\n%s\n" % "\n".join(map(str, values_overlaps)))
         outfile.close()
 

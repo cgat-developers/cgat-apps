@@ -247,7 +247,7 @@ def main(argv=None):
 
                 other_bed = [bedfiles[x] for x in other]
                 outf = IOTools.open_file(
-                    E.getOutputFile(tag), "w", create_dir=True)
+                    E.get_output_file(tag), "w", create_dir=True)
                 c = E.Counter()
                 for contig, start, end in combineMergedIntervals(
                         [bedfiles[x] for x in combination]):
@@ -292,7 +292,7 @@ def main(argv=None):
                     E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
                     outf = IOTools.open_file(
-                        E.getOutputFile(tag), "w", create_dir=True)
+                        E.get_output_file(tag), "w", create_dir=True)
                     c = E.Counter()
                     for bed in combineUnmergedIntervals(
                             bedfiles[foreground],
