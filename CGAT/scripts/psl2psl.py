@@ -148,13 +148,13 @@ def iterator_psl_intervals(options):
 
     if options.filename_filter_query:
         intervals_query = readIntervals(
-            IOTools.openFile(options.filename_filter_query, "r"), options)
+            IOTools.open_file(options.filename_filter_query, "r"), options)
     else:
         intervals_query = None
 
     if options.filename_filter_target:
         intervals_target = readIntervals(
-            IOTools.openFile(options.filename_filter_target, "r"), options)
+            IOTools.open_file(options.filename_filter_target, "r"), options)
     else:
         intervals_target = None
 
@@ -810,7 +810,7 @@ def iterator_rename_query(infile, options):
         yield match
 
     if options.output_filename_map:
-        outfile = IOTools.openFile(options.output_filename_map, "w")
+        outfile = IOTools.open_file(options.output_filename_map, "w")
         outfile.write("%s\t%s\n" % ("old", "new"))
         for old, new in map_old2new.items():
             outfile.write("%s\t%s\n" % (old, new))
@@ -1016,7 +1016,7 @@ def main(argv=None):
                         header=None,
                         test=None)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if options.filename_queries:
         query_fasta = IndexedFasta.IndexedFasta(options.filename_queries)
@@ -1083,7 +1083,7 @@ def main(argv=None):
     for psl in iterator:
         options.stdout.write("%s\n" % str(psl))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

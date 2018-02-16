@@ -91,7 +91,7 @@ def main(argv=sys.argv):
         sort_order="alphabetical",
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if not options.methods:
         raise ValueError("no method specified")
@@ -112,7 +112,7 @@ def main(argv=sys.argv):
             vcf.order = sort_order
         options.stdout.write(str(vcf) + "\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

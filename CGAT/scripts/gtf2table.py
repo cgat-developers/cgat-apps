@@ -652,7 +652,7 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    (options, args) = E.Start(parser, add_output_options=True, argv=argv)
+    (options, args) = E.start(parser, add_output_options=True, argv=argv)
 
     if options.prefixes:
         if len(options.prefixes) != len(options.counters):
@@ -939,7 +939,7 @@ def main(argv=None):
     E.info("%s" % str(cc))
     for counter in counters:
         E.info("%s\t%s" % (repr(counter), str(counter.counter)))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

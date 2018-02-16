@@ -72,7 +72,7 @@ def main(argv=None):
                       help="specify directory where genome / genomes are stored")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # read in contig lengths into dictionary
     E.info("reading contigs file")
@@ -89,7 +89,7 @@ def main(argv=None):
 
     # read in mapping between spcies and contigs
     species_map = {}
-    for line in IOTools.openFile(options.species_map).readlines():
+    for line in IOTools.open_file(options.species_map).readlines():
         data = line[:-1].split("\t")
         contig, species = data[0], data[1]
         species_map[contig] = species
@@ -104,7 +104,7 @@ def main(argv=None):
     c_genomes = 0
     for genome_file in glob.glob(os.path.join(options.genome_dir, "*")):
         c_genomes += 1
-        for fasta in FastaIterator.iterate(IOTools.openFile(genome_file)):
+        for fasta in FastaIterator.iterate(IOTools.open_file(genome_file)):
             genomes_sequences[fasta.title] = fasta.sequence
     E.info("read %i genomes from %s" % (c_genomes, options.genome_dir))
 
@@ -132,7 +132,7 @@ def main(argv=None):
 
     E.info("written %i contigs" % c_contigs_output)
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

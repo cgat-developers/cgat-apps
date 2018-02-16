@@ -60,7 +60,7 @@ class DummyError(Exception):
 
 
 def LocalStart(parser, *args, **kwargs):
-    '''stub for E.Start - set return_parser argument to true'''
+    '''stub for E.start - set return_parser argument to true'''
     global PARSER
     PARSER = ORIGINAL_START(parser,
                             return_parser=True,
@@ -82,7 +82,7 @@ def collectOptionsFromScript(script_name):
         os.remove(prefix + ".pyc")
 
     # check if script contains getopt
-    with IOTools.openFile(script_name) as inf:
+    with IOTools.open_file(script_name) as inf:
         if "getopt" in inf.read():
             E.warn("script %s uses getopt directly" % script_name)
             return []
@@ -93,7 +93,7 @@ def collectOptionsFromScript(script_name):
         E.warn('could not import %s - skipped: %s' % (basename, msg))
         return []
 
-    E.Start = LocalStart
+    E.start = LocalStart
 
     try:
         module.main(argv=["--help"])
@@ -101,7 +101,7 @@ def collectOptionsFromScript(script_name):
         E.warn("no main method in %s" % script_name)
         return []
     except SystemExit:
-        E.warn("script exits - possibly does not use E.Start()")
+        E.warn("script exits - possibly does not use E.start()")
         return []
     except DummyError:
         pass
@@ -148,7 +148,7 @@ def main(argv=None):
         tsv_file=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     old_options = None
     if options.tsv_file:
@@ -157,14 +157,14 @@ def main(argv=None):
                 "filename %s not found, see --options-tsv-file" %
                 options.tsv_file)
         old_options = pandas.read_csv(
-            IOTools.openFile(options.tsv_file),
+            IOTools.open_file(options.tsv_file),
             sep="\t",
             index_col=0,
         )
         old_options = old_options.fillna("")
 
     global ORIGINAL_START
-    ORIGINAL_START = E.Start
+    ORIGINAL_START = E.start
 
     all_options = collections.defaultdict(list)
 
@@ -190,7 +190,7 @@ def main(argv=None):
             all_options[x].append("--")
 
     if options.inplace:
-        outfile = IOTools.openFile(options.tsv_file, "w")
+        outfile = IOTools.open_file(options.tsv_file, "w")
         E.info("updating file '%s'" % options.tsv_file)
     else:
         outfile = options.stdout
@@ -215,7 +215,7 @@ def main(argv=None):
         outfile.close()
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

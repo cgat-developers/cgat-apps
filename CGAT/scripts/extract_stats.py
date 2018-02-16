@@ -258,7 +258,7 @@ def main(argv=None):
                       help="table in SQLite DB to extract")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.task == "extract_table":
         out_df = getTableFromDb(db=options.database,
@@ -280,7 +280,7 @@ def main(argv=None):
                   sep="\t", index_label="track")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

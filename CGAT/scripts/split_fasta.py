@@ -74,7 +74,7 @@ class Files:
             if dirname and not os.path.exists(dirname):
                 os.makedirs(dirname)
 
-        returnIOTools.openFile(filename, mode)
+        returnIOTools.open_file(filename, mode)
 
     def Write(self, identifier, sequence):
 
@@ -174,10 +174,10 @@ def main(argv=None):
         num_sequences=None,
         output_pattern="%s")
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.input_filename:
-        infile = IOTools.openFile(options.input_filename, "r")
+        infile = IOTools.open_file(options.input_filename, "r")
     else:
         infile = sys.stdin
 
@@ -241,7 +241,7 @@ def main(argv=None):
     if options.loglevel >= 1:
         print("# input=%i, output=%i, ndeleted=%i" % (ninput, noutput, ndeleted))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

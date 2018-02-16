@@ -90,7 +90,7 @@ def processSequence(key, description_rest, sequence, options, mask_regions=None)
         # check if we need to open a new sequence file:
         if global_outfile is None:
             global_file_id += 1
-            global_outfile = IOTools.openFile(options.output_pattern % global_file_id, "w")
+            global_outfile = IOTools.open_file(options.output_pattern % global_file_id, "w")
 
         offset_positive_strand = first_res
         offset_negative_strand = lsequence - last_res
@@ -154,13 +154,13 @@ def main(argv=None):
         filename_mask_regions=None,
         mask_char="N")
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     # read segments to mask
 
     if options.filename_mask_regions:
         mask_regions = {}
-        infile = IOTools.openFile(options.filename_mask_regions, "r")
+        infile = IOTools.open_file(options.filename_mask_regions, "r")
         nregions = 0
         for line in infile:
             if line[0] == "#":
@@ -183,7 +183,7 @@ def main(argv=None):
         mask_regions = None
 
     if options.filename_sequence:
-        infile = IOTools.openFile(options.filename_sequence, "r")
+        infile = IOTools.open_file(options.filename_sequence, "r")
     else:
         infile = sys.stdin
 
@@ -231,7 +231,7 @@ def main(argv=None):
         options.stdlog.write("# nkeys=%i, nwritten=%i, nmasked=%i\n" % (
             total_keys, total_written, total_masked))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

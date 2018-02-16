@@ -129,11 +129,11 @@ def main(argv=None):
                       "either timepoint or condition")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     try:
         infile = argv[-1]
-        IOTools.openFile(infile, "r")
+        IOTools.open_file(infile, "r")
         # check for compression state
         if infile.split(".")[-1] == "gz":
             comp = "gzip"
@@ -263,7 +263,7 @@ def main(argv=None):
             res_frame.to_csv(outfile, sep="\t", index_label="gene_id")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

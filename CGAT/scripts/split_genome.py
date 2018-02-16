@@ -75,7 +75,7 @@ def main(argv=None):
         width=100,
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     nchunk = 0
     chunksize = 0
@@ -102,7 +102,7 @@ def main(argv=None):
 
             nchunk += 1
 
-            outfile = IOTools.openFile(options.filename_pattern_output % nchunk, "w")
+            outfile = IOTools.open_file(options.filename_pattern_output % nchunk, "w")
 
             if is_header:
                 description = line[1:-1]

@@ -62,18 +62,18 @@ def main(argv=None):
                       help="description of parents in the taxonomy")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     E.info("reading gi accession numbers")
     gi_accessions = set()
-    for line in IOTools.openFile(options.gi_accessions).readlines():
+    for line in IOTools.open_file(options.gi_accessions).readlines():
         gi_accessions.add(line[:-1])
     E.info("read gi accession numbers")
 
     E.info("building gi2taxid map")
     gi2taxid = {}
     c_gi = 0
-    for line in IOTools.openFile(options.nucl_map).readlines():
+    for line in IOTools.open_file(options.nucl_map).readlines():
         data = line[:-1].split("\t")
         if data[0] not in gi_accessions:
             continue
@@ -85,14 +85,14 @@ def main(argv=None):
     E.info("building code map")
     code2taxa = {}
 
-    for line in IOTools.openFile(options.taxa_code).readlines():
+    for line in IOTools.open_file(options.taxa_code).readlines():
         data = line[:-1].split("\t")
         code2taxa[data[0]] = data[1]
     E.info("built taxa code map")
 
     E.info("building taxa2name map")
     taxid2name = {}
-    for line in IOTools.openFile(options.ncbi_map).readlines():
+    for line in IOTools.open_file(options.ncbi_map).readlines():
         data = line[:-1].split("\t")
         # keep the taxa code
         taxid2name[data[0]] = (data[1], data[3])
@@ -100,7 +100,7 @@ def main(argv=None):
 
     E.info("build taxid2parentmap")
     taxid2parents = {}
-    for line in IOTools.openFile(options.tree).readlines():
+    for line in IOTools.open_file(options.tree).readlines():
         data = line[:-1].split("\t")
         data = [x for x in data if x != "|"]
         taxid2parents[data[0]] = data[1]
@@ -155,7 +155,7 @@ def main(argv=None):
             " ", "_"), genus, family, order, _class, phylum]) + "\n")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

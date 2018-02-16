@@ -118,7 +118,7 @@ def main(argv=None):
         regex_filename="(.*)"
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.headers:
         if "," in options.headers:
@@ -153,9 +153,9 @@ def main(argv=None):
                              len(options.filenames))
         sys.stdout.flush()
         if len(options.filenames) == 1:
-            for line in IOTools.openFile(options.filenames[0]):
+            for line in IOTools.open_file(options.filenames[0]):
                 options.stdout.write(line)
-            E.Stop()
+            E.stop()
             sys.exit(0)
 
     if options.headers and options.headers[0] != "auto" and \
@@ -177,7 +177,7 @@ def main(argv=None):
         prefix = os.path.basename(filename)
 
         if os.path.exists(filename):
-            file = IOTools.openFile(filename, "r")
+            file = IOTools.open_file(filename, "r")
             lines = [x for x in file if x[0] != "#"]
 
         else:
@@ -353,7 +353,7 @@ def main(argv=None):
 
             sys.stdout.write("\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -50,7 +50,7 @@ def main(argv=None):
                         filename_strand=None,
                         test=None)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     ####################################
     if options.filename_strand:
@@ -115,7 +115,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == '__main__':
     sys.exit(main())

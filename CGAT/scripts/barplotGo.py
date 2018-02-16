@@ -71,7 +71,7 @@ def main(argv=None):
         height=500, width=500, number=5, colour="blue", margins="1,1,1,1", cex_names=1, cex_axis=1)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # don't plot more than 20
     if options.number > 20:
@@ -102,7 +102,7 @@ def main(argv=None):
     R["dev.off"]()
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

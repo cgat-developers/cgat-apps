@@ -88,7 +88,7 @@ def main(argv=sys.argv):
                         test=None,
                         extend_distance=1000)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     contigs = None
 
@@ -106,7 +106,7 @@ def main(argv=sys.argv):
                 raise ValueError("please supply contig sizes")
             processor = sanitizeGenome(options.stdin, options.stdout, contigs)
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

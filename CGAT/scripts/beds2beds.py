@@ -216,7 +216,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) < 2:
         raise ValueError("at least two arguments required")
@@ -246,7 +246,7 @@ def main(argv=None):
                 E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
                 other_bed = [bedfiles[x] for x in other]
-                outf = IOTools.openFile(
+                outf = IOTools.open_file(
                     E.getOutputFile(tag), "w", create_dir=True)
                 c = E.Counter()
                 for contig, start, end in combineMergedIntervals(
@@ -291,7 +291,7 @@ def main(argv=None):
                     E.debug("combination %s started" % tag)
                     E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
-                    outf = IOTools.openFile(
+                    outf = IOTools.open_file(
                         E.getOutputFile(tag), "w", create_dir=True)
                     c = E.Counter()
                     for bed in combineUnmergedIntervals(
@@ -316,7 +316,7 @@ def main(argv=None):
                         ":".join([tags[x] for x in other]),
                         c.output))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

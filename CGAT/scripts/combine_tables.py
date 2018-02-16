@@ -51,7 +51,7 @@ def readTable(filename, options):
     '''
 
     if os.path.exists(filename):
-        lines = IOTools.openFile(filename, "r").readlines()
+        lines = IOTools.open_file(filename, "r").readlines()
     else:
         lines = []
 
@@ -598,7 +598,7 @@ def main(argv=sys.argv):
         test=0,
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.headers:
         if "," in options.headers:
@@ -634,7 +634,7 @@ def main(argv=sys.argv):
     else:
         joinTables(options.stdout, options, args)
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == '__main__':

@@ -76,7 +76,7 @@ def main(argv=None):
         format="%5.2f",
         methods=[])
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     options.columns = [int(x) - 1 for x in options.columns.split(",")]
 
@@ -133,7 +133,7 @@ def main(argv=None):
     for d in zip(*new_columns):
         print(string.join(list(map(str, d)), "\t"))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

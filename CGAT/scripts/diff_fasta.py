@@ -147,7 +147,7 @@ def main(argv=None):
                         pattern2="(\S+)",
                         output=[])
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) != 2:
         raise ValueError("two files needed to compare.")
@@ -162,10 +162,10 @@ def main(argv=None):
 
     seqs1 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            IOTools.openFile(args[0], "r"))])
+            IOTools.open_file(args[0], "r"))])
     seqs2 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            IOTools.openFile(args[1], "r"))])
+            IOTools.open_file(args[1], "r"))])
 
     if not seqs1:
         raise ValueError("first file %s is empty." % (args[0]))
@@ -303,7 +303,7 @@ def main(argv=None):
          ndiff - ndiff_first - ndiff_last - ndiff_prefix -
          ndiff_selenocysteine - ndiff_masked - nfixed))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

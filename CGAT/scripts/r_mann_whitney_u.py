@@ -64,7 +64,7 @@ def main(argv=None):
         filename_input_map=None,
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_pipe_options=True)
 
     map_category2value = {}
@@ -106,7 +106,7 @@ def main(argv=None):
     for x in ['p.value', 'statistic', 'alternative', 'method']:
         print(x, result[x])
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

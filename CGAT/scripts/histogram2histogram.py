@@ -87,7 +87,7 @@ def main(argv=None):
         format_val="%6.4f",
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     # old histogram2histogram.py semantics - need to merged with newer
     # code below.
@@ -198,7 +198,7 @@ def main(argv=None):
         for d in data:
             print(format % tuple(d))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

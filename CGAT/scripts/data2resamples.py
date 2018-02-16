@@ -131,10 +131,10 @@ parses command line options in sys.argv, unless *argv* is given.
 
     # add common options (-h/--help, ...) and parse command line
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     try:
-        infile = IOTools.openFile(argv[-1], "r")
+        infile = IOTools.open_file(argv[-1], "r")
     except IOError:
         infile = options.stdin
 
@@ -162,7 +162,7 @@ parses command line options in sys.argv, unless *argv* is given.
                        seed=int(options.random_seed))
 
     # Write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

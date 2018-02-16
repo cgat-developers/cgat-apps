@@ -526,7 +526,7 @@ def main(argv=None):
         spike_regex=".*")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     df = pd.read_table(sys.stdin, sep="\t")
 
@@ -622,7 +622,7 @@ def main(argv=None):
                  min_sbin=options.min_sbin, width_sbin=options.width_sbin)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

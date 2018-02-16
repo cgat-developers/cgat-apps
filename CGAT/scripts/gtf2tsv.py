@@ -135,7 +135,7 @@ def main(argv=None):
         is_gtf=True
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.output_full:
         # output full table with column for each attribute
@@ -292,7 +292,7 @@ def main(argv=None):
 
             options.stdout.write(str(gtf) + "\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == '__main__':
     sys.exit(main())

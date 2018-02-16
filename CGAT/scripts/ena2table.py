@@ -127,7 +127,7 @@ def main(argv=None):
                         tax_id=9606)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # tree = ET.parse('/ifs/home/andreas/ena.xml')
     # root = tree.getroot()
@@ -201,7 +201,7 @@ def main(argv=None):
     fields.append("read_length")
     fields.append("design")
 
-    table_study = options.stdout  # IOTools.openFile( "study.tsv", "w" )
+    table_study = options.stdout  # IOTools.open_file( "study.tsv", "w" )
     table_study.write("\t".join(fields) + "\n")
     # collect a list of all studies
     studies = set()
@@ -228,7 +228,7 @@ def main(argv=None):
 
         studies.add(data.study_accession)
 
-    table_studies = IOTools.openFile("studies.tsv", "w")
+    table_studies = IOTools.open_file("studies.tsv", "w")
     studies_fields = ["study_accession", "nreferences", "pubmed_ids"]
 
     table_studies.write("\t".join(studies_fields) + "\n")
@@ -296,7 +296,7 @@ def main(argv=None):
             ",".join(geos)))) + "\n")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

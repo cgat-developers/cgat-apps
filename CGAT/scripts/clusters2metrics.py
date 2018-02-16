@@ -99,7 +99,7 @@ def main(argv=None):
                       help="comma separated list of reference gtf files")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.method == "metrics":
         infile = argv[-1]
@@ -199,7 +199,7 @@ def main(argv=None):
         ref_gtfs = options.ref_gtf.split(",")
         length_dict = {}
         for ref in ref_gtfs:
-            oref = IOTools.openFile(ref, "rb")
+            oref = IOTools.open_file(ref, "rb")
             git = GTF.transcript_iterator(GTF.iterator(oref))
             for gene in git:
                 for trans in gene:
@@ -250,7 +250,7 @@ def main(argv=None):
                     sep="\t")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

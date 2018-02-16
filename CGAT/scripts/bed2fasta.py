@@ -111,7 +111,7 @@ def main(argv=None):
         ignore_strand=True,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.genome_file:
         fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -172,7 +172,7 @@ def main(argv=None):
 
     E.info("%s" % counter)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

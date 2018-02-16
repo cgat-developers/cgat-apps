@@ -147,7 +147,7 @@ class CounterOverlap(Counter):
         E.info("reading intervals from %s" % self.filename)
 
         self.index = Bed.readAndIndex(
-            IOTools.openFile(self.filename, "r"),
+            IOTools.open_file(self.filename, "r"),
             per_track=True)
 
         E.info("read intervals for %s tracks" % len(self.index))
@@ -602,7 +602,7 @@ def main(argv=None):
         motif_sequence=None
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.bed_headers is not None:
         bed_headers = [x.strip() for x in options.bed_headers.split(",")]
@@ -616,7 +616,7 @@ def main(argv=None):
             line = options.stdin.readline()
             if not line:
                 E.warn("empty bed file with no header")
-                E.Stop()
+                E.stop()
                 return
             if not line.startswith("#"):
                 break
@@ -719,7 +719,7 @@ def main(argv=None):
 
         options.stdout.write("\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -83,7 +83,7 @@ def main(argv=None):
         missing_value="",
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if len(args) < 2:
         raise ValueError("there have to be at least two tables")
@@ -161,7 +161,7 @@ def main(argv=None):
         if f:
             f.close()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

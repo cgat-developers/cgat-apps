@@ -80,7 +80,7 @@ def main(argv=None):
                         allow_duplicates=False,
                         test=None)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if options.genome_file:
         genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -149,7 +149,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

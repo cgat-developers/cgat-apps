@@ -267,7 +267,7 @@ def main(argv=None):
         method="genomic",
     )
 
-    (options, args) = E.Start(parser, add_output_options=True)
+    (options, args) = E.start(parser, add_output_options=True)
 
     if options.genome_file:
         fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -329,7 +329,7 @@ def main(argv=None):
             else:
                 options.stdout.write("\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

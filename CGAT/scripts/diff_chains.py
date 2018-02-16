@@ -355,7 +355,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) != 2:
         raise ValueError("expected two chain files")
@@ -363,21 +363,21 @@ def main(argv=None):
     filename_chain1, filename_chain2 = args
 
     E.info("validating chain 1")
-    if not validateChain(IOTools.openFile(filename_chain1)):
+    if not validateChain(IOTools.open_file(filename_chain1)):
         E.warn("validation failed - exiting")
         return 1
 
     E.info("validating chain 2")
-    if not validateChain(IOTools.openFile(filename_chain2)):
+    if not validateChain(IOTools.open_file(filename_chain2)):
         E.warn("validation failed - exiting")
         return 1
 
     E.info("building pairs for %s" % filename_chain1)
-    pairs1 = buildPairs(IOTools.openFile(filename_chain1))
+    pairs1 = buildPairs(IOTools.open_file(filename_chain1))
     E.info("read %i pairs" % len(pairs1))
 
     E.info("building pairs for %s" % filename_chain2)
-    pairs2 = buildPairs(IOTools.openFile(filename_chain2))
+    pairs2 = buildPairs(IOTools.open_file(filename_chain2))
     E.info("read %i pairs" % len(pairs2))
 
     if options.restrict:
@@ -474,7 +474,7 @@ def main(argv=None):
                          )
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

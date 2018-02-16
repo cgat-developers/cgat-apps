@@ -269,7 +269,7 @@ def main(argv=None):
         iterations=None,
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.alignment_format == "emissions":
         outer = OutputEmissions

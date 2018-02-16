@@ -59,7 +59,7 @@ def main(argv=None):
         directories=["scripts", "CGAT", "CGAT/scripts", "CGATPipelines"])
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # collect all dependencies
     dependencies = {}
@@ -89,7 +89,7 @@ def main(argv=None):
             ",".join(numpy.unique(
                 [x[1] for x in deps])))) + "\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

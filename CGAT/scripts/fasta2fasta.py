@@ -243,7 +243,7 @@ def main(argv=None):
         filter_methods=[],
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
     options.parameters = options.parameters.split(",")
 
     rx_include, rx_exclude = None, None
@@ -304,7 +304,7 @@ def main(argv=None):
         elif f.startswith("max-length"):
             filter_max_sequence_length = int(f.split("=")[1])
         elif f.startswith("id-file"):
-            filter_id_list = [line[:-1] for line in IOTools.openFile(f.split("=")[1])]
+            filter_id_list = [line[:-1] for line in IOTools.open_file(f.split("=")[1])]
 
     def raiseIfNotCodon(l, title):
         '''raise ValueError if sequence length l is not divisible by
@@ -644,7 +644,7 @@ def main(argv=None):
     if "build-map" in options.methods:
         p = options.parameters[0]
         if p:
-            outfile = IOTools.openFile(p, "w")
+            outfile = IOTools.open_file(p, "w")
         else:
             outfile = options.stdout
 
@@ -657,7 +657,7 @@ def main(argv=None):
     E.info("ninput=%i, noutput=%i, nskipped=%i, nerrors=%i" %
            (ninput, noutput, nskipped, nerrors))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -72,7 +72,7 @@ def readTable(lines,
         num_cols = len(lines[0][:-1].split("\t"))
         take = list(range(1, num_cols))
 
-    outfile = IOTools.openFile(name, "w")
+    outfile = IOTools.open_file(name, "w")
     c = []
 
     # delete columns with colour information/legend
@@ -254,7 +254,7 @@ def main(argv=None):
         fail_on_empty=True,
         format="full")
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) == 1 and not options.input_filename:
         options.input_filename = args[0]
@@ -272,7 +272,7 @@ def main(argv=None):
 
     # read data matrix
     if options.input_filename:
-        lines = IOTools.openFile(options.input_filename, "r").readlines()
+        lines = IOTools.open_file(options.input_filename, "r").readlines()
     else:
         # note: this will not work for interactive viewing, but
         # creating hardcopy plots works.
@@ -284,7 +284,7 @@ def main(argv=None):
         if options.fail_on_empty:
             raise IOError("no input")
         E.warn("empty input")
-        E.Stop()
+        E.stop()
         return
 
     matrix, headers, colours, legend = readTable(lines,
@@ -636,7 +636,7 @@ title(main='%s');
             E.info(
                 "can not start new interactive session as input has come from stdin.")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     main()

@@ -83,7 +83,7 @@ def main(argv=None):
         bin_size2=1.0,
         titles=True)
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
     options.column1 -= 1
     options.column2 -= 1
 
@@ -128,7 +128,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

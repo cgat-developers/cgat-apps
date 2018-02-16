@@ -404,11 +404,11 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if options.filename_rna:
         rna = GTF.readAndIndex(
-            GTF.iterator(IOTools.openFile(options.filename_rna)))
+            GTF.iterator(IOTools.open_file(options.filename_rna)))
     else:
         rna = None
 
@@ -466,7 +466,7 @@ def main(argv=None):
 
     if counter.alignments_input == 0:
         E.warn("no alignments in BAM file - no further output")
-        E.Stop()
+        E.stop()
         return
 
     _write(outs,
@@ -482,7 +482,7 @@ def main(argv=None):
 
     if nalignments_mapped == 0:
         E.warn("no mapped alignments - no further output")
-        E.Stop()
+        E.stop()
         return
 
     for flag, counts in sorted(flags_counts.items()):
@@ -812,7 +812,7 @@ def main(argv=None):
         outfile.close()
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

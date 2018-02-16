@@ -50,7 +50,7 @@ def main(argv=None):
     parser.set_defaults(
         tables=[])
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(options.tables) < 1:
         raise ValueError("please specify at least one table")
@@ -76,7 +76,7 @@ def main(argv=None):
 
         print(string.join(frags, "\t"))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

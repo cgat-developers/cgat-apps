@@ -325,7 +325,7 @@ class Generator:
 
 
 def LocalStart(parser, **kwargs):
-    '''stub for E.Start - set return_parser argument to true'''
+    '''stub for E.start - set return_parser argument to true'''
     global PARSER
     PARSER = ORIGINAL_START(parser,
                             return_parser=True,
@@ -401,7 +401,7 @@ def processScript(script_name, outfile, options):
     sys.path.insert(0, dirname)
     module = __import__(basename)
 
-    E.Start = LocalStart
+    E.start = LocalStart
     E.info("loaded modules %s" % module)
     try:
         module.main(argv=["--help"])
@@ -661,7 +661,7 @@ def processScript(script_name, outfile, options):
         displayMap['normal'] = displayMap['show']
 
         target = Template(
-           IOTools.openFile('/ifs/devel/andreas/cgat/scripts/cgat2rdf/galaxy.xml').read())
+           IOTools.open_file('/ifs/devel/andreas/cgat/scripts/cgat2rdf/galaxy.xml').read())
         outfile.write(target.render(data=data,
                                     displayMap=displayMap,
                                     outputs=outputs) + "\n")
@@ -707,7 +707,7 @@ def main(argv=None):
                         filename_list=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) == 0:
         E.info("reading script names from stdin")
@@ -718,7 +718,7 @@ def main(argv=None):
 
     # start script in order to build the command line parser
     global ORIGINAL_START
-    ORIGINAL_START = E.Start
+    ORIGINAL_START = E.start
 
     if options.output_pattern and not options.input_regex:
         raise ValueError(
@@ -743,7 +743,7 @@ def main(argv=None):
 
         if options.output_pattern:
             outfile_name = re.sub("%s", input_string, options.output_pattern)
-            outfile = IOTools.openFile(outfile_name, "w")
+            outfile = IOTools.open_file(outfile_name, "w")
         else:
             outfile = options.stdout
 
@@ -760,7 +760,7 @@ def main(argv=None):
     if options.output_format == "galaxy":
         options.stdout.write('''</section>\n''')
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

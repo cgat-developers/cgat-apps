@@ -104,7 +104,7 @@ def main(argv=None):
         joined=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) != 1:
         print(USAGE)
@@ -196,7 +196,7 @@ def main(argv=None):
 
         nopened += 1
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

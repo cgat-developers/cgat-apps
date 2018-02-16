@@ -232,7 +232,7 @@ def main(argv=None):
         header_attr=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.genome_file:
         fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -250,7 +250,7 @@ def main(argv=None):
     masks = None
     if options.filename_masks:
         masks = {}
-        with IOTools.openFile(options.filename_masks, "r") as infile:
+        with IOTools.open_file(options.filename_masks, "r") as infile:
             e = GTF.readAsIntervals(GTF.iterator(infile))
 
         # convert intervals to intersectors
@@ -412,7 +412,7 @@ def main(argv=None):
            (ninput, noutput, nmasked, nskipped_noexons,
             nskipped_masked, nskipped_length))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

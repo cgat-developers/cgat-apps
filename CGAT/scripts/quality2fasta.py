@@ -156,7 +156,7 @@ def main(argv=None):
         default_value=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     ninput, noutput = 0, 0
 
@@ -184,7 +184,7 @@ def main(argv=None):
             raise ValueError("please supply a filename with sequences")
 
         iterator_sequence = FastaIterator.FastaIterator(
-           IOTools.openFile(options.filename_sequences, "r"))
+           IOTools.open_file(options.filename_sequences, "r"))
 
         while 1:
             qual, seq = None, None
@@ -210,7 +210,7 @@ def main(argv=None):
                               iterator.mNOverFlow,
                               iterator.mNUnderFlow))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

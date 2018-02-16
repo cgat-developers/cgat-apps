@@ -113,7 +113,7 @@ def main(argv=None):
                         keep_header=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.regex_token:
         options.regex_token = re.compile(options.regex_token)
@@ -130,7 +130,7 @@ def main(argv=None):
     keys = {}
 
     if options.apply:
-        infile = IOTools.openFile(options.apply, "r")
+        infile = IOTools.open_file(options.apply, "r")
         for line in infile:
             if line[0] == "#":
                 continue
@@ -173,12 +173,12 @@ def main(argv=None):
         else:
             if options.inplace:
                 os.rename(file, file + ".bak")
-                infile = IOTools.openFile(file + ".bak", "r")
-                outfile = IOTools.openFile(file, "w")
+                infile = IOTools.open_file(file + ".bak", "r")
+                outfile = IOTools.open_file(file, "w")
                 close_infile = True
                 close_outfile = True
             else:
-                infile = IOTools.openFile(file, "r")
+                infile = IOTools.open_file(file, "r")
                 outfile = sys.stdout
                 close_infile = True
 
@@ -269,7 +269,7 @@ def main(argv=None):
                 outfile.write("\n".join(new_lines) + "\n")
 
         if options.create:
-            create_file = IOTools.openFile(options.create, "w")
+            create_file = IOTools.open_file(options.create, "w")
             for key in keys:
                 for k in keys[key]:
                     create_file.write("%s\t%s\n" % (key, str(k)))
@@ -283,7 +283,7 @@ def main(argv=None):
         if options.inplace and not options.backup:
             os.remove(file + ".bak")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -50,16 +50,16 @@ def main(argv=None):
                       help="supply output file name")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
-    outfile = IOTools.openFile(options.outfile, "w")
-    for line in IOTools.openFile(options.table).readlines():
+    outfile = IOTools.open_file(options.outfile, "w")
+    for line in IOTools.open_file(options.table).readlines():
         contig = line.split("\t")[0].split('"')[1]
         outfile.write(
             "\t".join((contig, line.split("\t")[1], line.split("\t")[2])))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

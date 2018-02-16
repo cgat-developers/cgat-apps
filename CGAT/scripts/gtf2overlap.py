@@ -62,7 +62,7 @@ def main(argv=None):
                       help="set if no venn is to be drawn")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     gtf_files = [options.gtf_a, options.gtf_b]
 
@@ -123,10 +123,10 @@ def main(argv=None):
         count_intersection = 0
 
         # create GTF iterator objects
-        gtf_iterator_a = GTF.iterator(IOTools.openFile(gtf_pair[0]))
-        gtf_iterator_b = GTF.iterator(IOTools.openFile(gtf_pair[1]))
+        gtf_iterator_a = GTF.iterator(IOTools.open_file(gtf_pair[0]))
+        gtf_iterator_b = GTF.iterator(IOTools.open_file(gtf_pair[1]))
         gtf_iterator_intersection = GTF.iterator(
-            IOTools.openFile(intersection_file))
+            IOTools.open_file(intersection_file))
 
         # do the counts for each file
         E.info("counting entries in %s" % gtf_a)
@@ -169,7 +169,7 @@ def main(argv=None):
                                                                                                                                                })
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

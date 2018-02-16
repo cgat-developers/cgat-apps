@@ -87,7 +87,7 @@ def main(argv=None):
         with_title=True,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.add_header:
         options.stdout.write(
@@ -117,7 +117,7 @@ def main(argv=None):
     for f in args:
         if options.with_title:
             title, data = IOTools.readList(
-               IOTools.openFile(f, "r"), with_title=options.with_title)
+               IOTools.open_file(f, "r"), with_title=options.with_title)
             titles.append(title)
         else:
             data = IOTools.readList(open(f, "r"))
@@ -165,7 +165,7 @@ def main(argv=None):
 
             options.stdout.write("\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

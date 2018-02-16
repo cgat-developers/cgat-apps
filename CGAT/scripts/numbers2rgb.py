@@ -51,7 +51,7 @@ def main(argv=None):
         method="random_rgb",
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     numbers = [int(x[:-1].split("\t")[0]) for x in [x for x in sys.stdin.readlines() if x[0] != "#"]]
 
@@ -68,7 +68,7 @@ def main(argv=None):
     for x, y in list(map_number2output.items()):
         options.stdout.write("%i\t%s\n" % (x, y))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

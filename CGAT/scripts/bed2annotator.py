@@ -99,7 +99,7 @@ def main(argv=None):
         merge=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     options.files += args
     if len(options.files) == 0:
@@ -176,7 +176,7 @@ def main(argv=None):
         E.info("ninput=%i, ntracks=%i, ncontigs=%i, nsegments=%i, ndiscarded=%i" %
                (ninput, ntracks, ncontigs, nsegments, ndiscarded))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

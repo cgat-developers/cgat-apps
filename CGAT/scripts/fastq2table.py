@@ -133,7 +133,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     c = E.Counter()
 
@@ -164,7 +164,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.info("%s" % str(c))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

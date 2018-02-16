@@ -53,7 +53,7 @@ def main(argv=None):
                       help="supply help")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     motifs = MEME.MemeMotifFile(options.stdin)
     headers = list(set(itertools.chain(*[motif.properties.keys()
@@ -73,7 +73,7 @@ def main(argv=None):
     options.stdout.write(output)
         
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

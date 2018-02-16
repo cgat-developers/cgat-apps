@@ -69,12 +69,12 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     c = E.Counter()
 
-    outfile_seq = IOTools.openFile(options.pattern % "csfasta", "w")
-    outfile_qual = IOTools.openFile(options.pattern % "qual", "w")
+    outfile_seq = IOTools.open_file(options.pattern % "csfasta", "w")
+    outfile_qual = IOTools.open_file(options.pattern % "qual", "w")
 
     if options.change_format:
         iter = Fastq.iterate_convert(options.stdin,
@@ -94,7 +94,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.info("%s" % str(c))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

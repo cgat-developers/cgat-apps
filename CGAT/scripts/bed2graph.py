@@ -52,7 +52,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) != 2:
         raise ValueError("two arguments required")
@@ -60,9 +60,9 @@ def main(argv=None):
     if args[0] == "-":
         infile1 = options.stdin
     else:
-        infile1 = IOTools.openFile(args[0], "r")
+        infile1 = IOTools.open_file(args[0], "r")
 
-    infile2 = IOTools.openFile(args[1], "r")
+    infile2 = IOTools.open_file(args[1], "r")
 
     idx = Bed.readAndIndex(infile2, with_values=True)
 
@@ -85,7 +85,7 @@ def main(argv=None):
         for o in overlaps:
             outfile.write("\t".join((outf(bed), outf(o[2]))) + "\n")
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

@@ -106,7 +106,7 @@ def main(argv=None):
         title=None,
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_pipe_options=True)
 
     kwargs = {}
@@ -130,7 +130,7 @@ def main(argv=None):
         f = float
 
     if options.filename_input1:
-        infile1 = IOTools.openFile(options.filename_input1, "r")
+        infile1 = IOTools.open_file(options.filename_input1, "r")
     else:
         infile1 = sys.stdin
 
@@ -274,7 +274,7 @@ def main(argv=None):
         if options.hardcopy:
             R.dev_off()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

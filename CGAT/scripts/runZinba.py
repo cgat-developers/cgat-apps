@@ -174,7 +174,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) != 2:
         raise ValueError(
@@ -233,7 +233,7 @@ def main(argv=None):
     contigs = E.run(
         "twoBitInfo %(bit_filename)s %(tmpdir)s/contig_sizes" % locals())
     contig2size = dict(
-        [x.split() for x in IOTools.openFile(
+        [x.split() for x in IOTools.open_file(
             os.path.join(tmpdir, "contig_sizes"))])
 
     outdir = filename_output + "_files"
@@ -477,7 +477,7 @@ def main(argv=None):
         shutil.rmtree(tmpdir)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

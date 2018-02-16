@@ -54,7 +54,7 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id$", usage=globals()["__doc__"])
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     samfile = pysam.AlignmentFile(options.stdin, "rb")
     outfile = options.stdout
@@ -145,7 +145,7 @@ def main(argv=None):
                    int(ISF_total), int(MSF_total),
                    int(OSF_total), int(SF_total), int(SR_total)))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

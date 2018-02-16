@@ -69,7 +69,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) != 2:
         raise ValueError(
@@ -81,8 +81,8 @@ def main(argv=None):
 
     if options.method == "join":
         # merge based on diagonals in dotplot
-        iter1 = Fastq.iterate(IOTools.openFile(fn1))
-        iter2 = Fastq.iterate(IOTools.openFile(fn2))
+        iter1 = Fastq.iterate(IOTools.open_file(fn1))
+        iter2 = Fastq.iterate(IOTools.open_file(fn2))
         tuple_size = 2
         for left, right in zip(iter1, iter2):
             c.input += 1
@@ -127,7 +127,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.info("%s" % str(c))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

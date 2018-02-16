@@ -86,7 +86,7 @@ class OutputChunk:
 
         if self.dry_run:
             E.info("opening file %s" % filename)
-            returnIOTools.openFile("/dev/null", mode)
+            returnIOTools.open_file("/dev/null", mode)
 
         if mode in ("w", "a"):
             dirname = os.path.dirname(filename)
@@ -98,7 +98,7 @@ class OutputChunk:
         else:
             existed = False
 
-        f = IOTools.openFile(filename, mode)
+        f = IOTools.open_file(filename, mode)
 
         if header and not existed:
             f.write(header + "\n")
@@ -142,7 +142,7 @@ def main(argv=None):
         output_filename_pattern="%06i.chunk",
     )
 
-    (options, args) = E.Start(parser, add_output_options=True)
+    (options, args) = E.start(parser, add_output_options=True)
 
     gffs = GTF.iterator(options.stdin)
 
@@ -173,7 +173,7 @@ def main(argv=None):
 
     E.info("ninput=%i, noutput=%i, nchunks=%i" % (ninput, noutput, nchunks))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

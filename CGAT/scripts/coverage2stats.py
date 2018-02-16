@@ -71,7 +71,7 @@ def main(argv=None):
         bin=False, bin_number=10)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     inf = options.stdin
 
@@ -85,7 +85,7 @@ def main(argv=None):
 
     options.stdout.write("contig\tcov_mean\tcov_sd\n")
     if options.bin:
-        outf = IOTools.openFile(options.output_filename_prefix + ".binned",
+        outf = IOTools.open_file(options.output_filename_prefix + ".binned",
                                 "w")
         outf.write("%s" % "\t".join(
             [str(i) for i in range(1, options.bin_number + 1, 1)]) + "\n")
@@ -112,7 +112,7 @@ def main(argv=None):
     outf.close()
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

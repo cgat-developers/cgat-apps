@@ -60,7 +60,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     ninput, nunchanged, nchanged = 0, 0, 0
 
@@ -90,7 +90,7 @@ def main(argv=None):
     E.info("ncontigs=%i, nwindows=%i" % (ncontigs, nwindows))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

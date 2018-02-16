@@ -56,7 +56,7 @@ def main(argv=None):
         filename_map=None,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.filename_map:
         map_species2sp = IOTools.ReadMap(open(options.filename_map, "r"))
@@ -98,7 +98,7 @@ def main(argv=None):
     if options.loglevel >= 1:
         options.stdlog.write(
             "# ninput=%i, noutput=%i, nerrors=%i\n" % (ninput, noutput, nerrors))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

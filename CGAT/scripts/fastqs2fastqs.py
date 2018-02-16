@@ -157,7 +157,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) != 2:
         raise ValueError(
@@ -217,11 +217,11 @@ def main(argv=None):
                     outfile.write("\n".join(l) + "\n")
 
         E.info("reading first in pair")
-        inf1 = IOTools.openFile(fn1)
+        inf1 = IOTools.open_file(fn1)
         ids1 = set(getIds(inf1, id1_getter))
 
         E.info("reading second in pair")
-        inf2 = IOTools.openFile(fn2)
+        inf2 = IOTools.open_file(fn2)
         # IMS: No longer keep as a set, but lazily evaluate into intersection
         # leads to large memory saving for large inf2, particularly if
         # inf1 is small.
@@ -235,18 +235,18 @@ def main(argv=None):
                 len(take)))
 
         if options.unpaired:
-            unpaired_filename = IOTools.openFile(
+            unpaired_filename = IOTools.open_file(
                 options.output_pattern % "unpaired", "w")
         else:
             unpaired_filename = None
 
-        with IOTools.openFile(options.output_pattern % "1", "w") as outf:
-            inf = IOTools.openFile(fn1)
+        with IOTools.open_file(options.output_pattern % "1", "w") as outf:
+            inf = IOTools.open_file(fn1)
             E.info("writing first in pair")
             write(outf, inf, take, unpaired_filename, id1_getter)
 
-        with IOTools.openFile(options.output_pattern % "2", "w") as outf:
-            inf = IOTools.openFile(fn2)
+        with IOTools.open_file(options.output_pattern % "2", "w") as outf:
+            inf = IOTools.open_file(fn2)
             E.info("writing second in pair")
             write(outf, inf, take, unpaired_filename, id2_getter)
 
@@ -255,7 +255,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.info("%s" % str(c))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

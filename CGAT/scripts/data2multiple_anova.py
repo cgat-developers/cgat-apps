@@ -72,7 +72,7 @@ def main(argv=None):
         display_tree=False,
     )
 
-    (options, args) = E.Start(parser, quiet=True)
+    (options, args) = E.start(parser, quiet=True)
 
     if options.columns not in ("all", "all-but-first"):
         options.columns = [int(x) - 1 for x in options.columns.split(",")]
@@ -83,7 +83,7 @@ def main(argv=None):
 
     for filename in options.filenames:
 
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         table, headers = IOTools.readTable(
             infile, take=options.columns, headers=False)
         infile.close()

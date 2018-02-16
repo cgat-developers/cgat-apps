@@ -220,7 +220,7 @@ def main(argv=None):
         grep_pattern=".*")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     c = E.Counter()
 
@@ -258,11 +258,11 @@ def main(argv=None):
                     "second pair (--output-filename-pattern)")
 
             outfile1 = options.stdout
-            outfile2 = IOTools.openFile(options.output_filename_pattern, "w")
+            outfile2 = IOTools.open_file(options.output_filename_pattern, "w")
 
             for record1, record2 in zip(
                     Fastq.iterate(options.stdin),
-                    Fastq.iterate(IOTools.openFile(options.pair))):
+                    Fastq.iterate(IOTools.open_file(options.pair))):
                 c.input += 1
                 if random.random() <= sample_threshold:
                     c.output += 1
@@ -276,7 +276,7 @@ def main(argv=None):
                     options.stdout.write("%s\n" % record)
 
     elif options.method == "apply":
-        ids = set(IOTools.readList(IOTools.openFile(options.apply)))
+        ids = set(IOTools.readList(IOTools.open_file(options.apply)))
 
         for record in Fastq.iterate(options.stdin):
             c.input += 1
@@ -330,14 +330,14 @@ def main(argv=None):
 
             for record1, record2 in zip(
                     Fastq.iterate(options.stdin),
-                    Fastq.iterate(IOTools.openFile(options.pair))):
+                    Fastq.iterate(IOTools.open_file(options.pair))):
                 entries1[
                     record1.identifier[:-2]] = (record1.seq, record1.quals)
                 entries2[
                     record2.identifier[:-2]] = (record2.seq, record2.quals)
 
             outfile1 = options.stdout
-            outfile2 = IOTools.openFile(options.output_filename_pattern, "w")
+            outfile2 = IOTools.open_file(options.output_filename_pattern, "w")
             assert len(set(entries1.keys()).intersection(
                 set(entries2.keys()))) == len(entries1),\
                 "paired files do not contain the same reads "\
@@ -359,7 +359,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.info("%s" % str(c))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

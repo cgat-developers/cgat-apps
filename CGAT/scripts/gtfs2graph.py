@@ -63,7 +63,7 @@ class Counter:
         """read and index."""
 
         idx = {}
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         for e in GTF.readFromFile(infile):
             if e.contig not in idx:
                 idx[e.contig] = bx.intervals.intersection.Intersecter()
@@ -77,7 +77,7 @@ class Counter:
         overlapping_genes = set()
         genes = set()
         # iterate over exons
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         it = GTF.iterator(infile)
 
         nexons, nexons_overlapping = 0, 0
@@ -178,7 +178,7 @@ class CounterGenes(Counter):
     def _run(self, filename, idx):
 
         # iterate over exons
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         it = GTF.iterator(infile)
 
         keys = set()
@@ -241,7 +241,7 @@ def main(argv=None):
         genes=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) != 2:
         print(USAGE)
@@ -256,7 +256,7 @@ def main(argv=None):
 
     counter.run(args[0], args[1])
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -741,7 +741,7 @@ class GoPlot:
 
         self.mRoot.toXml(tfile)
 
-        lines = IOTools.openFile(tfile, "r").readlines()
+        lines = IOTools.open_file(tfile, "r").readlines()
 
         outfile.write(string.join(lines, ""))
         outfile.write("\n")
@@ -819,7 +819,7 @@ def main(argv=None):
         sort_columns="unsorted",
     )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if len(args) == 0:
         raise IOError("Please supply at least one input file.")
@@ -852,7 +852,7 @@ def main(argv=None):
         # collect all columns
         try:
             values, nremoved, no_fdr = Collect(
-                IOTools.openFile(filename, "r"),
+                IOTools.open_file(filename, "r"),
                 with_headers=options.headers,
                 annotator_format=options.annotator,
                 delims=options.delims,
@@ -947,7 +947,7 @@ def main(argv=None):
 
     plot.writeToFile(options.stdout)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

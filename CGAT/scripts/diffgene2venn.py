@@ -65,7 +65,7 @@ parses command line options in sys.argv, unless *argv* is given.
 
     # add common options (-h/--help, ...) and parse command line
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     infiles = options.infiles.split(",")
     TS.genSigGenes(file_list=infiles,
@@ -73,7 +73,7 @@ parses command line options in sys.argv, unless *argv* is given.
                    out_dir=options.out_dir)
 
     # Write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

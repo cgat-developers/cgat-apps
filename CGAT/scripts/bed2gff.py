@@ -82,7 +82,7 @@ def main(argv=sys.argv):
                         id_format="%08i",
                         test=None)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     as_gtf = options.as_gtf
     id_format = options.id_format
@@ -131,7 +131,7 @@ def main(argv=sys.argv):
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

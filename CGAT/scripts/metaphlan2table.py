@@ -55,7 +55,7 @@ def main(argv=None):
                       choices=("read_map", "rel_ab"), help="type of file to be parsed to a table")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     assert options.type, "must specify infile type"
     if options.type == "read_map":
@@ -72,7 +72,7 @@ def main(argv=None):
                 "\t".join([entry.taxon_level, entry.taxon, entry.abundance]) + "\n")
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

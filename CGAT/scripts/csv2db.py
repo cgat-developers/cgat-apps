@@ -50,7 +50,7 @@ def main(argv=sys.argv):
 
     parser = CSV2DB.buildParser()
 
-    (options, args) = E.Start(parser, argv=argv,
+    (options, args) = E.start(parser, argv=argv,
                               add_database_options=True)
 
     if options.from_zipped:
@@ -62,7 +62,7 @@ def main(argv=sys.argv):
 
     CSV2DB.run(infile, options)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

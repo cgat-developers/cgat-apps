@@ -169,7 +169,7 @@ def main(argv=None):
         add_total=False,
     )
 
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     rx = re.compile(options.regex_identifier)
 
@@ -181,7 +181,7 @@ def main(argv=None):
                 reference_codons.append(Genomics.GetUniformCodonUsage())
             else:
                 reference_codons.append(
-                    IOTools.ReadMap(IOTools.openFile(filename, "r"),
+                    IOTools.ReadMap(IOTools.open_file(filename, "r"),
                                     has_header=True,
                                     map_functions=(str, float)))
 
@@ -299,7 +299,7 @@ def main(argv=None):
             options.stdout.write("\t" + "\t".join(totals[section].getFields()))
         options.stdout.write("\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

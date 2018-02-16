@@ -66,7 +66,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     # do sth
     if len(args) == 1:
@@ -94,8 +94,8 @@ def main(argv=None):
     outtemp1 = os.path.join(tmpdir, "pair1.gz")
     outtemp2 = os.path.join(tmpdir, "pair2.gz")
 
-    outstream1 = IOTools.openFile(outtemp1, "w")
-    outstream2 = IOTools.openFile(outtemp2, "w")
+    outstream1 = IOTools.open_file(outtemp1, "w")
+    outstream2 = IOTools.open_file(outtemp2, "w")
 
     E.info('writing fastq files to temporary directory %s' % tmpdir)
 
@@ -168,7 +168,7 @@ def main(argv=None):
     shutil.rmtree(tmpdir)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

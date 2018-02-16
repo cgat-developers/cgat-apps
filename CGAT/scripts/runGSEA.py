@@ -919,7 +919,7 @@ def main(argv=None):
         plot_no=20,
         fdr_num=10,
     )
-    (options, args) = E.Start(parser, add_database_options=True)
+    (options, args) = E.start(parser, add_database_options=True)
     # Preprocess expression file.
     id, expression_value = read_expression(options.file_name)
 
@@ -1644,7 +1644,7 @@ def main(argv=None):
     plt.close()
 
     print("Leading edge analysis has been finished")
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

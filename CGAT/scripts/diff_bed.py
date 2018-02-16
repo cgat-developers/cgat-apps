@@ -86,7 +86,7 @@ class Counter:
 
     @E.cachedmethod
     def buildIndex(self, filename):
-        return Bed.readAndIndex(IOTools.openFile(filename, "r"))
+        return Bed.readAndIndex(IOTools.open_file(filename, "r"))
 
     def _count(self, filename, idx):
         '''count filename against idx.'''
@@ -95,7 +95,7 @@ class Counter:
         genes = set()
 
         # iterate over exons
-        infile = IOTools.openFile(filename, "r")
+        infile = IOTools.open_file(filename, "r")
         it = Bed.bed_iterator(infile)
 
         nexons, nexons_overlapping = 0, 0
@@ -173,7 +173,7 @@ class Counter:
 class CounterTracks(Counter):
 
     def __init__(self, filename):
-        self.mIndices = Bed.readAndIndex(IOTools.openFile(filename, "r"),
+        self.mIndices = Bed.readAndIndex(IOTools.open_file(filename, "r"),
                                          per_track=True)
 
     def getTracks(self):
@@ -265,13 +265,13 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) < 2:
         raise ValueError("at least two arguments required")
 
     if options.filename_update:
-        infile = IOTools.openFile(options.filename_update, "r")
+        infile = IOTools.open_file(options.filename_update, "r")
         previous_results = {}
         for line in infile:
             if line.startswith("#"):
@@ -351,7 +351,7 @@ def main(argv=None):
                 ncomputed += 1
 
     E.info("nupdated=%i, ncomputed=%i" % (nupdated, ncomputed))
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

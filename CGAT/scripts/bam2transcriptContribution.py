@@ -67,7 +67,7 @@ def main(argv=None):
         help="supply reference gtf for context of reads not contributing to transcripts")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     ######################################################
     ######################################################
@@ -76,7 +76,7 @@ def main(argv=None):
     ######################################################
 
     # open outfile and prepare headers
-    outf = IOTools.openFile(options.outfile, "w")
+    outf = IOTools.open_file(options.outfile, "w")
     outf.write("\t".join(["total alignments", "aligments in transcripts", "percent alignments in transcripts",
                           "total spliced alignments", "spliced alignments in transcripts", "percent spliced alignments in transcripts"]) + "\n")
 
@@ -201,12 +201,12 @@ def main(argv=None):
     ############################
 
     if options.reference_gtf:
-        context_summary = IOTools.openFile(
+        context_summary = IOTools.open_file(
             IOTools.snip(options.bam_file, ".bam") + ".excluded.context", "w")
         context_summary.write("\t".join(["Feature", "number"]) + "\n")
 
         # write out the read info as well
-        context_file = IOTools.openFile(
+        context_file = IOTools.open_file(
             IOTools.snip(options.bam_file, ".bam") + ".excluded", "w")
 
         context_dict = collections.defaultdict(int)
@@ -226,7 +226,7 @@ def main(argv=None):
         context_summary.close()
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

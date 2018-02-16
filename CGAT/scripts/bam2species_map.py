@@ -62,7 +62,7 @@ def main(argv=None):
                       help="supply bam file")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     # read in contigs
     E.info("reading in contig file")
@@ -104,7 +104,7 @@ def main(argv=None):
         options.stdout.write("%s\t%s\n" % (contig, top_dog))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

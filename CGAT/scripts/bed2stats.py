@@ -134,7 +134,7 @@ def main(argv=None):
         add_percent=False,
     )
 
-    (options, args) = E.Start(parser, argv)
+    (options, args) = E.start(parser, argv)
 
     # get files
     if options.genome_file:
@@ -186,7 +186,7 @@ def main(argv=None):
         if options.add_percent:
             count.setSize(total_bases)
         outf.write("%s\t%s\n" % ("total", str(total)))
-    E.Stop()
+    E.stop()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

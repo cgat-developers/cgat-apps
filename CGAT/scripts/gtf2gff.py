@@ -811,7 +811,7 @@ def annotateGREATDomains(iterator, fasta, options):
 
     regions.sort(key=lambda x: (x.contig, x.start))
 
-    outf = IOTools.openFile("test.gff", "w")
+    outf = IOTools.open_file("test.gff", "w")
     for x in regions:
         outf.write(str(x) + "\n")
     outf.close()
@@ -1173,7 +1173,7 @@ def main(argv=None):
         is_sorted=True,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.genome_file:
         fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -1216,7 +1216,7 @@ def main(argv=None):
     elif options.method == "great-domains":
         segmentor = annotateGREATDomains(iterator, fasta, options)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

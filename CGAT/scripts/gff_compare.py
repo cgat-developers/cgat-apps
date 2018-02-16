@@ -293,7 +293,7 @@ def main(argv=None):
         outfile_pattern="%s.info",
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if len(args) != 2:
         print(USAGE)
@@ -813,7 +813,7 @@ def main(argv=None):
                float(missed_genes) / (tp + fn),
                float(wrong_genes) / (tp + fp)))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

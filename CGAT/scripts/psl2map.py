@@ -50,7 +50,7 @@ def printHistogram(values, section, options, min_value=0, increment=1.0):
                 "# no histogram data for section %s\n" % (section))
         return
 
-    outfile = IOTools.openFile(options.output_filename_pattern % section, "w")
+    outfile = IOTools.open_file(options.output_filename_pattern % section, "w")
     h = Histogram.Calculate(
         values, no_empty_bins=True, min_value=0, increment=1.0)
 
@@ -62,7 +62,7 @@ def printHistogram(values, section, options, min_value=0, increment=1.0):
 
 def printMatched(query_ids, section, options):
 
-    outfile = IOTools.openFile(options.output_filename_pattern % section, "w")
+    outfile = IOTools.open_file(options.output_filename_pattern % section, "w")
 
     for query_id in query_ids:
         outfile.write("%s\n" % (query_id))
@@ -405,14 +405,14 @@ def main(argv=None):
                         ignore_all_random=False,
                         )
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     if len(args) == 1:
         if options.from_zipped or args[0][-3:] == ".gz":
             import gzip
             infile = gzip.open(args[0], "r")
         else:
-            infile = IOTools.openFile(args[0], "r")
+            infile = IOTools.open_file(args[0], "r")
     else:
         infile = sys.stdin
 
@@ -430,7 +430,7 @@ def main(argv=None):
             raise ValueError("filtering for intervals requires the bx tools")
 
         intervals = GTF.readGFFFromFileAsIntervals(
-           IOTools.openFile(options.filename_filter_sbjct, "r"))
+           IOTools.open_file(options.filename_filter_sbjct, "r"))
 
         intersectors = {}
 
@@ -473,13 +473,13 @@ def main(argv=None):
     new_family_id = options.new_family_id
 
     if options.output_filename_empty:
-        outfile_empty = IOTools.openFile(options.output_filename_empty, "w")
+        outfile_empty = IOTools.open_file(options.output_filename_empty, "w")
         outfile_empty.write("read_id\tcomment\n")
     else:
         outfile_empty = None
 
     if options.polyA:
-        options.outfile_polyA = IOTools.openFile(
+        options.outfile_polyA = IOTools.open_file(
             options.output_filename_pattern % "polyA", "w")
         options.outfile_polyA.write("query_id\tstart\tend\tpA+N\tpT+N\ttail\n")
 
@@ -745,7 +745,7 @@ def main(argv=None):
         options.stdlog.write("# omitted matches: pid=%i, query_coverage=%i, gaps=%i, regions=%i, nmatches=%i\n" % (
             nremoved_pid, nremoved_query_coverage, nremoved_gaps, nremoved_regions, nremoved_nmatches))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

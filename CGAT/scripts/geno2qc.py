@@ -287,7 +287,7 @@ def main(argv=None):
                       help="amount of memory to reserve for the task")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     parser.set_defaults(sum_param=None,
                         dup_method="same_ref",
@@ -388,7 +388,7 @@ def main(argv=None):
                                 parallel=options.parallel)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

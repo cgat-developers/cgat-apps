@@ -214,7 +214,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if "convert" in options.toolset:
 
@@ -314,7 +314,7 @@ def main(argv=None):
             R('''write.table(sr$estimation, file ='%s', sep='\t')''' %
               E.getOutputFile("%s_saturation_estimation.tsv" % fn))
 
-            outfile = IOTools.openFile(
+            outfile = IOTools.open_file(
                 E.getOutputFile("%s_saturation.tsv" % fn), "w")
             outfile.write("category\tvalues\n")
             outfile.write(
@@ -360,7 +360,7 @@ def main(argv=None):
 
     if 'enrichment' in options.toolset or do_all:
         E.info("CpG enrichment analysis")
-        outfile = IOTools.openFile(E.getOutputFile("enrichment.tsv.gz"), "w")
+        outfile = IOTools.open_file(E.getOutputFile("enrichment.tsv.gz"), "w")
         slotnames = (("regions.CG", "regions_CG", "%i"),
                      ("regions.C", "regions_C", "%s"),
                      ("regions.G", "regions_G", "%f"),
@@ -564,6 +564,6 @@ def main(argv=None):
     #         compress(outputfile)
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

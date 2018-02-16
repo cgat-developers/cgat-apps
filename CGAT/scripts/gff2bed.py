@@ -131,7 +131,7 @@ def main(argv=sys.argv):
         name="gene_id",
         is_gtf=False)
 
-    (options, args) = E.Start(parser, add_pipe_options=True)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
     ninput, noutput = 0, 0
 
@@ -179,7 +179,7 @@ def main(argv=sys.argv):
             noutput += 1
 
     E.info("ninput=%i, noutput=%i" % (ninput, noutput))
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

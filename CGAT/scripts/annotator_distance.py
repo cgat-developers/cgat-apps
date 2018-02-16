@@ -815,7 +815,7 @@ def main(argv=sys.argv):
         remove_overhangs=False,
     )
 
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     ###########################################
     # setup options
@@ -874,7 +874,7 @@ def main(argv=sys.argv):
 
     if nsegments == 0:
         E.warn("no segments read - no computation done.")
-        E.Stop()
+        E.stop()
         return
 
     # build labels
@@ -1235,7 +1235,7 @@ def main(argv=sys.argv):
         if not options.hardcopy:
             plt.show()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

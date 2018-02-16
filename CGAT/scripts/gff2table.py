@@ -381,7 +381,7 @@ def main(argv=None):
         is_gtf=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     #    test_transform_third_codon()
 
@@ -393,7 +393,7 @@ def main(argv=None):
         options.stdlog.flush()
 
     windows = GTF.readAsIntervals(
-        GTF.iterator(IOTools.openFile(options.filename_windows, "r")))
+        GTF.iterator(IOTools.open_file(options.filename_windows, "r")))
 
     if options.loglevel >= 1:
         options.stdlog.write("done\n")
@@ -406,10 +406,10 @@ def main(argv=None):
 
         if options.is_gtf:
             gff_data = GTF.readFromFile(
-                IOTools.openFile(options.filename_data, "r"))
+                IOTools.open_file(options.filename_data, "r"))
         else:
             gff_data = GTF.readFromFile(
-                IOTOols.openFile(options.filename_data, "r"))
+                IOTOols.open_file(options.filename_data, "r"))
 
         if options.loglevel >= 1:
             options.stdlog.write("done\n")
@@ -479,7 +479,7 @@ def main(argv=None):
     E.info("ninput_windows=%i, noutput_contigs=%i, ninput_contigs=%i, nskipped_windows=%i, nskipped_data=%i" %
            (len(windows), noutput_contigs, len(contigs), ncontigs_skipped_windows, ncontigs_skipped_data))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

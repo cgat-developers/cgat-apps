@@ -588,7 +588,7 @@ def main(argv=None):
         help="Write out tab-delimited reports for each analysis",
         default=False)
 
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     # make a list of counting objects
     counters = []
@@ -634,7 +634,7 @@ def main(argv=None):
 
     options.stdout.write("\n********** chain2stats report ends **********\n\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

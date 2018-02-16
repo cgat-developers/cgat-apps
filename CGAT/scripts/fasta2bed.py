@@ -279,7 +279,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if options.method == "cpg":
         segments = segmentWithCpG(options.stdin)
@@ -308,7 +308,7 @@ def main(argv=None):
             (contig, str(start), str(end), str(x), "%6.4f" % (100.0 * gc))))
 
     # write footer and output benchmark information.
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

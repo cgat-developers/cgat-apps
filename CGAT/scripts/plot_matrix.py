@@ -206,7 +206,7 @@ def main(argv=None):
         title=None,
         subplots=None)
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     # import matplotlib/pylab. Has to be done here
     # for batch scripts without GUI.
@@ -263,7 +263,7 @@ def main(argv=None):
         if filename == "-":
             infile = sys.stdin
         else:
-            infile = IOTools.openFile(filename, "r")
+            infile = IOTools.open_file(filename, "r")
 
         matrix, row_headers, col_headers = MatlabTools.readMatrix(infile,
                                                                   numeric_type=numpy.float32,
@@ -365,7 +365,7 @@ def main(argv=None):
     else:
         pylab.show()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

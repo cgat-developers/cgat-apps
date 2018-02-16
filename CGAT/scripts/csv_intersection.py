@@ -69,15 +69,15 @@ def main(argv=None):
         unique=False,
     )
 
-    (options, args) = E.Start(parser, add_csv_options=True)
+    (options, args) = E.start(parser, add_csv_options=True)
 
     if len(args) != 2:
         raise ValueError("please specify two files to join")
 
     options.filename1, options.filename2 = args
 
-    table1 = CSV.readTable(IOTools.openFile(options.filename1, "r"))
-    table2 = CSV.readTable(IOTools.openFile(options.filename2, "r"))
+    table1 = CSV.readTable(IOTools.open_file(options.filename1, "r"))
+    table2 = CSV.readTable(IOTools.open_file(options.filename2, "r"))
 
     if options.unique:
         outfile = UniqueBuffer(sys.stdout)
@@ -124,7 +124,7 @@ def main(argv=None):
             row = IOTools.convertDictionary(row)
             writer.writerow(row)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

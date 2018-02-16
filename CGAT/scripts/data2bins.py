@@ -42,7 +42,7 @@ class Outputter:
 
     def __init__(self, filename, headers=None):
         self.mFilename = filename
-        self.mOutfile = IOTools.openFile(filename, "w")
+        self.mOutfile = IOTools.open_file(filename, "w")
         self.mCounts = 0
         if headers:
             self.mOutfile.write("\t".join(headers) + "\n")
@@ -93,14 +93,14 @@ def main(argv=None):
         output_filename_pattern="bin%i",
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
     options.column -= 1
 
     if args:
         if args[0] == "-":
             infile = sys.stdin
         else:
-            infile = IOTools.openFile(args[0], "r")
+            infile = IOTools.open_file(args[0], "r")
     else:
         infile = sys.stdin
 
@@ -144,7 +144,7 @@ def main(argv=None):
     E.info("ninput=%i, noutput=%i" %
            (len(data), sum((x.mCounts for x in outputters))))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

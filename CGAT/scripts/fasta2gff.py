@@ -76,7 +76,7 @@ def main(argv=None):
         pattern_id="%08i",
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     fasta = IndexedFasta.IndexedFasta(options.genome_file)
     contigs = fasta.getContigSizes()
@@ -106,7 +106,7 @@ def main(argv=None):
         options.stdout.write(str(entry) + "\n")
         n += 1
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

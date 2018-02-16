@@ -368,7 +368,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv, add_output_options=True)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     # load
     if options.keep_suffix:
@@ -377,7 +377,7 @@ def main(argv=None):
         # "tracks" need to write function in Counts.py to handle
         # counts table and design table + suffix
         counts = pd.read_csv(options.stdin, sep="\t",  comment="#")
-        inf = IOTools.openFile(options.input_filename_design)
+        inf = IOTools.open_file(options.input_filename_design)
         design = pd.read_csv(inf, sep="\t", index_col=0)
         inf.close()
         design = design[design["include"] != 0]
@@ -399,7 +399,7 @@ def main(argv=None):
                 options.stdin, sep="\t", index_col=index, comment="#"))
         else:
             counts = Counts.Counts(
-                IOTools.openFile(options.input_filename_tags, "r"),
+                IOTools.open_file(options.input_filename_tags, "r"),
                 sep="\t", index_col=index, comment="#")
 
         # TS normalization doesn't require a design table
@@ -411,7 +411,7 @@ def main(argv=None):
             # create Design object
             design = Expression.ExperimentalDesign(
                 pd.read_csv(
-                    IOTools.openFile(options.input_filename_design, "r"),
+                    IOTools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
 
     if options.method == "filter":
@@ -552,7 +552,7 @@ def main(argv=None):
             width_sbin=options.width_sbin,
             max_sbin=options.max_sbin)
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

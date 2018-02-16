@@ -127,7 +127,7 @@ def main(argv=None):
         with_match=True,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     counters_plain = []
     counters = []
@@ -222,7 +222,7 @@ def main(argv=None):
         options.stdlog.write(
             "# ninput=%i, noutput=%i, nskipped=%i\n" % (ninput, noutput, nskipped))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

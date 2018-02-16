@@ -91,7 +91,7 @@ def main(argv=None):
         forward_query=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.filename_query:
         query = IndexedFasta.IndexedFasta(options.filename_query)
@@ -132,7 +132,7 @@ def main(argv=None):
                               sbjct_ali))
         id += 1
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

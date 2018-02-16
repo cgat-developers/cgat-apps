@@ -78,7 +78,7 @@ def main(argv=None):
         method="intersection",
     )
 
-    (options, args) = E.Start(parser, add_csv_options=True)
+    (options, args) = E.start(parser, add_csv_options=True)
 
     if len(args) != 2:
         raise ValueError("please specify two files to join")
@@ -149,7 +149,7 @@ def main(argv=None):
             if key not in keys:
                 outfile.write("\t".join(row2) + "\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

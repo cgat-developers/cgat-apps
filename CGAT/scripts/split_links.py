@@ -46,7 +46,7 @@ def WriteLine(a, b, line, prefix="%s-%s"):
         key = key2
 
     if key not in open_files:
-        open_files[key] = IOTools.openFile(key, "a")
+        open_files[key] = IOTools.open_file(key, "a")
 
     f = open_files[key]
     f.write(line)
@@ -79,7 +79,7 @@ def main(argv=None):
 
     parser.set_defaults()
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     if options.targets:
         options.targets = options.targets.split(",")
@@ -110,7 +110,7 @@ def main(argv=None):
 
     print("nsame=%i, ndiff=%i" % (nsame, ndiff))
 
-    E.Stop()
+    E.stop()
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ def getFile(section, options):
         if options.loglevel >= 1:
             options.stdlog.write("# output for section %s goes to %s\n" % (
                 section, options.output_pattern % section))
-        returnIOTools.openFile(options.output_pattern % section, "w")
+        returnIOTools.open_file(options.output_pattern % section, "w")
     else:
         return options.stdout
 
@@ -65,16 +65,16 @@ def main(argv=None):
         format="%5.2f",
     )
 
-    (options, args) = E.Start(parser,
+    (options, args) = E.start(parser,
                               add_pipe_options=True)
 
     if len(args) != 2:
         raise ValueError("please supply to filenames with the clusters")
 
     map_id2cluster1, map_cluster2ids1 = IOTools.ReadMap(
-       IOTools.openFile(args[0]), both_directions=True)
+       IOTools.open_file(args[0]), both_directions=True)
     map_id2cluster2, map_cluster2ids2 = IOTools.ReadMap(
-       IOTools.openFile(args[1]), both_directions=True)
+       IOTools.open_file(args[1]), both_directions=True)
 
     graph = networkx.Graph()
 
@@ -214,7 +214,7 @@ def main(argv=None):
     options.stdout.write(
         "%s\t%i\t%s\n" % ("other", nother, options.format % (100.0 * nother / ntotal)))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

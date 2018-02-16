@@ -85,7 +85,7 @@ class Builder:
         self.mIdFormat = options.output_format
 
         if self.options.output_filename_pattern:
-            self.mOutFile = IOTools.openFile(
+            self.mOutFile = IOTools.open_file(
                 self.options.output_filename_pattern % self.mName, "w")
         else:
             self.mOutFile = self.options.stdout
@@ -230,7 +230,7 @@ def main(argv=None):
         methods=[],
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
 
     ################################################
     ################################################
@@ -272,7 +272,7 @@ def main(argv=None):
 
     options.stdlog.write("# ninput=%i, noutput=%i\n" % (ninput, noutput))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

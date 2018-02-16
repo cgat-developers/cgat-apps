@@ -500,7 +500,7 @@ def main(argv=None):
         global_colours=False,
     )
 
-    (options, args) = E.Start(parser)
+    (options, args) = E.start(parser)
     options.symbols = options.symbols.split(",")
 
     #--------------------------------------------------------
@@ -522,7 +522,7 @@ def main(argv=None):
             if filename == "-":
                 infile = sys.stdin
             else:
-                infile = IOTools.openFile(filename)
+                infile = IOTools.open_file(filename)
 
             data = readData(infile)
 
@@ -539,7 +539,7 @@ def main(argv=None):
         # first extract special sections
         for section in config.sections():
             if section == "vlines":
-                infile = IOTools.openFile(config.get(section, "filename"), "r")
+                infile = IOTools.open_file(config.get(section, "filename"), "r")
                 data = readData(infile)
                 infile.close()
                 extra_features[section] = Track(title=section,
@@ -555,7 +555,7 @@ def main(argv=None):
         for section in config.sections():
 
             if config.has_option(section, "filename"):
-                infile = IOTools.openFile(config.get(section, "filename"), "r")
+                infile = IOTools.open_file(config.get(section, "filename"), "r")
                 data = readData(infile)
                 infile.close()
 
@@ -622,7 +622,7 @@ def main(argv=None):
     E.info("ninput=%i, ncontigs=%i, nplots=%i" %
            (len(tracks), nplots, len(contigs)))
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

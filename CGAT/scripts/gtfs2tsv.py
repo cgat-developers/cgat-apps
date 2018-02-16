@@ -175,7 +175,7 @@ class Counts:
 def getFile(options, section):
 
     if options.output_filename_pattern:
-        outfile = IOTools.openFile(
+        outfile = IOTools.open_file(
             options.output_filename_pattern % section, "w")
         E.info("output for section '%s' goes to file %s" %
                (section, options.output_filename_pattern % section))
@@ -227,7 +227,7 @@ def main(argv=None):
         as_gtf=False,
     )
 
-    (options, args) = E.Start(parser, argv, add_output_options=True)
+    (options, args) = E.start(parser, argv, add_output_options=True)
 
     if len(args) != 2:
         raise ValueError("two arguments required")
@@ -241,7 +241,7 @@ def main(argv=None):
     E.info("reading data started")
 
     idx, genes2 = {}, set()
-    for e in GTF.readFromFile(IOTools.openFile(input_filename2, "r")):
+    for e in GTF.readFromFile(IOTools.open_file(input_filename2, "r")):
         genes2.add(e.gene_id)
         if e.contig not in idx:
             idx[e.contig] = bx.intervals.intersection.Intersecter()
@@ -260,7 +260,7 @@ def main(argv=None):
     genes1 = set()
 
     # iterate over exons
-    with IOTools.openFile(input_filename1, "r") as infile:
+    with IOTools.open_file(input_filename1, "r") as infile:
         for this in GTF.iterator(infile):
 
             genes1.add(this.gene_id)
@@ -336,7 +336,7 @@ def main(argv=None):
         if outfile_total != options.stdout:
             outfile_total.close()
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main())

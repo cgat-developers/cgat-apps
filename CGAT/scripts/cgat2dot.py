@@ -87,7 +87,7 @@ class DummyError(Exception):
 
 
 def LocalStart(parser, *args, **kwargs):
-    '''stub for E.Start - set return_parser argument to true'''
+    '''stub for E.start - set return_parser argument to true'''
     global PARSER
     PARSER = ORIGINAL_START(parser,
                             return_parser=True,
@@ -177,7 +177,7 @@ def processScript(script_name, outfile, options):
 
     E.info("loaded module %s" % module)
 
-    E.Start = LocalStart
+    E.start = LocalStart
     try:
         module.main(argv=["--help"])
     except TypeError as msg:
@@ -344,7 +344,7 @@ def main(argv=None):
                         filename_list=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv)
 
     if len(args) == 0:
         E.info("reading script names from stdin")
@@ -355,7 +355,7 @@ def main(argv=None):
 
     # start script in order to build the command line parser
     global ORIGINAL_START
-    ORIGINAL_START = E.Start
+    ORIGINAL_START = E.start
 
     if options.output_pattern and not options.input_regex:
         raise ValueError(
@@ -386,7 +386,7 @@ def main(argv=None):
 
     outfile.write("}\n")
 
-    E.Stop()
+    E.stop()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
