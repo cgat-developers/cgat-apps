@@ -873,10 +873,10 @@ if [[ -z $INSTALL_TEST ]] && \
 
 fi
 
-# sanity check 3: make sure there is space available in the destination folder (10 GB)
+# sanity check 3: make sure there is space available in the destination folder (10 GB) in 512-byte blocks
 [[ -z ${TRAVIS_INSTALL} ]] && \
 mkdir -p ${CGAT_HOME} && \
-[[ `df --block-size=1 ${CGAT_HOME} | awk '/\// {print $3}'` -lt 10737418240  ]] && \
+[[ `df -P ${CGAT_HOME} | awk '/\// {print $4}'` -lt 20971520 ]] && \
    report_error " Not enought disk space available on the installation folder: "$CGAT_HOME
 
 # perform actions according to the input parameters processed
