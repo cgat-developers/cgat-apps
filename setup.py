@@ -191,52 +191,14 @@ Operating System :: MacOS
 ##########################################################
 # Cython Extensions
 # Connected components cython extension
-Components = Extension(
-    'CGAT.Components',
-    ['CGAT/Components/Components.pyx',
-     'CGAT/Components/connected_components.cpp', ],
-    library_dirs=[],
-    libraries=[],
-    language="c++",
-)
+pysam_libraries = pysam.get_libraries()
+pysam_libdir = list(set(os.path.dirname(x) for x in
+                        pysam_libraries))[0]
+# remove lib and .so
+pysam_libs = list([os.path.basename(x)[3:-3] for x in
+                   pysam_libraries])
 
-# Nested containment lists
-NCL = Extension(
-    "CGAT.NCL.cnestedlist",
-    ["CGAT/NCL/cnestedlist.pyx",
-     "CGAT/NCL/intervaldb.c"],
-    library_dirs=[],
-    libraries=[],
-    language="c",
-)
-
-# Timeseries analysis
-Timeseries = Extension(
-    "CGAT.Timeseries.cmetrics",
-    ["CGAT/Timeseries/cmetrics.pyx"],
-    include_dirs=[numpy.get_include()],
-    library_dirs=[],
-    libraries=[],
-    language="c",
-)
-
-# Nested containment lists
-GeneModelAnalysis = Extension(
-    "CGAT.GeneModelAnalysis",
-    ["CGAT/GeneModelAnalysis.pyx"],
-    include_dirs=pysam.get_include() + [numpy.get_include()],
-    library_dirs=[],
-    libraries=[],
-    define_macros=pysam.get_defines(),
-    language="c",
-)
-
-# automatically build pyximport script extensions
-pyx_files = glob.glob("CGAT/scripts/*.pyx")
-script_extensions = []
 pysam_dirname = os.path.dirname(pysam.__file__)
-include_dirs = [numpy.get_include()] + pysam.get_include()
-
 if IS_OSX:
     # linking against bundles does no work (and apparently is not needed)
     # within OS X
@@ -245,19 +207,82 @@ else:
     extra_link_args = [os.path.join(pysam_dirname, x) for x in
                        pysam.get_libraries()]
 
-for pyx_file in pyx_files:
-    script_name = os.path.basename(pyx_file)
-    script_prefix = script_name[:-4]
-    script_extensions.append(
-        Extension("CGAT.scripts.%s" % (script_prefix),
-                  sources=[pyx_file],
-                  extra_link_args=extra_link_args,
-                  include_dirs=include_dirs,
-                  define_macros=pysam.get_defines())
-    )
+extensions = [
+    Extension(
+        'CGAT.Components',
+        ['CGAT/Components/Components.pyx',
+         'CGAT/Components/connected_components.cpp', ],
+        library_dirs=[],
+        libraries=[],
+        language="c++",
+    ),
+    Extension(
+        "CGAT.NCL.cnestedlist",
+        ["CGAT/NCL/cnestedlist.pyx",
+         "CGAT/NCL/intervaldb.c"],
+        library_dirs=[],
+        libraries=[],
+    language="c",
+    ),
+    Extension(
+        "CGAT.Timeseries.cmetrics",
+        ["CGAT/Timeseries/cmetrics.pyx"],
+        include_dirs=[numpy.get_include()],
+        library_dirs=[],
+        libraries=[],
+        language="c",
+    ),
+    Extension(
+        "CGAT.GeneModelAnalysis",
+        ["CGAT/GeneModelAnalysis.pyx"],
+        include_dirs=pysam.get_include() + [numpy.get_include()],
+        library_dirs=[],
+        libraries=[],
+        define_macros=pysam.get_defines(),
+        language="c",
+    ),
+    Extension(
+        "CGAT.BamTools.bamtools",
+        ["CGAT/BamTools/bamtools.pyx"],
+        include_dirs=pysam.get_include() + [numpy.get_include()],
+        library_dirs=[pysam_libdir],
+        libraries=pysam_libs,
+        define_macros=pysam.get_defines(),
+        language="c",
+        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+    ),
+    Extension(
+        "CGAT.BamTools.geneprofile",
+        ["CGAT/BamTools/geneprofile.pyx"],
+        include_dirs=pysam.get_include() + [numpy.get_include()],
+        library_dirs=[pysam_libdir],
+        libraries=pysam_libs,
+        define_macros=pysam.get_defines(),
+        language="c",
+        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+    ),
+    Extension(
+        "CGAT.BamTools.peakshape",
+        ["CGAT/BamTools/peakshape.pyx"],
+        include_dirs=pysam.get_include() + [numpy.get_include()],
+        library_dirs=[pysam_libdir],
+        libraries=pysam_libs,
+        define_macros=pysam.get_defines(),
+        language="c",
+        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+    ),
+    Extension(
+        "CGAT.VCFTools",
+        ["CGAT/VCFTools/vcftools.pyx"],
+        include_dirs=pysam.get_include() + [numpy.get_include()],
+        library_dirs=[pysam_libdir],
+        libraries=pysam_libs,
+        define_macros=pysam.get_defines(),
+        language="c",
+        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+    ),
+]
 
-
-ext_modules = [Components, NCL, Timeseries, GeneModelAnalysis] + script_extensions
 
 setup(
     # package information
@@ -283,7 +308,7 @@ setup(
     install_requires=install_requires,
     dependency_links=dependency_links,
     # extension modules
-    ext_modules=ext_modules,
+    ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     # other options
     zip_safe=False,

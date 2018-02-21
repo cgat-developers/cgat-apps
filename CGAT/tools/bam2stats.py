@@ -310,7 +310,7 @@ import numpy
 import pandas
 import pysam
 
-from CGATCore.tools.BamTools import bam2stats_count
+from CGAT.BamTools import bam2stats_count
 
 FLAGS = {
     1: 'paired',

@@ -10,12 +10,14 @@ biopython
 pyyaml
 pandas
 pyBigWig
+sortedcontainers
 # TODO: replace ggplot with plotine
 ggplot 
 # bedtools
 pybedtools
 alignlib-lite
-ucsc-wigtobigwig
+# conda only
+# ucsc-wigtobigwig
 
 # Additional: pip install quicksect
 
@@ -24,7 +26,8 @@ pep8
 nose
 rdflib
 jinja2
-# sphinx
+#
+sphinx
 pytest
 pytest-xdist
 # pytest-flake8

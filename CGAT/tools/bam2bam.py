@@ -157,7 +157,7 @@ import CGATCore.IOTools as IOTools
 import itertools
 import math
 
-from CGATCore.tools.BamTools import bam2bam_filter_bam, SetNH
+from CGAT.BamTools.bamtools import bam2bam_filter_bam, SetNH
 
 
 class SubsetBam(object):

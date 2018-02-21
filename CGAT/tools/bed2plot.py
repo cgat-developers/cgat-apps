@@ -1,6 +1,34 @@
 '''
-create genomic snapshots using the IGV Viewer
+bed.plot.py - create genomic snapshots using the IGV Viewer
 ===========================================================
+
+:Tags: Python
+
+Purpose
+-------
+
+Create genomic plots in a set of intervals using
+the IGV snapshot mechanism.
+
+The script can use a running instance of IGV identified
+by host and port. Alternatively, it can start IGV and load
+a pre-built session.
+
+Usage
+-----
+
+Example::
+
+   python bed2plot.py < in.bed
+
+Type::
+
+   python script_template.py --help
+
+for command line help.
+
+Command line options
+--------------------
 
 '''
 
@@ -163,6 +191,13 @@ def main(argv=sys.argv):
     # add common options (-h/--help, ...) and parse command line
     (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
+    igv_process = None
+    if options.new_instance:
+        E.info("starting new IGV process")
+        igv_process = IGV.startIGV(command=options.command,
+                                   port=options.port)
+        E.info("new IGV process started")
+
     E.info("connection to process on %s:%s" % (options.host, options.port))
     E.info("saving images in %s" % options.snapshotdir)
     igv = IGV(host=options.host,
@@ -216,6 +251,10 @@ def main(argv=sys.argv):
 
         E.info(c)
 
+    if igv_process is not None and not options.keep_open:
+        E.info('shutting down IGV')
+        igv_process.send_signal(signal.SIGKILL)
+        
     E.stop()
 
 if __name__ == "__main__":

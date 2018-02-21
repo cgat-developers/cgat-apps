@@ -1,7 +1,45 @@
-"""convert a vcf file
-==========================
+'''vcf2vcf.py - manipulate vcf files
+=================================
 
-"""
+Purpose
+-------
+
+Manipulate vcf-formatted files.
+
+
+Usage
+-----
+
+Type::
+
+   python vcf2vcf.py --help
+
+for command line usage.
+
+Methods
+-------
+
+This script provides the following methods:
+
+re-order
+   reorder sample columns in vcf formatted file according to a given sort order
+
+Documentation
+-------------
+
+This is a tool for manipulating vcf-formatted files.  The following
+options are available:
+
++-----------+-------------------------+
++-----------+-------------------------+
+
+lift-over
+^^^^^^^^^
+
+Command line options
+--------------------
+
+'''
 
 import os
 import sys

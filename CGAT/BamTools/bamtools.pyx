@@ -1,29 +1,58 @@
+"""
+BamTools - Utilities for working with BAM files
+===============================================
 
-"""Utility functions for the bam2stats utility."""
+This module brings together convenience function for working
+with :term:`bam` formatted files.
+
+"""
 
 from pysam.libchtslib cimport *
-from pysam.libcsamfile cimport *
+from pysam.libcalignmentfile cimport *
+from pysam.libcalignedsegment cimport pysam_bam_get_cigar, \
+    pysam_bam_get_qname, pysam_get_n_cigar
 from pysam.libcfaidx cimport *
 from libc.string cimport strchr
 from libc.stdint cimport int8_t
 from libc.stdio cimport puts, printf
+from libc.stdlib cimport abs
 from cpython cimport PyErr_SetString, PyBytes_FromStringAndSize
 from cpython cimport array as c_array
 from sortedcontainers import SortedList
+
 import array
 import base64
 import collections
 import copy
+import struct
 import hashlib
 import itertools
 import numpy
 import pandas
+import pysam
 import sys
 
 cimport numpy
 
 import CGATCore.Experiment as E
-from CGATCore.Toolkit import parse_region_string
+
+def parse_region_string(s):
+    """parse a genomic region string.
+
+    Returns tuple of contig, start, end. Missing values are None.
+    """
+    if not s:
+        return None, None, None
+    if ":" in s:
+        contig, coords = s.split(":")
+        if "-" in coords:
+            start, end = list(map(int, coords.split("-")))
+        else:
+            start = int(coords)
+            end = None
+        return contig, start, end
+    else:
+        return s, None, None
 
 
 FLAGS = {
@@ -147,7 +176,7 @@ def bam2stats_count(AlignmentFile samfile,
     cdef int detail_filter_flags = 2304
 
     # detailed counting
-    cdef PersistentFastqProxy fq
+    cdef FastqProxy fq
     cdef int64_t index, fastq_nreads
     cdef CountsType * fastq_counts
     cdef CountsType * fastq_count
@@ -1668,3 +1697,693 @@ def bam2stats_window_count(AlignmentFile samfile,
     window_df.index.names = ["contig", "start", "end"]
 
     return window_df
+
+
+def isPaired(bamfile, alignments=1000):
+    '''check if a `bamfile` contains paired end data
+
+    The method reads at most the first *alignments* and returns
+    True if any of the alignments are paired.
+    '''
+
+    samfile = pysam.AlignmentFile(bamfile)
+    n = 0
+    for read in samfile:
+        if read.is_paired:
+            break
+        n += 1
+        if n == alignments:
+            break
+
+    samfile.close()
+
+    return n != alignments
+
+
+def estimateInsertSizeDistribution(bamfile,
+                                   alignments=10000,
+                                   n=10,
+                                   method="picard",
+                                   similarity_threshold=1.0,
+                                   max_chunks=1000):
+    '''estimate insert size from a subset of alignments in a bam file.
+
+    Several methods are implemented.
+
+    picard
+        The method works analogous to picard by restricting the estimates
+        to a core distribution. The core distribution is defined as all
+        values that lie within n-times the median absolute deviation of
+        the full data set.
+    convergence
+        The method works similar to ``picard``, but continues reading
+        `alignments` until the mean and standard deviation stabilize.
+        The values returned are the median mean and median standard
+        deviation encountered.
+
+    The method `convergence` is suited to RNA-seq data, as insert sizes
+    fluctuate siginificantly depending on the current region
+    being looked at.
+
+    Only mapped and proper pairs are considered in the computation.
+
+    Returns
+    -------
+    mean : float
+       Mean of insert sizes.
+    stddev : float
+       Standard deviation of insert sizes.
+    npairs : int
+       Number of read pairs used for the estimation
+    method : string
+       Estimation method
+    similarity_threshold : float
+       Similarity threshold to apply.
+    max_chunks : int
+       Maximum number of chunks of size `alignments` to be used
+       in the convergence method.
+
+    '''
+
+    assert isPaired(bamfile), \
+        'can only estimate insert size from' \
+        'paired bam files'
+
+    samfile = pysam.AlignmentFile(bamfile)
+
+    def get_core_distribution(inserts, n):
+        # compute median absolute deviation
+        raw_median = numpy.median(inserts)
+        raw_median_dev = numpy.median(numpy.absolute(inserts - raw_median))
+
+        # set thresholds
+        threshold_min = max(0, raw_median - n * raw_median_dev)
+        threshold_max = raw_median + n * raw_median_dev
+
+        # define core distribution
+        return inserts[numpy.logical_and(inserts >= threshold_min,
+                                         inserts <= threshold_max)]
+
+    if method == "picard":
+
+        # only get first read in pair to avoid double counting
+        inserts = numpy.array(
+            [read.template_length for read in samfile.head(n=alignments)
+             if read.is_proper_pair
+             and not read.is_unmapped
+             and not read.mate_is_unmapped
+             and not read.is_read1
+             and not read.is_duplicate
+             and read.template_length > 0])
+        core = get_core_distribution(inserts, n)
+
+        return numpy.mean(core), numpy.std(core), len(inserts)
+
+    elif method == "convergence":
+
+        means, stds, counts = [], [], []
+        last_mean = 0
+        iteration = 0
+        while iteration < max_chunks:
+
+            inserts = numpy.array(
+                [read.template_length for read in samfile.head(
+                    n=alignments,
+                    multiple_iterators=False)
+                 if read.is_proper_pair
+                 and not read.is_unmapped
+                 and not read.mate_is_unmapped
+                 and not read.is_read1
+                 and not read.is_duplicate
+                 and read.template_length > 0])
+            core = get_core_distribution(inserts, n)
+            means.append(numpy.mean(core))
+            stds.append(numpy.std(core))
+            counts.append(len(inserts))
+            mean_core = get_core_distribution(numpy.array(means), 2)
+            mm = numpy.mean(mean_core)
+            if abs(mm - last_mean) < similarity_threshold:
+                break
+            last_mean = mm
+
+        return numpy.median(means), numpy.median(stds), sum(counts)
+    else:
+        raise ValueError("unknown method '%s'" % method)
+
+
+def estimateTagSize(bamfile,
+                    alignments=10,
+                    multiple="error"):
+    '''estimate tag/read size from first alignments in file.
+
+    Arguments
+    ---------
+    bamfile : string
+       Filename of :term:`bam` formatted file
+    alignments : int
+       Number of alignments to inspect
+    multiple : string
+       How to deal if there are multiple tag sizes present.
+       ``error`` will raise a warning, ``mean`` will return the
+       mean of the read lengths found. ``uniq`` will return a
+       unique list of read sizes found. ``all`` will return all
+       read sizes encountered.
+
+    Returns
+    -------
+    size : int
+       The read size (actual, mean or list of read sizes)
+
+    Raises
+    ------
+    ValueError
+       If there are multiple tag sizes present and `multiple` is set to
+       `error`.
+
+    '''
+    samfile = pysam.AlignmentFile(bamfile)
+    sizes = [read.rlen for read in samfile.head(alignments)]
+    mi, ma = min(sizes), max(sizes)
+
+    if mi == 0 and ma == 0:
+        sizes = [read.inferred_length for read in samfile.head(alignments)]
+        # remove 0 sizes (unaligned reads?)
+        sizes = [x for x in sizes if x > 0]
+        mi, ma = min(sizes), max(sizes)
+
+    if mi != ma:
+        if multiple == "error":
+            raise ValueError('multiple tag sizes in %s: %s' % (bamfile, sizes))
+        elif multiple == "mean":
+            mi = int(sum(sizes) / len(sizes))
+        elif multiple == "uniq":
+            mi = list(sorted(set(sizes)))
+        elif multiple == "all":
+            return sizes
+
+    return mi
+
+
+def getNumberOfAlignments(bamfile):
+    '''return number of alignments in bamfile.
+    '''
+    samfile = pysam.AlignmentFile(bamfile)
+    return samfile.mapped
+
+
+def getNumReads(bamfile):
+    '''count number of reads in bam file.
+
+    This methods works through pysam.idxstats.
+
+    Arguments
+    ---------
+    bamfile : string
+        Filename of :term:`bam` formatted file. The file needs
+        to be indexed.
+    Returns
+    -------
+    nreads : int
+        Number of reads
+    '''
+
+    lines = pysam.idxstats(bamfile).splitlines()
+
+    try:
+        nreads = sum(
+            map(int, [x.split("\t")[2]
+                      for x in lines if not x.startswith("#")]))
+
+    except IndexError as msg:
+        raise IndexError(
+            "can't get number of reads from bamfile, msg=%s, data=%s" %
+            (msg, lines))
+    return nreads
+
+
+def isStripped(bamfile):
+    '''
+    Check if the sequence is stripped in a bam file.
+    '''
+    bam = pysam.AlignmentFile(bamfile)
+    read = bam.next()
+    if read.seq is None:
+        return True
+    else:
+        return False
+
+
+def merge_pairs(AlignmentFile input_samfile,
+                outfile,
+                min_insert_size = 0,
+                max_insert_size = 400,
+                bed_format = None ):
+    '''merge paired ended data.
+
+    For speed reasons, the aligned region is only approximated using
+    the read length. Indels within reads are ignored. Thus bed coordinates
+    might be a few residues off.
+
+    The strand is always set to '+'.
+
+    Pairs with a maximum insert size larger than *max_insert_size* are removed.
+
+    If `bed_format` is a number, only the first x columns will be output.
+    '''
+
+    cdef int ninput = 0
+    cdef int nremoved_unmapped = 0
+    cdef int nremoved_insert = 0
+    cdef int nremoved_contig = 0
+    cdef int nremoved_unpaired = 0
+    cdef int nremoved_coordinate = 0
+    cdef int nremoved_take_only_second = 0
+    cdef int noutput = 0
+    cdef int flag
+    cdef int isize
+
+    cdef AlignedSegment read
+    cdef int c_max_insert_size = max_insert_size
+    cdef int c_min_insert_size = min_insert_size
+    cdef int start, end, xstart, xend
+    cdef int take_columns = 6
+
+    # point to array of contig lengths
+    cdef uint32_t *contig_sizes = input_samfile.header.ptr.target_len
+    
+    if bed_format != None:
+        if bed_format < 3 or bed_format > 6: 
+            raise ValueError("a bed file must have at least 3 and at most 6 columns")
+        take_columns = bed_format
+
+    for read in input_samfile:
+        ninput += 1
+
+        flag = read._delegate.core.flag 
+        # remove unmapped reads
+        if flag & 4:
+            nremoved_unmapped += 1
+            continue
+
+        if read.pos < read.mpos:
+            # lower coordinate than mate, ignore
+            nremoved_coordinate += 1
+            continue
+        elif read.pos == read.mpos and flag & 64:
+            # disambiguate, ignore first in pair
+            nremoved_take_only_second += 1
+            continue
+        else:
+            # taking the downstream pair allows to incl
+            xstart = read.next_reference_start
+            xend = read.reference_end
+            if xstart < xend:
+                start, end = xstart, xend
+            else:
+                start, end = xend, xstart
+
+        # remove unpaired
+        if not flag & 2:
+            nremoved_unpaired += 1
+            continue
+            
+        if read.tid != read.mrnm:
+            nremoved_contig += 1
+            continue
+
+        # isize can be negative - depending on the pair orientation
+        isize = abs(read.isize)
+        if (c_max_insert_size and isize > c_max_insert_size) or \
+           (c_min_insert_size and isize < c_min_insert_size):
+            nremoved_insert += 1
+            continue
+
+        # truncate at contig end - overhanging reads might cause problems with chrM
+        if end > contig_sizes[read.mrnm]:
+            end = contig_sizes[read.mrnm]
+
+        # count output pair as two so that it squares with ninput
+        noutput += 2
+
+        if take_columns == 3:
+            outfile.write("%s\t%i\t%i\n" %
+                          (input_samfile.getrname(read.tid),
+                           start, end))
+        elif take_columns == 4:
+            outfile.write("%s\t%i\t%i\t%s\n" % 
+                          (input_samfile.getrname(read.tid),
+                           start, end,
+                           read.qname))
+        elif take_columns == 5:
+            outfile.write("%s\t%i\t%i\t%s\t%i\n" % 
+                          (input_samfile.getrname(read.tid),
+                           start, end,
+                           read.qname,
+                           read.mapq,
+                       ))
+        else:
+            # As we output the downstream read, reverse orientation
+            if read.is_reverse:
+                strand = '-'
+            else:
+                strand = '+'
+            outfile.write("%s\t%i\t%i\t%s\t%i\t%s\n" % 
+                          (input_samfile.getrname(read.tid),
+                           start, end,
+                           read.qname,
+                           read.mapq,
+                           strand
+                          ))
+
+    c = E.Counter()
+    c.input = ninput
+    c.removed_insert = nremoved_insert
+    c.removed_contig = nremoved_contig
+    c.removed_unmapped = nremoved_unmapped
+    c.removed_unpaired = nremoved_unpaired
+    c.removed_take_only_second = nremoved_take_only_second
+    c.removed_coordinate = nremoved_coordinate
+    c.output = noutput
+
+    return c
+
+
+def filter(AlignmentFile genome_samfile,
+           AlignmentFile output_samfile,
+           AlignmentFile output_mismapped,
+           AlignmentFile transcripts_samfile,
+           AlignmentFile junctions_samfile,
+           transcripts,
+           regions = None,
+           unique = False,
+           remove_contigs = None,
+           colour_mismatches = False,
+           ignore_mismatches = False,
+           ignore_junctions = True,
+           ignore_transcripts = False ):
+    '''
+    To conserve memory, the tid and NM flag from *transcripts_samfile*
+    are packed into memory. As a consequence, this method requires 
+    max(NM) < 256 (2^8) and max(tid) < 16777216 (2^24)
+
+    If *unique* is set, only uniquely matching reads will be output.
+
+    If *remove_contigs* is given, contigs that are in remove_contigs will
+    be removed. Note that this will only remove the alignment, but not
+    all alignments of a particuluar read and the NH flag will *NOT* be
+    updated.
+
+    If *colour_mismatches* is set, the ``CM`` tag will be used
+    to count differences. By default, the ``NM`` tag is used.
+    The tag that is used needs to present in both *transcripts_samfile*
+    and *genome_samfile*.
+
+    If *ignore_mismatches* is set, the number of mismatches is ignored.
+
+    If *regions* is given, alignments overlapping regions will be removed.
+
+    '''
+    cdef int ninput = 0
+    cdef int nunmapped_genome = 0
+    cdef int nunmapped_transcript = 0
+    cdef int nmismapped = 0
+    cdef int noutput = 0
+    cdef int nnotfound = 0
+    cdef int nlocation_ok = 0
+    cdef int nnonunique = 0
+    cdef int ntested = 0
+    cdef int nremoved_contigs = 0
+    cdef int nremoved_junctions = 0
+    cdef int nskipped_junctions = 0
+    cdef int nadded_junctions = 0
+    cdef int nremoved_regions = 0
+
+    cdef bint c_unique = unique
+    cdef bint c_test_mismatches = not ignore_mismatches
+    cdef bint c_test_junctions = not ignore_junctions
+    cdef bint c_test_transcripts = not ignore_transcripts
+    cdef bint c_test_regions = regions
+    cdef int * remove_contig_tids 
+    cdef int nremove_contig_tids = 0
+    cdef AlignedSegment read
+    cdef AlignedSegment match
+    
+    # build index
+    # this method will start indexing from the current file position
+    # if you decide
+    cdef int ret = 1
+    cdef int x
+    cdef bam1_t * b = <bam1_t*>calloc(1, sizeof( bam1_t))
+    cdef uint64_t pos
+    cdef uint8_t * v
+    cdef int32_t nm
+    cdef int32_t nh
+    cdef int tid
+    cdef int transript_tid
+    cdef long val
+    cdef bint skip = 0
+    cdef int * map_tid2tid
+
+    cdef int32_t read_mismatches = 0
+
+    # decide which tag to use
+    cdef char * nm_tag = 'NM' 
+    cdef char * cm_tag = 'CM'
+    cdef char * tag
+
+    if colour_mismatches:
+        tag = cm_tag
+    else:
+        tag = nm_tag
+
+    # set with junctions that are ignored
+    skip_junctions = set()
+
+    # build list of junctions
+    if c_test_junctions:
+        E.info("building junction read index")
+
+        def _gen2(): return array.array('B') 
+        junctions_index = collections.defaultdict(_gen2)
+        ret = 1
+        while ret > 0:
+            ret = bam_read1(hts_get_bgzfp(junctions_samfile.htsfile),
+                            b)
+            if ret > 0:
+                # ignore unmapped reads
+                if b.core.flag & 4: continue
+                qname = pysam_bam_get_qname(b)
+                v = bam_aux_get(b, tag)
+                nm = <int32_t>bam_aux2i(v)
+                junctions_index[qname].append(nm)
+
+        E.info( "built index for %i junction reads" % len(junctions_index))
+
+        map_tid2tid = <int*>calloc(len(junctions_samfile.references), sizeof(int))
+        
+        for x, contig_name in enumerate(junctions_samfile.references):
+            map_tid2tid[x] = genome_samfile.gettid(contig_name)
+
+    if c_test_transcripts:
+        E.info( "building transcriptome read index" )
+        # L = 4 bytes
+        def _gen(): return array.array('L') 
+        transcriptome_index = collections.defaultdict(_gen)
+        ret = 1
+        while ret > 0:
+            ret = bam_read1(hts_get_bgzfp(transcripts_samfile.htsfile),
+                            b)
+            if ret > 0:
+                # ignore unmapped reads
+                if b.core.flag & 4: continue
+                qname = pysam_bam_get_qname(b)
+                tid = b.core.tid
+                v = bam_aux_get(b, tag)
+                nm = <int32_t>bam_aux2i(v)
+                transcriptome_index[qname].append( (tid << 8) | nm )
+
+        E.info( "built index for %i transcriptome reads" % len(transcriptome_index))
+
+    bam_destroy1( b )
+
+    # setup list of contigs to remove:
+    if remove_contigs:
+        nremove_contig_tids = len(remove_contigs)
+        remove_contig_tids = <int*>malloc( sizeof(int) * nremove_contig_tids )
+        for x, rname in enumerate( remove_contigs):
+            remove_contig_tids[x] = genome_samfile.gettid( rname )
+    
+    E.info( "starting filtering" )
+
+    for read in genome_samfile:
+
+        ninput += 1
+        # if ninput > 10000: break
+
+        # is unmapped?
+        if read._delegate.core.flag & 4:
+            nunmapped_genome += 1
+            noutput += 1
+            output_samfile.write( read )
+            continue
+
+        # optionally remove non-unique reads
+        if c_unique:
+            v = bam_aux_get(read._delegate, 'NH')
+            if v != NULL:
+                nh = <int32_t>bam_aux2i(v)
+                if nh > 1: 
+                    nnonunique += 1
+                    continue
+
+        # optionally remove reads matched to certain contigs
+        if nremove_contig_tids:
+            skip = 0
+            for x from 0 <= x < nremove_contig_tids:
+                if remove_contig_tids[x] == read.tid:
+                    nremoved_contigs += 1
+                    skip = 1
+                    break
+            if skip: continue
+
+        g_contig = genome_samfile.getrname( read.tid )
+                
+        # optionally remove reads mapped to certain regions
+        if c_test_regions:
+            intervals = regions.get( g_contig, read.pos, read.aend )
+            skip = 0
+            for start, end, value in intervals:
+                if read.overlap( start, end ):
+                    nremoved_regions += 1
+                    skip = 1
+                    break
+
+            if skip: continue
+
+        if c_test_junctions:
+            if read.qname in junctions_index:
+                # can compress index before, depends on
+                # how many reads you expect to test
+                nm = min(junctions_index[read.qname])
+                read_mismatches = read.opt(tag)
+                if nm > read_mismatches: 
+                    nremoved_junctions += 1
+                    continue
+                else:
+                    skip_junctions.add(read.qname)
+                                        
+        # set mapped = True, if read is mapped to transcripts
+        # set location_ok = True, if read matches in expected location
+        # according to transcripts
+        location_ok = False
+        mapped = False
+
+        if c_test_transcripts:
+            # get transcripts that read matches to
+            try:
+                matches = transcriptome_index[read.qname]
+            except KeyError:
+                nnotfound += 1
+                matches = None
+                
+            if matches:
+
+                if c_test_mismatches:
+                    read_mismatches = read.opt(tag)
+
+                for val in matches:
+                    transcript_tid = val >> 8
+                    # ignore reads that are mapped to transcripts with
+                    # more mismatches than the genomic location
+                    if c_test_mismatches:
+                        nm = val & 255
+                        if nm > read_mismatches: continue
+
+                    mapped = True
+
+                    # find transcript
+                    transcript_id = transcripts_samfile._getrname( transcript_tid )
+                    gtfs = transcripts[transcript_id]
+                    t_contig, t_start, t_end = gtfs[0].contig, gtfs[0].start, gtfs[-1].end
+
+                    # does read map to genomic transcript location?
+                    if g_contig == t_contig and t_start <= read.pos <= t_end:
+                        location_ok = True
+                        break
+                    
+        if location_ok:
+            ntested += 1
+            nlocation_ok += 1
+            noutput += 1
+            output_samfile.write( read )
+
+        elif mapped:
+            ntested += 1
+            nmismapped += 1
+            if output_mismapped:
+                output_mismapped.write( read )
+
+        else:
+            nunmapped_transcript += 1
+            noutput += 1
+            output_samfile.write( read )
+
+    # add junctions
+    if c_test_junctions:
+        E.info("adding junctions")
+        junctions_samfile.reset()
+
+        # rebuild contig map for junctions:
+        if remove_contigs:
+            remove_contig_tids = <int*>malloc( sizeof(int) * nremove_contig_tids )
+            for x, rname in enumerate( remove_contigs):
+                remove_contig_tids[x] = junctions_samfile.gettid( rname )
+        
+        for read in junctions_samfile:
+
+            # optionally remove reads matched to certain contigs
+            if nremove_contig_tids:
+                skip = 0
+                for x from 0 <= x < nremove_contig_tids:
+                    if remove_contig_tids[x] == read.tid:
+                        nremoved_contigs += 1
+                        skip = 1
+                    break
+                if skip: 
+                    nskipped_junctions += 1
+                    continue
+
+            if read.qname in skip_junctions:
+                nskipped_junctions += 1
+            else:
+                nadded_junctions += 1
+                noutput += 1
+                # map tid from junction database to genome database
+                read.tid = map_tid2tid[read.tid]
+                output_samfile.write(read)
+        
+        free( map_tid2tid )
+
+    c = E.Counter()
+    c.input = ninput
+    c.removed_nonunique = nnonunique
+    c.removed_mismapped = nmismapped
+    c.removed_contigs = nremoved_contigs
+    c.removed_junctions = nremoved_junctions
+    c.removed_regions = nremoved_regions
+    c.skipped_junction_reads = len(skip_junctions)
+    c.skipped_junctions = nskipped_junctions
+    c.added_junctions = nadded_junctions
+    c.output = noutput
+    c.unmapped_genome = nunmapped_genome
+    c.unmapped_transcript = nunmapped_transcript
+    c.notfound = nnotfound
+    c.location_ok = nlocation_ok 
+    c.location_tested = ntested
+
+    if nremove_contig_tids:
+        free( remove_contig_tids )
+
+    E.info( "filtering finished" )
+
+    return c

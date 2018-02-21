@@ -304,7 +304,7 @@ import CGAT.GTF as GTF
 import numpy
 import pandas
 
-import CGAT.scripts._bam2geneprofile as _bam2geneprofile
+from CGAT.BamTools import geneprofile
 
 
 def main(argv=None):
@@ -630,7 +630,7 @@ def main(argv=None):
 
             format = "bam"
             if options.merge_pairs:
-                range_counter = _bam2geneprofile.RangeCounterBAM(
+                range_counter = geneprofile.RangeCounterBAM(
                     bamfiles,
                     shifts=options.shifts,
                     extends=options.extends,
@@ -641,7 +641,7 @@ def main(argv=None):
                     control_factor=options.control_factor)
 
             elif options.shifts or options.extends:
-                range_counter = _bam2geneprofile.RangeCounterBAM(
+                range_counter = geneprofile.RangeCounterBAM(
                     bamfiles,
                     shifts=options.shifts,
                     extends=options.extends,
@@ -649,12 +649,12 @@ def main(argv=None):
                     control_factor=options.control_factor)
 
             elif options.base_accuracy:
-                range_counter = _bam2geneprofile.RangeCounterBAMBaseAccuracy(
+                range_counter = geneprofile.RangeCounterBAMBaseAccuracy(
                     bamfiles,
                     controlfiles=controlfiles,
                     control_factor=options.control_factor)
             else:
-                range_counter = _bam2geneprofile.RangeCounterBAM(
+                range_counter = geneprofile.RangeCounterBAM(
                     bamfiles,
                     controlfiles=controlfiles,
                     control_factor=options.control_factor)
@@ -666,16 +666,16 @@ def main(argv=None):
                 controlfiles = [pysam.Tabixfile(x)
                                 for x in options.controlfiles]
             else:
-                controlfiles = None
+                controlfiles = Nones
 
-            range_counter = _bam2geneprofile.RangeCounterBed(
+            range_counter = geneprofile.RangeCounterBed(
                 bedfiles,
                 controlfiles=controlfiles,
                 control_factor=options.control_factor)
 
         elif options.infiles[0].endswith(".bw"):
             wigfiles = [BigWigFile(file=open(x)) for x in options.infiles]
-            range_counter = _bam2geneprofile.RangeCounterBigWig(wigfiles)
+            range_counter = geneprofile.RangeCounterBigWig(wigfiles)
 
         else:
             raise NotImplementedError(
@@ -684,7 +684,7 @@ def main(argv=None):
     counters = []
     for method in options.methods:
         if method == "utrprofile":
-            counters.append(_bam2geneprofile.UTRCounter(
+            counters.append(geneprofile.UTRCounter(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_upstream_utr,
@@ -696,7 +696,7 @@ def main(argv=None):
             ))
 
         elif method == "geneprofile":
-            counters.append(_bam2geneprofile.GeneCounter(
+            counters.append(geneprofile.GeneCounter(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_cds,
@@ -706,7 +706,7 @@ def main(argv=None):
                 options.scale_flanks))
 
         elif method == "geneprofilewithintrons":
-            counters.append(_bam2geneprofile.GeneCounterWithIntrons(
+            counters.append(geneprofile.GeneCounterWithIntrons(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_cds,
@@ -727,7 +727,7 @@ def main(argv=None):
             # already implemented, because in this future feature introns are
             # skipped,
             counters.append(
-                _bam2geneprofile.GeneCounterAbsoluteDistanceFromThreePrimeEnd(
+                geneprofile.GeneCounterAbsoluteDistanceFromThreePrimeEnd(
                     range_counter, options.resolution_upstream,
                     options.resolution_downstream,
                     options.resolution_exons_absolute_distance_topolya,
@@ -739,13 +739,13 @@ def main(argv=None):
                     options.scale_flanks))
 
         elif method == "tssprofile":
-            counters.append(_bam2geneprofile.TSSCounter(
+            counters.append(geneprofile.TSSCounter(
                 range_counter,
                 options.extension_outward,
                 options.extension_inward))
 
         elif method == "intervalprofile":
-            counters.append(_bam2geneprofile.RegionCounter(
+            counters.append(geneprofile.RegionCounter(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_cds,
@@ -754,7 +754,7 @@ def main(argv=None):
                 options.extension_downstream))
 
         elif method == "midpointprofile":
-            counters.append(_bam2geneprofile.MidpointCounter(
+            counters.append(geneprofile.MidpointCounter(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_downstream,
@@ -765,7 +765,7 @@ def main(argv=None):
         # requires a representative transcript for reach gene
         # gtf should be sorted gene-position
         elif method == "separateexonprofile":
-            counters.append(_bam2geneprofile.SeparateExonCounter(
+            counters.append(geneprofile.SeparateExonCounter(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_first,
@@ -776,7 +776,7 @@ def main(argv=None):
                 options.extension_downstream))
 
         elif method == "separateexonprofilewithintrons":
-            counters.append(_bam2geneprofile.SeparateExonWithIntronCounter(
+            counters.append(geneprofile.SeparateExonWithIntronCounter(
                 range_counter,
                 options.resolution_upstream,
                 options.resolution_first,
@@ -805,14 +805,14 @@ def main(argv=None):
             raise NotImplementedError(
                 'counting from matrix only implemented for 1 counter.')
         # build counter based on reference counter
-        counter = _bam2geneprofile.UnsegmentedCounter(counters[0])
+        counter = geneprofile.UnsegmentedCounter(counters[0])
         counters = [counter]
-        _bam2geneprofile.countFromCounts(counters, all_counts)
+        geneprofile.countFromCounts(counters, all_counts)
 
     else:
         E.info("starting counting with %i counters" % len(counters))
-        feature_names = _bam2geneprofile.countFromGTF(counters,
-                                                      gtf_iterator)
+        feature_names = geneprofile.countFromGTF(counters,
+                                                 gtf_iterator)
 
     # output matrices
     if not options.profile_normalizations:
