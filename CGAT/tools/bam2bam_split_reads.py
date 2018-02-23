@@ -8,7 +8,7 @@ import tempfile
 import copy
 import CGATCore.IOTools as IOTools
 import CGATCore.Experiment as E
-from CGAT.BamTools import bam2bam_split_reads
+from CGAT.BamTools.bamtools import bam2bam_split_reads
 
 
 def main(argv=sys.argv):

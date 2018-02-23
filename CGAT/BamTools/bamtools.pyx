@@ -2087,19 +2087,19 @@ def merge_pairs(AlignmentFile input_samfile,
     return c
 
 
-def filter(AlignmentFile genome_samfile,
-           AlignmentFile output_samfile,
-           AlignmentFile output_mismapped,
-           AlignmentFile transcripts_samfile,
-           AlignmentFile junctions_samfile,
-           transcripts,
-           regions = None,
-           unique = False,
-           remove_contigs = None,
-           colour_mismatches = False,
-           ignore_mismatches = False,
-           ignore_junctions = True,
-           ignore_transcripts = False ):
+def bams2bam_filter(AlignmentFile genome_samfile,
+                    AlignmentFile output_samfile,
+                    AlignmentFile output_mismapped,
+                    AlignmentFile transcripts_samfile,
+                    AlignmentFile junctions_samfile,
+                    transcripts,
+                    regions = None,
+                    unique = False,
+                    remove_contigs = None,
+                    colour_mismatches = False,
+                    ignore_mismatches = False,
+                    ignore_junctions = True,
+                    ignore_transcripts = False ):
     '''
     To conserve memory, the tid and NM flag from *transcripts_samfile*
     are packed into memory. As a consequence, this method requires 

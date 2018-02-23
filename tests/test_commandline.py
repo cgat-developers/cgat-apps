@@ -50,7 +50,7 @@ PARSER = None
 
 # DIRECTORIES to examine for python modules/scripts
 EXPRESSIONS = (
-    ('tools', 'tools/*.py'),)
+    ('tools', 'CGAT/tools/*.py'),)
 
 EXCLUDE = [
     "__init__.py",
@@ -203,17 +203,17 @@ def test_cmdline():
             yield (fail_,
                    "module could not be imported: %s\n" % script_name)
             continue
-        E.Start = LocalStart
+        E.start = LocalStart
 
         try:
-            module.main(argv=["--help"])
+            module.main(argv=["dummy", "--help"])
         except AttributeError:
             yield (fail_,
                    "no main method in %s\n" % script_name)
             ok_(False, "no main method in %s" % script_name)
         except SystemExit:
             yield (fail_,
-                   "script does not use E.Start() %s\n" % script_name)
+                   "script does not use E.start() %s\n" % script_name)
         except DummyError:
             pass
 

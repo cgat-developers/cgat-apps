@@ -322,6 +322,8 @@ source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
 
 # bx-python is not py3 yet
 pip install 'bx-python==0.7.3'
+# no conda package available
+pip install quicksect
 
 log "installing CGAT code into conda environment"
 # if installation is 'devel' (outside of travis), checkout latest version from github

@@ -62,7 +62,7 @@ import CGAT.GTF as GTF
 import CGATCore.IOTools as IOTools
 import CGAT.Bed as Bed
 import CGAT.IndexedGenome as IndexedGenome
-import CGAT.scripts._bams2bam as _bams2bam
+from CGAT.Bamtools.bamtools import bams2bam_filter
 
 
 def main(argv=None):
@@ -223,19 +223,19 @@ def main(argv=None):
     else:
         junctions_samfile = None
 
-    c = _bams2bam.filter(genome_samfile,
-                         output_samfile,
-                         output_mismapped,
-                         transcripts_samfile,
-                         junctions_samfile,
-                         transcripts,
-                         regions=regions_to_remove,
-                         unique=options.unique,
-                         remove_contigs=options.remove_contigs,
-                         colour_mismatches=options.colour_mismatches,
-                         ignore_mismatches=options.ignore_mismatches,
-                         ignore_transcripts=transcripts_samfile is None,
-                         ignore_junctions=junctions_samfile is None)
+    c = bams2bam_filter(genome_samfile,
+                        output_samfile,
+                        output_mismapped,
+                        transcripts_samfile,
+                        junctions_samfile,
+                        transcripts,
+                        regions=regions_to_remove,
+                        unique=options.unique,
+                        remove_contigs=options.remove_contigs,
+                        colour_mismatches=options.colour_mismatches,
+                        ignore_mismatches=options.ignore_mismatches,
+                        ignore_transcripts=transcripts_samfile is None,
+                        ignore_junctions=junctions_samfile is None)
 
     if options.filename_stats:
         outf = IOTools.open_file(options.filename_stats, "w")
