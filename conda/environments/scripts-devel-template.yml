@@ -29,7 +29,7 @@ dependencies:
 - psycopg2
 - pybedtools
 - pybigwig=0.3.5
-- pysam=0.13.0
+- pysam
 - python-lzo
 - python-weblogo
 - pyyaml
