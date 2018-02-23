@@ -52,7 +52,7 @@ import subprocess
 import CGATCore.Experiment as E
 import pysam
 import CGATCore.IOTools as IOTools
-import CGAT.scripts._bam2bed as _bam2bed
+from CGAT.BamTools.bamtools import merge_pairs
 
 
 class SpanWriter(object):
@@ -310,7 +310,7 @@ def main(argv=None):
         if options.merge_pairs:
             # merge pairs using bam2bed
             E.info("merging pairs to temporary file")
-            counter = _bam2bed.merge_pairs(
+            counter = merge_pairs(
                 samfile,
                 outfile,
                 min_insert_size=options.min_insert_size,

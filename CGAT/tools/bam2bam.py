@@ -115,11 +115,6 @@ The script implements the following methods:
    by --error-rate.
 
 By default, the script works from stdin and outputs to stdout.
-If the ``--inplace option`` is given, the script will modify
-bam-files given as command line arguments in-place - a temporary
-copy will be written to :file:`/tmp` and once completed copied
-over the original file. The script will automatically re-index
-the modified files.
 
 Usage
 -----
@@ -176,10 +171,10 @@ class SubsetBam(object):
     The script will handle multimapping reads.
     '''
 
-    def __init__(self, pysam_in, downsample, paired_end=None,
+    def __init__(self, infile, downsample, paired_end=None,
                  single_end=None, random_seed=None):
 
-        self.pysam_in1, self.pysam_in2 = itertools.tee(pysam_in)
+        self.pysam_in1, self.pysam_in2 = itertools.tee(infile)
         self.downsample = downsample
         self.paired_end = paired_end
         self.single_end = single_end
@@ -257,166 +252,12 @@ class SubsetBam(object):
                     yield read
 
 
-def main(argv=None):
-    """script main.
-
-    parses command line options in sys.argv, unless *argv* is given.
-    """
-
-    if not argv:
-        argv = sys.argv
-
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
-
-    parser.add_option("-m", "--methods", dest="methods", type="choice",
-                      action="append",
-                      choices=("filter",
-                               "keep-first-base",
-                               "set-nh",
-                               "set-sequence",
-                               "strip-sequence",
-                               "strip-quality",
-                               "unstrip",
-                               "unset-unmapped-mapq",
-                               "downsample-single",
-                               "downsample-paired",
-                               "add-sequence-error"),
-                      help="methods to apply [%default]")
-
-    parser.add_option("--strip-method", dest="strip_method", type="choice",
-                      choices=("all", "match"),
-                      help="define which sequences/qualities to strip. "
-                      "match means that stripping only applies to entries "
-                      "without mismatches (requires NM tag to be present). "
-                      "[%default]")
-
-    parser.add_option("--filter-method", dest="filter_methods",
-                      action="append", type="choice",
-                      choices=('NM', 'CM',
-                               "mapped", "unique", "non-unique",
-                               "remove-list",
-                               "keep-list",
-                               "error-rate",
-                               "min-read-length",
-                               "min-average-base-quality"),
-                      help="filter method to apply to remove alignments "
-                      "from a bam file. Multiple methods can be supplied "
-                      "[%default]")
-
-    parser.add_option("--reference-bam-file", dest="reference_bam",
-                      type="string",
-                      help="bam-file to filter with [%default]")
-
-    parser.add_option("--force-output", dest="force", action="store_true",
-                      help="force processing. Some methods such "
-                      "as strip/unstrip will stop processing if "
-                      "they think it not necessary "
-                      "[%default]")
-
-    parser.add_option("--output-sam", dest="output_sam", action="store_true",
-                      help="output in sam format [%default]")
-
-    parser.add_option(
-        "--first-fastq-file", "-1", dest="fastq_pair1", type="string",
-        help="fastq file with read information for first "
-        "in pair or unpaired. Used for unstripping sequence "
-        "and quality scores [%default]")
-
-    parser.add_option(
-        "--second-fastq-file", "-2", dest="fastq_pair2", type="string",
-        help="fastq file with read information for second "
-        "in pair. Used for unstripping sequence "
-        "and quality scores  [%default]")
-
-    parser.add_option(
-        "--downsample", dest="downsample",
-        type="int",
-        help="Number of reads to downsample to")
-
-    parser.add_option(
-        "--filename-read-list", dest="filename_read_list",
-        type="string",
-        help="Filename with list of reads to filter if 'keep-list' or 'remove-list' "
-        "filter method is chosen [%default]")
-
-    parser.add_option(
-        "--error-rate", dest="error_rate",
-        type="float",
-        help="error rate to use as filter. Reads with an error rate "
-        "higher than the threshold will be removed [%default]")
-
-    parser.add_option(
-        "--minimum-read-length", dest="minimum_read_length",
-        type="int",
-        help="minimum read length when filtering [%default]")
-
-    parser.add_option(
-        "--minimum-average-base-quality", dest="minimum_average_base_quality",
-        type="float",
-        help="minimum average base quality when filtering [%default]")
-
-    parser.set_defaults(
-        methods=[],
-        output_sam=False,
-        reference_bam=None,
-        filter_methods=[],
-        strip_method="all",
-        force=False,
-        fastq_pair1=None,
-        fastq_pair2=None,
-        downsample=None,
-        random_seed=None,
-        filename_read_list=None,
-        error_rate=None,
-        minimum_read_length=0,
-        minimum_average_base_quality=0,
-    )
-
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
-
-    if options.stdin != sys.stdin:
-        bamfile = options.stdin.name
-
-    if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
-        if "remove-list" in options.filter_methods and "keep-list" in options.filter_methods:
-            raise ValueError("it is not possible to specify remove-list and keep-list")
-
-        with IOTools.open_file(options.filename_read_list) as inf:
-            filter_query_names = set([x.strip() for x in inf.readlines() if not x.startswith("#")])
-        E.info("read query_sequence filter list with {} read names".format(len(filter_query_names)))
-
-    if "error-rate" in options.filter_methods and not options.error_rate:
-        raise ValueError("filtering by error-rate requires --error-rate to be set")
-
-    if "add-sequence-error" in options.methods and not options.error_rate:
-        raise ValueError("--add-error-rate requires --error-rate to be set")
-
-    E.info('processing %s' % bamfile)
-    if IOTools.is_empty(bamfile):
-        E.warn('ignoring empty file %s' % bamfile)
-        E.stop()
-        return
-
-    # reading bam from stdin does not work with only the "r" tag
-    pysam_in = pysam.AlignmentFile(bamfile, "rb")
-
-    if options.stdout != sys.stdout:
-        output_bamfile = options.stdout.name
-    else:
-        output_bamfile = "-"
-
-    if options.output_sam:
-        pysam_out = pysam.AlignmentFile(output_bamfile, "wh", template=pysam_in)
-    else:
-        pysam_out = pysam.AlignmentFile(output_bamfile, "wb", template=pysam_in)
-
+def process_bam(infile, outfile, options):
+    
     if "filter" in options.methods:
         if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
 
-            it = pysam_in.fetch(until_eof=True)
+            it = infile.fetch(until_eof=True)
             c = E.Counter()
             if "remove-list" in options.filter_methods:
                 for read in it:
@@ -424,7 +265,7 @@ def main(argv=None):
                     if read.query_name in filter_query_names:
                         c.skipped += 1
                         continue
-                    pysam_out.write(read)
+                    outfile.write(read)
                     c.output += 1
             elif "keep-list" in options.filter_methods:
                 for read in it:
@@ -432,7 +273,7 @@ def main(argv=None):
                     if read.query_name not in filter_query_names:
                         c.skipped += 1
                         continue
-                    pysam_out.write(read)
+                    outfile.write(read)
                     c.output += 1
 
             E.info("category\tcounts\n%s\n" % c.asTable())
@@ -466,7 +307,7 @@ def main(argv=None):
 
             # filter and flags are the opposite way around
             c = bam2bam_filter_bam(
-                pysam_in, pysam_out, pysam_ref,
+                infile, outfile, pysam_ref,
                 remove_nonunique="unique" in options.filter_methods,
                 remove_unique="non-unique" in options.filter_methods,
                 remove_contigs=None,
@@ -481,7 +322,7 @@ def main(argv=None):
     else:
 
         # set up the modifying iterators
-        it = pysam_in.fetch(until_eof=True)
+        it = infile.fetch(until_eof=True)
 
         def nop(x):
             return None
@@ -614,9 +455,9 @@ def main(argv=None):
         # only possible when not working from stdin
         # Refactoring: use cache to also do a pre-check for
         # stdin input.
-        if bamfile != "-":
+        if not infile.is_stream:
             # get first read for checking pre-conditions
-            first_reads = list(pysam_in.head(1))
+            first_reads = list(infile.head(1))
 
             msg = pre_check_f(first_reads)
             if msg is not None:
@@ -624,9 +465,6 @@ def main(argv=None):
                     E.warn('proccessing continues, though: %s' % msg)
                 else:
                     E.warn('processing not started: %s' % msg)
-                    pysam_in.close()
-                    pysam_out.close()
-                    E.stop()
                     return
 
         if "downsample-single" in options.methods:
@@ -635,7 +473,7 @@ def main(argv=None):
                 raise ValueError("Please provide downsample size")
 
             else:
-                down = SubsetBam(pysam_in=it,
+                down = SubsetBam(infile=it,
                                  downsample=options.downsample,
                                  paired_end=None,
                                  single_end=True,
@@ -648,7 +486,7 @@ def main(argv=None):
                 raise ValueError("Please provide downsample size")
 
             else:
-                down = SubsetBam(pysam_in=it,
+                down = SubsetBam(infile=it,
                                  downsample=options.downsample,
                                  paired_end=True,
                                  single_end=None,
@@ -682,10 +520,175 @@ def main(argv=None):
 
         # continue processing till end
         for read in it:
-            pysam_out.write(read)
+            outfile.write(read)
 
-        pysam_in.close()
-        pysam_out.close()
+                    
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
+    """
+
+    if not argv:
+        argv = sys.argv
+
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
+
+    parser.add_option("-m", "--methods", dest="methods", type="choice",
+                      action="append",
+                      choices=("filter",
+                               "keep-first-base",
+                               "set-nh",
+                               "set-sequence",
+                               "strip-sequence",
+                               "strip-quality",
+                               "unstrip",
+                               "unset-unmapped-mapq",
+                               "downsample-single",
+                               "downsample-paired",
+                               "add-sequence-error"),
+                      help="methods to apply [%default]")
+
+    parser.add_option("--strip-method", dest="strip_method", type="choice",
+                      choices=("all", "match"),
+                      help="define which sequences/qualities to strip. "
+                      "match means that stripping only applies to entries "
+                      "without mismatches (requires NM tag to be present). "
+                      "[%default]")
+
+    parser.add_option("--filter-method", dest="filter_methods",
+                      action="append", type="choice",
+                      choices=('NM', 'CM',
+                               "mapped", "unique", "non-unique",
+                               "remove-list",
+                               "keep-list",
+                               "error-rate",
+                               "min-read-length",
+                               "min-average-base-quality"),
+                      help="filter method to apply to remove alignments "
+                      "from a bam file. Multiple methods can be supplied "
+                      "[%default]")
+
+    parser.add_option("--reference-bam-file", dest="reference_bam",
+                      type="string",
+                      help="bam-file to filter with [%default]")
+
+    parser.add_option("--force-output", dest="force", action="store_true",
+                      help="force processing. Some methods such "
+                      "as strip/unstrip will stop processing if "
+                      "they think it not necessary "
+                      "[%default]")
+
+    parser.add_option("--output-sam", dest="output_sam", action="store_true",
+                      help="output in sam format [%default]")
+
+    parser.add_option(
+        "--first-fastq-file", "-1", dest="fastq_pair1", type="string",
+        help="fastq file with read information for first "
+        "in pair or unpaired. Used for unstripping sequence "
+        "and quality scores [%default]")
+
+    parser.add_option(
+        "--second-fastq-file", "-2", dest="fastq_pair2", type="string",
+        help="fastq file with read information for second "
+        "in pair. Used for unstripping sequence "
+        "and quality scores  [%default]")
+
+    parser.add_option(
+        "--downsample", dest="downsample",
+        type="int",
+        help="Number of reads to downsample to")
+
+    parser.add_option(
+        "--filename-read-list", dest="filename_read_list",
+        type="string",
+        help="Filename with list of reads to filter if 'keep-list' or 'remove-list' "
+        "filter method is chosen [%default]")
+
+    parser.add_option(
+        "--error-rate", dest="error_rate",
+        type="float",
+        help="error rate to use as filter. Reads with an error rate "
+        "higher than the threshold will be removed [%default]")
+
+    parser.add_option(
+        "--minimum-read-length", dest="minimum_read_length",
+        type="int",
+        help="minimum read length when filtering [%default]")
+
+    parser.add_option(
+        "--minimum-average-base-quality", dest="minimum_average_base_quality",
+        type="float",
+        help="minimum average base quality when filtering [%default]")
+
+    parser.set_defaults(
+        methods=[],
+        output_sam=False,
+        reference_bam=None,
+        filter_methods=[],
+        strip_method="all",
+        force=False,
+        fastq_pair1=None,
+        fastq_pair2=None,
+        downsample=None,
+        random_seed=None,
+        filename_read_list=None,
+        error_rate=None,
+        minimum_read_length=0,
+        minimum_average_base_quality=0,
+    )
+
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
+
+    if options.stdin != sys.stdin:
+        bamfile = options.stdin.name
+    elif args:
+        bamfile = args[0]
+        if len(args) > 1:
+            raise ValueError("multiple bam files provided in arguments")
+    else:
+        bamfile = "-"
+        
+    if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
+        if "remove-list" in options.filter_methods and "keep-list" in options.filter_methods:
+            raise ValueError("it is not possible to specify remove-list and keep-list")
+
+        with IOTools.open_file(options.filename_read_list) as inf:
+            filter_query_names = set([x.strip() for x in inf.readlines() if not x.startswith("#")])
+        E.info("read query_sequence filter list with {} read names".format(len(filter_query_names)))
+
+    if "error-rate" in options.filter_methods and not options.error_rate:
+        raise ValueError("filtering by error-rate requires --error-rate to be set")
+
+    if "add-sequence-error" in options.methods and not options.error_rate:
+        raise ValueError("--add-error-rate requires --error-rate to be set")
+
+    E.info('processing %s' % bamfile)
+    if bamfile != "-" and IOTools.is_empty(bamfile):
+        E.warn('ignoring empty file %s' % bamfile)
+        E.stop()
+        return
+
+    if options.stdout != sys.stdout:
+        output_bamfile = options.stdout.name
+    else:
+        output_bamfile = "-"
+        if options.stdlog == sys.stdout:
+            raise ValueError("redirect log-stream to file (--log) if outputting to stdout")
+        
+    if options.output_sam:
+        output_mode = "wh"
+    else:
+        output_mode = "wb"
+
+    # reading bam from stdin does not work with only the "r" tag
+    with pysam.AlignmentFile(bamfile, "rb") as pysam_in:
+        with pysam.AlignmentFile(output_bamfile, output_mode,
+                                 template=pysam_in) as pysam_out:
+            process_bam(pysam_in, pysam_out, options)
 
     # write footer and output benchmark information.
     E.stop()

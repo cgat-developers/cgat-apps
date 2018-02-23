@@ -118,6 +118,7 @@ import string
 import re
 import random
 from itertools import zip_longest
+import pysam
 
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools
@@ -660,14 +661,20 @@ def main(argv=None):
             c.skipped += 1
             continue
 
+        record.sequence = sequence
         if fold_width >= 0:
-            options.stdout.write(">{} {}\n{}\n".format(
-                record.name,
-                record.comment,
-                fold(record.sequence, fold_width)))
+            if record.comment:
+                options.stdout.write(">{} {}\n{}\n".format(
+                    record.name,
+                    record.comment,
+                    fold(record.sequence, fold_width)))
+            else:
+                options.stdout.write(">{}\n{}\n".format(
+                    record.name,
+                    fold(record.sequence, fold_width)))
         else:
             options.stdout.write(str(record) + "\n")
-        
+
         c.output += 1
 
     if "build-map" in options.methods:

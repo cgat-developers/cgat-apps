@@ -165,7 +165,7 @@ import numpy
 import collections
 import pyBigWig
 
-import CGAT.scripts._bam2peakshape as _bam2peakshape
+import CGAT.BamTools.peakshape as bam2peakshape
 
 
 def buildOptionParser(argv):
@@ -295,7 +295,7 @@ def outputFeatureTable(outfile, features_per_interval, bins):
          "start",
          "end",
          "name",
-         "\t".join(_bam2peakshape.PeakShapeResult._fields))) + "\n")
+         "\t".join(bam2peakshape.PeakShapeResult._fields))) + "\n")
 
     # output principal table
     n = 0
@@ -566,14 +566,14 @@ def main(argv=None):
         fg_file = pyBigWig.open(infile)
         for control_file in options.control_files:
             control_files.append(pyBigWig.open(control_file))
-        counter = _bam2peakshape.CounterBigwig(
+        counter = bam2peakshape.CounterBigwig(
             smooth_method=options.smooth_method)
 
     elif options.format == "bam":
         fg_file = pysam.AlignmentFile(infile, "rb")
         for control_file in options.control_files:
             control_files.append(pysam.AlignmentFile(control_file, "rb"))
-        counter = _bam2peakshape.CounterBam(
+        counter = bam2peakshape.CounterBam(
             shift=options.shift,
             smooth_method=options.smooth_method)
 

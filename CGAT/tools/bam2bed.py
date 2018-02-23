@@ -110,7 +110,7 @@ Command line options
 import sys
 import pysam
 import CGATCore.Experiment as E
-import CGAT.scripts._bam2bed as _bam2bed
+from CGAT.BamTools.bamtools import merge_pairs
 
 
 def main(argv=None):
@@ -165,11 +165,11 @@ def main(argv=None):
     options.bed_format = int(options.bed_format)
 
     if options.merge_pairs is not None:
-        counter = _bam2bed.merge_pairs(samfile,
-                                       options.stdout,
-                                       min_insert_size=options.min_insert_size,
-                                       max_insert_size=options.max_insert_size,
-                                       bed_format=options.bed_format)
+        counter = merge_pairs(samfile,
+                              options.stdout,
+                              min_insert_size=options.min_insert_size,
+                              max_insert_size=options.max_insert_size,
+                              bed_format=options.bed_format)
 
         E.info("category\tcounts\n%s\n" % counter.asTable())
 
@@ -198,9 +198,8 @@ def main(argv=None):
                 strand = "-"
             else:
                 strand = "+"
-            # IMS: converted rname to reference name
             outfile.write("%s\t%d\t%d\t%s\t%d\t%c\n" %
-                          (samfile.getrname(read.rname),
+                          (read.reference_name,
                            read.pos,
                            read.pos + t,
                            read.qname,

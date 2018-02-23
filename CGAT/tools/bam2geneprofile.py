@@ -666,7 +666,7 @@ def main(argv=None):
                 controlfiles = [pysam.Tabixfile(x)
                                 for x in options.controlfiles]
             else:
-                controlfiles = Nones
+                controlfiles = None
 
             range_counter = geneprofile.RangeCounterBed(
                 bedfiles,

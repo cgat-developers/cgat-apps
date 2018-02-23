@@ -41,6 +41,9 @@ JENKINS = os.environ.get("USER", "") == "jenkins"
 PYTHON_VERSION = platform.python_version()
 SUBDIRS = ("gpipe", "optic")
 
+# directory where tools are located, relative to root
+TOOLS_DIR = os.path.join("CGAT", "tools")
+
 # Setup logging
 LOGFILE = open("test_scripts.log", "a")
 DEBUG = os.environ.get("CGAT_DEBUG", False)
@@ -81,11 +84,11 @@ def compute_checksum(filename):
 # The fields are:
 
 
-def check_script(test_name, script, stdin,
-                 options, outputs,
-                 references,
-                 working_dir,
-                 current_dir):
+def _check_script(test_name, script, stdin,
+                  options, outputs,
+                  references,
+                  working_dir,
+                  current_dir):
     '''check script.
 
     # 1. Name of the script
@@ -210,6 +213,12 @@ def check_script(test_name, script, stdin,
 
     if not DEBUG:
         shutil.rmtree(tmpdir)
+
+    return fail, msg
+        
+
+def check_script(*args, **kwargs):
+    fail, msg = _check_script(*args, **kwargs)
     assert not fail, msg
 
 
@@ -222,7 +231,7 @@ def test_scripts():
     testing_dir = TestUtils.get_tests_directory()
 
     # directory location of scripts
-    scripts_dir = os.path.join(os.path.dirname(testing_dir), "CGAT", "scripts")
+    scripts_dir = os.path.join(os.path.dirname(testing_dir), TOOLS_DIR)
 
     # directories with tests (correspond to script names and
     # hence end in .py)
@@ -241,9 +250,9 @@ def test_scripts():
                 if "manifest" in values:
                     # take scripts defined in the MANIFEST.in file
                     test_dirs = [x for x in open("MANIFEST.in")
-                                 if x.startswith("include CGAT/scripts") and
+                                 if x.startswith("include CGAT/tools") and
                                  x.endswith(".py\n")]
-                    test_dirs = [re.sub("include\s*CGAT/scripts/", "tests/",
+                    test_dirs = [re.sub("include\s*CGAT/tools/", "tests/",
                                         x[:-1]) for x in test_dirs]
 
                 if "regex" in values:
@@ -306,7 +315,7 @@ def test_scripts():
             if "_" in script_name:
                 parts = script_name.split("_")
                 if os.path.exists(os.path.join(
-                        "scripts", parts[0], "_".join(parts[1:]))):
+                        "tools", parts[0], "_".join(parts[1:]))):
                     script_name = os.path.join(parts[0], "_".join(parts[1:]))
 
             yield(check_script,

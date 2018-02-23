@@ -1,88 +1,283 @@
-"""modify a fastq file.
-"""
+'''
+fastq2fastq.py - manipulate fastq files
+=============================================
 
+:Tags: Genomics NGS Sequences FASTQ Manipulation
+
+Purpose
+-------
+
+This script performs manipulations on :term:`fastq` formatted
+files. For example it can be used to change the quality score format
+or sample a subset of reads.
+
+The script predominantly is used for manipulation of single fastq
+files. However, for some of its functionality it will take paired data
+using the ``--pair-fastq-file`` and ``--output-filename-pattern`` options.
+This applies to the ``sample`` and ``sort`` methods.
+
+Usage
+-----
+
+Example::
+  In this example we randomly sample 50% of reads from paired data provided in
+  two :term:`fastq` files.
+
+   head in.fastq.1
+
+   @SRR111956.1 HWUSI-EAS618:7:1:27:1582 length=36
+   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+   +SRR111956.1 HWUSI-EAS618:7:1:27:1582 length=36
+   =@A@9@BAB@;@BABA?=;@@BB<A@9@;@2>@;??
+   @SRR111956.2 HWUSI-EAS618:7:1:29:1664 length=36
+   CCCCCCCCCCCCCCCCCCCCCCCCCCCACCCCCCCC
+   +SRR111956.2 HWUSI-EAS618:7:1:29:1664 length=36
+   =B@9@0>A<B=B=AAA?;*(@A>(@<=*9=9@BA>7
+   @SRR111956.3 HWUSI-EAS618:7:1:38:878 length=36
+   AGTGAGCAGGGAAACAATGTCTGTCTAAGAATTTGA
+
+   head in.fastq.2
+
+   +SRR111956.3 HWUSI-EAS618:7:1:38:878 length=36
+   <?@BA?;A=@BA>;@@7###################
+   @SRR111956.4 HWUSI-EAS618:7:1:38:1783 length=36
+   ATTAGTATTATCCATTTATATAATCAATAAAAATGT
+   +SRR111956.4 HWUSI-EAS618:7:1:38:1783 length=36
+   ?ABBA2CCBBB2?=BB@C>=AAC@A=CBB#######
+   @SRR111956.5 HWUSI-EAS618:7:1:39:1305 length=36
+   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+   +SRR111956.5 HWUSI-EAS618:7:1:39:1305 length=36
+   AA>5;A>*91?=AAA@@BBA<B=?ABA>2>?A<BB@
+
+   command-line::
+     cat in.fastq.1 | python fastq2fastq.py
+                      --method=sample --sample-size 0.5
+                      --pair-fastq-file in.fastq.2
+                      --output-filename-pattern out.fastq.2
+                      > out.fastq.1
+
+   head out.fastq.1
+   @SRR111956.1 HWUSI-EAS618:7:1:27:1582 length=36
+   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+   +
+   =@A@9@BAB@;@BABA?=;@@BB<A@9@;@2>@;??
+   @SRR111956.2 HWUSI-EAS618:7:1:29:1664 length=36
+   CCCCCCCCCCCCCCCCCCCCCCCCCCCACCCCCCCC
+   +
+   =B@9@0>A<B=B=AAA?;*(@A>(@<=*9=9@BA>7
+   @SRR111956.3 HWUSI-EAS618:7:1:38:878 length=36
+   AGTGAGCAGGGAAACAATGTCTGTCTAAGAATTTGA
+   +
+   <?@BA?;A=@BA>;@@7###################
+   @SRR111956.4 HWUSI-EAS618:7:1:38:1783 length=36
+   ATTAGTATTATCCATTTATATAATCAATAAAAATGT
+   +
+   ?ABBA2CCBBB2?=BB@C>=AAC@A=CBB#######
+
+Options
+-------
+
+The following methods are implemented (``--method``).
+
+``change-format``
+
+    change the quality format to new format given as
+    target-format. Options are ``sanger``,
+  ``solexa``, ``phred64``, ``integer`` and ``illumina-1.8``
+
+``sample``
+
+    Sub-sample a fastq file. The size of the sample is set by
+    --sample-size
+
+``unique``
+
+    Remove duplicate reads based on read name
+
+``trim3``
+
+    Trim a fixed number of nucleotides from the 3' end of reads.
+    (see ``--num-bases``). Note that there are better tools for
+   trimming.
+
+``trim5``
+
+    Trim a fixed number of nucleotides from the 5' end of reads.
+    (see ``--num-bases``). Note that there are better tools for
+   trimming.
+
+``sort``
+
+    Sort the fastq file by read name.
+
+``renumber-reads``
+
+    Rename the reads based on pattern given in ``--pattern-identifier``
+    e.g. ``--pattern-identifier="read_%010i"``
+
+Type::
+
+   python fastq2fastq.py --help
+
+for command line help.
+
+
+Command line options
+--------------------
+
+'''
 import collections
 import sys
+import os
+import re
+import random
 import pysam
 import numpy
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools
+import CGAT.Fastq as Fastq
+import CGAT.Genomics as Genomics
 
 
-def main(argv=sys.argv):
+def process_cgat(options):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    c = E.Counter()
 
-    parser.add_option(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
-        help="input fastq file. "
-        "[%default]")
+    assert options.input_fastq_file == "-"
+    
+    if options.method == "change-format":
+        for record in Fastq.iterate_convert(options.stdin,
+                                            format=options.target_format,
+                                            guess=options.guess_format):
+            c.input += 1
+            options.stdout.write("%s\n" % record)
+            c.output += 1
 
-    parser.add_option(
-        "--output-removed-tsv", dest="output_removed_tsv", type="string",
-        help="if given, sequence identifiers of removed sequences will "
-        "be stored in this file [%default]")
+    elif options.method == "grep":
+        for record in Fastq.iterate(options.stdin):
+            if re.match(options.grep_pattern, record.seq):
+                options.stdout.write("%s\n" % record)
 
-    parser.add_option(
-        "--output-stats-tsv", dest="output_stats_tsv", type="string",
-        help="if given, output statistics will be written to this file. "
-        "[%default]")
+    elif options.method == "reverse-complement":
+        for record in Fastq.iterate(options.stdin):
+            record.seq = Genomics.complement(record.seq)
+            record.quals = record.quals[::-1]
+            options.stdout.write("%s\n" % record)
 
-    parser.add_option(
-        "--output-removed-fastq", dest="output_removed_fastq", type="string",
-        help="if given, removed fastq records will "
-        "be stored in this file [%default]")
+    elif options.method == "sample":
+        sample_threshold = min(1.0, options.sample_size)
 
-    parser.add_option(
-        "-m", "--method", dest="methods", action="append", type="choice",
-        choices=("filter-N", "filter-identifier", "filter-ONT",
-                 "offset-quality"),
-        help="methods to apply [%default]")
+        random.seed(options.seed)
 
-    parser.add_option(
-        "--set-prefix", dest="set_prefix", type="string",
-        help="set sequence prefix [%default]")
+        if options.pair:
+            if not options.output_filename_pattern:
+                raise ValueError(
+                    "please specify output filename pattern for "
+                    "second pair (--output-filename-pattern)")
 
-    parser.add_option(
-        "--input-filter-tsv", dest="input_filter_tsv", type="string",
-        help="list of sequence ides to filter [%default]")
+            outfile1 = options.stdout
+            outfile2 = IOTools.open_file(options.output_filename_pattern, "w")
 
-    parser.add_option(
-        "--min-average-quality", dest="min_average_quality", type="float",
-        help="minimum average quality [%default]")
+            for record1, record2 in zip(
+                    Fastq.iterate(options.stdin),
+                    Fastq.iterate(IOTools.open_file(options.pair))):
+                c.input += 1
+                if random.random() <= sample_threshold:
+                    c.output += 1
+                    outfile1.write("%s\n" % record1)
+                    outfile2.write("%s\n" % record2)
+        else:
+            for record in Fastq.iterate(options.stdin):
+                c.input += 1
+                if random.random() <= sample_threshold:
+                    c.output += 1
+                    options.stdout.write("%s\n" % record)
 
-    parser.add_option(
-        "--min-length", dest="min_length", type="int",
-        help="minimum length [%default]")
+    elif options.method == "apply":
+        ids = set(IOTools.read_list(IOTools.open_file(options.apply)))
 
-    parser.add_option(
-        "--quality-offset", dest="quality_offset", type="int",
-        help="offset to modify quality values with [%default]")
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            if re.sub(" .*", "", record.identifier).strip() in ids:
+                c.output += 1
+                options.stdout.write("%s\n" % record)
 
-    parser.set_defaults(
-        methods=[],
-        max_percent_N=10.0,
-        input_fastq_file=None,
-        set_prefix=None,
-        output_removed_tsv=None,
-        output_removed_fastq=None,
-        output_stats_tsv=None,
-        input_filter_tsv=None,
-        min_average_quality=0,
-        min_length=0,
-        quality_offset=0,
-    )
+    elif options.method == "trim3":
+        trim3 = options.nbases
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            record.trim(trim3)
+            options.stdout.write("%s\n" % record)
+            c.output += 1
 
-    (options, args) = E.start(parser, argv)
+    elif options.method == "trim5":
+        trim5 = options.nbases
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            record.trim5(trim5)
+            options.stdout.write("%s\n" % record)
+            c.output += 1
 
-    if len(args) == 1:
-        options.input_fastq_file = args[0]
+    elif options.method == "unique":
+        keys = set()
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            if record.identifier in keys:
+                continue
+            else:
+                keys.add(record.identifier)
+            options.stdout.write("%s\n" % record)
+            c.output += 1
 
-    if options.input_fastq_file is None:
-        raise ValueError("missing input fastq file")
+    # Need to change this to incorporate both pairs
+    elif options.method == "sort":
+        if not options.pair:
+            # This is quicker for a single fastq file
+            statement = "paste - - - - | sort -k1,1 -t ' ' | tr '\t' '\n'"
+            os.system(statement)
+        else:
+            if not options.output_filename_pattern:
+                raise ValueError(
+                    "please specify output filename for second pair "
+                    "(--output-filename-pattern)")
+            E.warn(
+                "consider sorting individual fastq files - "
+                "this is memory intensive")
+            entries1 = {}
+            entries2 = {}
 
-    counter = E.Counter()
+            for record1, record2 in zip(
+                    Fastq.iterate(options.stdin),
+                    Fastq.iterate(IOTools.open_file(options.pair))):
+                entries1[
+                    record1.identifier[:-2]] = (record1.seq, record1.quals)
+                entries2[
+                    record2.identifier[:-2]] = (record2.seq, record2.quals)
+
+            outfile1 = options.stdout
+            outfile2 = IOTools.open_file(options.output_filename_pattern, "w")
+            assert len(set(entries1.keys()).intersection(
+                set(entries2.keys()))) == len(entries1),\
+                "paired files do not contain the same reads "\
+                "need to reconcile files"
+
+            for entry in sorted(entries1):
+                outfile1.write("@%s/1\n%s\n+\n%s\n" %
+                               (entry, entries1[entry][0], entries1[entry][1]))
+                outfile2.write("@%s/2\n%s\n+\n%s\n" %
+                               (entry, entries2[entry][0], entries2[entry][1]))
+
+    elif options.method == "renumber-reads":
+        id_count = 1
+        for record in Fastq.iterate(options.stdin):
+            record.identifier = options.renumber_pattern % id_count
+            id_count += 1
+            options.stdout.write("@%s\n%s\n+\n%s\n" %
+                                 (record.identifier, record.seq, record.quals))
+    return c
+
+
+def process_daisy(options):
 
     filter_n = "filter-N" in options.methods
 
@@ -173,6 +368,163 @@ def main(argv=sys.argv):
     if options.output_stats_tsv:
         with IOTools.open_file(options.output_stats_tsv, "w") as outf:
             outf.write(counter.asTable(as_rows=False) + "\n")
+            
+    return counter
+
+
+def main(argv=sys.argv):
+
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
+
+    parser.add_option(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        help="input fastq file. "
+        "[%default]")
+
+    parser.add_option(
+        "--output-removed-tsv", dest="output_removed_tsv", type="string",
+        help="if given, sequence identifiers of removed sequences will "
+        "be stored in this file [%default]")
+
+    parser.add_option(
+        "--output-stats-tsv", dest="output_stats_tsv", type="string",
+        help="if given, output statistics will be written to this file. "
+        "[%default]")
+
+    parser.add_option(
+        "--output-removed-fastq", dest="output_removed_fastq", type="string",
+        help="if given, removed fastq records will "
+        "be stored in this file [%default]")
+
+    parser.add_option(
+        "-m", "--method", dest="methods", action="append", type="choice",
+        choices=("filter-N",
+                 "filter-identifier",
+                 "filter-ONT",
+                 "offset-quality",
+                 "apply",
+                 "change-format",
+                 "renumber-reads",
+                 "sample",
+                 "sort",
+                 "trim3",
+                 "trim5",
+                 "unique",
+                 "reverse-complement",
+                 "grep"),
+        help="methods to apply [%default]")
+
+    parser.add_option(
+        "--set-prefix", dest="set_prefix", type="string",
+        help="set sequence prefix [%default]")
+
+    parser.add_option(
+        "--input-filter-tsv", dest="input_filter_tsv", type="string",
+        help="list of sequence ides to filter [%default]")
+
+    parser.add_option(
+        "--min-average-quality", dest="min_average_quality", type="float",
+        help="minimum average quality [%default]")
+
+    parser.add_option(
+        "--min-length", dest="min_length", type="int",
+        help="minimum length [%default]")
+
+    parser.add_option(
+        "--quality-offset", dest="quality_offset", type="int",
+        help="offset to modify quality values with [%default]")
+
+    parser.add_option(
+        "--target-format", dest="target_format", type="choice",
+        choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
+        help="guess quality score format and set quality scores "
+        "to format [default=%default].")
+
+    parser.add_option(
+        "--guess-format", dest="guess_format", type="choice",
+        choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
+        help="quality score format to assume if ambiguous [default=%default].")
+
+    parser.add_option(
+        "--sample-size", dest="sample_size", type="float",
+        help="proportion of reads to sample. "
+        "Provide a proportion of reads to sample, e.g. 0.1 for 10%, "
+        "0.5 for 50%, etc [default=%default].")
+
+    parser.add_option(
+        "--pair-fastq-file", dest="pair", type="string",
+        help="if data is paired, filename with second pair. "
+        "Implemented for sampling [default=%default].")
+
+    parser.add_option(
+        "--map-tsv-file", dest="map_tsv_file", type="string",
+        help="filename with tab-separated identifiers mapping for "
+        "method apply [default=%default].")
+
+    parser.add_option(
+        "--num-bases", dest="nbases", type="int",
+        help="number of bases to trim [default=%default].")
+
+    parser.add_option(
+        "--seed", dest="seed", type="int",
+        help="seed for random number generator [default=%default].")
+
+    parser.add_option(
+        "--pattern-identifier", dest="renumber_pattern", type="string",
+        help="rename reads in file by pattern [default=%default]")
+
+    parser.add_option(
+        "--grep-pattern", dest="grep_pattern", type="string",
+        help="subset to reads matching pattern [default=%default]")
+
+    parser.set_defaults(
+        input_fastq_file="-",
+        methods=[],
+        change_format=None,
+        guess_format=None,
+        sample_size=0.1,
+        nbases=0,
+        pair=None,
+        apply=None,
+        seed=None,
+        renumber_pattern="read_%010i",
+        grep_pattern=".*",
+        max_percent_N=10.0,
+        set_prefix=None,
+        output_removed_tsv=None,
+        output_removed_fastq=None,
+        output_stats_tsv=None,
+        input_filter_tsv=None,
+        min_average_quality=0,
+        min_length=0,
+        quality_offset=0,
+    )
+
+    (options, args) = E.start(parser, argv, add_output_options=True)
+
+    if len(args) == 1:
+        options.input_fastq_file = args[0]
+
+    if len(options.methods) == 0:
+        raise ValueError("no method specified, please use --method")
+
+    # this script combines two scripts with different functionalities
+    # TODO: to be sanitized
+    if options.methods[0] in ["apply",
+                 "change-format",
+                 "renumber-reads",
+                 "sample",
+                 "sort",
+                 "trim3",
+                 "trim5",
+                 "unique",
+                 "reverse-complement",
+                 "grep"]:
+        options.method = options.methods[0]
+        counter = process_cgat(options)
+    else:
+        counter = process_daisy(options)
 
     E.info(counter)
     E.stop()

@@ -310,7 +310,8 @@ import numpy
 import pandas
 import pysam
 
-from CGAT.BamTools import bam2stats_count
+import CGAT.GTF as GTF
+from CGAT.BamTools.bamtools import bam2stats_count
 
 FLAGS = {
     1: 'paired',
@@ -383,6 +384,21 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_option(
+        "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type="string",
+        metavar='GFF',
+        help="gff formatted file with masking locations. The number of "
+        "reads overlapping the intervals in the given file will be "
+        "computed. Note that the computation currently does not take "
+        "into account indels, so it is an approximate count only. "
+        "[%default]")
+
+    parser.add_option(
+        "-f", "--ignore-masked-reads", dest="ignore_masked_reads", action="store_true",
+        help="as well as counting reads in the file given by --mask-bed-file, "
+        "also remove these reads for duplicate and match statistics. "
+        "[%default]")
+
+    parser.add_option(
         "-i", "--num-reads", dest="input_reads", type="int",
         help="the number of reads - if given, used to provide percentages "
         "[%default]")
@@ -415,6 +431,8 @@ def main(argv=None):
         "but only a summary counts table is output [%default]")
 
     parser.set_defaults(
+        filename_bed=None,
+        ignore_masked_reads=False,
         input_reads=0,
         force_output=False,
         filename_fastq=None,
@@ -427,6 +445,12 @@ def main(argv=None):
     # add common options (-h/--help, ...) and parse command line
     (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
+    if options.filename_bed:
+        bed_mask = GTF.readAndIndex(
+            GTF.iterator(IOTools.open_file(options.filename_bed)))
+    else:
+        bed_mask = None
+    
     if options.add_alignment_details:
         options.output_details = True
 
@@ -458,6 +482,8 @@ def main(argv=None):
     (counter, flags_counts, nh_filtered, nh_all,
      nm_filtered, nm_all, mapq, mapq_all, max_hi, details_df) = \
         bam2stats_count(pysam_in,
+                        bed_mask=bed_mask,
+                        ignore_masked_reads=options.ignore_masked_reads,
                         is_stdin=is_stdin,
                         filename_fastq=options.filename_fastq,
                         outfile_details=outfile_details,
@@ -521,6 +547,18 @@ def main(argv=None):
         _write(outs,
                'alignments_' + flag,
                counts,
+               nalignments_mapped,
+               'alignments_mapped')
+
+    if options.filename_bed:
+        _write(outs,
+               "alignments_masked",
+               counter.alignments_masked,
+               nalignments_mapped,
+               'alignments_mapped')
+        _write(outs,
+               "alignments_notmasked",
+               counter.alignments_notmasked,
                nalignments_mapped,
                'alignments_mapped')
 

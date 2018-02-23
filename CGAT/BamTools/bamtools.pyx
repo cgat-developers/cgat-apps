@@ -123,6 +123,8 @@ cdef get_cigar_stats(AlignedSegment read, uint32_t[:] base_counts, uint32_t[:] b
 
 
 def bam2stats_count(AlignmentFile samfile,
+                    bed_mask=None,
+                    ignore_masked_reads=False,
                     is_stdin=True,
                     filename_fastq=None,
                     outfile_details=None,
@@ -138,7 +140,12 @@ def bam2stats_count(AlignmentFile samfile,
     cdef int nduplicates = 0
     # number of reads present after filtering
     cdef int nfiltered = 0
+    # number of reads overlapping masked regions (if bed_mask != None)
+    cdef int nmasked = 0
+    # number of reads not overlap RNA (if bed_mask != None)
+    cdef int nnotmasked = 0
 
+    cdef bint _ignore_masked_reads = ignore_masked_reads
     cdef int max_hi = 0
     # count nh, nm tags
     nh_filtered = collections.defaultdict(int)
@@ -176,7 +183,7 @@ def bam2stats_count(AlignmentFile samfile,
     cdef int detail_filter_flags = 2304
 
     # detailed counting
-    cdef FastqProxy fq
+    cdef FastxRecord fq
     cdef int64_t index, fastq_nreads
     cdef CountsType * fastq_counts
     cdef CountsType * fastq_count
@@ -232,9 +239,9 @@ def bam2stats_count(AlignmentFile samfile,
                     chop = -2
                 
             if chop != 0:
-                name = hashlib.md5(fq.name[:chop]).digest()[:hash_size]
+                name = hashlib.md5(fq.name[:chop].encode("ascii")).digest()[:hash_size]
             else:
-                name = hashlib.md5(fq.name).digest()[:hash_size]
+                name = hashlib.md5(fq.name.encode("ascii")).digest()[:hash_size]
 
             reads[name] = fastq_nreads
 
@@ -414,6 +421,16 @@ def bam2stats_count(AlignmentFile samfile,
         if read.tid != last_tid:
             contig = samfile.getrname(read.rname)
 
+        # note: does not take into account gaps within reads
+        # or partial overlap.
+        if bed_mask:
+            if bed_mask.contains(contig, read.pos, read.pos + read.alen):
+                nmasked += 1
+                if _ignore_masked_reads:
+                    continue
+            else:
+                nnotmasked += 1
+            
         nfiltered += 1
 
         if nh >= 0: nh_filtered[nh] += 1
@@ -443,7 +460,9 @@ def bam2stats_count(AlignmentFile samfile,
     counter.alignments_input = ninput
     counter.alignments_filtered = nfiltered
     counter.alignments_duplicates = nduplicates
-
+    counter.alignments_masked = nmasked
+    counter.alignments_notmasked = nnotmasked
+    
     if match_counts == 0:
         match_counts = 1
 
