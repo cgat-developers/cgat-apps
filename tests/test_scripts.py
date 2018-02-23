@@ -238,7 +238,7 @@ def test_scripts():
     test_dirs = glob.glob(os.path.join(testing_dir, "*.py"))
 
     # the config file
-    config_file = os.path.join(testing_dir, "_test_scripts.yaml")
+    config_file = os.path.join(testing_dir, "_test_scripts.yml")
 
     if os.path.exists(config_file):
         config = yaml.load(open(config_file))

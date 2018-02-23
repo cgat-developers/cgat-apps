@@ -38,9 +38,7 @@ import platform
 from nose.tools import ok_
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools
-
-
-PYTHON_VERSION = platform.python_version()
+import TestUtils
 
 # handle to original E.Start function
 ORIGINAL_START = None
@@ -76,18 +74,26 @@ class DummyError(Exception):
 
 def filter_files(files):
     '''filter list of files according to filters set in
-    configuration file tests/_test_commandline.yaml'''
+    configuration file tests/_test_commandline.yml'''
 
-    if os.path.exists("tests/_test_commandline.yaml"):
-        config = yaml.load(open("tests/_test_commandline.yaml"))
+    # directory location of tests
+    testing_dir = TestUtils.get_tests_directory()
+
+    # the config file
+    config_file = os.path.join(testing_dir, "_test_commandline.yml")
+
+    import pdb; pdb.set_trace()
+    if os.path.exists(config_file):
+        config = yaml.load(open(config_file))
         if config is not None:
             if "restrict" in config and config["restrict"]:
                 values = config["restrict"]
                 if "manifest" in values:
                     # take scripts defined in the MANIFEST.in file
                     scriptdirs = [x for x in open("MANIFEST.in")
-                                  if x.startswith("include scripts") and
+                                  if x.startswith("include CGAT/tools") and
                                   x.endswith(".py\n")]
+
                     take = set([re.sub("include\s*", "",
                                        x[:-1]) for x in scriptdirs])
                     files = [x for x in files if x in take]
