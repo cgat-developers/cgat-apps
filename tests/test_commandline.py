@@ -41,7 +41,6 @@ import CGATCore.IOTools as IOTools
 
 
 PYTHON_VERSION = platform.python_version()
-IS_PY3 = sys.version_info.major >= 3
 
 # handle to original E.Start function
 ORIGINAL_START = None
@@ -51,7 +50,7 @@ PARSER = None
 
 # DIRECTORIES to examine for python modules/scripts
 EXPRESSIONS = (
-    ('scripts', 'scripts/*.py'),)
+    ('tools', 'tools/*.py'),)
 
 EXCLUDE = [
     "__init__.py",
@@ -61,17 +60,6 @@ EXCLUDE = [
     "bed2table.py",  # fails with pysam include issue
     "fasta2bed.py",   # fails because of pybedtools rebuild
 ]
-
-if IS_PY3:
-    # issues with pyximport scripts, cause subsequent scripts to fail
-    # with script not found.
-    EXCLUDE.extend([
-        "bam2bam.py",
-        "bam2stats.py",
-        "bam2bed.py",
-        "bam2geneprofile.py",
-        "bam2peakshape.py"])
-
 
 # Filename with the black/white list of options.
 # The file is a tab-separated with the first column
@@ -111,7 +99,7 @@ def filter_files(files):
 
 
 def LocalStart(parser, *args, **kwargs):
-    '''stub for E.Start - set return_parser argument to true'''
+    '''stub for E.start - set return_parser argument to true'''
     global PARSER
     d = copy.copy(kwargs)
     d.update({'return_parser': True})
@@ -169,11 +157,11 @@ def test_cmdline():
     # start script in order to build the command line parser
     global ORIGINAL_START
     if ORIGINAL_START is None:
-        ORIGINAL_START = E.Start
+        ORIGINAL_START = E.start
 
     # read the first two columns
-    map_option2action = IOTools.readMap(
-        IOTools.openFile(FILENAME_OPTIONLIST),
+    map_option2action = IOTools.read_map(
+        IOTools.open_file(FILENAME_OPTIONLIST),
         columns=(0, 1),
         has_header=True)
 
@@ -204,7 +192,7 @@ def test_cmdline():
 
         fail_.description = script_name
         # check if script contains getopt
-        with IOTools.openFile(script_name) as inf:
+        with IOTools.open_file(script_name) as inf:
             if "getopt" in inf.read():
                 yield (fail_,
                        "script uses getopt directly: %s" % script_name)

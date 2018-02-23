@@ -25,6 +25,7 @@ dependencies:
 - numpy=1.12.1
 - openpyxl=2.4.0
 - pandas=0.21.0
+- paramiko
 - pep8=1.7.1
 - pybedtools=0.7.10
 - pybigwig=0.3.5
@@ -42,6 +43,7 @@ dependencies:
 - scipy=0.19.1
 - setuptools=37.0.0
 - six=1.11.0
+- sortedcontainers
 - sqlalchemy=1.1.13
 - ucsc-wigtobigwig=357
 - zlib=1.2.8
