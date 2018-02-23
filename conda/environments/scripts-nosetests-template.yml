@@ -29,6 +29,7 @@ dependencies:
 - numpy
 - openpyxl
 - pandas
+- paramiko
 - pep8
 - pybedtools
 - pybigwig
@@ -41,10 +42,12 @@ dependencies:
 - scipy
 - setuptools
 - six
+- sortedcontainers
 - sqlalchemy
 # R deps
 - r-base
 - r-coloc
 - r-ggplot2
 - r-qqman
+- ucsc-wigtobigwig
 

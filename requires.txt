@@ -1,21 +1,21 @@
 # latest setutools required for automatic cythonization
 #
-# AH: removed dependencies not required for scripts
-cython
-numpy
-pysam
-rpy2
-scikit-learn
+# bedtools
 biopython
-pyyaml
-pandas
-pyBigWig
-sortedcontainers
+cython
 # TODO: replace ggplot with plotine
 ggplot 
-# bedtools
+numpy
+pandas
+pyBigWig
+pysam
+pyyaml
+rpy2
+scikit-learn
+sortedcontainers
 pybedtools
 alignlib-lite
+
 # conda only
 # ucsc-wigtobigwig
 
@@ -30,4 +30,5 @@ jinja2
 sphinx
 pytest
 pytest-xdist
+paramiko
 # pytest-flake8
