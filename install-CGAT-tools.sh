@@ -470,7 +470,7 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL ]] ; then
    if [[ $TEST_ALL ]] ; then
       log "test_import.py" && nosetests -v tests/test_import.py && \
       log "test_style.py" && nosetests -v tests/test_style.py && \
-      echo -e "restrict:\n    manifest:\n" > tests/_test_commandline.yaml && \
+      echo -e "restrict:\n    manifest:\n" > tests/_test_commandline.yml && \
       log "test_commandline" && nosetests -v tests/test_commandline.py && \
       log "test_scripts" && nosetests -v tests/test_scripts.py ;
    elif [[ $TEST_IMPORT ]] ; then
@@ -478,10 +478,10 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL ]] ; then
    elif [[ $TEST_STYLE ]] ; then
       nosetests -v tests/test_style.py ;
    elif [[ $TEST_CMDLINE ]] ; then
-      echo -e "restrict:\n    manifest:\n" > tests/_test_commandline.yaml
+      echo -e "restrict:\n    manifest:\n" > tests/_test_commandline.yml
       nosetests -v tests/test_commandline.py ;
    elif [[ $TEST_PRODUCTION_SCRIPTS  ]] ; then
-      echo -e "restrict:\n    manifest:\n" > tests/_test_scripts.yaml
+      echo -e "restrict:\n    manifest:\n" > tests/_test_scripts.yml
       nosetests -v tests/test_scripts.py ;
    else
       nosetests -v tests/test_scripts.py ;

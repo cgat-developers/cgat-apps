@@ -14,6 +14,7 @@ dependencies:
 - cython=0.27.3
 - future=0.16.0
 - gcc=4.8.5
+- gevent
 - ggplot=0.6.8
 - jinja2=2.10
 - libpng=1.6.28
