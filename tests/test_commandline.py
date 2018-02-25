@@ -82,7 +82,6 @@ def filter_files(files):
     # the config file
     config_file = os.path.join(testing_dir, "_test_commandline.yml")
 
-    import pdb; pdb.set_trace()
     if os.path.exists(config_file):
         config = yaml.load(open(config_file))
         if config is not None:
