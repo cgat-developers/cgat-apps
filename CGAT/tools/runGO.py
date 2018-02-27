@@ -157,6 +157,7 @@ Command line options
 '''
 import sys
 import collections
+import optparse
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools
 try:
@@ -305,6 +306,36 @@ def main(argv=None):
         help="compute pairwise enrichment for multiple gene lists. "
         "[default=%default].")
 
+    group = optparse.OptionGroup(parser, "Database connection options")
+    group.add_option(
+        "--database-backend", dest="database_backend", type="choice",
+        choices=("sqlite", "mysql", "postgres"),
+        help="database backend [%default].")
+    group.add_option(
+        "--database-host", dest="database_host", type="string",
+        help="database host [%default].")
+    group.add_option(
+        "--database-name", dest="database_name", type="string",
+        help="name of the database [%default].")
+    group.add_option(
+        "--database-username", dest="database_username", type="string",
+        help="database username [%default].")
+    group.add_option(
+        "--database-password", dest="database_password", type="string",
+        help="database password [%default].")
+    group.add_option(
+        "--database-port", dest="database_port", type="int",
+        help="database port [%default].")
+
+    parser.set_defaults(
+        database_backend="sqlite",
+        database_name="csvdb",
+        database_host="",
+        database_port=3306,
+        database_username="",
+        database_password="")
+    parser.add_option_group(group)
+    
     # parser.add_option( "--fdr-lambda", dest="qvalue_lambda", type="float",
     #                   help="fdr computation: lambda [default=%default]."  )
 
@@ -334,7 +365,7 @@ def main(argv=None):
                         filename_gene2name=None
                         )
 
-    (options, args) = E.start(parser, add_database_options=True)
+    (options, args) = E.start(parser)
 
     if options.go2goslim:
         GO.convertGo2Goslim(options)
