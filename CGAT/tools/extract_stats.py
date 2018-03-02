@@ -46,43 +46,22 @@ tasks
 '''
 
 import sys
-import CGATCore.Experiment as E
-import pandas as pd
-import pandas.io.sql as pdsql
-import numpy as np
+import pandas
+import numpy
 import re
+import CGATCore.Experiment as E
+import CGATCore.Database as Database
 
 
-def getTableFromDb(db, table, backend,
-                   username, db_hostname,
-                   db_port):
+def getTableFromDb(database_url, table):
     '''
     Get a table from a database with pandas
     '''
 
-    state = '''SELECT * FROM %(table)s''' % locals()
-    # state = text('''SELECT * FROM %(table)s;''' % locals())
-    if backend == "sqlite":
-        create_string = "sqlite:///{}".format(db)
-        dbh = sql.connect(db)
-    elif backend == "mysql":
-        dbhandle = MySQLdb.connect(host=db_hostname,
-                                   user=username,
-                                   passwd="",
-                                   port=db_port,
-                                   db=db)
-        
-        #create_string = '''mysql://cgat@gandalf.anat.ox.ac.uk/%(db)s''' % locals()
-    else:
-        raise TypeError("database backend not recognised")
-
-    #engine = create_engine(create_string)
-    #dbh = engine.connect()
-    
-    df = pdsql.read_sql(sql=state, con=dbh)
+    dbhandle = Database.connect(url=database_url)
+    df = pandas.read_sql("SELECT * FROM {}".format(table), con=dbhandle)
     df.index = df["track"]
-    df.drop(labels="track", inplace=True,
-            axis=1)
+    df.drop(labels="track", inplace=True, axis=1)
 
     return df
 
@@ -94,16 +73,16 @@ def cleanStatsTable(stats_file):
     '''
     # , mangle_dupe_cols=False)
     # AH: disabled, because "ValueError: Setting mangle_dupe_cols=False is not supported yet"
-    _df = pd.read_table(stats_file, sep="\t", header=0,
-                        index_col=None)
+    df = pandas.read_table(stats_file, sep="\t", header=0,
+                            index_col=None)
 
     # drop duplicates is case sensitive, convert all to
     # same case - SQL is not case sensitive so will throw
     # a hissy fit for same column names in different cases
-    _df.columns = [cx.lower() for cx in _df.columns]
-    _df = _df.T.drop_duplicates().T
-    _df.index = _df["track"]
-    return _df
+    df.columns = [cx.lower() for cx in df.columns]
+    df = df.T.drop_duplicates().T
+    df.index = df["track"]
+    return df
 
 
 def extractTranscriptCounts(con, table):
@@ -131,7 +110,7 @@ def extractTranscriptCounts(con, table):
     WHERE coverage_sense_nval > 0;
     ''' % locals()
 
-    coverages = pdsql.read_sql(statement, con)
+    coverages = pandas.read_sql(statement, con)
     coverages = coverages.loc[:, "coverage_sense_pcovered"]
     return coverages
 
@@ -154,8 +133,7 @@ def summariseOverBins(coverages, bins):
       frequency array of coverages over percentiles
     '''
 
-    freqs = np.zeros(shape=len(bins),
-                     dtype=np.float64)
+    freqs = numpy.zeros(shape=len(bins), dtype=numpy.float64)
     for i in range(len(bins)):
         if i == 0:
             hits = coverages <= bins[i]
@@ -167,13 +145,13 @@ def summariseOverBins(coverages, bins):
     return freqs
 
 
-def getModelCoverage(db, table_regex, model_type="transcript"):
+def getModelCoverage(database_url, table_regex, model_type="transcript"):
     '''
     Compute transcript model coverage stats
 
     Arguments
     ---------
-    db: string
+    database_url: string
       database containing transcript counts
 
     table_regex: string
@@ -191,24 +169,21 @@ def getModelCoverage(db, table_regex, model_type="transcript"):
 
     # need to regex for all the tables, one for each sample
     # fetch_all returns a list of tuples
-    dbh = sql.connect(db)
-    cursor = dbh.cursor()
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    dbhandle = Database.connect(database_url)
+    cc = dbhandle.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
     tab_reg = re.compile(table_regex)
-    table_list = [tx[0] for tx in cursor.fetchall() if re.search(tab_reg,
-                                                                 tx[0])]
+    table_list = [tx[0] for tx in cc.fetchall() if re.search(tab_reg, tx[0])]
 
     # pull out counts for each cell and compute coverages
-
     bins = range(0, 101)
     cov_dict = {}
     for tab in table_list:
-        covs = extractTranscriptCounts(dbh, tab)
+        covs = extractTranscriptCounts(dbhandle, tab)
         freq_array = summariseOverBins(covs, bins)
         cov_dict[tab] = freq_array
 
-    coverage_df = pd.DataFrame(cov_dict).T
+    coverage_df = pandas.DataFrame(cov_dict).T
     # create a regex group to remove superfluous characters
     # from the track names
     ix_re = re.compile("_(?P<run>\d+)_(?P<plate>\d+)_(?P<well>\d+)_(?P<mapper>\S+)_transcript_counts")
@@ -236,38 +211,17 @@ def main(argv=None):
                                "clean_table"],
                       help="task to perform")
 
-    parser.add_option("-d", "--database", dest="database", type="string",
-                      help="SQLite database containing relevant tables")
-
-    parser.add_option("--database-backend", dest="database_backend",
-                      type="choice", choices=["sqlite", "mysql"],
-                      help="database backend to use")
-
-    parser.add_option("--database-username", dest="database_username",
-                      type="string", help="MySQL username")
-
-    parser.add_option("--database-hostname", dest="database_hostname",
-                      type="string", help="MySQL server hostname")
-
-    parser.add_option("--database-port", dest="databse_port",
-                      type="string", help="MySQL server port")
-
     parser.add_option("-t", "--table-name", dest="table", type="string",
                       help="table in SQLite DB to extract")
-
+                      
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv, add_database_options=True)
 
     if options.task == "extract_table":
-        out_df = getTableFromDb(db=options.database,
-                                table=options.table,
-                                backend=options.database_backend,
-                                username=options.database_username,
-                                db_hostname=options.database_hostname,
-                                db_port=int(options.databse_port))
+        out_df = getTableFromDb(options.database_url, options.table)
 
     elif options.task == "get_coverage":
-        out_df = getModelCoverage(db=options.database,
+        out_df = getModelCoverage(options.database_url,
                                   table_regex="(\S+)_transcript_counts")
 
     elif options.task == "clean_table":

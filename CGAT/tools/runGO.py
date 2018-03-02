@@ -157,35 +157,11 @@ Command line options
 '''
 import sys
 import collections
-import optparse
+import CGATCore.Database as Database
 import CGATCore.Experiment as E
 import CGATCore.IOTools as IOTools
-try:
-    import MySQLdb
-    HAS_MYSQL = True
-except ImportError:
-    HAS_MYSQL = False
 
 import CGAT.GO as GO
-
-
-def connectToEnsembl(options):
-    if not HAS_MYSQL:
-        raise ValueError(
-            "can not connect to MySQL, no MySQLdb")
-    if options.database_port:
-        dbhandle = MySQLdb.connect(
-            host=options.database_host,
-            user=options.database_username,
-            db=options.database_name,
-            port=options.database_port)
-    else:
-        dbhandle = MySQLdb.connect(
-            host=options.database_host,
-            user=options.database_username,
-            db=options.database_name,
-            unix_socket=options.database_socket)
-    return dbhandle
 
 
 def main(argv=None):
@@ -306,36 +282,6 @@ def main(argv=None):
         help="compute pairwise enrichment for multiple gene lists. "
         "[default=%default].")
 
-    group = optparse.OptionGroup(parser, "Database connection options")
-    group.add_option(
-        "--database-backend", dest="database_backend", type="choice",
-        choices=("sqlite", "mysql", "postgres"),
-        help="database backend [%default].")
-    group.add_option(
-        "--database-host", dest="database_host", type="string",
-        help="database host [%default].")
-    group.add_option(
-        "--database-name", dest="database_name", type="string",
-        help="name of the database [%default].")
-    group.add_option(
-        "--database-username", dest="database_username", type="string",
-        help="database username [%default].")
-    group.add_option(
-        "--database-password", dest="database_password", type="string",
-        help="database password [%default].")
-    group.add_option(
-        "--database-port", dest="database_port", type="int",
-        help="database port [%default].")
-
-    parser.set_defaults(
-        database_backend="sqlite",
-        database_name="csvdb",
-        database_host="",
-        database_port=3306,
-        database_username="",
-        database_password="")
-    parser.add_option_group(group)
-    
     # parser.add_option( "--fdr-lambda", dest="qvalue_lambda", type="float",
     #                   help="fdr computation: lambda [default=%default]."  )
 
@@ -365,7 +311,7 @@ def main(argv=None):
                         filename_gene2name=None
                         )
 
-    (options, args) = E.start(parser)
+    (options, args) = E.start(parser, add_database_options=True)
 
     if options.go2goslim:
         GO.convertGo2Goslim(options)
@@ -385,7 +331,7 @@ def main(argv=None):
 
         E.info("dumping GO categories to %s" % (options.filename_dump))
 
-        dbhandle = connectToEnsembl(options)
+        dbhandle = Database.connect(url=options.database_url)
 
         outfile = IOTools.open_file(options.filename_dump, "w", create_dir=True)
         GO.DumpGOFromDatabase(outfile,

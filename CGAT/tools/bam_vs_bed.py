@@ -180,7 +180,7 @@ def main(argv=None):
         sort_key = lambda x: x.name
     else:
         format = "-a"
-        total = IOTools.getNumLines(filename_bam)
+        total = IOTools.get_num_lines(filename_bam)
         # get bed format
         ncolumns_bam = 0
         for bed in Bed.iterator(IOTools.open_file(filename_bam)):

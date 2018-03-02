@@ -285,7 +285,11 @@ def main(argv=None):
 
     if options.input_filename_tags == "-":
         fh = tempfile.NamedTemporaryFile(delete=False, mode="w+t")
-        fh.write("".join([x for x in options.stdin]))
+        E.info("saving standard input to {}".format(fh.name))
+        data = "".join([x for x in options.stdin])
+        if len(data) == 0:
+            raise ValueError("no data received on stdin")
+        fh.write(data)
         fh.close()
         options.input_filename_tags = fh.name
     else:
@@ -413,8 +417,8 @@ def main(argv=None):
             R['save.image'](options.save_r_environment)
         raise
 
-    if fh and os.path.exists(fh.name):
-        os.unlink(fh.name)
+    # if fh and os.path.exists(fh.name):
+    #     os.unlink(fh.name)
 
     if options.save_r_environment:
         R['save.image'](options.save_r_environment)

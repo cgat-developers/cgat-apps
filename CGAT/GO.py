@@ -10,6 +10,7 @@ Code
 '''
 import sys
 import re
+import os
 import math
 import random
 import collections
@@ -599,9 +600,11 @@ def AnalyseGO(gene2go,
     return result
 
 
-def GetGOStatement(go_type, database, species):
+def GetGOStatement(go_type, database_url, species):
     """build statement to get GO assignments for genes from ENSEMBL."""
 
+    database = os.path.basename(database_url)
+    
     if database in ("ensembl_mart_27_1", ):
         statement = """SELECT DISTINCTROW
         gene_stable_id, glook_%s_id, description, olook_evidence_code
@@ -755,14 +758,15 @@ def DumpGOFromDatabase(outfile,
         genes = collections.defaultdict(int)
         categories = collections.defaultdict(int)
         ntotal = 0
-        statement = GetGOStatement(go_type, options.database_name,
+        statement = GetGOStatement(go_type,
+                                   options.database_url,
                                    options.species)
 
         results = Database.executewait(
             dbhandle, statement, retries=0).fetchall()
 
         for result in results:
-            outfile.write("\t".join(map(str, (go_type,) + result)) + "\n")
+            outfile.write("{}\t{}\n".format(go_type, "\t".join(map(str, result))))
             gene_id, goid, description, evidence = result
             genes[gene_id] += 1
             categories[goid] += 1

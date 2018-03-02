@@ -309,7 +309,7 @@ def cropGFF(gffs, filename_gff):
     for contig in list(cropper.keys()):
         intersector = quicksect.IntervalTree()
         for start, end in cropper[contig]:
-            intersector.add(quicksect.Interval(start, end))
+            intersector.add(start, end)
             ntotal += 1
         cropper[contig] = intersector
 
@@ -327,7 +327,7 @@ def cropGFF(gffs, filename_gff):
         if gff.contig in cropper:
 
             start, end = gff.start, gff.end
-            overlaps = cropper[gff.contig].find(start, end)
+            overlaps = cropper[gff.contig].find(quicksect.Interval(start, end))
 
             if overlaps:
 

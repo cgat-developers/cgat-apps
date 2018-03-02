@@ -2121,7 +2121,7 @@ class CounterOverlapStranded(CounterOverlap):
             n, intervals = 0, []
             if (contig, strand) in self.mIntersectors:
                 for start, end in segments:
-                    r = self.mIntersectors[contig, strand].find(start, end)
+                    r = self.mIntersectors[contig, strand].find(quicksect.Interval(start, end))
                     intervals.extend([(x.start, x.end) for x in r])
                     if r:
                         n += 1
@@ -2221,7 +2221,7 @@ class CounterOverlapTranscripts(CounterOverlap):
         gene_ids, transcript_ids = set(), set()
         if contig in self.mIntersectors:
             for start, end in segments:
-                r = self.mIntersectors[contig].find(start, end)
+                r = self.mIntersectors[contig].find(quicksect.Interval(start, end))
                 intervals += [(x.start, x.end) for x in r]
                 for x in r:
                     gene_ids.add(x.value.gene_id)
@@ -2313,7 +2313,7 @@ class CounterCoverage(CounterOverlap):
         intervals = set()
         if contig in self.mIntersectors:
             for start, end in segments:
-                r = self.mIntersectors[contig].find(start, end)
+                r = self.mIntersectors[contig].find(quicksect.Interval(start, end))
                 for x in r:
                     intervals.add((x.start, x.end))
 
@@ -3485,7 +3485,7 @@ class ClassifierPolII(ClassifierIntervals):
         promotor_max = max(self.promotor_upstream, self.promotor_downstream)
 
         r = list(self.mIntersectors[contig].find(
-            start - promotor_max, end + promotor_max))
+            quicksect.Interval(start - promotor_max, end + promotor_max)))
         if len(r) == 0:
             return
         self.noverlap = len(r)
@@ -3641,7 +3641,7 @@ class CounterBindingPattern(CounterOverlap):
         # get overlapping intervals
         extended_start, extended_end = start - self.flank, end + self.flank
         overlaps = list(
-            self.mIntersectors[contig].find(extended_start, extended_end))
+            self.mIntersectors[contig].find(quicksect.Interval(extended_start, extended_end)))
         if len(overlaps) == 0:
             return
         intervals = [(x.start, x.end) for x in overlaps]
@@ -4375,7 +4375,7 @@ class CounterSpliceSiteComparison(CounterOverlap):
         self.mNIncompleteMatch, self.mNExonSkippingMatch = 0, 0
         for start, end in segments:
             if contig in self.mIntersectors:
-                s = self.mIntersectors[contig].find(start, end)
+                s = self.mIntersectors[contig].find(quicksect.Interval(start, end))
                 if s:
                     self.mNFound += 1
                     if len(s) == 1:
@@ -4448,7 +4448,7 @@ class CounterProximity(CounterOverlap):
         end += self.mProximalDistance
 
         if contig in self.mIntersectors:
-            self.mSegments = self.mIntersectors[contig].find(start, end)
+            self.mSegments = self.mIntersectors[contig].find(quicksect.Interval(start, end))
         else:
             self.mSegments = []
 
@@ -4642,7 +4642,7 @@ class CounterTerritories(CounterOverlap):
         end = max(x[1] for x in segments)
 
         if contig in self.mIntersectors:
-            self.mSegments = self.mIntersectors[contig].find(start, end)
+            self.mSegments = self.mIntersectors[contig].find(quicksect.Interval(start, end))
         else:
             self.mSegments = []
 
