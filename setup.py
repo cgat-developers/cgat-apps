@@ -281,6 +281,16 @@ extensions = [
         language="c",
         extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
     ),
+    Extension(
+        "CGAT.FastqTools",
+        ["CGAT/FastqTools/fastqtools.pyx"],
+        include_dirs=pysam.get_include() + [numpy.get_include()],
+        library_dirs=[pysam_libdir],
+        libraries=pysam_libs,
+        define_macros=pysam.get_defines(),
+        language="c",
+        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+    ),
 ]
 
 

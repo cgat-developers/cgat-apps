@@ -86,8 +86,11 @@ Command line options
 
 import sys
 import re
+import pysam
+
 import CGATCore.IOTools as IOTools
 import CGATCore.Experiment as E
+import CGAT.FastqTools as fastqtools
 
 
 class PatternGetter:
@@ -117,7 +120,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_option("-m", "--method", dest="method", type="choice",
-                      choices=('reconcile',),
+                      choices=('reconcile', 'filter-by-sequence'),
                       help="method to apply [default=%default].")
 
     parser.add_option(
@@ -145,26 +148,39 @@ def main(argv=None):
         default=None)
 
     parser.add_option(
-        "-o", "--output-filename-pattern",
-        dest="output_pattern", type="string",
-        help="pattern for output files [default=%default].")
+        "--input-filename-fasta",
+        dest="input_filename_fasta", type="string",
+        help="input filename of FASTA formatted sequence "
+        "for method 'filter-by-sequence' [default=%default].")
+
+    parser.add_option(
+        "--filtering-kmer-size",
+        dest="filtering_kmer_size", type="int",
+        help="kmer size for method 'filter-by-sequence' [default=%default].")
+
+    parser.add_option(
+        "--filtering-min-kmer-matches",
+        dest="filtering_min_kmer_matches", type="int",
+        help="minimum number of matches 'filter-by-sequence' [default=%default].")
 
     parser.set_defaults(
         method="reconcile",
         chop=False,
         unpaired=False,
-        output_pattern="%s.fastq.gz",
+        input_filename_fasta=None,
+        filtering_kmer_size=10,
+        filtering_min_kmer_matches=10
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) != 2:
         raise ValueError(
             "please supply at least two fastq files on the commandline")
 
     fn1, fn2 = args
-    c = E.Counter()
+    counter = E.Counter()
 
     if options.id_pattern_1:
         id1_getter = PatternGetter(options.id_pattern_1)
@@ -235,17 +251,17 @@ def main(argv=None):
                 len(take)))
 
         if options.unpaired:
-            unpaired_filename = IOTools.open_file(
-                options.output_pattern % "unpaired", "w")
+            unpaired_filename = E.open_output_file(
+                "unpaired.fastq.gz", "w")
         else:
             unpaired_filename = None
 
-        with IOTools.open_file(options.output_pattern % "1", "w") as outf:
+        with E.open_output_file(".fastq.1.gz", "w") as outf:
             inf = IOTools.open_file(fn1)
             E.info("writing first in pair")
             write(outf, inf, take, unpaired_filename, id1_getter)
 
-        with IOTools.open_file(options.output_pattern % "2", "w") as outf:
+        with E.open_output_file(".fastq.2.gz", "w") as outf:
             inf = IOTools.open_file(fn2)
             E.info("writing second in pair")
             write(outf, inf, take, unpaired_filename, id2_getter)
@@ -253,8 +269,38 @@ def main(argv=None):
         if options.unpaired:
             unpaired_filename.close()
 
-    # write footer and output benchmark information.
-    E.info("%s" % str(c))
+    elif options.method == "filter-by-sequence":
+
+        with pysam.FastxFile(options.input_filename_fasta) as inf:
+            for record in inf:
+                query_sequence = record.sequence
+                break
+
+        with pysam.FastxFile(fn1, persist=False) as inf1, \
+                pysam.FastxFile(fn2, persist=False) as inf2, \
+                E.open_output_file("matched.fastq.1.gz", "w") as outf_matched1, \
+                E.open_output_file("matched.fastq.2.gz", "w") as outf_matched2, \
+                E.open_output_file("unmatched.fastq.1.gz", "w") as outf_unmatched1, \
+                E.open_output_file("unmatched.fastq.2.gz", "w") as outf_unmatched2:
+            counter = fastqtools.filter_by_sequence(
+                query_sequence,
+                inf1,
+                inf2,
+                outf_matched1,
+                outf_matched2,
+                outf_unmatched1,
+                outf_unmatched2,
+                kmer_size=options.filtering_kmer_size,
+                min_kmer_matches=options.filtering_min_kmer_matches)
+        options.stdout.write(
+            "\t".join(("input", "matched", "unmatched", "percent_matched")) + "\n")
+
+        options.stdout.write(
+            "\t".join(map(str, (
+                counter.input, counter.matched, counter.unmatched,
+                100.0 * counter.matched / counter.input))) + "\n")
+        
+    E.info(str(counter))
     E.stop()
 
 if __name__ == "__main__":
