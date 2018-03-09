@@ -3706,7 +3706,7 @@ class CounterBindingPattern(CounterOverlap):
 
         #######################################
         # calculate percent overlap
-        pp = IOTools.prettyPercent
+        pp = IOTools.pretty_percent
         self.poverlap_intron = pp(
             self.overlap_intron, Intervals.getLength(introns), na=0)
         self.poverlap_exon = pp(

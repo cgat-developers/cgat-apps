@@ -30,13 +30,10 @@ global_last_filename_genome = None
 global_forward_sequences = {}
 global_last_sbjct_token = None
 
-if sys.version_info.major >= 3:
-    global_translator = str.maketrans("ACGTacgt", "TGCAtgca")
-else:
-    global_translator = string.maketrans("ACGTacgt", "TGCAtgca")
+global_translator = str.maketrans("ACGTacgt", "TGCAtgca")
 
 
-def complement(s):
+def reverse_complement(s):
     """reverse complement a sequence.
 
     >>> complement("ACATACATACTA")
@@ -1802,7 +1799,7 @@ def GetIntronType(sequence, both_strands=False):
         else:
             return "unknown", sequence[:5], sequence[-5:]
     else:
-        r = complement(sequence)
+        r = reverse_complement(sequence)
 
         for name, prime5, prime3 in INTRON_TYPES:
             if sequence[:len(prime5)].upper() == prime5 and \

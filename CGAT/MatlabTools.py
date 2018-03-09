@@ -1,5 +1,5 @@
 '''
-MatlabTools.py - 
+MatlabTools.py -
 ======================================================
 
 :Tags: Python
@@ -273,11 +273,11 @@ def readMatrix(infile,
 
 
 def write_matrix(outfile, matrix,
-                format="full",
-                separator="\t",
-                value_format="%f",
-                row_headers=None,
-                col_headers=None):
+                 format="full",
+                 separator="\t",
+                 value_format="%f",
+                 row_headers=None,
+                 col_headers=None):
     """write matrix to stream.
     """
 

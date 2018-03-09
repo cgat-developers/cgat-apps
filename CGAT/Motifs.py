@@ -28,7 +28,7 @@ def countMotifs(infile, motifs):
         if not seq:
             break
 
-        rseq = Genomics.complement(seq.sequence)
+        rseq = Genomics.reverse_complement(seq.sequence)
         lsequence = len(seq.sequence)
         pos = []
         for motif, pattern in motifs:

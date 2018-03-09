@@ -94,8 +94,7 @@ def main(argv=None):
                 d[s1[x:x + tuple_size]].append(x)
 
             s2, q2 = right.seq, right.quals
-            # reverse complement
-            s2 = Genomics.complement(s2)
+            s2 = Genomics.reverse_complement(s2)
             q2 = q2[::-1]
 
             # compute list of offsets/diagonals

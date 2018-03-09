@@ -1718,7 +1718,7 @@ def bam2stats_window_count(AlignmentFile samfile,
     return window_df
 
 
-def isPaired(bamfile, alignments=1000):
+def is_paired(bamfile, alignments=1000):
     '''check if a `bamfile` contains paired end data
 
     The method reads at most the first *alignments* and returns
@@ -1784,7 +1784,7 @@ def estimateInsertSizeDistribution(bamfile,
 
     '''
 
-    assert isPaired(bamfile), \
+    assert is_paired(bamfile), \
         'can only estimate insert size from' \
         'paired bam files'
 

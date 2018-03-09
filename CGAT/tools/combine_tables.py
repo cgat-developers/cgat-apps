@@ -93,15 +93,17 @@ def concatenateTables(outfile, options, args):
     else:
         row_headers = [options.headers]
 
-    tables = []
+    tables, headers = [], []
     # read all tables
-    for filename in options.filenames:
+    for filename, header in zip(options.filenames, row_headers):
         table = readTable(filename, options)
         if len(table) == 0:
             E.warn("table '%s' is empty" % filename)
             continue
         tables.append(table)
-
+        headers.append(header)
+    row_headers = headers
+        
     if options.cat is None:
         if len(row_headers) == 1:
             row_head_titles = ["filename"]

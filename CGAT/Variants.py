@@ -102,8 +102,8 @@ def updateVariants(variants, lcontig, strand, phased=True):
 
         # revert strand
         if not is_positive:
-            reference = Genomics.complement(reference)
-            variantseqs = [Genomics.complement(x.upper()) for x in variantseqs]
+            reference = Genomics.reverse_complement(reference)
+            variantseqs = [Genomics.reverse_complement(x.upper()) for x in variantseqs]
             start, end = lcontig - end, lcontig - start
 
         new_variants.append(ExtendedVariant._make((

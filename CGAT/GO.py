@@ -431,7 +431,7 @@ def MapGO2Slims(gene2go, go2slim, ontology=None):
     """filter gene2go lookup by a list of go_ids in go2slim.
 
     gene2go: map of genes to go terms
-    go2slim: map of go categories to goslim go categories   
+    go2slim: map of go categories to goslim go categories
 
     If ontology is given, missing descriptions of go entries
     are added from the ontology.
@@ -604,7 +604,7 @@ def GetGOStatement(go_type, database_url, species):
     """build statement to get GO assignments for genes from ENSEMBL."""
 
     database = os.path.basename(database_url)
-    
+
     if database in ("ensembl_mart_27_1", ):
         statement = """SELECT DISTINCTROW
         gene_stable_id, glook_%s_id, description, olook_evidence_code
@@ -648,7 +648,7 @@ def GetGOStatement(go_type, database_url, species):
             go_field = "acc"
             statement = """SELECT DISTINCTROW
         g.stable_id, xref.dbprimary_acc, go.name, 'NA'
-        FROM gene, transcript, translation, 
+        FROM gene, transcript, translation,
         gene_stable_id as g, object_xref as o, xref,
         %(go_database)s.term AS go
         WHERE gene.gene_id = transcript.gene_id
@@ -667,7 +667,7 @@ def GetGOStatement(go_type, database_url, species):
 
             statement = """SELECT DISTINCTROW
         g.stable_id, xref.dbprimary_acc, go.name, 'NA'
-        FROM gene, transcript, translation, 
+        FROM gene, transcript, translation,
         gene_stable_id as g, object_xref as o, xref,
         %(go_database)s.term AS go,
         %(go_database)s.ontology AS ontology
@@ -677,7 +677,7 @@ def GetGOStatement(go_type, database_url, species):
         AND translation.translation_id = o.ensembl_id
         AND xref.xref_id = o.xref_id
         AND go.%(go_field)s = xref.dbprimary_acc
-        AND go.ontology_id = ontology.ontology_id 
+        AND go.ontology_id = ontology.ontology_id
         AND ontology.namespace = '%(go_type)s'
         AND xref.external_db_id = 1000
         """ % locals()
@@ -689,7 +689,7 @@ def GetGOStatement(go_type, database_url, species):
 
             statement = """SELECT DISTINCTROW
         gene.stable_id, xref.dbprimary_acc, go.name, 'NA'
-        FROM gene, transcript, translation, 
+        FROM gene, transcript, translation,
         object_xref as o, xref,
         %(go_database)s.term AS go,
         %(go_database)s.ontology AS ontology
@@ -698,7 +698,7 @@ def GetGOStatement(go_type, database_url, species):
         AND translation.translation_id = o.ensembl_id
         AND xref.xref_id = o.xref_id
         AND go.%(go_field)s = xref.dbprimary_acc
-        AND go.ontology_id = ontology.ontology_id 
+        AND go.ontology_id = ontology.ontology_id
         AND ontology.namespace = '%(go_type)s'
         AND xref.external_db_id = 1000
         """ % locals()
@@ -879,7 +879,7 @@ def countGOs(gene2gos):
 def ReadGeneLists(filename_genes, gene_pattern=None):
     """read gene lists from filename in matrix.
 
-    returns a tuple (list of all genes, dictionary of gene lists) 
+    returns a tuple (list of all genes, dictionary of gene lists)
     """
 
     if filename_genes == "-":
@@ -914,7 +914,7 @@ def ReadGeneLists(filename_genes, gene_pattern=None):
 
 
 def buildGO2Genes(gene2gos, ancestors=None):
-    '''invert the dictionary genes2go. 
+    '''invert the dictionary genes2go.
 
     If ancestors is given, add missing ancestral information.
     '''
@@ -1018,7 +1018,7 @@ def outputResults(outfile,
     '''output GO results to outfile.
 
     If foreground is given, output a list of gene identifiers in the
-    foreground. 
+    foreground.
 
     If gene2name is given, output a columns with gene
     names (instead of identifiers)
@@ -1317,7 +1317,7 @@ def computeFDRs(go_results,
 def getFileName(options, **kwargs):
     '''return a filename
 
-    Placeholders in filename are string-substituted with the 
+    Placeholders in filename are string-substituted with the
     dictionary in kwargs.
     '''
     if options.output_filename_pattern:
@@ -1418,9 +1418,9 @@ def outputMultipleGeneListResults(results,
                               set='%s_alldesc' % subsection)
 
         IOTools.write_matrix(outfile, matrix,
-                            ["%s:%s" % (x, go2info[x].mDescription)
-                             for x in row_headers],
-                            col_headers, row_header="category")
+                             ["%s:%s" % (x, go2info[x].mDescription)
+                              for x in row_headers],
+                             col_headers, row_header="category")
 
     _output('l2fold', section,
             valuef=lambda x: math.log(x.mRatio + 0.00000001, 2),
@@ -1439,12 +1439,13 @@ def pairwiseGOEnrichment(results_per_genelist, labels, test_ontology, go2info,
                          options):
     '''compute pairwise enrichment between sets.
 
-    The purpose of this method is to find if there are categories that are differently enriched
-    in a pair of gene lists.
+    The purpose of this method is to find if there are categories that
+    are differently enriched in a pair of gene lists.
 
-    The appropriate test here is the Chi-Squared test. 
+    The appropriate test here is the Chi-Squared test.
 
-    The assumption is that the background set is the same in all gene lists.
+    The assumption is that the background set is the same in all gene
+    lists.
 
     The workflow is thus::
 
@@ -1454,12 +1455,14 @@ def pairwiseGOEnrichment(results_per_genelist, labels, test_ontology, go2info,
                compute chi-square enrichment output
                save P-value
            apply fdr - output significant differences.
+
     '''
 
     dicts = [dict(x) for x in results_per_genelist]
 
-    PairResult = collections.namedtuple("PairResult",
-                                        "goid set1 set2 counts1 total1 pvalue1 qvalue1 counts2 total2 pvalue2 qvalue2 pvalue qvalue description")
+    PairResult = collections.namedtuple(
+        "PairResult",
+        "goid set1 set2 counts1 total1 pvalue1 qvalue1 counts2 total2 pvalue2 qvalue2 pvalue qvalue description")
 
     outfile = getFileName(options,
                           go=test_ontology,
