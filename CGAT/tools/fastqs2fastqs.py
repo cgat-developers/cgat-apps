@@ -256,16 +256,18 @@ def main(argv=None):
         else:
             unpaired_filename = None
 
-        with E.open_output_file(".fastq.1.gz", "w") as outf:
+        with E.open_output_file("1", "w") as outf:
             inf = IOTools.open_file(fn1)
             E.info("writing first in pair")
             write(outf, inf, take, unpaired_filename, id1_getter)
 
-        with E.open_output_file(".fastq.2.gz", "w") as outf:
+        with E.open_output_file("2", "w") as outf:
             inf = IOTools.open_file(fn2)
             E.info("writing second in pair")
             write(outf, inf, take, unpaired_filename, id2_getter)
 
+        counter.output = len(take)
+        
         if options.unpaired:
             unpaired_filename.close()
 

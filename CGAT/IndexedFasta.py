@@ -913,7 +913,7 @@ class CGATIndexedFasta:
             p.fromstring(self.mDatabaseFile.read(last_pos - first_pos))
 
         if str(strand) in ("-", "0", "-1"):
-            p = AString(Genomics.complement(str(p)))
+            p = AString(Genomics.reverse_complement(str(p)))
 
         if self.mTranslator:
             return self.mTranslator.translate(p)

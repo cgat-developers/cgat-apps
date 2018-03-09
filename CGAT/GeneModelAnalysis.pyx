@@ -216,7 +216,7 @@ class Counter:
             s.append(self.fasta.getSequence( contig, strand, start, end ))
             
         if Genomics.IsNegativeStrand(strand):
-            return Genomics.complement("".join(s))
+            return Genomics.reverse_complement("".join(s))
         else:
             return "".join(s)
 
