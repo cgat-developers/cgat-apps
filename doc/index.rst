@@ -37,16 +37,10 @@ are below, followed by a :ref:`quickstart` guide.
 Quickstart
 ==========
 
-Please make sure that you are using Python 2.7 with pip_ package manager.
-To install the CGAT tools, type::
+Please install the CGAT-apps using the following :ref:`CGATInstallation`
+for dependencies and troubleshooting.
 
-   pip install cgat
-
-This will install the CGAT scripts and libraries together with the
-required dependencies. See :ref:`CGATInstallation` for
-dependencies and troubleshooting.
-
-CGAT tools are run from the unix command line. Lets assume we have
+CGAT-apps are run from the unix command line. Lets assume we have
 the results of the binding locations of a ChIP-Seq experiment
 (:file:`chipseq.hg19.bed`) in bed format and we want to know, how many
 binding locations are intronic, intergenic and within exons.
@@ -61,7 +55,7 @@ over-lapping transcripts, and outputs a set of non-overlapping genomic
 annotations in gff format (:file:`annotations.gff`) by piping the data
 through various CGAT tools::
  
-   wget -qO- ftp://ftp.ensembl.org/pub/release-72/gtf/homo_sapiens/Homo_sapiens.GRCh37.72.gtf.gz
+   wget ftp://ftp.ensembl.org/pub/release-72/gtf/homo_sapiens/Homo_sapiens.GRCh37.72.gtf.gz
    | gunzip
    | awk '$2 == "protein_coding"' 
    | cgat gff2ff --genome-file=hg19 --method=sanitize --skip-missing
@@ -81,7 +75,7 @@ through various CGAT tools::
       wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
       | index_fasta.py hg19 - > hg19.log
    
-CGAT tools can be chained into a single work flow using unix
+CGAT-apps can be chained into a single work flow using unix
 pipes. The above sequence of commands in turn (1) reconciles UCSC and
 ENSEMBL naming schemes for chromosome names, (2) merges all exons of
 alternative transcripts per gene, (3) keeps the longest gene in case
@@ -143,8 +137,8 @@ This collection of scripts is the outcome of 10 years working in various
 fields in bioinformatics. It contains both the good, the bad and the ugly. 
 Use at your own risk.
 
-.. _Heger & Ponting, 2007: 
-.. _Warren et al., 2008:
-.. _Ramagopalan et al., 2010:
+.. _Heger & Ponting, 2007: https://www.ncbi.nlm.nih.gov/pubmed/17989258
+.. _Warren et al., 2008: https://www.nature.com/articles/nature06936
+.. _Ramagopalan et al., 2010: https://www.ncbi.nlm.nih.gov/pubmed/20736230
 .. _pip: https://pip.pypa.io/en/stable/
 
