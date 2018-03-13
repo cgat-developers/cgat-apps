@@ -63,8 +63,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'CGAT'
-copyright = u'2011, 2012, 2013, 2014, 2015, 2016, 2017 CGAT'
+project = u'CGAT-apps'
+copyright = u'2011, 2012, 2013, 2014, 2015, 2016, 2017 2018 CGAT'
 
 
 # Included at the end of each rst file
