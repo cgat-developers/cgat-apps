@@ -40,12 +40,12 @@ clean:
 _static/toolmap.svg:
 	@echo building toolmap
 	cgat cgat2dot \
-		../CGAT/scripts/bam2*.py \
-		../CGAT/scripts/bed2*.py \
-		../CGAT/scripts/gtf2*.py \
-		../CGAT/scripts/gff2*.py \
-		../CGAT/scripts/fastq2*.py \
-		../CGAT/scripts/fastqs2*.py \
+		../CGAT/tools/bam2*.py \
+		../CGAT/tools/bed2*.py \
+		../CGAT/tools/gtf2*.py \
+		../CGAT/tools/gff2*.py \
+		../CGAT/tools/fastq2*.py \
+		../CGAT/tools/fastqs2*.py \
 		--log=toolmap.log \
 	> toolmap.dot
 	-mkdir _static
