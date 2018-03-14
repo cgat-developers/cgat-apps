@@ -332,11 +332,6 @@ conda env export --name ${CONDA_INSTALL_ENV}
 # activate cgat environment
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
 
-# bx-python is not py3 yet
-pip install 'bx-python==0.7.3'
-# no conda package available
-pip install 'quicksect==0.1.0'
-
 log "installing CGAT code into conda environment"
 # if installation is 'devel' (outside of travis), checkout latest version from github
 if [[ -z ${TRAVIS_INSTALL} ]] ; then
