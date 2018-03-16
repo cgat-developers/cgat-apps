@@ -12,5 +12,3 @@ channels:
 dependencies:
 - ucsc-bigwiginfo=357
 - graphviz=2.38.0
-# manually required for pysam env
-- pysam=0.14.0

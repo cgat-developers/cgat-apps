@@ -15,11 +15,10 @@ dependencies:
 # bioinformatics tools
 - ucsc-wigtobigwig
 # python deps
-- python=3.6.3
+- python=3.6
 - alignlib-lite
 - biopython
 - cython
-- future
 - ggplot
 - jinja2
 - matplotlib
@@ -44,5 +43,3 @@ dependencies:
 - r-coloc
 - r-ggplot2
 - r-qqman
-- ucsc-wigtobigwig
-

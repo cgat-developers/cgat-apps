@@ -11,7 +11,7 @@ channels:
 
 dependencies:
 # python dependencies
-- python=3.6.3
+- python=3.6
 - alignlib-lite
 - biopython
 - cython
@@ -39,6 +39,7 @@ dependencies:
 # R dependencies
 - r-base=3.4.1
 - r-coloc
+- r-deconstructsigs
 - r-flashclust
 - r-ggplot2
 - r-gplots

@@ -324,8 +324,8 @@ curl -o env-apps.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-a
 
 curl -o env-core.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE_CORE}
 
-conda env create --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml
-conda env update --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml
+conda env create --no-update-deps --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml
+conda env update --no-update-deps --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml
 
 conda env export --name ${CONDA_INSTALL_ENV}
 
@@ -342,7 +342,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
       # install extra deps
       curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
-      conda env update --quiet --file env-extra.yml
+      conda env update --no-update-deps --quiet --file env-extra.yml
       conda env export --name cgat-s
 
       # download the code out of jenkins

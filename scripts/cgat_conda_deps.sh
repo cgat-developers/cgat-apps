@@ -145,6 +145,7 @@ R_DEPS[stringr]="r-stringr"
 R_DEPS[vegan]="r-vegan"
 R_DEPS[wasabi]="r-wasabi"
 R_DEPS[zinba]="ignore"
+R_DEPS[deconstructSigs]="r-deconstructsigs"
 
 
 # dictionary to translate Misc deps
@@ -306,7 +307,7 @@ sfood $1 2>&1 \
 find_r_imports() {
 
 grep -i 'library(' -r $1 \
- | grep -v Binary \
+ | egrep -v 'Binary|#|;|zinba' \
  | sed -e 's/\(.*\)library\(.*\)/\2/' \
  | sed 's/[()"&,.%'\'']//g' \
  | sed 's/\\n$//g' \
@@ -537,7 +538,7 @@ do
       [[ "${R_DEPS[${pkg}]}" != "ignore" ]] && echo "- "${R_DEPS[${pkg}]} >> ${TMP_DEPS}
    else
       # not found
-      echo "- "$pkg >> ${TMP_DEPS}
+      echo "? "$pkg >> ${TMP_DEPS}
    fi
 
 done
