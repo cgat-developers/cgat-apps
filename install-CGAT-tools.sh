@@ -91,13 +91,13 @@ get_cgat_env() {
 if [[ $TRAVIS_INSTALL ]] ; then
 
    CGAT_HOME=$TRAVIS_BUILD_DIR
-   CONDA_INSTALL_TYPE_APPS="scripts-nosetests.yml"
+   CONDA_INSTALL_TYPE_APPS="apps-nosetests.yml"
    CONDA_INSTALL_TYPE_CORE="core-production.yml"
 
 elif [[ $JENKINS_INSTALL ]] ; then
 
    CGAT_HOME=$WORKSPACE
-   CONDA_INSTALL_TYPE_APPS="scripts-devel.yml"
+   CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
    CONDA_INSTALL_TYPE_CORE="core-production.yml"
 
 else
@@ -107,10 +107,10 @@ else
    fi
 
    if [[ $INSTALL_PRODUCTION ]] ; then
-      CONDA_INSTALL_TYPE_APPS="scripts-production.yml"
+      CONDA_INSTALL_TYPE_APPS="apps-production.yml"
       CONDA_INSTALL_TYPE_CORE="core-production.yml"
    elif [[ $INSTALL_DEVEL ]] ; then
-      CONDA_INSTALL_TYPE_APPS="scripts-devel.yml"
+      CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
       CONDA_INSTALL_TYPE_CORE="core-devel.yml"
    elif [[ $INSTALL_TEST ]] || [[ $INSTALL_UPDATE ]] ; then
       if [[ -d $CGAT_HOME/conda-install ]] ; then
@@ -324,8 +324,8 @@ curl -o env-apps.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-a
 
 curl -o env-core.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE_CORE}
 
-conda env create --no-update-deps --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml
-conda env update --no-update-deps --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml
+conda env create --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml --no-update-deps
+conda env update --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml --no-update-deps
 
 conda env export --name ${CONDA_INSTALL_ENV}
 
@@ -341,8 +341,8 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
    if [[ $INSTALL_DEVEL ]] || [[ $JENKINS_INSTALL ]] ; then
 
       # install extra deps
-      curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
-      conda env update --no-update-deps --quiet --file env-extra.yml
+      curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/apps-extra.yml
+      conda env update --quiet --file env-extra.yml --no-update-deps
       conda env export --name cgat-s
 
       # download the code out of jenkins
