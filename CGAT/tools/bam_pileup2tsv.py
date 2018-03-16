@@ -22,30 +22,34 @@ coverage-vcf:
     at site). Note that the output of this method is in :term:`VCF`
     format.
 
+barcode:
+
 """
 
 import sys
 import os
 import json
 import re
+import pandas
 import pysam
 import CGATCore.Experiment as E
 
 
-def generate_from_bed(bam_file, bed_file, stepper="nofilter"):
+def generate_from_bed(bam_file, bed_file, **kwargs):
     for bed in bed_file.fetch(parser=pysam.asBed()):
-        for v in bam_file.pileup(bed.contig, bed.start, bed.end, stepper=stepper,
+        for v in bam_file.pileup(bed.contig, bed.start, bed.end,
+                                 **kwargs,
                                  truncate=True):
             yield v
 
 
-def generate_from_bam(bam_file, stepper="nofilter"):
-    for v in bam_file.pileup(stepper=stepper):
+def generate_from_bam(bam_file, **kwargs):
+    for v in bam_file.pileup(**kwargs):
         yield v
 
 
-def generate_from_region(bam_file, region, stepper="nofilter"):
-    for v in bam_file.pileup(region=region, stepper=stepper):
+def generate_from_region(bam_file, region, **kwargs):
+    for v in bam_file.pileup(region=region, **kwargs):
         yield v
 
 
@@ -64,7 +68,7 @@ def main(argv=None):
 
     parser.add_option(
         "-m", "--method", dest="method", type="choice",
-        choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf"),
+        choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf", "barcode"),
         help="method to apply [%default]")
 
     parser.add_option(
@@ -83,6 +87,11 @@ def main(argv=None):
         "[%default]")
 
     parser.add_option(
+        "--min-base-quality", dest="min_base_quality", type="int",
+        help="minimum base quality for barcode analysis. "
+        "[%default]")
+
+    parser.add_option(
         "-s", "--stepper", dest="stepper", type="choice",
         choices=("nofilter", "samtools", "all"))
 
@@ -92,6 +101,7 @@ def main(argv=None):
         input_bed_file=None,
         regex_sample_name="([^/]+).bam",
         stepper="nofilter",
+        min_base_quality=13,
         region_string=None)
 
     # add common options (-h/--help, ...) and parse command line
@@ -108,22 +118,28 @@ def main(argv=None):
         bed_in = None
 
     if options.region_string is not None:
-        itr = generate_from_region(pysam_in, options.region, stepper=options.stepper)
+        itr = generate_from_region(pysam_in, options.region,
+                                   stepper=options.stepper,
+                                   min_base_quality=options.min_base_quality)
     elif bed_in is not None:
-        itr = generate_from_bed(pysam_in, bed_in, stepper=options.stepper)
+        itr = generate_from_bed(pysam_in, bed_in,
+                                stepper=options.stepper,
+                                min_base_quality=options.min_base_quality)
     else:
-        itr = generate_from_bam(pysam_in, stepper=options.stepper)
+        itr = generate_from_bam(pysam_in,
+                                stepper=options.stepper,
+                                min_base_quality=options.min_base_quality)
 
     reference_fasta = pysam.FastaFile(options.reference_fasta_file)
 
     outf = options.stdout
-    c = E.Counter()
+    counter = E.Counter()
 
     if options.method == "read-variant":
         outf.write("chromosome\tposition\tref\ttypes\n")
 
         for pileupcolumn in itr:
-            c.positions_pileup += 1
+            counter.positions_pileup += 1
             reference_base = reference_fasta.fetch(
                 pileupcolumn.reference_name,
                 pileupcolumn.reference_pos,
@@ -143,12 +159,12 @@ def main(argv=None):
 
             bases = list(bases)
             if len(bases) == 1:
-                c.position_noninformative += 1
+                counter.position_noninformative += 1
                 if bases[0] == reference_base:
-                    c.position_reference += 1
+                    counter.position_reference += 1
                 continue
 
-            c.position_informative += 1
+            counter.position_informative += 1
 
             d = {}
             for base in bases:
@@ -229,6 +245,30 @@ def main(argv=None):
                     quality,
                     read.alignment.query_name))
 
-    E.info(c)
+    elif options.method == "barcode":
+
+        rows = []
+        for c in itr:
+            rows.append((c.reference_pos,
+                         c.n,
+                         "".join(c.get_query_sequences()),
+                         pysam.qualities_to_qualitystring(c.get_query_qualities())))
+        df = pandas.DataFrame.from_records(
+            rows,
+            columns=["pos", "gapped_depth", "bases", "qualities"])
+
+        df["depth"] = df.bases.str.len()
+        bases = ["A", "C", "G", "T"]
+        for b in bases:
+            df[b] = df.bases.str.upper().str.count(b)
+        df["consensus"] = df[bases].idxmax(axis=1)
+        df["consensus_counts"] = df.lookup(df.index, df.consensus)
+        df["consensus_support"] = df.consensus_counts / df.depth
+        df["offconsensus_counts"] = df.depth - df.consensus_counts
+        df.loc[df.consensus_counts == 0, "consensus"] = "N"
+
+        df.to_csv(outf, sep="\t", index=False)
+
+    E.info(counter)
     # write footer and output benchmark information.
     E.stop()

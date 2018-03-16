@@ -1,4 +1,4 @@
-import glob
+import sysconfig
 import sys
 import os
 import subprocess
@@ -190,10 +190,14 @@ Operating System :: MacOS
 
 ##########################################################
 # Cython Extensions
+conda_includes = [os.path.dirname(sysconfig.get_paths()["include"])]
+conda_libdirs = [os.path.dirname(sysconfig.get_paths()["stdlib"])]
+
 # Connected components cython extension
 pysam_libraries = pysam.get_libraries()
-pysam_libdir = list(set(os.path.dirname(x) for x in
-                        pysam_libraries))[0]
+pysam_libdirs = list(set(os.path.dirname(x) for x in
+                         pysam_libraries)) + conda_libdirs
+
 # remove lib and .so
 pysam_libs = list([os.path.basename(x)[3:-3] for x in
                    pysam_libraries])
@@ -206,6 +210,8 @@ if IS_OSX:
 else:
     extra_link_args = [os.path.join(pysam_dirname, x) for x in
                        pysam.get_libraries()]
+
+extra_link_args_pysam = " ".join(['-Wl,-rpath,{}'.format(x) for x in pysam_libdirs])
 
 extensions = [
     Extension(
@@ -222,7 +228,7 @@ extensions = [
          "CGAT/NCL/intervaldb.c"],
         library_dirs=[],
         libraries=[],
-    language="c",
+        language="c",
     ),
     Extension(
         "CGAT.Timeseries.cmetrics",
@@ -245,47 +251,47 @@ extensions = [
         "CGAT.BamTools.bamtools",
         ["CGAT/BamTools/bamtools.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
-        library_dirs=[pysam_libdir],
+        library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
         language="c",
-        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+        extra_link_args=extra_link_args_pysam,
     ),
     Extension(
         "CGAT.BamTools.geneprofile",
         ["CGAT/BamTools/geneprofile.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
-        library_dirs=[pysam_libdir],
+        library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
         language="c",
-        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+        extra_link_args=extra_link_args_pysam,
     ),
     Extension(
         "CGAT.BamTools.peakshape",
         ["CGAT/BamTools/peakshape.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
-        library_dirs=[pysam_libdir],
+        library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
         language="c",
-        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+        extra_link_args=extra_link_args_pysam,
     ),
     Extension(
         "CGAT.VCFTools",
         ["CGAT/VCFTools/vcftools.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
-        library_dirs=[pysam_libdir],
+        library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
         language="c",
-        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+        extra_link_args=extra_link_args_pysam,
     ),
     Extension(
         "CGAT.FastqTools",
         ["CGAT/FastqTools/fastqtools.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
-        library_dirs=[pysam_libdir],
+        library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
         language="c",

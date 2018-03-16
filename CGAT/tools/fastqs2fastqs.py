@@ -169,7 +169,7 @@ def main(argv=None):
         unpaired=False,
         input_filename_fasta=None,
         filtering_kmer_size=10,
-        filtering_min_kmer_matches=10
+        filtering_min_kmer_matches=20
     )
 
     # add common options (-h/--help, ...) and parse command line
