@@ -136,7 +136,7 @@ fi # if travis install
 CONDA_INSTALL_DIR=$CGAT_HOME/conda-install
 
 # set conda environment name
-[[ ${CONDA_INSTALL_ENV} ]] || CONDA_INSTALL_ENV="cgat-s"
+[[ ${CONDA_INSTALL_ENV} ]] || CONDA_INSTALL_ENV="cgat-a"
 
 } # get_cgat_env
 
