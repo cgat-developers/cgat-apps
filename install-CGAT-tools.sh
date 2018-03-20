@@ -85,18 +85,20 @@ fi
 
 
 # configure environment variables 
-# set: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE
+# set: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE_APPS
 get_cgat_env() {
 
 if [[ $TRAVIS_INSTALL ]] ; then
 
    CGAT_HOME=$TRAVIS_BUILD_DIR
-   CONDA_INSTALL_TYPE="scripts-nosetests.yml"
+   CONDA_INSTALL_TYPE_APPS="apps-nosetests.yml"
+   CONDA_INSTALL_TYPE_CORE="core-production.yml"
 
 elif [[ $JENKINS_INSTALL ]] ; then
 
    CGAT_HOME=$WORKSPACE
-   CONDA_INSTALL_TYPE="scripts-devel.yml"
+   CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
+   CONDA_INSTALL_TYPE_CORE="core-production.yml"
 
 else
 
@@ -105,13 +107,15 @@ else
    fi
 
    if [[ $INSTALL_PRODUCTION ]] ; then
-      CONDA_INSTALL_TYPE="scripts-production.yml"
+      CONDA_INSTALL_TYPE_APPS="apps-production.yml"
+      CONDA_INSTALL_TYPE_CORE="core-production.yml"
    elif [[ $INSTALL_DEVEL ]] ; then
-      CONDA_INSTALL_TYPE="scripts-devel.yml"
+      CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
+      CONDA_INSTALL_TYPE_CORE="core-devel.yml"
    elif [[ $INSTALL_TEST ]] || [[ $INSTALL_UPDATE ]] ; then
       if [[ -d $CGAT_HOME/conda-install ]] ; then
          AUX=`find $CGAT_HOME/conda-install/envs/cgat-* -maxdepth 0`
-	 CONDA_INSTALL_TYPE=`basename $AUX`
+	 CONDA_INSTALL_TYPE_APPS=`basename $AUX`
       else
          echo
          echo " The location of the CGAT code was not found (function: get_cgat_env). "
@@ -130,7 +134,9 @@ else
 fi # if travis install
 
 CONDA_INSTALL_DIR=$CGAT_HOME/conda-install
-CONDA_INSTALL_ENV="cgat-s"
+
+# set conda environment name
+[[ ${CONDA_INSTALL_ENV} ]] || CONDA_INSTALL_ENV="cgat-a"
 
 } # get_cgat_env
 
@@ -160,7 +166,8 @@ echo " LIBRARY_PATH: "$LIBRARY_PATH
 echo " LD_LIBRARY_PATH: "$LD_LIBRARY_PATH
 echo " CGAT_HOME: "$CGAT_HOME
 echo " CONDA_INSTALL_DIR: "$CONDA_INSTALL_DIR
-echo " CONDA_INSTALL_TYPE: "$CONDA_INSTALL_TYPE
+echo " CONDA_INSTALL_TYPE_APPS: "$CONDA_INSTALL_TYPE_APPS
+echo " CONDA_INSTALL_TYPE_CORE: "$CONDA_INSTALL_TYPE_CORE
 echo " CONDA_INSTALL_ENV: "$CONDA_INSTALL_ENV
 echo " PYTHONPATH: "$PYTHONPATH
 [[ ! $INSTALL_TEST ]] && echo " INSTALL_BRANCH: "$INSTALL_BRANCH
@@ -261,7 +268,7 @@ if [[ -n "$UNINSTALL_DIR" ]] ; then
 
 fi
 
-# get environment variables: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE
+# get environment variables: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE_APPS
 get_cgat_env
 
 mkdir -p $CGAT_HOME
@@ -312,18 +319,18 @@ log "installing CGAT environment"
 # https://conda.io/docs/using/envs.html#use-environment-from-file
 
 [[ -z ${TRAVIS_BRANCH} ]] && TRAVIS_BRANCH=${INSTALL_BRANCH}
-curl -o env.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE}
-conda env create --quiet --file env.yml
-cat env.yml
-conda env export --name cgat-s
+
+curl -o env-apps.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE_APPS}
+
+curl -o env-core.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE_CORE}
+
+conda env create --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml
+conda env update --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml
+
+conda env export --name ${CONDA_INSTALL_ENV}
 
 # activate cgat environment
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
-
-# bx-python is not py3 yet
-pip install 'bx-python==0.7.3'
-# no conda package available
-pip install quicksect
 
 log "installing CGAT code into conda environment"
 # if installation is 'devel' (outside of travis), checkout latest version from github
@@ -334,9 +341,9 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
    if [[ $INSTALL_DEVEL ]] || [[ $JENKINS_INSTALL ]] ; then
 
       # install extra deps
-      curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/scripts-extra.yml
+      curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/apps-extra.yml
       conda env update --quiet --file env-extra.yml
-      conda env export --name cgat-s
+      conda env export --name cgat-a
 
       # download the code out of jenkins
       if [[ -z ${JENKINS_INSTALL} ]] ; then
@@ -439,7 +446,7 @@ conda_test() {
 
 log "starting conda_test"
 
-# get environment variables: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE
+# get environment variables: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE_APPS
 get_cgat_env
 
 setup_env_vars
@@ -551,7 +558,7 @@ fi # if travis or jenkins
 # update conda installation
 conda_update() {
 
-# get environment variables: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE
+# get environment variables: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE_APPS
 get_cgat_env
 
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
@@ -755,6 +762,11 @@ CODE_DOWNLOAD_TYPE=0
 INSTALL_BRANCH="master"
 # which github branch to use for cgat-core (default: master)
 CORE_BRANCH="master"
+# rename conda environment
+CONDA_INSTALL_ENV=
+# type of installation
+CONDA_INSTALL_TYPE_APPS=
+CONDA_INSTALL_TYPE_CORE=
 # Install a released version?
 RELEASE=
 
@@ -850,7 +862,16 @@ case $key in
     shift 2
     ;;
 
+    --env-name)
+    CONDA_INSTALL_ENV="$2"
+    shift 2
+    ;;
+
     *)
+    echo
+    echo
+    echo " Wrong input: ${SCRIPT_NAME} ${SCRIPT_PARAMS}"
+    echo
     help_message
     ;;
 

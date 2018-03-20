@@ -2,7 +2,7 @@
 # This environment will include other dependencies that have not been detected automatically
 # but are required to run the scripts
 
-name: cgat-s
+name: cgat-a
 
 channels:
 - bioconda
@@ -12,4 +12,3 @@ channels:
 dependencies:
 - ucsc-bigwiginfo
 - graphviz
-
