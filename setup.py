@@ -211,7 +211,7 @@ else:
     extra_link_args = [os.path.join(pysam_dirname, x) for x in
                        pysam.get_libraries()]
 
-extra_link_args_pysam = " ".join(['-Wl,-rpath,{}'.format(x) for x in pysam_libdirs])
+extra_link_args_pysam = ['-Wl,-rpath,{}'.format(x) for x in pysam_libdirs]
 
 extensions = [
     Extension(
