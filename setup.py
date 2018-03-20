@@ -295,7 +295,7 @@ extensions = [
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
         language="c",
-        extra_link_args=['-Wl,-rpath,{}'.format(pysam_libdir)]
+        extra_link_args=extra_link_args_pysam,
     ),
 ]
 
