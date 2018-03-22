@@ -664,7 +664,7 @@ test_mix_branch_release() {
 # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
 test_core_branch() {
    RELEASE_TEST=0
-   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/README.md || RELEASE_TEST=$?
+   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/README.rst || RELEASE_TEST=$?
    if [[ ${RELEASE_TEST} -ne 0 ]] ; then
       echo
       echo " The branch provided for cgat-core does not exist: ${CORE_BRANCH}"
