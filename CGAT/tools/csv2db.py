@@ -38,31 +38,11 @@ Command line options
 '''
 
 import sys
-import CGATCore.Experiment as E
 import CGATCore.CSV2DB as CSV2DB
 
 import csv
-
 csv.field_size_limit(sys.maxsize)
 
 
-def main(argv=sys.argv):
-
-    parser = CSV2DB.buildParser()
-
-    (options, args) = E.start(parser, argv=argv,
-                              add_database_options=True)
-
-    if options.from_zipped:
-        import gzip
-        infile = gzip.GzipFile(fileobj=options.stdin, mode='r')
-
-    else:
-        infile = options.stdin
-
-    CSV2DB.run(infile, options)
-
-    E.stop()
-
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(CSV2DB.main())
