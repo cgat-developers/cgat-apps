@@ -38,11 +38,11 @@ Command line options
 '''
 
 import sys
-import CGATCore.CSV2DB as CSV2DB
+from CGATCore.CSV2DB import main
 
 import csv
 csv.field_size_limit(sys.maxsize)
 
 
 if __name__ == "__main__":
-    sys.exit(CSV2DB.main())
+    sys.exit(main())
