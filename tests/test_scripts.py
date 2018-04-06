@@ -31,7 +31,6 @@ import gzip
 import yaml
 import time
 import hashlib
-import sys
 import platform
 
 import TestUtils
@@ -71,7 +70,9 @@ def check_main(script):
         script = re.sub("%s_" % s, "%s/" % s, script)
 
     # check for text match
-    assert [x for x in open(script) if x.startswith("def main(")], "no main function"
+    with open(script) as inf:
+        code = inf.read()
+    assert "def main(" in code or "import main" in code, "no main function"
 
 
 def compute_checksum(filename):
