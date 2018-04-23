@@ -1,9 +1,9 @@
 .. image:: https://travis-ci.org/cgat-developers/cgat-apps.svg?branch=master
     :target: https://travis-ci.org/cgat-developers/cgat-apps
 
-========
-GAT Apps
-========
+=========
+CGAT Apps
+=========
 
 CGAT Apps is a collection of scripts to analyse high-throughput sequencing data.
 
@@ -39,7 +39,7 @@ Here are the steps::
         --git-ssh # for a SSH clone (you need to be a cgat-developer contributor on GitHub to do this)
 
         # enable the conda environment as requested by the installation script:
-        source </full/path/to/folder/without/trailing/slash>/conda-install/bin/activate cgat-s
+        source </full/path/to/folder/without/trailing/slash>/conda-install/bin/activate cgat-a
 
         # finally, please run the cgatflow command-line tool to check the installation:
         cgat --help
