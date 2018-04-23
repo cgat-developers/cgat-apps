@@ -1,9 +1,9 @@
 .. image:: https://travis-ci.org/cgat-developers/cgat-apps.svg?branch=master
     :target: https://travis-ci.org/cgat-developers/cgat-apps
 
-========
-GAT Apps
-========
+=========
+CGAT Apps
+=========
 
 CGAT Apps is a collection of scripts to analyse high-throughput sequencing data.
 
