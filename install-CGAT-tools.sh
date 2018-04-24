@@ -338,7 +338,8 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
    DEV_RESULT=0
 
-   if [[ $INSTALL_DEVEL ]] || [[ $JENKINS_INSTALL ]] ; then
+   # TO-DO: after code release, INSTALL_PRODUCTION will use pip rather than github
+   if [[ $INSTALL_PRODUCTION ]] || [[ $INSTALL_DEVEL ]] || [[ $JENKINS_INSTALL ]] ; then
 
       # install extra deps
       curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/apps-extra.yml
