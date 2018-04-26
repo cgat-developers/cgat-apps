@@ -229,7 +229,7 @@ def main(argv=None):
         "of the sequence in the file.")
 
     parser.add_option(
-        "--input-filename-map", dest="input_filename_map",
+        "--map-tsv-file", dest="map_tsv_file",
         type="string",
         help="input filename with map for identifiers. The first row is a header")
 
@@ -281,7 +281,7 @@ def main(argv=None):
                       "map-identifier" in options.methods)
     if map_identifier:
         if options.input_filename_map is None:
-            raise ValueError("for method=map-identifier use --input-filename-map")
+            raise ValueError("for method=map-identifier use --map-tsv-file")
         with IOTools.open_file(options.input_filename_map) as infile:
             map_identifier = IOTools.read_map(infile, has_header=True)
 
