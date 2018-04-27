@@ -17,7 +17,7 @@ pybedtools
 alignlib-lite
 
 # conda only
-# ucsc-wigtobigwig
+ucsc-wigtobigwig
 
 # Additional: pip install quicksect
 
