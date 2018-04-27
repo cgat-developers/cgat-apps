@@ -144,7 +144,7 @@ def process_cgat(options):
     c = E.Counter()
 
     assert options.input_fastq_file == "-"
-    
+
     if options.method == "change-format":
         for record in Fastq.iterate_convert(options.stdin,
                                             format=options.target_format,
@@ -307,7 +307,8 @@ def process_daisy(options):
         prefix = None
 
     quality_offset = options.quality_offset
-
+    counter = E.Counter()
+    
     with pysam.FastxFile(options.input_fastq_file) as inf:
         for read in inf:
             counter.input += 1
@@ -327,7 +328,7 @@ def process_daisy(options):
             if filter_ont:
                 quals = read.get_quality_array()
                 n = len(quals)
-                if n < options.min_length or \
+                if n < options.min_sequence_length or \
                         float(sum(quals)) / n < options.min_average_quality:
                     counter.remove_ont += 1
                     remove = True
@@ -428,8 +429,8 @@ def main(argv=sys.argv):
         help="minimum average quality [%default]")
 
     parser.add_option(
-        "--min-length", dest="min_length", type="int",
-        help="minimum length [%default]")
+        "--min-sequence-length", dest="min_sequence_length", type="int",
+        help="minimum sequence length [%default]")
 
     parser.add_option(
         "--quality-offset", dest="quality_offset", type="int",
@@ -497,7 +498,7 @@ def main(argv=sys.argv):
         output_stats_tsv=None,
         input_filter_tsv=None,
         min_average_quality=0,
-        min_length=0,
+        min_sequence_length=0,
         quality_offset=0,
     )
 
@@ -512,15 +513,15 @@ def main(argv=sys.argv):
     # this script combines two scripts with different functionalities
     # TODO: to be sanitized
     if options.methods[0] in ["apply",
-                 "change-format",
-                 "renumber-reads",
-                 "sample",
-                 "sort",
-                 "trim3",
-                 "trim5",
-                 "unique",
-                 "reverse-complement",
-                 "grep"]:
+                              "change-format",
+                              "renumber-reads",
+                              "sample",
+                              "sort",
+                              "trim3",
+                              "trim5",
+                            "unique",
+                              "reverse-complement",
+                              "grep"]:
         options.method = options.methods[0]
         counter = process_cgat(options)
     else:
