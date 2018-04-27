@@ -14,7 +14,7 @@ Example
 
 For example::
 
-   cat in.bam | cgat bam2fasta 
+   cat in.bam | cgat bam2fasta
 
 This command converts the :term:`bam` formatted file in.bam into
 
@@ -30,6 +30,7 @@ Command line options
 '''
 
 import os
+import re
 import sys
 import collections
 import pysam
@@ -45,8 +46,9 @@ import CGATCore.IOTools as IOTools
 def global_align(seqj, seqi, gap=-1, match=1, mismatch=-1, nmatch=0):
     """
     """
+    assert "-" not in seqi
+    assert "-" not in seqj
     UP, LEFT, DIAG, NONE = range(4)
-    
     max_j = len(seqj)
     max_i = len(seqi)
 
@@ -379,13 +381,13 @@ def main(argv=None):
         df.loc[df.consensus_counts == 0, "consensus"] = "N"
         df["region_id"] = region_idx
 
-        alignment = global_align(consensus, barcode_sequence)
+        # replace "gap" consensus positions with + character
+        alignment = global_align(re.sub("-", "+", consensus), barcode_sequence)
         E.info("alignment: consensus {}".format(alignment[0]))
         E.info("alignment: barcode   {}".format(alignment[1]))
-                                                      
+
         barcode_idx = 0
         deleted_barcode_bases = []
-        found_barcode_bases = 0
         rows = []
         for c, b in zip(*alignment):
             if c == "-":

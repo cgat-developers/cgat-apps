@@ -1,0 +1,34 @@
+# latest setutools required for automatic cythonization
+#
+# bedtools
+biopython
+cython
+# TODO: replace ggplot with plotine
+ggplot 
+numpy
+pandas
+pyBigWig
+pysam
+pyyaml
+rpy2
+scikit-learn
+sortedcontainers
+pybedtools
+alignlib-lite
+
+# conda only
+ucsc-wigtobigwig
+
+# Additional: pip install quicksect
+
+# other - for system tools, tests, docs, etc
+pep8
+nose
+rdflib
+jinja2
+#
+sphinx
+pytest
+pytest-xdist
+paramiko
+# pytest-flake8
