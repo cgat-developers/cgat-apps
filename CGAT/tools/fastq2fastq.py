@@ -428,7 +428,7 @@ def main(argv=sys.argv):
         help="minimum average quality [%default]")
 
     parser.add_option(
-        "--min-length", dest="min_length", type="int",
+        "--min-sequence-length", dest="min_sequence_length", type="int",
         help="minimum length [%default]")
 
     parser.add_option(
