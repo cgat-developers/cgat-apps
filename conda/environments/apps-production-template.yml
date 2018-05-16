@@ -38,7 +38,6 @@ dependencies:
 - gcc
 - grep
 - libpng
-- nomkl
 - ucsc-bedgraphtobigwig
 - ucsc-wigtobigwig
 - zlib

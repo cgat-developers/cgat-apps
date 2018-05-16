@@ -82,7 +82,6 @@ dependencies:
 - gcc
 - grep
 - libpng
-- nomkl
 - samtools
 - sra-tools
 - tar
