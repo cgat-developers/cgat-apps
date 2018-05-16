@@ -8,7 +8,6 @@ channels:
 
 dependencies:
 # system deps
-- gcc
 - zlib
 - libpng
 # bioinformatics tools

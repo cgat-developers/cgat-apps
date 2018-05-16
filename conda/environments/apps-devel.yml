@@ -29,7 +29,6 @@ dependencies:
 - biopython=1.70
 - coreutils=8.25
 - cython=0.28.1
-- gcc=4.8.5
 - ggplot=0.6.8
 - grep=2.14
 - jinja2=2.10
