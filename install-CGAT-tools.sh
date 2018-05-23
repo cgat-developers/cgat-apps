@@ -434,7 +434,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       echo " The code was successfully installed!"
       echo
       echo " To activate the CGAT environment type: "
-      echo " $ source $CONDA_INSTALL_DIR/etc/profile.d/conda.sh $CONDA_INSTALL_ENV"
+      echo " $ source $CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
       echo " $ conda activate base"
       echo " $ conda activate $CONDA_INSTALL_ENV"
       [[ $INSTALL_PRODUCTION ]] && echo " cgat --help"
