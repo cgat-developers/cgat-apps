@@ -38,8 +38,11 @@ Here are the steps::
         --git # for an HTTPS clone
         --git-ssh # for a SSH clone (you need to be a cgat-developer contributor on GitHub to do this)
 
-        # enable the conda environment as requested by the installation script:
-        source </full/path/to/folder/without/trailing/slash>/conda-install/bin/activate cgat-a
+        # enable the conda environment as requested by the installation script
+        # NB: you probably want to automate this by adding the instructions below to your .bashrc
+        source </full/path/to/folder/without/trailing/slash>/conda-install/etc/profile.d/conda.sh cgat-a
+        conda activate base
+        conda activate cgat-a
 
         # finally, please run the cgatflow command-line tool to check the installation:
         cgat --help

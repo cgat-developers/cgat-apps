@@ -33,8 +33,11 @@ Here are the steps::
         # or go for the latest development version:
         bash install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
 
-        # enable the conda environment as requested by the installation script:
-        source </full/path/to/folder/without/trailing/slash>/conda-install/bin/activate cgat-s
+        # enable the conda environment as requested by the installation script
+        # NB: you probably want to automate this by adding the instructions below to your .bashrc
+        source </full/path/to/folder/without/trailing/slash>/conda-install/etc/profile.d/conda.sh cgat-a
+        conda activate base
+        conda activate cgat-a
 
         # finally, please run the cgatflow command-line tool to check the installation:
         cgat --help
