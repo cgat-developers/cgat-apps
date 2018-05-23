@@ -703,11 +703,8 @@ test_release() {
 
 # test whether a C/C++ compiler is available
 test_compilers() {
-   COMPILER_TEST=0
-   which gcc &> /dev/null || COMPILER_TEST=$?
-   [[ ${COMPILER_TEST} -ne 0 ]] && report_error " C compiler not found. "
-   which g++ &> /dev/null || COMPILER_TEST=$?
-   [[ ${COMPILER_TEST} -ne 0 ]] && report_error " C++ compiler not found. "
+   which gcc &> /dev/null || report_error " C compiler not found "
+   which g++ &> /dev/null || report_error " C++ compiler not found "
 }
 
 # function to display help message
