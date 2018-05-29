@@ -682,6 +682,26 @@ def GetGOStatement(go_type, database_url, species):
         AND xref.external_db_id = 1000
         """ % locals()
 
+        elif version <= 88:
+            go_database = "ensembl_ontology_%s" % version
+            go_field = "accession"
+
+            statement = """SELECT DISTINCTROW
+        gene.stable_id, xref.dbprimary_acc, go.name, 'NA'
+        FROM gene, transcript, translation,
+        object_xref as o, xref,
+        %(go_database)s.term AS go,
+        %(go_database)s.ontology AS ontology
+        WHERE gene.gene_id = transcript.gene_id
+        AND transcript.transcript_id = translation.transcript_id
+        AND translation.translation_id = o.ensembl_id
+        AND xref.xref_id = o.xref_id
+        AND go.%(go_field)s = xref.dbprimary_acc
+        AND go.ontology_id = ontology.ontology_id
+        AND ontology.namespace = '%(go_type)s'
+        AND xref.external_db_id = 1000
+        """ % locals()
+
         else:
 
             go_database = "ensembl_ontology_%s" % version
