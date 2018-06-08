@@ -13,6 +13,16 @@ http://salmon.readthedocs.io/en/latest/library_type.html.
 BAM files need to have a corresponding index file i.e. example.bam
 and example.bam.bai
 
+For single-end data
+
+    Determining which read the strand is on is straightforward using pysam
+    function .is_reversed.
+
+For paired-end data
+
+    The relative position of read1 and read2 needs to be determined including
+    orientation relative to each other.
+
 
 Usage
 -----
@@ -54,6 +64,15 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id$", usage=globals()["__doc__"])
 
+    parser.add_option(
+        "-i", "--max-iterations", type="int",
+        help="maximum number of iterations. Set to 0 to go through all reads "
+        "[%default]")
+
+    parser.set_defaults(
+        max_iteratiors=10000
+    )
+
     (options, args) = E.start(parser, argv=argv)
 
     samfile = pysam.AlignmentFile(options.stdin, "rb")
@@ -69,11 +88,20 @@ def main(argv=None):
     SR = 0
     SF = 0
 
-    for read in samfile:
+    reads_processed = set()
+
+    for iteration, read in enumerate(samfile):
+
+        if options.max_iterations and iteration > int(options.max_iterations):
+            break
+
+        if read.qname not in reads_processed:
+            reads_processed.add(read.qname)
+        else:
+            continue
 
         # to handle paired end reads:
         if read.is_paired and read.is_proper_pair:
-
             # get attributes of read
             read_start = read.reference_start
             read_end = read.reference_end
