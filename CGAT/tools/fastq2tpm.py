@@ -2,11 +2,6 @@
 fastq2tpm.py - use rapid/lightweight alignment RNA seq quantification methods
 =============================================================================
 
-:Author: MikeMorgan
-:Release: $Id$
-:Date: |today|
-:Tags: Python
-
 Purpose
 -------
 
@@ -181,7 +176,7 @@ def runKallistoIndex(fasta_file, outfile, kmer=31):
 
     if fasta_file.endswith(".fa"):
         pass
-    elif fast_file.endswith(".fasta"):
+    elif fasta_file.endswith(".fasta"):
         pass
     else:
         E.warn("are you sure this is a fasta file?")
