@@ -414,6 +414,9 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       # revert setup.py if downloaded with git
       [[ $CODE_DOWNLOAD_TYPE -ge 1 ]] && git checkout -- setup.py
 
+      # environment pinning
+      python scripts/conda.py
+
    fi # if INSTALL_DEVEL
 
    # check whether conda create went fine
@@ -710,6 +713,20 @@ test_compilers() {
 }
 
 
+# clean up environment
+# deliberately use brute force
+cleanup_env() {
+   set +e
+   source deactivate >& /dev/null || true
+   source deactivate >& /dev/null || true
+   unset -f conda || true
+   unset PYTHONPATH || true
+   module purge >& /dev/null || true
+   mymodule purge >& /dev/null || true
+   set -e
+}
+
+
 # function to display help message
 help_message() {
 echo
@@ -746,6 +763,7 @@ exit 1
 
 # the script starts here
 
+cleanup_env
 test_compilers
 
 if [[ $# -eq 0 ]] ; then
