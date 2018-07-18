@@ -10,6 +10,7 @@ channels:
 - defaults
 
 dependencies:
+- sqlite=3.20.1=2 # https://github.com/conda/conda/issues/7553
 - alignlib-lite=0.3
 - biopython=1.70
 - cython=0.28.1
