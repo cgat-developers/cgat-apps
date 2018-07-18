@@ -415,9 +415,10 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       [[ $CODE_DOWNLOAD_TYPE -ge 1 ]] && git checkout -- setup.py
 
       # environment pinning
-      # temp workaround; problem with sqlite3 and osx
-      conda update sqlite --yes --no-deps
       python scripts/conda.py
+      # temp workaround; problem with sqlite3 and osx
+      sed -i'' -e '/sqlite/d' ${CONDA_INSTALL_DIR}/envs/${CONDA_INSTALL_ENV}/conda-meta/pinned
+      conda update -n ${CONDA_INSTALL_ENV} sqlite --yes
 
    fi # if INSTALL_DEVEL
 
