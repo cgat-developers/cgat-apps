@@ -27,7 +27,7 @@ dependencies:
 - python=3.6.4
 - python-lzo=1.11
 - pyyaml=3.12
-- quicksect=0.1.0
+- quicksect=0.2.0
 - r-base=3.4.1
 - r-deconstructsigs=1.8.0
 - rpy2=2.8.5
