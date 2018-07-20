@@ -122,24 +122,24 @@ class Quicksect(IndexedGenome):
             raise KeyError("contig %s not in index" % contig)
 
         return [(x.start, x.end, x.data)
-                for x in self.mIndex[contig].find(quiksect.Interval(start, end))]
+                for x in self.mIndex[contig].find(quicksect.Interval(start, end))]
 
     def before(self, contig, start, end, num_intervals=1, max_dist=2500):
         '''get closest interval before *start*.'''
         if contig not in self.mIndex:
             raise KeyError("contig %s not in index" % contig)
         return [(x.start, x.end, x.data)
-                for x in self.mIndex[contig].before_interval(
+                for x in self.mIndex[contig].left(
                         quicksect.Interval(start, end),
-                        num_intervals=1,
-                        max_dist=max_dist)]
+                        num_intervals,
+                        max_dist)]
 
     def after(self, contig, start, end, num_intervals=1, max_dist=2500):
         '''get closest interval after *end*.'''
         if contig not in self.mIndex:
             raise KeyError("contig %s not in index" % contig)
         return [(x.start, x.end, x.data)
-                for x in self.mIndex[contig].after_interval(
+                for x in self.mIndex[contig].right(
                         quicksect.Interval(start, end),
-                        num_intervals=1,
-                        max_dist=max_dist)]
+                        num_intervals,
+                        max_dist)]
