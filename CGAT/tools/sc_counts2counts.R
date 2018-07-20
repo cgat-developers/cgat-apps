@@ -1,21 +1,20 @@
 #' filtering single cell data
+#'
+#' Example usage:
 #' 
+#' cgat sc-counts2counts --counts-filename=featurecounts.tsv --phenotypes-filename=phenodata.tsv --factor=group,mouse_id,collection_date,slice_depth,slice_number,pipette_visual,timepoint > filtered_counts.tsv
+#'
+#' -> todo: parameterize detection of ERCC (pattern?)
+#' -> todo: parameterize definition of mitochondrial genes - currently hardcoded for mouse.
 
-suppressMessages(library(reshape))
-# suppressMessages(library(matrixStats))
-# suppressMessages(library(Biobase))
+## conda dependencies: bioconductor-scater r-cairo
+
 suppressMessages(library(futile.logger))
 suppressMessages(library(getopt))
-# suppressMessages(library(edgeR))
-# suppressMessages(library(Cairo))
+suppressMessages(library(Cairo))
 suppressMessages(library(scater))
 
-## dependencies: bioconductor-scater
-
-## scriptdir <- dirname(sys.frame(1)$ofile)
-## to be generalized
-scriptdir <- "/ifs/devel/projects/proj057/paper"
-source(file.path(scriptdir, "experiment.R"))
+source(file.path(Sys.getenv("R_ROOT"), "experiment.R"))
 
 
 start_plot <- function(section, height = 6, width = 10, type = "png") {
@@ -265,20 +264,15 @@ run <- function(opt) {
     flog.info(paste("read counts data", paste(dim(counts_data), collapse = ",")))
 
     flog.info(paste("reading phenotype data from", normalizePath(opt$phenotypes_filename)))
-    anno <- read.table(opt$phenotypes_filename, sep = "\t", header = TRUE)
-    flog.info(paste("read phenotype data", paste(dim(counts_data), collapse = ",")))
+    annotation_data <- read.table(opt$phenotypes_filename, sep = "\t", header = TRUE)
+    flog.info(paste("read phenotype data", paste(dim(annotation_data), collapse = ",")))
     
-    flog.info(paste("read annotation data", paste(dim(anno), collapse = "-")))
-    anno$sample_id <- gsub("-", ".", anno$sample_id)
-    row.names(anno) <- anno$sample_id
+    flog.info(paste("read annotation data", paste(dim(annotation_data), collapse = "-")))
+    annotation_data$sample_id <- gsub("-", ".", annotation_data$sample_id)
+    row.names(annotation_data) <- annotation_data$sample_id
 
     flog.info("building SingleCellExperiment data set")
-    all_sceset <- SingleCellExperiment(assays = list(counts = as.matrix(counts_data)), colData = anno)
-    ## all_sceset <- getBMFeatureAnnos(all_sceset,
-    ##                                  dataset = opt$ensembl_data_set,
-    ##                                  biomart = "ensembl",
-    ##                                  feature_symbol = "mgi_symbol")
-
+    all_sceset <- SingleCellExperiment(assays = list(counts = as.matrix(counts_data)), colData = annotation_data)
     flog.info(paste("built SingleCellExperiment data set", paste(dim(all_sceset), collapse=",")))
 
     flog.info("removing genes not expressed in any cell")
@@ -286,21 +280,6 @@ run <- function(opt) {
     flog.info(paste("keeping", sum(keep_feature), "genes"))
     all_sceset <- all_sceset[keep_feature, ]
     
-    ## flog.info(paste("reading symbol data from", normalizePath(opt$symbols_filename)))
-    ## symbol_list <- read.table(opt$symbols_filename,
-    ##                           header = TRUE,
-    ##                           sep = "\t")
-
-    ## flog.info(paste("symbol_list:", dim(symbol_list)))
-    ## flog.info("adding gene symbols")
-
-    ## rowData(all_sceset) <- merge(rowData(all_sceset), symbol_list,
-    ##                               by.x="feature_id",
-    ##                               by.y="ensembl_gene_id",
-    ##                               how="left",
-    ##                               all.x=TRUE,
-    ##                               suffixes=c(".x", ""))
-
     ercc <- rownames(all_sceset)[grep("ERCC", rownames(all_sceset))]
     mt <- c("ENSMUSG00000064336","ENSMUSG00000064337","ENSMUSG00000064338",
             "ENSMUSG00000064339","ENSMUSG00000064340","ENSMUSG00000064341",
@@ -422,20 +401,6 @@ main <- function() {
             help = paste("filename with input data of counts")
         ),
         make_option(
-            "--symbols-filename",
-            dest = "symbols_filename",
-            type = "character",
-            default = "symbols.tsv",
-            help = paste("filename with gene symbols data for differential expression analysis")
-        ),
-        make_option(
-            "--factor",
-            dest = "factors",
-            type = "character",
-            default = "group,collection_date",
-            help = paste("factors to colour QC plots by.")
-        ),
-        make_option(
             "--phenotypes-filename",
             dest = "phenotypes_filename",
             type = "character",
@@ -443,11 +408,11 @@ main <- function() {
             help = paste("filename with phenotype data")
         ),
         make_option(
-            "--ensembl-data-set",
-            dest = "ensembl_data_set",
+            "--factor",
+            dest = "factors",
             type = "character",
-            default = "mmusculus_gene_ensembl",
-            help = paste("ENSEMBL data set")
+            default = "group,collection_date",
+            help = paste("factors to colour QC plots by.")
         ),
         make_option(
             "--num-cells-threshold",
