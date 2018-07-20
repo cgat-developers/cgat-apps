@@ -1,9 +1,20 @@
-#' filtering single cell data
+#' filtering single cell data based on QC metrics
 #'
 #' Example usage:
 #' 
 #' cgat sc-counts2counts --counts-filename=featurecounts.tsv --phenotypes-filename=phenodata.tsv --factor=group,mouse_id,collection_date,slice_depth,slice_number,pipette_visual,timepoint > filtered_counts.tsv
 #'
+#' `feature_counts.tsv` is a table (tab-separated) of ngenes x ncells,
+#' that is the genes are in rows and the columns are cells.
+#'
+#' `phenodata.tsv` is a table (tab-separated) of ncells x nfeatures,
+#' that is rows are cells and features are in columns. The table should contain
+#' a column called `sample_id` that will match the columns in the table
+#' `feature_counts.tsv`.
+#'
+#' Features can then be selected in the `--factor` option to be
+#' plotted.
+#' 
 #' -> todo: parameterize detection of ERCC (pattern?)
 #' -> todo: parameterize definition of mitochondrial genes - currently hardcoded for mouse.
 
