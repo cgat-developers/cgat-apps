@@ -19,6 +19,12 @@ CGAT/NCL/cnestedlist.c
 CGAT/Nubiscan/cnubiscan.c
 CGAT/Timeseries/cmetrics.c
 CGAT/GeneModelAnalysis.c
+CGAT/BamTools/bamtools.c
+CGAT/BamTools/geneprofile.c
+CGAT/BamTools/peakshape.c
+CGAT/FastqTools/fastqtools.c
+CGAT/VCFTools/vcftools.c
+
 
 # Packages
 *.egg
