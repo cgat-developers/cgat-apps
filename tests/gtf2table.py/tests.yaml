@@ -41,3 +41,8 @@ read-counts:
     references: [test_read_counts.tsv.gz]
     options: --counter=read-counts --bam-file=%DIR%/paircounting.bam --min-mapping-quality=15
 
+test-quicksect:
+    stdin: weird_transcript.gtf
+    outputs: [stdout]
+    references: [test_quicksect.out]
+    options: --counter=classifier-rnaseq-splicing --reporter=transcripts --gff-file=%DIR%/smallest_ref.gtf
