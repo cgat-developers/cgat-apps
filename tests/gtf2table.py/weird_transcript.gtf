@@ -1,0 +1,2 @@
+chr22	StringTie	transcript	49989432	49989665	1000	-	.	gene_id "MSTRG.28419"; transcript_id "MSTRG.28419.1";
+chr22	StringTie	exon	49989432	49989665	1000	-	.	gene_id "MSTRG.28419"; transcript_id "MSTRG.28419.1"; exon_number "1";
