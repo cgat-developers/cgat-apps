@@ -64,7 +64,7 @@ except ImportError:
 import cgatcore.Experiment as E
 import cgat.Bed as Bed
 import collections
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.IndexedGenome as IndexedGenome
 
 
@@ -102,7 +102,7 @@ def main(argv=None):
     tmp_merge = tempfile.NamedTemporaryFile(delete=False, mode="w")
     infs = options.infiles
     for inf in infs:
-        for bed in Bed.iterator(IOTools.open_file(inf)):
+        for bed in Bed.iterator(iotools.open_file(inf)):
             tmp.write("%s\n" % bed)
     tmp.close()
 
@@ -116,7 +116,7 @@ def main(argv=None):
     E.info("indexing bed entries")
     # index the bed entries
     merged = IndexedGenome.Simple()
-    for bed in Bed.iterator(IOTools.open_file(tmp_merge.name)):
+    for bed in Bed.iterator(iotools.open_file(tmp_merge.name)):
         merged.add(bed.contig, bed.start, bed.end)
 
     counts = collections.defaultdict(int)
@@ -126,7 +126,7 @@ def main(argv=None):
     E.info("counting no. samples overlapping each interval")
     for sample in samples:
         found = set()
-        for bed in Bed.iterator(IOTools.open_file(sample)):
+        for bed in Bed.iterator(iotools.open_file(sample)):
             if merged.contains(bed.contig, bed.start, bed.end):
                 key = [bed.contig] + \
                     [x for x in merged.get(bed.contig, bed.start, bed.end)]

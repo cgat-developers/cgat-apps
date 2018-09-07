@@ -114,7 +114,7 @@ import numpy as np
 import collections
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 import cgat.FastaIterator as FastaIterator
 
@@ -278,7 +278,7 @@ def main(argv=None):
     if options.paired:
         assert options.fastq2_out, ("must specify a second fastq outfile for "
                                     "paired end (--output-fastq2)")
-        outf2 = IOTools.open_file(options.fastq2_out, "w")
+        outf2 = iotools.open_file(options.fastq2_out, "w")
 
     if options.premrna_fraction:
         assert options.premrna_fasta, ("must specfify the location of the"
@@ -290,7 +290,7 @@ def main(argv=None):
 
     if options.premrna_fraction:
         iterator = FastaIterator.iterate_together(
-            options.stdin, IOTools.open_file(options.premrna_fasta))
+            options.stdin, iotools.open_file(options.premrna_fasta))
     else:
         iterator = FastaIterator.FastaIterator(options.stdin)
 
@@ -425,7 +425,7 @@ def main(argv=None):
     if options.paired:
         outf2.close()
 
-    with IOTools.open_file(options.output_counts, "w") as counts_out:
+    with iotools.open_file(options.output_counts, "w") as counts_out:
 
         counts_out.write("%s\n" % "\t".join(("id", "read_count", "tpm")))
 

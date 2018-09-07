@@ -33,7 +33,7 @@ Command line options
 import sys
 import cgatcore.Experiment as E
 import cgat.GWAS as gwas
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import re
 
 
@@ -127,7 +127,7 @@ def main(argv=None):
             region.to_csv(out_file, sep="\t", index=None)
 
     elif options.task == "extract_results":
-        with IOTools.open_file(options.snpset, "r") as sfile:
+        with iotools.open_file(options.snpset, "r") as sfile:
             snpset = sfile.readlines()
             snpset = [snp.rstrip("\n") for snp in snpset]
 

@@ -70,7 +70,7 @@ Command line options
 import sys
 import collections
 
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 import alignlib_lite
 
@@ -363,21 +363,21 @@ def main(argv=None):
     filename_chain1, filename_chain2 = args
 
     E.info("validating chain 1")
-    if not validateChain(IOTools.open_file(filename_chain1)):
+    if not validateChain(iotools.open_file(filename_chain1)):
         E.warn("validation failed - exiting")
         return 1
 
     E.info("validating chain 2")
-    if not validateChain(IOTools.open_file(filename_chain2)):
+    if not validateChain(iotools.open_file(filename_chain2)):
         E.warn("validation failed - exiting")
         return 1
 
     E.info("building pairs for %s" % filename_chain1)
-    pairs1 = buildPairs(IOTools.open_file(filename_chain1))
+    pairs1 = buildPairs(iotools.open_file(filename_chain1))
     E.info("read %i pairs" % len(pairs1))
 
     E.info("building pairs for %s" % filename_chain2)
-    pairs2 = buildPairs(IOTools.open_file(filename_chain2))
+    pairs2 = buildPairs(iotools.open_file(filename_chain2))
     E.info("read %i pairs" % len(pairs2))
 
     if options.restrict:
@@ -411,7 +411,7 @@ def main(argv=None):
             outfile.write("\t%i\t%i\t%i\t%i\t" %
                           (c.total, c.same, c.different, c.unique))
             outfile.write(
-                "\t".join([IOTools.pretty_percent(x, c.total) for x in c]))
+                "\t".join([iotools.pretty_percent(x, c.total) for x in c]))
 
             totals.total1 += c.total
             totals.same1 += c.same
@@ -426,7 +426,7 @@ def main(argv=None):
             outfile.write("\t%i\t%i\t%i\t%i\t" %
                           (c.total, c.same, c.different, c.unique))
             outfile.write(
-                "\t".join([IOTools.pretty_percent(x, c.total) for x in c]))
+                "\t".join([iotools.pretty_percent(x, c.total) for x in c]))
 
             totals.same2 += c.same
             totals.total2 += c.total
@@ -443,25 +443,25 @@ def main(argv=None):
                                       totals.same1,
                                       totals.different1,
                                       totals.unique1,
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.total1, totals.total1),
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.same1, totals.total1),
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.different1, totals.total1),
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.unique1, totals.total1),
                                       totals.total2,
                                       totals.same2,
                                       totals.different2,
                                       totals.unique2,
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.total2, totals.total2),
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.same2, totals.total2),
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.different2, totals.total2),
-                                      IOTools.pretty_percent(
+                                      iotools.pretty_percent(
                                           totals.unique2, totals.total2),
                                       ))) + "\n")
 

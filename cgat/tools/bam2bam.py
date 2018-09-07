@@ -148,7 +148,7 @@ import shutil
 import random
 import pysam
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import itertools
 import math
 
@@ -656,7 +656,7 @@ def main(argv=None):
         if "remove-list" in options.filter_methods and "keep-list" in options.filter_methods:
             raise ValueError("it is not possible to specify remove-list and keep-list")
 
-        with IOTools.open_file(options.filename_read_list) as inf:
+        with iotools.open_file(options.filename_read_list) as inf:
             filter_query_names = set([x.strip() for x in inf.readlines() if not x.startswith("#")])
         E.info("read query_sequence filter list with {} read names".format(len(filter_query_names)))
 
@@ -667,7 +667,7 @@ def main(argv=None):
         raise ValueError("--add-error-rate requires --error-rate to be set")
 
     E.info('processing %s' % bamfile)
-    if bamfile != "-" and IOTools.is_empty(bamfile):
+    if bamfile != "-" and iotools.is_empty(bamfile):
         E.warn('ignoring empty file %s' % bamfile)
         E.stop()
         return

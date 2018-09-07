@@ -29,7 +29,7 @@ Command line options
 
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def makeSplicedFasta(infile):
@@ -39,7 +39,7 @@ def makeSplicedFasta(infile):
     '''
 
     fasta_dict = {}
-    with IOTools.open_file(infile) as fafile:
+    with iotools.open_file(infile) as fafile:
         for line in fafile.readlines():
             if line[0] == '>':
                 header = line.rstrip("\n")

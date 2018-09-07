@@ -24,7 +24,7 @@ import sys
 import re
 import pandas
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def compute_table_summary(table):
@@ -84,7 +84,7 @@ def main(argv=None):
                 options.stdout.write("\t".join(map(str, (
                     category,
                     count,
-                    IOTools.pretty_percent(count, denominator, na=""),
+                    iotools.pretty_percent(count, denominator, na=""),
                     info))) + "\n")
         elif method == "column-describe":
             df = table.describe().T.stack()

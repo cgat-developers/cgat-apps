@@ -13,7 +13,7 @@ Code
 
 '''
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pandas as pd
 from rpy2.robjects import r as R
 from rpy2.robjects import pandas2ri
@@ -1005,7 +1005,7 @@ def loadTagDataPandas(tags_filename, design_filename):
 
     E.debug("sample names: %s" % list(counts_table.columns))
 
-    inf = IOTools.open_file(design_filename)
+    inf = iotools.open_file(design_filename)
     design_table = pd.read_csv(inf, sep="\t", index_col=0)
     inf.close()
 

@@ -298,7 +298,7 @@ Command line options
 import os
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pysam
 import cgat.GTF as GTF
 import numpy
@@ -596,7 +596,7 @@ def main(argv=None):
     if options.gtffile == "-":
         options.gtffile = options.stdin
     else:
-        options.gtffile = IOTools.open_file(options.gtffile)
+        options.gtffile = iotools.open_file(options.gtffile)
 
     if len(options.infiles) == 0:
         raise ValueError("no bam/wig/bed files specified")
@@ -791,14 +791,14 @@ def main(argv=None):
     for c in counters:
         c.setNormalization(options.transcript_normalization)
         if options.output_all_profiles:
-            c.setOutputProfiles(IOTools.open_file(E.get_output_file(c.name) +
+            c.setOutputProfiles(iotools.open_file(E.get_output_file(c.name) +
                                                   ".profiles.tsv.gz", "w"))
 
     if options.input_filename_counts:
         # read counts from file
         E.info("reading counts from %s" % options.input_filename_counts)
         all_counts = pandas.read_csv(
-            IOTools.open_file(options.input_filename_counts),
+            iotools.open_file(options.input_filename_counts),
             sep='\t', header=0, index_col=0)
 
         if len(counters) != 1:
@@ -840,7 +840,7 @@ def main(argv=None):
         matrix.shape = len(profiles), len(profiles[0])
         matrix = matrix.transpose()
 
-        with IOTools.open_file(E.get_output_file(counter.name) +
+        with iotools.open_file(E.get_output_file(counter.name) +
                                ".matrix.tsv.gz", "w") as outfile:
             outfile.write("bin\tregion\tregion_bin\t%s\n" % "\t".join(
                 options.profile_normalizations))
@@ -856,7 +856,7 @@ def main(argv=None):
                 outfile.write("%s\n" %
                               ("\t".join([str(x) for x in cols[-1]])))
 
-        with IOTools.open_file(E.get_output_file(counter.name) +
+        with iotools.open_file(E.get_output_file(counter.name) +
                                ".lengths.tsv.gz", "w") as outfile:
             counter.writeLengthStats(outfile)
 

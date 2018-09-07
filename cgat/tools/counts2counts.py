@@ -193,7 +193,7 @@ import numpy as np
 import cgatcore.Experiment as E
 import cgat.Counts as Counts
 import cgat.Expression as Expression
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=None):
@@ -377,7 +377,7 @@ def main(argv=None):
         # "tracks" need to write function in Counts.py to handle
         # counts table and design table + suffix
         counts = pd.read_csv(options.stdin, sep="\t",  comment="#")
-        inf = IOTools.open_file(options.input_filename_design)
+        inf = iotools.open_file(options.input_filename_design)
         design = pd.read_csv(inf, sep="\t", index_col=0)
         inf.close()
         design = design[design["include"] != 0]
@@ -399,7 +399,7 @@ def main(argv=None):
                 options.stdin, sep="\t", index_col=index, comment="#"))
         else:
             counts = Counts.Counts(
-                IOTools.open_file(options.input_filename_tags, "r"),
+                iotools.open_file(options.input_filename_tags, "r"),
                 sep="\t", index_col=index, comment="#")
 
         # TS normalization doesn't require a design table
@@ -411,7 +411,7 @@ def main(argv=None):
             # create Design object
             design = Expression.ExperimentalDesign(
                 pd.read_csv(
-                    IOTools.open_file(options.input_filename_design, "r"),
+                    iotools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
 
     if options.method == "filter":

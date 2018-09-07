@@ -16,7 +16,7 @@ Reference
 
 '''
 
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 from rpy2.robjects import r as R
 import rpy2.robjects.numpy2ri
@@ -62,7 +62,7 @@ def importFromBiomart(outfile,
 
     result = R.getBM(attributes=keys, mart=mart)
 
-    outf = IOTools.open_file(outfile, "w")
+    outf = iotools.open_file(outfile, "w")
     outf.write("\t".join([columns[x] for x in keys]) + "\n")
 
     # for x in ("mim_gene_accession", "mim_morbid_accession"):

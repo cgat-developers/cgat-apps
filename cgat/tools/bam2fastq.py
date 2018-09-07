@@ -44,7 +44,7 @@ import sys
 import tempfile
 import shutil
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 import pysam
 
@@ -94,8 +94,8 @@ def main(argv=None):
     outtemp1 = os.path.join(tmpdir, "pair1.gz")
     outtemp2 = os.path.join(tmpdir, "pair2.gz")
 
-    outstream1 = IOTools.open_file(outtemp1, "w")
-    outstream2 = IOTools.open_file(outtemp2, "w")
+    outstream1 = iotools.open_file(outtemp1, "w")
+    outstream2 = iotools.open_file(outtemp2, "w")
 
     E.info('writing fastq files to temporary directory %s' % tmpdir)
 

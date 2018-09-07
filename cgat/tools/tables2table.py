@@ -38,7 +38,7 @@ import glob
 import collections
 import pandas
 
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 
 

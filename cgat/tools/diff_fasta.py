@@ -93,7 +93,7 @@ import sys
 import re
 import cgat.FastaIterator as FastaIterator
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def MapIdentifiers(seqs, pattern):
@@ -162,10 +162,10 @@ def main(argv=None):
 
     seqs1 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            IOTools.open_file(args[0], "r"))])
+            iotools.open_file(args[0], "r"))])
     seqs2 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            IOTools.open_file(args[1], "r"))])
+            iotools.open_file(args[1], "r"))])
 
     if not seqs1:
         raise ValueError("first file %s is empty." % (args[0]))

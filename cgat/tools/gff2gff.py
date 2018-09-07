@@ -140,7 +140,7 @@ import numpy
 import quicksect
 import pandas as pd
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 import cgat.AGP as AGP
 import cgat.Genomics as Genomics
@@ -313,7 +313,7 @@ def cropGFF(gffs, filename_gff):
     # read regions to crop with and convert intervals to intersectors
     E.info("reading gff for cropping: started.")
 
-    other_gffs = GTF.iterator(IOTools.open_file(filename_gff, "r"))
+    other_gffs = GTF.iterator(iotools.open_file(filename_gff, "r"))
 
     cropper = GTF.readAsIntervals(other_gffs)
 
@@ -575,7 +575,7 @@ def main(argv=None):
 
     if options.input_filename_contigs:
         contigs = Genomics.readContigSizes(
-            IOTools.open_file(options.input_filename_contigs, "r"))
+            iotools.open_file(options.input_filename_contigs, "r"))
 
     if options.genome_file:
         genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
@@ -629,7 +629,7 @@ def main(argv=None):
 
     if options.input_filename_agp:
         agp = AGP.AGP()
-        agp.readFromFile(IOTools.open_file(options.input_filename_agp, "r"))
+        agp.readFromFile(iotools.open_file(options.input_filename_agp, "r"))
     else:
         agp = None
 

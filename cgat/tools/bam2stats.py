@@ -305,7 +305,7 @@ Command line options
 import os
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import numpy
 import pandas
 import pysam
@@ -447,7 +447,7 @@ def main(argv=None):
 
     if options.filename_bed:
         bed_mask = GTF.readAndIndex(
-            GTF.iterator(IOTools.open_file(options.filename_bed)))
+            GTF.iterator(iotools.open_file(options.filename_bed)))
     else:
         bed_mask = None
     
@@ -500,7 +500,7 @@ def main(argv=None):
     outs.write("category\tcounts\tpercent\tof\n")
 
     def _write(outs, text, numerator, denominator, base):
-        percent = IOTools.pretty_percent(numerator, denominator)
+        percent = iotools.pretty_percent(numerator, denominator)
         outs.write('%s\t%i\t%s\t%s\n' % (text,
                                          numerator,
                                          percent,

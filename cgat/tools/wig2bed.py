@@ -39,7 +39,7 @@ import collections
 
 import cgatcore.Experiment as E
 import cgat.IndexedFasta as IndexedFasta
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 import pyBigWig
 
@@ -102,7 +102,7 @@ def getBigwigSummary(bigwig_file):
     Results = collections.namedtuple("BigwigInfo", fields)
 
     def conv(v):
-        return IOTools.str2val(re.sub(",", "", v.strip()))
+        return iotools.str2val(re.sub(",", "", v.strip()))
 
     results = Results(*[conv(x[1]) for x in data])
     return results

@@ -158,7 +158,7 @@ import sys
 import os
 import re
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pysam
 import cgat.Bed as Bed
 import numpy
@@ -340,7 +340,7 @@ def writeMatricesForSortOrder(features_per_interval,
     sort_order = re.sub("-", "_", sort_order)
 
     # write foreground
-    IOTools.write_matrix(
+    iotools.write_matrix(
         E.open_output_file("matrix_%s_%s.gz" % (foreground_track, sort_order)),
         [x.foreground.counts for x in features_per_interval],
         row_headers=names,
@@ -349,7 +349,7 @@ def writeMatricesForSortOrder(features_per_interval,
 
     # write controls
     for idx, track in enumerate(control_tracks):
-        IOTools.write_matrix(
+        iotools.write_matrix(
             E.open_output_file("matrix_%s_%s.gz" % (track, sort_order)),
             [x.controls[idx].counts for x in features_per_interval],
             row_headers=names,
@@ -358,7 +358,7 @@ def writeMatricesForSortOrder(features_per_interval,
 
     # write shifted matrix
     if shifted:
-        IOTools.write_matrix(
+        iotools.write_matrix(
             E.open_output_file("matrix_shift_%s.gz" % (sort_order)),
             [x.shifted.counts for x in features_per_interval],
             row_headers=names,
@@ -386,7 +386,7 @@ def writeMatricesForSortOrder(features_per_interval,
         for x in range(n):
             all_bins.extend(["%i:%s" % (x, b) for b in bins])
 
-        IOTools.write_matrix(
+        iotools.write_matrix(
             E.open_output_file("matrix_sidebyside_%s.gz" % (sort_order)),
             rows,
             row_headers=names,
@@ -578,7 +578,7 @@ def main(argv=None):
             smooth_method=options.smooth_method)
 
     features_per_interval, bins = buildDensityMatrices(
-        Bed.iterator(IOTools.open_file(bedfile)),
+        Bed.iterator(iotools.open_file(bedfile)),
         fg_file,
         control_files,
         counter,

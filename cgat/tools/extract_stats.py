@@ -50,7 +50,7 @@ import pandas
 import numpy
 import re
 import cgatcore.Experiment as E
-import cgatcore.Database as Database
+import cgatcore.database as Database
 
 
 def getTableFromDb(database_url, table):

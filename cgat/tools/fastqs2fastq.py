@@ -41,7 +41,7 @@ import sys
 import collections
 import copy
 
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 import cgat.Fastq as Fastq
 import cgat.Genomics as Genomics
@@ -81,8 +81,8 @@ def main(argv=None):
 
     if options.method == "join":
         # merge based on diagonals in dotplot
-        iter1 = Fastq.iterate(IOTools.open_file(fn1))
-        iter2 = Fastq.iterate(IOTools.open_file(fn2))
+        iter1 = Fastq.iterate(iotools.open_file(fn1))
+        iter2 = Fastq.iterate(iotools.open_file(fn2))
         tuple_size = 2
         for left, right in zip(iter1, iter2):
             c.input += 1

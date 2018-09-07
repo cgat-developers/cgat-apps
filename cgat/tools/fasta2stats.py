@@ -15,7 +15,7 @@ import numpy
 import pysam
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=None):
@@ -83,7 +83,7 @@ def main(argv=None):
             ""))) + "\n")
 
     if options.output_filename_sequences:
-        with IOTools.open_file(options.output_filename_sequences, "w") as outf:
+        with iotools.open_file(options.output_filename_sequences, "w") as outf:
             outf.write("name\tlength\n")
             outf.write(
                 "\n".join(["\t".join(map(str, x)) for x in sequence_pairs]) + "\n")

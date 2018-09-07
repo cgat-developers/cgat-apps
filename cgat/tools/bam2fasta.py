@@ -37,7 +37,7 @@ import pysam
 import numpy
 import pandas
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 # adapted from here: https://bitbucket.org/brentp/biostuff/src/282b504ac9020fe1449e23f800b20b5bd7d12061/nwalign/pairwise.py?at=default&fileviewer=file-view-default
@@ -241,7 +241,7 @@ def main(argv=None):
         counter = E.Counter()
 
         unaligned_fn = E.get_output_file("unaligned_{}.fasta".format(region_idx))
-        with IOTools.open_file(unaligned_fn, "w") as outf:
+        with iotools.open_file(unaligned_fn, "w") as outf:
             for read in pysam_in.fetch(contig, region_start, region_end):
                 counter.overlapping_reads += 1
                 try:
@@ -307,7 +307,7 @@ def main(argv=None):
 
         if counter.collected_reads == 1:
             E.warn("only single sequence, multiple aligment skipped")
-            with IOTools.open_file(unaligned_fn) as inf:
+            with iotools.open_file(unaligned_fn) as inf:
                 stdout = inf.read()
         else:
             # G-INS-i -> global alignment algorithm
@@ -316,7 +316,7 @@ def main(argv=None):
                            return_stdout=True)
 
         aligned_fn = E.get_output_file("aligned_{}.fasta".format(region_idx))
-        with IOTools.open_file(aligned_fn, "w") as outf:
+        with iotools.open_file(aligned_fn, "w") as outf:
             outf.write(stdout)
 
         mali = stdout.splitlines()
@@ -363,7 +363,7 @@ def main(argv=None):
         E.info("after anchor trimming: consensus={}".format(consensus))
 
         truncated_fn = E.get_output_file("aligned_truncated_{}.fasta".format(region_idx))
-        with IOTools.open_file(truncated_fn, "w") as outf:
+        with iotools.open_file(truncated_fn, "w") as outf:
             outf.write("\n".join(
                 "{}\n{}\n".format(x, y) for x, y in zip(identifiers, sequences)))
 

@@ -281,7 +281,7 @@ import collections
 import itertools
 
 import cgatcore.experiment as E
-import cgatcore.iotools as IOTools
+import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 import cgat.Genomics as Genomics
 import cgat.Intervals as Intervals
@@ -713,8 +713,8 @@ def main(argv=None):
 
     elif "add-protein-id" == options.method:
 
-        transcript2protein = IOTools.read_map(
-            IOTools.open_file(options.filename_filter, "r"))
+        transcript2protein = iotools.read_map(
+            iotools.open_file(options.filename_filter, "r"))
 
         missing = set()
         for gff in GTF.iterator(options.stdin):
@@ -887,7 +887,7 @@ def main(argv=None):
 
     elif options.method in ("rename-genes", "rename-transcripts"):
 
-        map_old2new = IOTools.read_map(IOTools.open_file(options.filename_filter, "r"))
+        map_old2new = iotools.read_map(iotools.open_file(options.filename_filter, "r"))
 
         if options.method == "rename-transcripts":
             is_gene_id = False
@@ -1023,8 +1023,8 @@ def main(argv=None):
 
             if options.filename_filter:
 
-                ids = IOTools.read_list(
-                    IOTools.open_file(options.filename_filter, "r"))
+                ids = iotools.read_list(
+                    iotools.open_file(options.filename_filter, "r"))
                 E.info("read %i ids" % len(ids))
 
                 ids = set(ids)
@@ -1171,7 +1171,7 @@ def main(argv=None):
     elif options.method == "remove-overlapping":
 
         index = GTF.readAndIndex(
-            GTF.iterator(IOTools.open_file(options.filename_gff, "r")))
+            GTF.iterator(iotools.open_file(options.filename_gff, "r")))
 
         for gffs in GTF.transcript_iterator(GTF.iterator(options.stdin)):
             ninput += 1

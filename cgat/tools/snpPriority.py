@@ -34,7 +34,7 @@ import sys
 import cgatcore.Experiment as E
 import cgat.GWAS as gwas
 import pandas as pd
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=None):
@@ -176,7 +176,7 @@ def main(argv=None):
     elif options.method == "PICS":
         snp_list = {}
         if options.snp_set and not options.flat_prior:
-            with IOTools.open_file(options.snp_set, "r") as sfile:
+            with iotools.open_file(options.snp_set, "r") as sfile:
                 for line in sfile.readlines():
                     snp = line.split("\t")[0]
                     try:
@@ -199,7 +199,7 @@ def main(argv=None):
                                            params=dist_params)
 
         elif options.snp_set and options.flat_prior:
-            with IOTools.open_file(options.snp_set, "r") as sfile:
+            with iotools.open_file(options.snp_set, "r") as sfile:
                 for line in sfile.readlines():
                     snp = line.split("\t")[0]
                     snp_list[snp] = 1.0

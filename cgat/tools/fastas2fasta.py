@@ -57,7 +57,7 @@ import sys
 import re
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.FastaIterator as FastaIterator
 
 
@@ -81,7 +81,7 @@ def main(argv=None):
 
     iterators = []
     for a in args:
-        iterators.append(FastaIterator.FastaIterator(IOTools.open_file(a, "r")))
+        iterators.append(FastaIterator.FastaIterator(iotools.open_file(a, "r")))
 
     ninput, noutput, nerrors = 0, 0, 0
 

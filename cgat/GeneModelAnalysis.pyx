@@ -23,7 +23,7 @@ import quicksect
 
 import cgat.GTF as GTF
 import cgat.Bed as Bed
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 from cgatcore import Experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Stats as Stats
@@ -71,7 +71,7 @@ def readIntervalsFromGFF(filename_gff, source, feature,
             E.info("loading data from %s for source '%s' and feature '%s'" %
                    (filename_gff, source, feature))
 
-            infile = IOTools.open_file(filename_gff, "r")
+            infile = iotools.open_file(filename_gff, "r")
             if format == "gtf":
                 iterator_gff = GTF.iterator(infile)
             elif format == "gff":
@@ -110,7 +110,7 @@ def readIntervalsFromGFF(filename_gff, source, feature,
         if use_strand:
             raise NotImplementedError(
                 "stranded comparison not implemented for bed format")
-        iterator = Bed.iterator(IOTools.open_file(filename_gff, "r"))
+        iterator = Bed.iterator(iotools.open_file(filename_gff, "r"))
         e = collections.defaultdict(list)
         if with_values:
             for bed in iterator:
@@ -2408,7 +2408,7 @@ class Classifier(Counter):
         E.info("loading data from %s" % (filename_gff[0]))
 
         gffs = []
-        infile = IOTools.open_file(filename_gff[0], "r")
+        infile = iotools.open_file(filename_gff[0], "r")
         for g in GTF.iterator(infile):
             gffs.append(g)
 
@@ -2632,7 +2632,7 @@ class ClassifierRNASeq(Counter):
         transcripts = {}
         transcript_intervals = IndexedGenome.Quicksect()
 
-        f = IOTools.open_file(filename_gff[0])
+        f = iotools.open_file(filename_gff[0])
 
         for t in GTF.transcript_iterator(GTF.iterator(f)):
             t.sort(key=lambda x: x.start)
@@ -3051,7 +3051,7 @@ class ClassifierRNASeqSplicing(Counter):
         transcripts = {}
         transcript_intervals = IndexedGenome.Quicksect()
 
-        f = IOTools.open_file(filename_gff[0])
+        f = iotools.open_file(filename_gff[0])
 
         for t in GTF.transcript_iterator(GTF.iterator(f)):
             t.sort(key=lambda x: x.start)
@@ -3706,7 +3706,7 @@ class CounterBindingPattern(CounterOverlap):
 
         #######################################
         # calculate percent overlap
-        pp = IOTools.pretty_percent
+        pp = iotools.pretty_percent
         self.poverlap_intron = pp(
             self.overlap_intron, Intervals.getLength(introns), na=0)
         self.poverlap_exon = pp(
@@ -4753,7 +4753,7 @@ class CounterReadExtension(Counter):
                          self.labels, self.directions)],
                     ("pcovered", ) + Stats.Summary().getHeaders())])
 
-        self.outfiles = IOTools.FilePool(
+        self.outfiles = iotools.FilePool(
             self.options.output_filename_pattern % "readextension_%s")
 
         # -1 is the terminal exon
@@ -4774,7 +4774,7 @@ class CounterReadExtension(Counter):
 
         # read territories
         self.territories = {}
-        for gtf in GTF.iterator(IOTools.open_file(filename_territories_gff)):
+        for gtf in GTF.iterator(iotools.open_file(filename_territories_gff)):
             if gtf.gene_id in self.territories:
                 raise ValueError(
                     "need territories - multiple entries for gene %s" %
@@ -4784,7 +4784,7 @@ class CounterReadExtension(Counter):
 
         # read known UTRs
         self.UTRs = collections.defaultdict(list)
-        for gtf in GTF.iterator(IOTools.open_file(filename_utrs_gff)):
+        for gtf in GTF.iterator(iotools.open_file(filename_utrs_gff)):
             if gtf.feature in ("UTR5", "UTR3", "UTR"):
                 self.UTRs[gtf.gene_id].append((gtf.contig, gtf.start, gtf.end))
 

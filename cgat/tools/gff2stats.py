@@ -74,7 +74,7 @@ import collections
 import cgatcore.Experiment as E
 import cgat.GTF as GTF
 import cgat.Stats as Stats
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Intervals as Intervals
 
 
@@ -218,7 +218,7 @@ def main(argv=sys.argv):
             infile = f
             options.stdout.write("stdin")
         else:
-            infile = IOTools.open_file(f)
+            infile = iotools.open_file(f)
             options.stdout.write(f)
 
         counters = []

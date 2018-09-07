@@ -91,7 +91,7 @@ import itertools
 import collections
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pysam
 import cgat.Intervals as Intervals
 
@@ -246,7 +246,7 @@ def main(argv=None):
                 E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
                 other_bed = [bedfiles[x] for x in other]
-                outf = IOTools.open_file(
+                outf = iotools.open_file(
                     E.get_output_file(tag), "w", create_dir=True)
                 c = E.Counter()
                 for contig, start, end in combineMergedIntervals(
@@ -291,7 +291,7 @@ def main(argv=None):
                     E.debug("combination %s started" % tag)
                     E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
-                    outf = IOTools.open_file(
+                    outf = iotools.open_file(
                         E.get_output_file(tag), "w", create_dir=True)
                     c = E.Counter()
                     for bed in combineUnmergedIntervals(

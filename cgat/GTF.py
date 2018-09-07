@@ -40,7 +40,7 @@ from cgat import Intervals as Intervals
 from cgat import Genomics as Genomics
 from cgat import IndexedGenome as IndexedGenome
 import pysam
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 
 
 def iterator(infile):
@@ -350,7 +350,7 @@ def iterator_sorted(gff_iterator, sort_order="gene"):
         entries.sort(key=lambda x: (x.gene_id, x.start))
         genes = list(flat_gene_iterator(entries))
         genes.sort(key=lambda x: (x[0].contig, x[0].start))
-        entries = IOTools.flatten(genes)
+        entries = iotools.flatten(genes)
     elif sort_order == "gene+exon":
         entries.sort(key=lambda x: (x.gene_id, x.exon_number))
 

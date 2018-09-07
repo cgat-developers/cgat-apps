@@ -8,7 +8,7 @@ import os
 import shlex
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=None):
@@ -65,7 +65,7 @@ def main(argv=None):
     report_step = options.report_step
     npositions = 0
 
-    samtools = IOTools.which("samtools")
+    samtools = iotools.which("samtools")
 
     statement = (
         "{samtools} mpileup "

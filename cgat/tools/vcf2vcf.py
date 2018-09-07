@@ -50,7 +50,7 @@ import re
 import pysam
 import quicksect
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def read_liftover_chain(infile):
@@ -186,7 +186,7 @@ def main(argv=None):
             raise OSError("file {} with chain data does not exist".format(
                 options.input_filename_chain))
         E.info("reading chain from {}".format(options.input_filename_chain))
-        with IOTools.open_file(options.input_filename_chain) as inf:
+        with iotools.open_file(options.input_filename_chain) as inf:
             map_chain, map_contig2length = read_liftover_chain(inf)
 
     if options.input_filename_fasta:
@@ -332,7 +332,7 @@ def main(argv=None):
             E.info("contig sizes in chain file and fasta files correspond.")
 
         if options.output_filename_unmapped:
-            outfile_unmapped = IOTools.open_file(options.output_filename_unmapped, "w")
+            outfile_unmapped = iotools.open_file(options.output_filename_unmapped, "w")
             outfile_unmapped.write("\n".join(header) + "\n")
         else:
             outfile_unmapped = None

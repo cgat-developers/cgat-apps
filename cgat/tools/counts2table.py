@@ -148,7 +148,7 @@ import pandas as pd
 
 import cgatcore.Experiment as E
 import cgat.Expression as Expression
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Counts as Counts
 import cgat.R as R
 
@@ -357,7 +357,7 @@ def main(argv=None):
 
     # create Design object
     design = Expression.ExperimentalDesign(
-        pd.read_csv(IOTools.open_file(options.input_filename_design, "r"),
+        pd.read_csv(iotools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
 
     if len(set(design.table[options.contrast])) > 2:
@@ -408,7 +408,7 @@ def main(argv=None):
 
         # create Design object
         design = Expression.ExperimentalDesign(
-            pd.read_csv(IOTools.open_file(options.input_filename_design, "r"),
+            pd.read_csv(iotools.open_file(options.input_filename_design, "r"),
                         sep="\t", index_col=0, comment="#"))
 
         # validate design against counts and model
@@ -431,7 +431,7 @@ def main(argv=None):
                 sys.stdin, sep="\t", index_col=0, comment="#"))
         else:
             counts = Counts.Counts(pd.io.parsers.read_csv(
-                IOTools.open_file(options.input_filename_tags, "r"),
+                iotools.open_file(options.input_filename_tags, "r"),
                 sep="\t", index_col=0, comment="#"))
 
         # validate design against counts and model
@@ -506,7 +506,7 @@ def main(argv=None):
 
     # write out summary tables for each comparison/contrast
     for test_group in list(results.Summary.keys()):
-        outf = IOTools.open_file("_".join(
+        outf = iotools.open_file("_".join(
             [outfile_prefix, test_group, "summary.tsv"]), "w")
         outf.write("category\tcounts\n%s\n"
                    % results.Summary[test_group].asTable())

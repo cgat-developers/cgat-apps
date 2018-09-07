@@ -32,7 +32,7 @@ import sys
 import re
 import os
 import cgat.FastaIterator as FastaIterator
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 
 
@@ -74,7 +74,7 @@ class Files:
             if dirname and not os.path.exists(dirname):
                 os.makedirs(dirname)
 
-        returnIOTools.open_file(filename, mode)
+        returniotools.open_file(filename, mode)
 
     def Write(self, identifier, sequence):
 
@@ -177,12 +177,12 @@ def main(argv=None):
     (options, args) = E.start(parser)
 
     if options.input_filename:
-        infile = IOTools.open_file(options.input_filename, "r")
+        infile = iotools.open_file(options.input_filename, "r")
     else:
         infile = sys.stdin
 
     if options.map_filename:
-        map_id2filename = IOTools.ReadMap(open(options.map_filename, "r"))
+        map_id2filename = iotools.ReadMap(open(options.map_filename, "r"))
     else:
         map_id2filename = {}
 

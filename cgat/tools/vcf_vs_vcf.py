@@ -13,7 +13,7 @@ import re
 import pysam
 import pandas
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def read_vcf_positions_into_dataframe(filename, filters=None):
@@ -97,7 +97,7 @@ def main(argv=None):
                 raise ValueError("regular expression '{}' does not match {}".format(
                     options.regex_filename, filename))
         else:
-            name = IOTools.snip(os.path.basename(filename), ".vcf.gz")
+            name = iotools.snip(os.path.basename(filename), ".vcf.gz")
 
         E.debug("reading data from {}".format(filename))
         df = read_vcf_positions_into_dataframe(filename,

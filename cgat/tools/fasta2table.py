@@ -114,7 +114,7 @@ import math
 
 import cgatcore.Experiment as E
 import cgat.Genomics as Genomics
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.SequenceProperties as SequenceProperties
 import cgat.FastaIterator as FastaIterator
 
@@ -181,7 +181,7 @@ def main(argv=None):
                 reference_codons.append(Genomics.GetUniformCodonUsage())
             else:
                 reference_codons.append(
-                    IOTools.ReadMap(IOTools.open_file(filename, "r"),
+                    iotools.ReadMap(iotools.open_file(filename, "r"),
                                     has_header=True,
                                     map_functions=(str, float)))
 

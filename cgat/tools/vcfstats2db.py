@@ -31,7 +31,7 @@ Command line options
 import os
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=None):
@@ -57,10 +57,10 @@ def main(argv=None):
     E.info("Parsing %i file(s)" % len(options.filenames))
 
     # set up output files
-    vcf_file = IOTools.open_file('vcfstats.txt', 'w')
-    indel_file = IOTools.open_file('indelstats.txt', 'w')
-    snp_file = IOTools.open_file('snpstats.txt', 'w')
-    shared_file = IOTools.open_file('sharedstats.txt', 'w')
+    vcf_file = iotools.open_file('vcfstats.txt', 'w')
+    indel_file = iotools.open_file('indelstats.txt', 'w')
+    snp_file = iotools.open_file('snpstats.txt', 'w')
+    shared_file = iotools.open_file('sharedstats.txt', 'w')
 
     for fileno, filename in enumerate(options.filenames):
 
@@ -68,7 +68,7 @@ def main(argv=None):
         trackname = prefix.replace(".vcfstats", "")
 
         if os.path.exists(filename):
-            lines = [x for x in IOTools.open_file(filename, "r").readlines()]
+            lines = [x for x in iotools.open_file(filename, "r").readlines()]
         else:
             lines = []
 

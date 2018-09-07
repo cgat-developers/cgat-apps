@@ -76,7 +76,7 @@ import collections
 import itertools
 import subprocess
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pysam
 import cgat.Bed as Bed
 
@@ -161,7 +161,7 @@ def main(argv=None):
     options.stdout.write("category\talignments\n")
 
     # get number of columns of reference bed file
-    for bed in Bed.iterator(IOTools.open_file(filename_bed)):
+    for bed in Bed.iterator(iotools.open_file(filename_bed)):
         ncolumns_bed = bed.columns
         break
     E.info("assuming %s is bed%i format" % (filename_bed, ncolumns_bed))
@@ -180,10 +180,10 @@ def main(argv=None):
         sort_key = lambda x: x.name
     else:
         format = "-a"
-        total = IOTools.get_num_lines(filename_bam)
+        total = iotools.get_num_lines(filename_bam)
         # get bed format
         ncolumns_bam = 0
-        for bed in Bed.iterator(IOTools.open_file(filename_bam)):
+        for bed in Bed.iterator(iotools.open_file(filename_bam)):
             ncolumns_bam = bed.columns
             break
 
@@ -253,7 +253,7 @@ def main(argv=None):
             yield data._make(line[:-1].split()[:take_columns])
 
     for read, overlaps in itertools.groupby(
-            iterate(IOTools.force_str(proc.stdout)), key=sort_key):
+            iterate(iotools.force_str(proc.stdout)), key=sort_key):
         annotations = [x.name2 for x in overlaps]
         for anno in annotations:
             counts_per_alignment[anno] += 1

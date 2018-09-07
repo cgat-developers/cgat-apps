@@ -43,7 +43,7 @@ import sys
 import cgatcore.Experiment as E
 from cgat.Diamond import *
 import collections
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def readCogMap(cog_map):
@@ -51,7 +51,7 @@ def readCogMap(cog_map):
     return a dictionary mapping gene to cog
     '''
     gene2cog = {}
-    for line in IOTools.open_file(cog_map):
+    for line in iotools.open_file(cog_map):
         data = line[:-1].split("\t")
         gene2cog[data[0]] = data[1]
     return gene2cog

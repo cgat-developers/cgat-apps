@@ -21,7 +21,7 @@ import scipy.special
 import numpy
 from cgat import Stats as Stats
 from cgatcore import Experiment as E
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 from cgatcore import Database as Database
 from cgatcore import CSV as CSV
 
@@ -328,13 +328,13 @@ class GOResult:
         return "%i\t%i\t%s\t%i\t%i\t%s\t%s\t%6.4e\t%6.4e\t%6.4e" % \
             (self.mSampleCountsCategory,
              self.mSampleCountsTotal,
-             IOTools.pretty_percent(
+             iotools.pretty_percent(
                  self.mSampleCountsCategory, self.mSampleCountsTotal),
              self.mBackgroundCountsCategory,
              self.mBackgroundCountsTotal,
-             IOTools.pretty_percent(
+             iotools.pretty_percent(
                  self.mBackgroundCountsCategory, self.mBackgroundCountsTotal),
-             IOTools.val2str(self.mRatio),
+             iotools.val2str(self.mRatio),
              self.mPValue,
              self.mProbabilityOverRepresentation,
              self.mProbabilityUnderRepresentation)
@@ -905,7 +905,7 @@ def ReadGeneLists(filename_genes, gene_pattern=None):
     if filename_genes == "-":
         infile = sys.stdin
     else:
-        infile = IOTools.open_file(filename_genes, "r")
+        infile = iotools.open_file(filename_genes, "r")
 
     headers, table = CSV.readTable(infile.readlines(), as_rows=False)
 
@@ -974,7 +974,7 @@ def convertGo2Goslim(options):
     assert options.filename_ontology, "please supply a GO ontology"
     E.info("reading ontology from %s" % (options.filename_ontology))
 
-    infile = IOTools.open_file(options.filename_ontology)
+    infile = iotools.open_file(options.filename_ontology)
     ontology = readOntology(infile)
     infile.close()
 
@@ -986,7 +986,7 @@ def convertGo2Goslim(options):
                                                  description=go.mName)
 
     E.info("reading GO assignments from %s" % options.filename_slims)
-    go_slims = GetGOSlims(IOTools.open_file(options.filename_slims, "r"))
+    go_slims = GetGOSlims(iotools.open_file(options.filename_slims, "r"))
 
     if options.loglevel >= 1:
         v = set()
@@ -1175,7 +1175,7 @@ def getSamples(gene2go, foreground, background, options, test_ontology,
         filename = options.output_filename_pattern % {
             'go': test_ontology, 'section': "samples"}
         E.info("sampling results go to %s" % filename)
-        outfile = IOTools.open_file(filename, "w", create_dir=True)
+        outfile = iotools.open_file(filename, "w", create_dir=True)
     else:
         outfile = sys.stdout
 
@@ -1344,7 +1344,7 @@ def getFileName(options, **kwargs):
         filename = options.output_filename_pattern % kwargs
         E.info("output for section '%s' go to %s" %
                (kwargs.get("section", "unknown"), filename))
-        outfile = IOTools.open_file(filename, "w", create_dir=True)
+        outfile = iotools.open_file(filename, "w", create_dir=True)
     else:
         outfile = options.stdout
 
@@ -1429,7 +1429,7 @@ def outputMultipleGeneListResults(results,
                               section=section,
                               set='%s_all' % subsection)
 
-        IOTools.write_matrix(
+        iotools.write_matrix(
             outfile, matrix, row_headers, col_headers, row_header="category")
 
         outfile = getFileName(options,
@@ -1437,7 +1437,7 @@ def outputMultipleGeneListResults(results,
                               section=section,
                               set='%s_alldesc' % subsection)
 
-        IOTools.write_matrix(outfile, matrix,
+        iotools.write_matrix(outfile, matrix,
                              ["%s:%s" % (x, go2info[x].mDescription)
                               for x in row_headers],
                              col_headers, row_header="category")

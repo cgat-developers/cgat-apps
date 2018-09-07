@@ -14,8 +14,8 @@ These are the modules that every script or module should use.
 .. toctree::
    :maxdepth: 1
 
-   modules/Experiment.rst
-   modules/IOTools.rst
+   modules/experiment.rst
+   modules/iotools.rst
 
 Genomics
 ========

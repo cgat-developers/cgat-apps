@@ -24,7 +24,7 @@ import string
 from math import log
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 RANGES = {
     'sanger': (33, 75),
@@ -429,6 +429,6 @@ def getReadLength(filename):
     read_length : int
     '''
 
-    with IOTools.open_file(filename) as infile:
+    with iotools.open_file(filename) as infile:
         record = next(iterate(infile))
         return len(record.seq)

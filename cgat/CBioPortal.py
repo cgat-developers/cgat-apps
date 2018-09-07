@@ -80,7 +80,7 @@ from urllib.request import urlopen
 import re
 import optparse
 import sys
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 from collections import OrderedDict as odict
 from cgatcore import Experiment as E
 
@@ -962,7 +962,7 @@ def main(argv=None):
     results = []
 
     if options.gene_list_file:
-        infile = IOTools.open_file(options.gene_list_file)
+        infile = iotools.open_file(options.gene_list_file)
         gene_list = [x.strip() for x in infile]
     elif options.gene_list:
         gene_list = options.gene_list.split(",")
@@ -1021,7 +1021,7 @@ def main(argv=None):
         sys.exit()
 
     if options.output_file:
-        outf = IOTools.open_file(options.output_file, "w")
+        outf = iotools.open_file(options.output_file, "w")
     else:
         outf = sys.stdout
 

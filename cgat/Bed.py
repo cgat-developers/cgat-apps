@@ -27,7 +27,7 @@ import bisect
 import itertools
 
 from cgat import NCL as ncl
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 
 Headers = [
     "contig", "start", "end",
@@ -607,7 +607,7 @@ def getNumColumns(filename):
     ncolumns : int
        The number of columns. If the file is empty, 0 is returned.
     '''
-    with IOTools.open_file(filename) as inf:
+    with iotools.open_file(filename) as inf:
         for line in inf:
             if line.startswith("#"):
                 continue

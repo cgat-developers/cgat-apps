@@ -393,7 +393,7 @@ def main(argv=None):
         options.stdlog.flush()
 
     windows = GTF.readAsIntervals(
-        GTF.iterator(IOTools.open_file(options.filename_windows, "r")))
+        GTF.iterator(iotools.open_file(options.filename_windows, "r")))
 
     if options.loglevel >= 1:
         options.stdlog.write("done\n")
@@ -406,7 +406,7 @@ def main(argv=None):
 
         if options.is_gtf:
             gff_data = GTF.readFromFile(
-                IOTools.open_file(options.filename_data, "r"))
+                iotools.open_file(options.filename_data, "r"))
         else:
             gff_data = GTF.readFromFile(
                 IOTOols.open_file(options.filename_data, "r"))

@@ -134,7 +134,7 @@ import random
 import pysam
 import numpy
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Fastq as Fastq
 import cgat.Genomics as Genomics
 
@@ -176,11 +176,11 @@ def process_cgat(options):
                     "second pair (--output-filename-pattern)")
 
             outfile1 = options.stdout
-            outfile2 = IOTools.open_file(options.output_filename_pattern, "w")
+            outfile2 = iotools.open_file(options.output_filename_pattern, "w")
 
             for record1, record2 in zip(
                     Fastq.iterate(options.stdin),
-                    Fastq.iterate(IOTools.open_file(options.pair))):
+                    Fastq.iterate(iotools.open_file(options.pair))):
                 c.input += 1
                 if random.random() <= sample_threshold:
                     c.output += 1
@@ -194,7 +194,7 @@ def process_cgat(options):
                     options.stdout.write("%s\n" % record)
 
     elif options.method == "apply":
-        ids = set(IOTools.read_list(IOTools.open_file(options.apply)))
+        ids = set(iotools.read_list(iotools.open_file(options.apply)))
 
         for record in Fastq.iterate(options.stdin):
             c.input += 1
@@ -248,14 +248,14 @@ def process_cgat(options):
 
             for record1, record2 in zip(
                     Fastq.iterate(options.stdin),
-                    Fastq.iterate(IOTools.open_file(options.pair))):
+                    Fastq.iterate(iotools.open_file(options.pair))):
                 entries1[
                     record1.identifier[:-2]] = (record1.seq, record1.quals)
                 entries2[
                     record2.identifier[:-2]] = (record2.seq, record2.quals)
 
             outfile1 = options.stdout
-            outfile2 = IOTools.open_file(options.output_filename_pattern, "w")
+            outfile2 = iotools.open_file(options.output_filename_pattern, "w")
             assert len(set(entries1.keys()).intersection(
                 set(entries2.keys()))) == len(entries1),\
                 "paired files do not contain the same reads "\
@@ -286,18 +286,18 @@ def process_daisy(options):
     if "filter-identifier" in options.methods:
         if options.input_filter_tsv is None:
             raise ValueError("please set --input-filter-tsv for method filter-identifier")
-        with IOTools.open_file(options.input_filter_tsv) as inf:
+        with iotools.open_file(options.input_filter_tsv) as inf:
             filter_identifier = set([x.split()[0].strip() for x in inf.readlines()])
     else:
         filter_identifier = False
 
     if options.output_removed_tsv:
-        outf_removed_tsv = IOTools.open_file(options.output_removed_tsv, "w")
+        outf_removed_tsv = iotools.open_file(options.output_removed_tsv, "w")
     else:
         outf_removed_tsv = None
 
     if options.output_removed_fastq:
-        outf_removed_fastq = IOTools.open_file(options.output_removed_fastq, "w")
+        outf_removed_fastq = iotools.open_file(options.output_removed_fastq, "w")
     else:
         outf_removed_fastq = None
 
@@ -367,7 +367,7 @@ def process_daisy(options):
         outf_removed_fastq.close()
 
     if options.output_stats_tsv:
-        with IOTools.open_file(options.output_stats_tsv, "w") as outf:
+        with iotools.open_file(options.output_stats_tsv, "w") as outf:
             outf.write(counter.asTable(as_rows=False) + "\n")
 
     return counter

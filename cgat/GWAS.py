@@ -6,7 +6,7 @@
 #########################################################################
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import numpy as np
 import pandas as pd
 import pandas.io.sql as pdsql
@@ -3381,7 +3381,7 @@ def calcPenetrance(ped_file, map_file, mafs=None,
                                "pos": attrs[-1].strip("\n")}
 
     if snpset:
-        with IOTools.open_file(snpset, "r") as sfile:
+        with iotools.open_file(snpset, "r") as sfile:
             snps = sfile.readlines()
             snps = [sx.rstrip("\n") for sx in snps]
             variant_ids = [ks for ks in variants.keys() if ks in snps]
@@ -5271,7 +5271,7 @@ def getSnpIds(snp_set):
     '''
 
     E.info("Parsing SNP set IDs")
-    with IOTools.open_file(snp_set, "r") as sfile:
+    with iotools.open_file(snp_set, "r") as sfile:
         snps = [sn.split("\t")[0] for sn in sfile.readlines()]
         snpset = set(snps)
         snp_list = [s.rstrip("\n") for s in snpset]

@@ -71,7 +71,7 @@ import re
 import collections
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 DATA = collections.namedtuple(
     "DATA",
@@ -113,7 +113,7 @@ def main(argv=None):
     # add common options (-h/--help, ...) and parse command line
     (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
-    outfiles = IOTools.FilePool(options.output_filename_pattern)
+    outfiles = iotools.FilePool(options.output_filename_pattern)
 
     if options.invert:
         test_f = lambda l2fold: l2fold < 0
@@ -126,7 +126,7 @@ def main(argv=None):
         # filter any of the DESeq/EdgeR message that end up at the top of the
         # output file
 
-        for data in IOTools.iterate(options.stdin):
+        for data in iotools.iterate(options.stdin):
 
             contig, start, end = rx_window.match(data.test_id).groups()
             start, end = list(map(int, (start, end)))

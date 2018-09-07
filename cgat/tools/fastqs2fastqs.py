@@ -88,7 +88,7 @@ import sys
 import re
 import pysam
 
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 import cgat.FastqTools as fastqtools
 
@@ -233,11 +233,11 @@ def main(argv=None):
                     outfile.write("\n".join(l) + "\n")
 
         E.info("reading first in pair")
-        inf1 = IOTools.open_file(fn1)
+        inf1 = iotools.open_file(fn1)
         ids1 = set(getIds(inf1, id1_getter))
 
         E.info("reading second in pair")
-        inf2 = IOTools.open_file(fn2)
+        inf2 = iotools.open_file(fn2)
         # IMS: No longer keep as a set, but lazily evaluate into intersection
         # leads to large memory saving for large inf2, particularly if
         # inf1 is small.
@@ -257,12 +257,12 @@ def main(argv=None):
             unpaired_filename = None
 
         with E.open_output_file("1", "w") as outf:
-            inf = IOTools.open_file(fn1)
+            inf = iotools.open_file(fn1)
             E.info("writing first in pair")
             write(outf, inf, take, unpaired_filename, id1_getter)
 
         with E.open_output_file("2", "w") as outf:
-            inf = IOTools.open_file(fn2)
+            inf = iotools.open_file(fn2)
             E.info("writing second in pair")
             write(outf, inf, take, unpaired_filename, id2_getter)
 

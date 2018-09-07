@@ -66,7 +66,7 @@ Command line options
 import sys
 import os
 import cgat.GTF as GTF
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 
 
@@ -86,7 +86,7 @@ class OutputChunk:
 
         if self.dry_run:
             E.info("opening file %s" % filename)
-            returnIOTools.open_file("/dev/null", mode)
+            returniotools.open_file("/dev/null", mode)
 
         if mode in ("w", "a"):
             dirname = os.path.dirname(filename)
@@ -98,7 +98,7 @@ class OutputChunk:
         else:
             existed = False
 
-        f = IOTools.open_file(filename, mode)
+        f = iotools.open_file(filename, mode)
 
         if header and not existed:
             f.write(header + "\n")

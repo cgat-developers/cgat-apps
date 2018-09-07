@@ -5,7 +5,7 @@ import collections
 import sys
 import pysam
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=sys.argv):

@@ -26,7 +26,7 @@ Command line options
 
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Bed as Bed
 
 
@@ -60,9 +60,9 @@ def main(argv=None):
     if args[0] == "-":
         infile1 = options.stdin
     else:
-        infile1 = IOTools.open_file(args[0], "r")
+        infile1 = iotools.open_file(args[0], "r")
 
-    infile2 = IOTools.open_file(args[1], "r")
+    infile2 = iotools.open_file(args[1], "r")
 
     idx = Bed.readAndIndex(infile2, with_values=True)
 

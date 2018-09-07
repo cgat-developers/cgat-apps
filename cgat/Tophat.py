@@ -13,7 +13,7 @@ import re
 import collections
 import itertools
 
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 
 
 class CuffCompareValues:
@@ -42,7 +42,7 @@ class CuffCompareValues:
             self.fsp = None
 
     def __str__(self):
-        return "\t".join(map(IOTools.val2str,
+        return "\t".join(map(iotools.val2str,
                              (self.sn,
                               self.sp,
                               self.fsn,

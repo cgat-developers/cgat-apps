@@ -85,7 +85,7 @@ import sys
 import cgatcore.Experiment as E
 import cgat.GFF3 as GFF3
 import cgat.GTF as GTF
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def search_hierarchy(ID, hierarchy, options):
@@ -330,7 +330,7 @@ def main(argv=None):
     if options.read_twice:
         # Will throw IOError if options.stdin is not a normal file
         second_gff = GFF3.flat_file_iterator(
-            IOTools.open_file(options.stdin.name))
+            iotools.open_file(options.stdin.name))
 
         if options.by_chrom:
             second_gff = GFF3.chrom_iterator(second_gff)

@@ -120,7 +120,7 @@ def main(argv=None):
         header = "\t".join(["pair_criteria", "n_proper_pairs",
                             "percent_proper_pairs"])
 
-        with IOTools.open_file(options.report, "w") as report:
+        with iotools.open_file(options.report, "w") as report:
             report.write(header + "\n")
             for x in [("unique", uniq_map), ("best", best_map),
                       ("unique_or_best", uORb_map)]:

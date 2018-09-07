@@ -5,7 +5,7 @@ import collections
 import pysam
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import quicksect
 
 
@@ -47,7 +47,7 @@ def main(argv=sys.argv):
         quicksect.IntervalTree)
 
     E.info("reading reference bed file from {}".format(options.reference_bed_file))
-    with IOTools.open_file(options.reference_bed_file) as inf:
+    with iotools.open_file(options.reference_bed_file) as inf:
         for record in pysam.tabix_iterator(inf, pysam.asBed()):
             mm = reference_set[record.contig]
             mm.add(record.start,
@@ -108,7 +108,7 @@ def main(argv=sys.argv):
 
         outf = options.stdout
 
-        with IOTools.open_file(options.reference_bed_file) as inf:
+        with iotools.open_file(options.reference_bed_file) as inf:
             for record in pysam.tabix_iterator(inf, pysam.asBed()):
                 c.truth += 1
                 bin = get_size_bin(record.end - record.start, options.size_bins)

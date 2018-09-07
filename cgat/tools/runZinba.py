@@ -38,7 +38,7 @@ import subprocess
 from rpy2.robjects import r as R
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.BamTools as BamTools
 
 
@@ -233,7 +233,7 @@ def main(argv=None):
     contigs = E.run(
         "twoBitInfo %(bit_filename)s %(tmpdir)s/contig_sizes" % locals())
     contig2size = dict(
-        [x.split() for x in IOTools.open_file(
+        [x.split() for x in iotools.open_file(
             os.path.join(tmpdir, "contig_sizes"))])
 
     outdir = filename_output + "_files"

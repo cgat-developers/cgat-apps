@@ -59,7 +59,7 @@ import pysam
 
 import cgatcore.Experiment as E
 import cgat.GTF as GTF
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Bed as Bed
 import cgat.IndexedGenome as IndexedGenome
 from cgat.BamTools.bamtools import bams2bam_filter
@@ -162,8 +162,8 @@ def main(argv=None):
 
     if options.filename_map:
         E.info("reading map")
-        id_map = IOTools.read_map(
-            IOTools.open_file(options.filename_map), has_header=True)
+        id_map = iotools.read_map(
+            iotools.open_file(options.filename_map), has_header=True)
         id_map = dict([(y, x) for x, y in id_map.items()])
     else:
         id_map = None
@@ -173,7 +173,7 @@ def main(argv=None):
         E.info("indexing geneset")
         mapped, missed = 0, 0
         for gtf in GTF.transcript_iterator(
-                GTF.iterator(IOTools.open_file(options.filename_gtf))):
+                GTF.iterator(iotools.open_file(options.filename_gtf))):
             gtf.sort(key=lambda x: x.start)
             transcript_id = gtf[0].transcript_id
             if id_map:
@@ -192,7 +192,7 @@ def main(argv=None):
     if options.filename_regions:
         E.info("indexing regions")
         regions_to_remove = IndexedGenome.Simple()
-        for bed in Bed.iterator(IOTools.open_file(options.filename_regions)):
+        for bed in Bed.iterator(iotools.open_file(options.filename_regions)):
             regions_to_remove.add(bed.contig, bed.start, bed.end)
         E.info("read %i regions" % len(regions_to_remove))
 
@@ -238,7 +238,7 @@ def main(argv=None):
                         ignore_junctions=junctions_samfile is None)
 
     if options.filename_stats:
-        outf = IOTools.open_file(options.filename_stats, "w")
+        outf = iotools.open_file(options.filename_stats, "w")
         outf.write("category\tcounts\n%s\n" % c.asTable())
         outf.close()
 

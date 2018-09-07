@@ -51,7 +51,7 @@ import shutil
 import subprocess
 import cgatcore.Experiment as E
 import pysam
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 from cgat.BamTools.bamtools import merge_pairs
 
 
@@ -241,7 +241,7 @@ def main(argv=None):
     # Create dictionary of contig sizes
     contig_sizes = dict(list(zip(samfile.references, samfile.lengths)))
     # write contig sizes
-    outfile_size = IOTools.open_file(tmpfile_sizes, "w")
+    outfile_size = iotools.open_file(tmpfile_sizes, "w")
     for contig, size in sorted(contig_sizes.items()):
         outfile_size.write("%s\t%s\n" % (contig, size))
     outfile_size.close()
@@ -266,15 +266,15 @@ def main(argv=None):
                              options.output_format)
 
         # check required executable file is in the path
-        executable = IOTools.which(executable_name)
+        executable = iotools.which(executable_name)
         if not executable:
             raise OSError("could not find %s in path." % executable_name)
 
         # Open outout file
-        outfile = IOTools.open_file(tmpfile_wig, "w")
+        outfile = iotools.open_file(tmpfile_wig, "w")
         E.info("starting output to %s" % tmpfile_wig)
     else:
-        outfile = IOTools.open_file(tmpfile_wig, "w")
+        outfile = iotools.open_file(tmpfile_wig, "w")
         E.info("starting output to stdout")
 
     # Set up output write functions

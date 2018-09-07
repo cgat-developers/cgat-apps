@@ -35,7 +35,7 @@ import rpy2.rinterface
 
 import cgatcore.Experiment as E
 import cgat.Expression as Expression
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.IndexedFasta as IndexedFasta
 import cgatcore.CSV as CSV
 import cgat.BamTools as BamTools
@@ -314,7 +314,7 @@ def main(argv=None):
             R('''write.table(sr$estimation, file ='%s', sep='\t')''' %
               E.get_output_file("%s_saturation_estimation.tsv" % fn))
 
-            outfile = IOTools.open_file(
+            outfile = iotools.open_file(
                 E.get_output_file("%s_saturation.tsv" % fn), "w")
             outfile.write("category\tvalues\n")
             outfile.write(
@@ -360,7 +360,7 @@ def main(argv=None):
 
     if 'enrichment' in options.toolset or do_all:
         E.info("CpG enrichment analysis")
-        outfile = IOTools.open_file(E.get_output_file("enrichment.tsv.gz"), "w")
+        outfile = iotools.open_file(E.get_output_file("enrichment.tsv.gz"), "w")
         slotnames = (("regions.CG", "regions_CG", "%i"),
                      ("regions.C", "regions_C", "%s"),
                      ("regions.G", "regions_G", "%f"),

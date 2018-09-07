@@ -8,7 +8,7 @@ import sys
 import re
 import collections
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 from cgat.Genomics import parse_region_string
 
 
@@ -95,7 +95,7 @@ def main(argv=sys.argv):
     (options, args) = E.start(parser, argv)
 
     if options.input_filter_tsv:
-        with IOTools.open_file(options.input_filter_tsv) as inf:
+        with iotools.open_file(options.input_filter_tsv) as inf:
             skip_id = set([x[:-1] for x in inf])
     else:
         skip_id = False

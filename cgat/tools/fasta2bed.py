@@ -54,9 +54,9 @@ import glob
 import collections
 import pybedtools
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.FastaIterator as FastaIterator
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def segmentWithCpG(infile, with_contig_sizes=False):

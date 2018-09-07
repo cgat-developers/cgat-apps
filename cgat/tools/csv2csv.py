@@ -29,7 +29,7 @@ Command line options
 import sys
 import csv
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 
 def main(argv=None):
@@ -66,7 +66,7 @@ def main(argv=None):
     E.stdout.write("\t".join(fields) + "\n")
 
     for row in reader:
-        row = IOTools.convertDictionary(row)
+        row = iotools.convertDictionary(row)
         writer.writerow(row)
 
     E.stop()

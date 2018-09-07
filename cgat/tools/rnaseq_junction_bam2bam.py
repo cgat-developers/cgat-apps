@@ -50,7 +50,7 @@ import sys
 import itertools
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pysam
 
 
@@ -107,7 +107,7 @@ def main(argv=None):
     if options.filename_genome_bam:
         genomefile = pysam.AlignmentFile(options.filename_genome_bam, "rb")
     elif options.filename_contigs:
-        contigs = IOTools.ReadMap(IOTools.open_file(options.filename_contigs))
+        contigs = iotools.ReadMap(iotools.open_file(options.filename_contigs))
         data = list(zip(*list(contigs.items())))
         referencenames, referencelengths = data[0], list(map(int, data[1]))
     else:

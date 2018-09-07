@@ -131,7 +131,7 @@ import numpy
 
 import cgatcore.Experiment as E
 import cgat.GTF as GTF
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.NCL as NCL
 
 
@@ -160,7 +160,7 @@ class Counter:
         """read and index."""
 
         idx = {}
-        infile = IOTools.open_file(filename, "r")
+        infile = iotools.open_file(filename, "r")
         for e in GTF.readFromFile(infile):
             if e.contig not in idx:
                 idx[e.contig] = NCL.NCLSimple()
@@ -173,7 +173,7 @@ class Counter:
         overlapping_genes = set()
         genes = set()
         # iterate over exons
-        infile = IOTools.open_file(filename, "r")
+        infile = iotools.open_file(filename, "r")
         it = GTF.iterator(infile)
 
         nexons, nexons_overlapping = 0, 0
@@ -243,7 +243,7 @@ class Counter:
             self.mBases1, self.mBases2,
             self.mBasesOverlapping1, self.mBasesOverlapping2,
             self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
-            "\t".join([IOTools.pretty_percent(*x) for x in (
+            "\t".join([iotools.pretty_percent(*x) for x in (
                 (self.mGenesOverlapping1, self.mGenes1),
                 (self.mGenesOverlapping2, self.mGenes2),
                 (self.mGenesUnique1, self.mGenes1),
@@ -277,7 +277,7 @@ class CounterGenes(Counter):
         overlapping_genes = set()
         genes = set()
         # iterate over exons
-        infile = IOTools.open_file(filename, "r")
+        infile = iotools.open_file(filename, "r")
         it = GTF.iterator(infile)
 
         for this in it:
@@ -370,7 +370,7 @@ def main(argv=None):
         raise ValueError("at least two arguments required")
 
     if options.filename_update:
-        infile = IOTools.open_file(options.filename_update, "r")
+        infile = iotools.open_file(options.filename_update, "r")
         previous_results = {}
         for line in infile:
             if line.startswith("#"):
@@ -387,7 +387,7 @@ def main(argv=None):
 
             previous_results[set1][set2] = "\t".join(data[2:])
             rev = [(data[x + 1], data[x]) for x in range(2, len(data), 2)]
-            previous_results[set2][set1] = "\t".join(IOTools.flatten(rev))
+            previous_results[set2][set1] = "\t".join(iotools.flatten(rev))
     else:
         previous_results = {}
 

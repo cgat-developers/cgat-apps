@@ -87,7 +87,7 @@ reference genome annotation database (Ensembl, UCSC etc.).
 
 import sys
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import pysam
 import cgat.GTF as GTF
 
@@ -120,7 +120,7 @@ def main(argv=None):
     (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
     exons = GTF.readAndIndex(
-        GTF.iterator(IOTools.open_file(options.filename_exons)))
+        GTF.iterator(iotools.open_file(options.filename_exons)))
 
     pysam_in = pysam.AlignmentFile("-", "rb")
 

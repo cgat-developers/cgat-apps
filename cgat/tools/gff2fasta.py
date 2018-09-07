@@ -122,7 +122,7 @@ import quicksect
 import cgatcore.Experiment as E
 import cgat.GTF as GTF
 import cgat.Genomics as Genomics
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Intervals as Intervals
 import cgat.Masker as Masker
@@ -250,7 +250,7 @@ def main(argv=None):
     masks = None
     if options.filename_masks:
         masks = {}
-        with IOTools.open_file(options.filename_masks, "r") as infile:
+        with iotools.open_file(options.filename_masks, "r") as infile:
             e = GTF.readAsIntervals(GTF.iterator(infile))
 
         # convert intervals to intersectors

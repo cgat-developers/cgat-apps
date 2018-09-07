@@ -6,7 +6,7 @@ import tempfile
 import argparse
 import subprocess
 import time
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 
 
 def stop_err(msg):
@@ -47,7 +47,7 @@ class cgatBase():
         """
         try:
             # get stderr, allowing for case where it's very large
-            tmp = IOTools.open_file(fname, 'rb')
+            tmp = iotools.open_file(fname, 'rb')
             s = ''
             buffsize = 1048576
             try:
@@ -169,7 +169,7 @@ def __main__():
         os.unlink(tmp_bai_name)
 
     if options.html_file:
-        with IOTools.open_file(options.html_file, "w") as outf:
+        with iotools.open_file(options.html_file, "w") as outf:
             outf.write('<h1>%s - Output</h1>' %
                        os.path.basename(options.wrapper_command))
             for fn in glob.glob(os.path.join(options.html_dir, "*.*")):

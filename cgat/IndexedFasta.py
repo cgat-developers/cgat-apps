@@ -49,7 +49,7 @@ import gzip
 import tempfile
 import io
 from cgatcore import Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Genomics as Genomics
 from cgat.AString import AString
 import pysam
@@ -341,11 +341,11 @@ class MultipleFastaIterator:
                 continue
             elif self.format == "fasta.gz" or (self.format == "auto" and
                                                filename.endswith(".gz")):
-                infile = IOTools.open_file(filename, "r")
+                infile = iotools.open_file(filename, "r")
             elif filename == "-":
                 infile = sys.stdin
             else:
-                infile = IOTools.open_file(filename, "r")
+                infile = iotools.open_file(filename, "r")
 
             for x in _iter(infile):
                 yield x

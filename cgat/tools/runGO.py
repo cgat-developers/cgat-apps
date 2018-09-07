@@ -157,9 +157,9 @@ Command line options
 '''
 import sys
 import collections
-import cgatcore.Database as Database
+import cgatcore.database as Database
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 import cgat.GO as GO
 
@@ -333,7 +333,7 @@ def main(argv=None):
 
         dbhandle = Database.connect(url=options.database_url)
 
-        outfile = IOTools.open_file(options.filename_dump, "w", create_dir=True)
+        outfile = iotools.open_file(options.filename_dump, "w", create_dir=True)
         GO.DumpGOFromDatabase(outfile,
                               dbhandle,
                               options)
@@ -346,15 +346,15 @@ def main(argv=None):
     if options.filename_input:
         E.info("reading association of categories and genes from %s" %
                (options.filename_input))
-        infile = IOTools.open_file(options.filename_input)
+        infile = iotools.open_file(options.filename_input)
         gene2gos, go2infos = GO.ReadGene2GOFromFile(infile)
         infile.close()
 
     if options.filename_gene2name:
         E.info("reading gene identifier to gene name mapping from %s" %
                options.filename_gene2name)
-        infile = IOTools.open_file(options.filename_gene2name)
-        gene2name = IOTools.read_map(infile, has_header=True)
+        infile = iotools.open_file(options.filename_gene2name)
+        gene2name = iotools.read_map(infile, has_header=True)
         infile.close()
         E.info("read %i gene names for %i gene identifiers" %
                (len(set(gene2name.values())),
@@ -368,7 +368,7 @@ def main(argv=None):
     if options.filename_ontology:
         E.info("reading ontology from %s" % (options.filename_ontology))
 
-        infile = IOTools.open_file(options.filename_ontology)
+        infile = iotools.open_file(options.filename_ontology)
         ontology = GO.readOntology(infile)
         infile.close()
 
@@ -531,7 +531,7 @@ def main(argv=None):
             # read GO slims and map GO categories to GO slim categories
             if options.filename_slims:
                 go_slims = GO.GetGOSlims(
-                    IOTools.open_file(options.filename_slims, "r"))
+                    iotools.open_file(options.filename_slims, "r"))
 
                 if options.loglevel >= 1:
                     v = set()
@@ -548,7 +548,7 @@ def main(argv=None):
                     if options.filename_map_slims == "-":
                         outfile = options.stdout
                     else:
-                        outfile = IOTools.open_file(
+                        outfile = iotools.open_file(
                             options.filename_map_slims, "w")
 
                     outfile.write("GO\tGOSlim\n")
@@ -750,11 +750,11 @@ def main(argv=None):
                 go_results.mBackgroundCountsTotal)
             outfile.write(
                 "percent_genes_in_fg_with_association\t%s\tpercent genes in sample with GO assignments\n" % (
-                    IOTools.pretty_percent(len(go_results.mSampleGenes),
+                    iotools.pretty_percent(len(go_results.mSampleGenes),
                                            len(foreground), "%5.2f")))
             outfile.write(
                 "percent_genes_in_bg_with_associations\t%s\tpercent genes background with GO assignments\n" % (
-                    IOTools.pretty_percent(len(go_results.mBackgroundGenes),
+                    iotools.pretty_percent(len(go_results.mBackgroundGenes),
                                            nbackground, "%5.2f")))
             outfile.write(
                 "significant\t%i\tsignificant results reported\n" % nselected)
@@ -782,9 +782,9 @@ def main(argv=None):
                 len(go_results.mBackgroundGenes),
                 go_results.mSampleCountsTotal,
                 go_results.mBackgroundCountsTotal,
-                IOTools.pretty_percent(
+                iotools.pretty_percent(
                     len(go_results.mSampleGenes), len(foreground), "%5.2f"),
-                IOTools.pretty_percent(
+                iotools.pretty_percent(
                     len(go_results.mBackgroundGenes), nbackground, "%5.2f"),
                 ",".join(msgs)))) + "\n")
 

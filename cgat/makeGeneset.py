@@ -3,7 +3,7 @@ import sys
 import os
 import shutil
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 
 '''
@@ -110,12 +110,12 @@ def filterGTF(gtf, filterstring, tempout):
 
     elif "-in_file-" in filterstring:
         column, value = filterstring.split("-in_file-")
-        value = [line.strip() for line in IOTools.open_file(value)]
+        value = [line.strip() for line in iotools.open_file(value)]
         filtertype = "in_file"
 
     elif "-notin_file-" in filterstring:
         column, value = filterstring.split("-notin_file-")
-        value = [line.strip() for line in IOTools.open_file(value)]
+        value = [line.strip() for line in iotools.open_file(value)]
         filtertype = "notin_file"
 
     elif "-morethan-" in filterstring:
@@ -128,10 +128,10 @@ def filterGTF(gtf, filterstring, tempout):
         value = float(value)
         filtertype = "lessthan"
 
-    gfile = IOTools.open_file(gtf)
+    gfile = iotools.open_file(gtf)
     G = GTF.iterator(gfile)
 
-    out = IOTools.open_file(tempout, "w")
+    out = iotools.open_file(tempout, "w")
     for item in G:
         D = item.asDict()
         D['contig'] = item.contig

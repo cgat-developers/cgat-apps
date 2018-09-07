@@ -19,7 +19,7 @@ import traceback
 from types import *
 from cgatcore import Experiment as Experiment
 from cgat import TreeTools as TreeTools
-from cgatcore import IOTools as IOTools
+from cgatcore import iotools as iotools
 from cgat import Tree as Tree
 from cgat import Mali as Mali
 from cgat import Genomics as Genomics
@@ -2567,7 +2567,7 @@ if __name__ == "__main__":
     if options.write_control_file:
 
         if options.filename_clusters:
-            clusters, nerrors = IOTools.ReadList(
+            clusters, nerrors = iotools.ReadList(
                 open(options.filename_clusters, "r"))
         else:
             clusters = ("", )
@@ -2749,9 +2749,9 @@ if __name__ == "__main__":
                 infile.close()
 
             if filename_map_old2new:
-                map_old2new = IOTools.read_map(open(filename_map_old2new))
+                map_old2new = iotools.read_map(open(filename_map_old2new))
                 if options.invert_map:
-                    map_old2new = IOTools.invert_dictionary(
+                    map_old2new = iotools.invert_dictionary(
                         map_old2new, make_unique=True)
                 result.mapNames(map_old2new)
 

@@ -79,7 +79,7 @@ Command line options
 import sys
 from itertools import zip_longest
 
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Fastq as Fastq
 import cgatcore.Experiment as E
 
@@ -119,8 +119,8 @@ def main(argv=None):
     if args and len(args) == 2:
         options.fastq1, options.fastq2 = args
 
-    fastq1 = IOTools.open_file(options.fastq1)
-    fastq2 = IOTools.open_file(options.fastq2)
+    fastq1 = iotools.open_file(options.fastq1)
+    fastq2 = iotools.open_file(options.fastq2)
 
     E.info("iterating over fastq files")
     f1_count = 0

@@ -42,7 +42,7 @@ import imp
 import collections
 import pandas
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 
 ORIGINAL_START = None
 
@@ -82,7 +82,7 @@ def collectOptionsFromScript(script_name):
         os.remove(prefix + ".pyc")
 
     # check if script contains getopt
-    with IOTools.open_file(script_name) as inf:
+    with iotools.open_file(script_name) as inf:
         if "getopt" in inf.read():
             E.warn("script %s uses getopt directly" % script_name)
             return []
@@ -157,7 +157,7 @@ def main(argv=None):
                 "filename %s not found, see --options-tsv-file" %
                 options.tsv_file)
         old_options = pandas.read_csv(
-            IOTools.open_file(options.tsv_file),
+            iotools.open_file(options.tsv_file),
             sep="\t",
             index_col=0,
         )
@@ -190,7 +190,7 @@ def main(argv=None):
             all_options[x].append("--")
 
     if options.inplace:
-        outfile = IOTools.open_file(options.tsv_file, "w")
+        outfile = iotools.open_file(options.tsv_file, "w")
         E.info("updating file '%s'" % options.tsv_file)
     else:
         outfile = options.stdout

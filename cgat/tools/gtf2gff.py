@@ -307,7 +307,7 @@ import collections
 import itertools
 
 import cgatcore.experiment as E
-import cgatcore.iotools as IOTools
+import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Genomics as Genomics
@@ -811,7 +811,7 @@ def annotateGREATDomains(iterator, fasta, options):
 
     regions.sort(key=lambda x: (x.contig, x.start))
 
-    outf = IOTools.open_file("test.gff", "w")
+    outf = iotools.open_file("test.gff", "w")
     for x in regions:
         outf.write(str(x) + "\n")
     outf.close()

@@ -121,7 +121,7 @@ from itertools import zip_longest
 import pysam
 
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.Genomics as Genomics
 import cgat.FastaIterator as FastaIterator
 import cgat.Masker as Masker
@@ -282,8 +282,8 @@ def main(argv=None):
     if map_identifier:
         if options.input_filename_map is None:
             raise ValueError("for method=map-identifier use --map-tsv-file")
-        with IOTools.open_file(options.input_filename_map) as infile:
-            map_identifier = IOTools.read_map(infile, has_header=True)
+        with iotools.open_file(options.input_filename_map) as infile:
+            map_identifier = iotools.read_map(infile, has_header=True)
 
     if options.type == "na":
         mask_chars = options.na_mask_chars
@@ -293,7 +293,7 @@ def main(argv=None):
         mask_char = options.aa_mask_char
 
     if "map-codons" in options.methods:
-        map_codon2code = IOTools.ReadMap(open(options.parameters[0], "r"))
+        map_codon2code = iotools.ReadMap(open(options.parameters[0], "r"))
         del options.parameters[0]
 
     if "mask-soft" in options.methods:
@@ -325,7 +325,7 @@ def main(argv=None):
         elif f.startswith("max-length"):
             filter_max_sequence_length = int(f.split("=")[1])
         elif f.startswith("id-file"):
-            filter_id_list = [line[:-1] for line in IOTools.open_file(f.split("=")[1])]
+            filter_id_list = [line[:-1] for line in iotools.open_file(f.split("=")[1])]
 
     def raiseIfNotCodon(l, title):
         '''raise ValueError if sequence length l is not divisible by
@@ -680,7 +680,7 @@ def main(argv=None):
     if "build-map" in options.methods:
         p = options.parameters[0]
         if p:
-            outfile = IOTools.open_file(p, "w")
+            outfile = iotools.open_file(p, "w")
         else:
             outfile = options.stdout
 

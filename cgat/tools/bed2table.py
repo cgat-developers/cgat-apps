@@ -94,7 +94,7 @@ import sys
 import collections
 import cgat.GTF as GTF
 import cgat.Bed as Bed
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgatcore.Experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.SequenceProperties as SequenceProperties
@@ -147,7 +147,7 @@ class CounterOverlap(Counter):
         E.info("reading intervals from %s" % self.filename)
 
         self.index = Bed.readAndIndex(
-            IOTools.open_file(self.filename, "r"),
+            iotools.open_file(self.filename, "r"),
             per_track=True)
 
         E.info("read intervals for %s tracks" % len(self.index))

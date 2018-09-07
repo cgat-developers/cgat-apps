@@ -1,6 +1,6 @@
 import unittest
 import os
-import cgatcore.iotools as IOTools
+import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 
 
@@ -10,7 +10,7 @@ class TestIteration(unittest.TestCase):
 
     def test_number_of_intervals_is_correct(self):
 
-        with IOTools.open_file(self.filename) as inf:
+        with iotools.open_file(self.filename) as inf:
             records = list(GTF.iterator(inf))
 
         self.assertEqual(len(records),

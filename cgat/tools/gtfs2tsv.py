@@ -99,7 +99,7 @@ import sys
 import os
 import quicksect
 import cgatcore.Experiment as E
-import cgatcore.IOTools as IOTools
+import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 
 
@@ -175,7 +175,7 @@ class Counts:
 def getFile(options, section):
 
     if options.output_filename_pattern:
-        outfile = IOTools.open_file(
+        outfile = iotools.open_file(
             options.output_filename_pattern % section, "w")
         E.info("output for section '%s' goes to file %s" %
                (section, options.output_filename_pattern % section))
@@ -241,7 +241,7 @@ def main(argv=None):
     E.info("reading data started")
 
     idx, genes2 = {}, set()
-    for e in GTF.readFromFile(IOTools.open_file(input_filename2, "r")):
+    for e in GTF.readFromFile(iotools.open_file(input_filename2, "r")):
         genes2.add(e.gene_id)
         if e.contig not in idx:
             idx[e.contig] = quicksect.IntervalTree()
@@ -259,7 +259,7 @@ def main(argv=None):
     genes1 = set()
 
     # iterate over exons
-    with IOTools.open_file(input_filename1, "r") as infile:
+    with iotools.open_file(input_filename1, "r") as infile:
         for this in GTF.iterator(infile):
 
             genes1.add(this.gene_id)
