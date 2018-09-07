@@ -34,7 +34,7 @@ import sys
 import csv
 import _csv
 import cgatcore.experiment as E
-import cgatcore.csv as CSV
+import cgatcore.csv as csv
 
 
 def main(argv=None):
@@ -74,7 +74,7 @@ def main(argv=None):
     statement = " ".join(args)
 
     if options.large:
-        reader = csv.DictReaderLarge(CSV.CommentStripper(sys.stdin),
+        reader = csv.DictReaderLarge(csv.CommentStripper(sys.stdin),
                                      dialect=options.csv_dialect)
     else:
         reader = csv.DictReader(csv.CommentStripper(sys.stdin),

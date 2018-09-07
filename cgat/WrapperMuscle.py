@@ -14,7 +14,7 @@ import subprocess
 import shutil
 
 from types import *
-from cgatcore import Experiment as Experiment
+from cgatcore import experiment as Experiment
 from cgat import Mali as Mali
 
 
@@ -132,6 +132,6 @@ if __name__ == "__main__":
         options="",
     )
 
-    (options, args) = Experiment.Start(parser)
+    (options, args) = experiment.Start(parser)
 
-    Experiment.Stop()
+    experiment.Stop()

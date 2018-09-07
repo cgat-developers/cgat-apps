@@ -157,7 +157,7 @@ Command line options
 '''
 import sys
 import collections
-import cgatcore.database as Database
+import cgatcore.database as database
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
@@ -331,7 +331,7 @@ def main(argv=None):
 
         E.info("dumping GO categories to %s" % (options.filename_dump))
 
-        dbhandle = Database.connect(url=options.database_url)
+        dbhandle = database.connect(url=options.database_url)
 
         outfile = iotools.open_file(options.filename_dump, "w", create_dir=True)
         GO.DumpGOFromDatabase(outfile,

@@ -42,7 +42,7 @@ import csv
 import six
 import _csv
 import hashlib
-import cgatcore.csv as CSV
+import cgatcore.csv as csv
 
 
 class UniqueBuffer:
@@ -135,7 +135,7 @@ def main(argv=None):
         fields = [x for x in old_fields if x not in fields]
 
     if options.large:
-        reader = csv.DictReaderLarge(CSV.CommentStripper(options.stdin),
+        reader = csv.DictReaderLarge(csv.CommentStripper(options.stdin),
                                      fieldnames=old_fields,
                                      dialect=options.csv_dialect)
     else:

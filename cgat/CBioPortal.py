@@ -82,7 +82,7 @@ import optparse
 import sys
 from cgatcore import iotools as iotools
 from collections import OrderedDict as odict
-from cgatcore import Experiment as E
+from cgatcore import experiment as E
 
 
 class CBioPortal():

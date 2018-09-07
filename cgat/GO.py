@@ -20,7 +20,7 @@ import scipy.stats
 import scipy.special
 import numpy
 from cgat import Stats as Stats
-from cgatcore import Experiment as E
+from cgatcore import experiment as E
 from cgatcore import iotools as iotools
 from cgatcore import Database as Database
 from cgatcore import csv as csv

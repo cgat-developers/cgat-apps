@@ -17,7 +17,7 @@ import shutil
 import random
 import traceback
 from types import *
-from cgatcore import Experiment as Experiment
+from cgatcore import experiment as Experiment
 from cgat import TreeTools as TreeTools
 from cgatcore import iotools as iotools
 from cgat import Tree as Tree
@@ -2514,7 +2514,7 @@ if __name__ == "__main__":
         evolver_pairwise=False,
     )
 
-    (options, args) = Experiment.Start(parser)
+    (options, args) = experiment.Start(parser)
 
     if options.filter_parameters is not None:
         options.filter_parameters = options.filter_parameters.split(",")
@@ -2539,7 +2539,7 @@ if __name__ == "__main__":
     elif options.flavour == "evolver":
 
         runEvolver(options)
-        Experiment.Stop()
+        experiment.Stop()
         sys.exit(0)
 
     else:
@@ -2928,4 +2928,4 @@ if __name__ == "__main__":
         if outfile != options.stdlog:
             outfile.close()
 
-    Experiment.Stop()
+    experiment.Stop()

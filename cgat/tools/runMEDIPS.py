@@ -37,7 +37,7 @@ import cgatcore.experiment as E
 import cgat.Expression as Expression
 import cgatcore.iotools as iotools
 import cgat.IndexedFasta as IndexedFasta
-import cgatcore.csv as CSV
+import cgatcore.csv as csv
 import cgat.BamTools as BamTools
 
 

@@ -58,7 +58,7 @@ import sys
 import re
 import optparse
 
-import CGAT.Experiment as E
+import CGAT.experiment as E
 
 def main( argv = None ):
     """script main.

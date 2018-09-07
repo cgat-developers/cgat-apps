@@ -271,7 +271,7 @@ class Counts(object):
 
         if not blind:
             assert design, ("if not using blind must supply a design table "
-                            "(a cgat.Expression.ExperimentalDesign object")
+                            "(a cgat.Expression.experimentalDesign object")
 
             # currently this only accepts "~group" design
             transform = R('''

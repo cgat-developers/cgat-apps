@@ -97,12 +97,12 @@ Command line options
 
 '''
 import sys
-import cgatcore.Table
-from cgatcore.Table import main
+import cgatcore.table
+from cgatcore.table import main
 from cgat import Stats
 
 # monkeypatch: import Stats in cgatcore.Table's namespace.
-cgatcore.Table.Stats = Stats
+cgatcore.table.Stats = Stats
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ import quicksect
 import cgat.GTF as GTF
 import cgat.Bed as Bed
 import cgatcore.iotools as iotools
-from cgatcore import Experiment as E
+from cgatcore import experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Stats as Stats
 import cgat.SequenceProperties as SequenceProperties

@@ -86,7 +86,7 @@ import re
 import glob
 import pandas
 
-import CGAT.Experiment as E
+import CGAT.experiment as E
 import CGAT.iotools as iotools
 
 

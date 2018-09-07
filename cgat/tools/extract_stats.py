@@ -50,7 +50,7 @@ import pandas
 import numpy
 import re
 import cgatcore.experiment as E
-import cgatcore.database as Database
+import cgatcore.database as database
 
 
 def getTableFromDb(database_url, table):
@@ -58,7 +58,7 @@ def getTableFromDb(database_url, table):
     Get a table from a database with pandas
     '''
 
-    dbhandle = Database.connect(url=database_url)
+    dbhandle = database.connect(url=database_url)
     df = pandas.read_sql("SELECT * FROM {}".format(table), con=dbhandle)
     df.index = df["track"]
     df.drop(labels="track", inplace=True, axis=1)

@@ -48,7 +48,7 @@ import zlib
 import gzip
 import tempfile
 import io
-from cgatcore import Experiment as E
+from cgatcore import experiment as E
 import cgatcore.iotools as iotools
 import cgat.Genomics as Genomics
 from cgat.AString import AString

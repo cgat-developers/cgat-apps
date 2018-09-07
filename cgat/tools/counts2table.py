@@ -356,7 +356,7 @@ def main(argv=None):
         raise ValueError("Must provide a reference group ('--reference-group')")
 
     # create Design object
-    design = Expression.ExperimentalDesign(
+    design = Expression.experimentalDesign(
         pd.read_csv(iotools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
 
@@ -386,7 +386,7 @@ def main(argv=None):
         # validate design against counts and model
         design.validate(model=options.model)
 
-        experiment = Expression.DEExperiment_Sleuth()
+        experiment = Expression.DEexperiment_Sleuth()
         results = experiment.run(design,
                                  base_dir=options.sleuth_counts_dir,
                                  model=options.model,
@@ -407,14 +407,14 @@ def main(argv=None):
             "need to specify the location of the .txt counts files")
 
         # create Design object
-        design = Expression.ExperimentalDesign(
+        design = Expression.experimentalDesign(
             pd.read_csv(iotools.open_file(options.input_filename_design, "r"),
                         sep="\t", index_col=0, comment="#"))
 
         # validate design against counts and model
         # design.validate(model=options.model)
 
-        experiment = Expression.DEExperiment_DEXSeq()
+        experiment = Expression.DEexperiment_DEXSeq()
         results = experiment.run(design,
                                  base_dir=options.dexseq_counts_dir,
                                  model=options.model,
@@ -461,11 +461,11 @@ def main(argv=None):
 
         # set up experiment and run tests
         if options.method == "ttest":
-            experiment = Expression.DEExperiment_TTest()
+            experiment = Expression.DEexperiment_TTest()
             results = experiment.run(counts, design)
 
         elif options.method == "edger":
-            experiment = Expression.DEExperiment_edgeR()
+            experiment = Expression.DEexperiment_edgeR()
             results = experiment.run(counts,
                                      design,
                                      model=options.model,
@@ -477,7 +477,7 @@ def main(argv=None):
 
         elif options.method == "deseq2":
 
-            experiment = Expression.DEExperiment_DESeq2()
+            experiment = Expression.DEexperiment_DESeq2()
             results = experiment.run(counts,
                                      design,
                                      model=options.model,

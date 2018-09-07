@@ -15,7 +15,7 @@ import string
 import re
 import random
 
-from cgatcore import Experiment as E
+from cgatcore import experiment as E
 from cgat import Genomics as Genomics
 from cgat import FastaIterator as FastaIterator
 from io import StringIO

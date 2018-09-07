@@ -16,7 +16,7 @@ import collections
 import math
 import csv
 
-import cgatcore.csv as CSV
+import cgatcore.csv as csv
 
 
 MacsPeak = collections.namedtuple(

@@ -31,7 +31,7 @@ Command line options
 import sys
 
 import cgatcore.experiment as E
-import cgatcore.csv as CSV
+import cgatcore.csv as csv
 import hashlib
 
 
