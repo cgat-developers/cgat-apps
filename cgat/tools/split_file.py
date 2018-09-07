@@ -33,7 +33,7 @@ import re
 import string
 import os
 import getopt
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 USAGE = """python %s < stdin > stdout

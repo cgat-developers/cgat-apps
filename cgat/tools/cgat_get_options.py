@@ -41,7 +41,7 @@ import glob
 import imp
 import collections
 import pandas
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 ORIGINAL_START = None

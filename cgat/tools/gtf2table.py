@@ -461,7 +461,7 @@ Command line options
 import sys
 import pysam
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.GTF as GTF
 import cgat.IndexedFasta as IndexedFasta
 import cgat.GeneModelAnalysis as GeneModelAnalysis

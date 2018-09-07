@@ -33,8 +33,8 @@ Command line options
 import sys
 import csv
 import _csv
-import cgatcore.Experiment as E
-import cgatcore.CSV as CSV
+import cgatcore.experiment as E
+import cgatcore.csv as CSV
 
 
 def main(argv=None):
@@ -56,7 +56,7 @@ def main(argv=None):
                       help="output rows are uniq.")
 
     parser.add_option("-l", "--large", dest="large", action="store_true",
-                      help="large columns. Do not use native python CSV module [default=%default].")
+                      help="large columns. Do not use native python csv module [default=%default].")
 
     parser.add_option("-f", "--filename-fields", dest="filename_fields", type="string",
                       help="filename with field information.")
@@ -74,10 +74,10 @@ def main(argv=None):
     statement = " ".join(args)
 
     if options.large:
-        reader = CSV.DictReaderLarge(CSV.CommentStripper(sys.stdin),
+        reader = csv.DictReaderLarge(CSV.CommentStripper(sys.stdin),
                                      dialect=options.csv_dialect)
     else:
-        reader = csv.DictReader(CSV.CommentStripper(sys.stdin),
+        reader = csv.DictReader(csv.CommentStripper(sys.stdin),
                                 dialect=options.csv_dialect)
 
     exec("f = lambda r: %s" % statement, globals())

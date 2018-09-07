@@ -38,7 +38,7 @@ Command line options
 '''
 
 import sys
-from cgatcore.CSV2DB import main
+from cgatcore.csv2db import main
 
 import csv
 csv.field_size_limit(sys.maxsize)

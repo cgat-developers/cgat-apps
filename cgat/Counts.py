@@ -12,7 +12,7 @@ Code
 ----
 
 '''
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import pandas as pd
 from rpy2.robjects import r as R

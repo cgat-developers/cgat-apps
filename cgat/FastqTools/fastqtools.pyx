@@ -12,7 +12,7 @@ from libc.stdint cimport int8_t
 from libc.stdio cimport puts, printf
 from cpython cimport array as c_array
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 from cgat.Genomics import reverse_complement
 import numpy
 cimport numpy

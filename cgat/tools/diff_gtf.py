@@ -129,7 +129,7 @@ import sys
 import re
 import numpy
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.GTF as GTF
 import cgatcore.iotools as iotools
 import cgat.NCL as NCL

@@ -42,7 +42,7 @@ Command line options
 import sys
 import re
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Genomics as Genomics
 import cgat.IndexedFasta as IndexedFasta
 import cgat.IndexedGenome as IndexedGenome

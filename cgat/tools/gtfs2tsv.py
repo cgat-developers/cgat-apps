@@ -98,7 +98,7 @@ Command line options
 import sys
 import os
 import quicksect
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 

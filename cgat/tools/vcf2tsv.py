@@ -12,7 +12,7 @@ single-sample VCF
 import sys
 import random
 import collections
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import numpy
 import pysam
 

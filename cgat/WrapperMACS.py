@@ -16,7 +16,7 @@ import collections
 import math
 import csv
 
-import cgatcore.CSV as CSV
+import cgatcore.csv as CSV
 
 
 MacsPeak = collections.namedtuple(
@@ -84,7 +84,7 @@ def iterateMacs2Peaks(infile):
     from their -log10 values.
     '''
 
-    for row in csv.DictReader(CSV.CommentStripper(infile),
+    for row in csv.DictReader(csv.CommentStripper(infile),
                               dialect='excel-tab'):
         # these are 1-based coordinates
         # macs can have negative start coordinates

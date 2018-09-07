@@ -107,7 +107,7 @@ import sys
 import math
 import collections
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.GTF as GTF
 

@@ -40,7 +40,7 @@ import sys
 import os
 import pysam
 import re
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 def count_pairs(s):

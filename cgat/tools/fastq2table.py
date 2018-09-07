@@ -91,7 +91,7 @@ Command line options
 
 import sys
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Stats as Stats
 import cgat.Fastq as Fastq
 

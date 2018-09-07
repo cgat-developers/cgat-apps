@@ -37,12 +37,12 @@ Command line options
 '''
 import sys
 import re
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import csv
 import six
 import _csv
 import hashlib
-import cgatcore.CSV as CSV
+import cgatcore.csv as CSV
 
 
 class UniqueBuffer:
@@ -77,7 +77,7 @@ def main(argv=None):
                       help="output rows are uniq.")
 
     parser.add_option("-l", "--large", dest="large", action="store_true",
-                      help="large columns. Do not use native python CSV module [default=%default].")
+                      help="large columns. Do not use native python csv module [default=%default].")
 
     parser.add_option("-f", "--filename-fields", dest="filename_fields", type="string",
                       help="filename with field information.")
@@ -135,11 +135,11 @@ def main(argv=None):
         fields = [x for x in old_fields if x not in fields]
 
     if options.large:
-        reader = CSV.DictReaderLarge(CSV.CommentStripper(options.stdin),
+        reader = csv.DictReaderLarge(CSV.CommentStripper(options.stdin),
                                      fieldnames=old_fields,
                                      dialect=options.csv_dialect)
     else:
-        reader = csv.DictReader(CSV.CommentStripper(options.stdin),
+        reader = csv.DictReader(csv.CommentStripper(options.stdin),
                                 fieldnames=old_fields,
                                 dialect=options.csv_dialect)
 

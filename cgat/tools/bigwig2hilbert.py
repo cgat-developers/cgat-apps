@@ -38,7 +38,7 @@ Command line options
 
 import sys
 import os
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 from rpy2.robjects import r as R
 
 

@@ -139,7 +139,7 @@ import collections
 import numpy
 import quicksect
 import pandas as pd
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 import cgat.AGP as AGP

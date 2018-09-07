@@ -7,7 +7,7 @@ import sys
 import tempfile
 import copy
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 from cgat.BamTools.bamtools import bam2bam_split_reads
 
 

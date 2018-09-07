@@ -1,5 +1,5 @@
 '''
-extract_stats.py - extract and process tables from CSVDB
+extract_stats.py - extract and process tables from csvDB
 ========================================================
 
 Purpose
@@ -49,7 +49,7 @@ import sys
 import pandas
 import numpy
 import re
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.database as Database
 
 

@@ -30,7 +30,7 @@ Command line options
 '''
 
 import sys
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.GWAS as gwas
 import re
 import random

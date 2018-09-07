@@ -190,7 +190,7 @@ import sys
 import os
 import pandas as pd
 import numpy as np
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Counts as Counts
 import cgat.Expression as Expression
 import cgatcore.iotools as iotools

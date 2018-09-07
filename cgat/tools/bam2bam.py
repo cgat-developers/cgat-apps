@@ -147,7 +147,7 @@ import tempfile
 import shutil
 import random
 import pysam
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import itertools
 import math

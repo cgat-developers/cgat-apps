@@ -90,7 +90,7 @@ import os
 import sys
 import pysam
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 from cgat.VCFTools import vcf2stats_count
 

@@ -71,7 +71,7 @@ from rpy2.rinterface import RRuntimeError
 import os
 
 try:
-    import cgatcore.Experiment as E
+    import cgatcore.experiment as E
     import cgatcore.iotools as iotools
     import cgat.Stats as Stats
 except ImportError:

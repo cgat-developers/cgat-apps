@@ -6,7 +6,7 @@ import os
 import pandas
 import seaborn
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 class MutationProfileBarPlot(object):

@@ -1,4 +1,4 @@
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import numpy as pynp
 cimport numpy as np
 

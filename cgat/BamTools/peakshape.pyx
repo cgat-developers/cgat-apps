@@ -2,7 +2,7 @@
 
 from pysam.libcalignmentfile cimport *
 import collections
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import numpy
 import cgat.Stats as Stats
 

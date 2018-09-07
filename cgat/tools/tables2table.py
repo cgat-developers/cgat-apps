@@ -39,7 +39,7 @@ import collections
 import pandas
 
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 def read_tables(filenames, *args, **kwargs):

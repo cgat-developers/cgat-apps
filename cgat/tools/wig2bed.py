@@ -37,7 +37,7 @@ import sys
 import re
 import collections
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgatcore.iotools as iotools
 

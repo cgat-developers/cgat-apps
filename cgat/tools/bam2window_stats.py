@@ -9,7 +9,7 @@ iterating over the file. The metrics output are:
 '''
 import pysam
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 from cgat.BamTools.bamtools import bam2stats_window_count
 
 

@@ -75,7 +75,7 @@ import sys
 import collections
 import itertools
 import subprocess
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import pysam
 import cgat.Bed as Bed

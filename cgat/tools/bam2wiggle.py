@@ -49,7 +49,7 @@ import sys
 import tempfile
 import shutil
 import subprocess
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import pysam
 import cgatcore.iotools as iotools
 from cgat.BamTools.bamtools import merge_pairs

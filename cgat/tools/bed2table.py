@@ -95,7 +95,7 @@ import collections
 import cgat.GTF as GTF
 import cgat.Bed as Bed
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.SequenceProperties as SequenceProperties
 import cgat.Intervals as Intervals

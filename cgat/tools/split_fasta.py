@@ -33,7 +33,7 @@ import re
 import os
 import cgat.FastaIterator as FastaIterator
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 class Files:

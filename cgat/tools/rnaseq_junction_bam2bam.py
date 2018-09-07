@@ -49,7 +49,7 @@ Command line options
 import sys
 import itertools
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import pysam
 

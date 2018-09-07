@@ -67,7 +67,7 @@ import sys
 import os
 import cgat.GTF as GTF
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 class OutputChunk:

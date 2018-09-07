@@ -120,7 +120,7 @@ import random
 from itertools import zip_longest
 import pysam
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.Genomics as Genomics
 import cgat.FastaIterator as FastaIterator

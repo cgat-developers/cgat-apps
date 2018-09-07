@@ -92,7 +92,7 @@ Command line options
 import sys
 import re
 import cgat.FastaIterator as FastaIterator
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 

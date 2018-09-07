@@ -162,7 +162,7 @@ Command line options
 '''
 
 import sys
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Bed as Bed
 import cgat.Intervals as Intervals

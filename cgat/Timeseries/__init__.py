@@ -14,7 +14,7 @@ Functions are split into::
 '''
 import sklearn.metrics.cluster.supervised as supervised
 from math import log
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import numpy as np
 import pandas as pd
 import itertools

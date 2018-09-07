@@ -71,7 +71,7 @@ import sys
 import collections
 
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import alignlib_lite
 
 

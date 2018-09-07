@@ -39,7 +39,7 @@ Command line options
 '''
 
 import sys
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Blat as Blat
 import cgat.GTF as GTF

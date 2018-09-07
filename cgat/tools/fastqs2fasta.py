@@ -81,7 +81,7 @@ from itertools import zip_longest
 
 import cgatcore.iotools as iotools
 import cgat.Fastq as Fastq
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 class PairedReadError(Exception):

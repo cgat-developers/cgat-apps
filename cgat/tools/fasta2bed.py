@@ -53,7 +53,7 @@ import subprocess
 import glob
 import collections
 import pybedtools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.FastaIterator as FastaIterator
 import cgatcore.iotools as iotools

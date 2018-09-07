@@ -14,7 +14,7 @@ import sys
 import numpy
 import pysam
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 

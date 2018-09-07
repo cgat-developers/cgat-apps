@@ -7,7 +7,7 @@ import re
 import os
 import shlex
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 

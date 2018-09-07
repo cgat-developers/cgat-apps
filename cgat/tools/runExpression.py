@@ -138,7 +138,7 @@ import tempfile
 from rpy2.robjects import r as R
 import rpy2.robjects.numpy2ri
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Expression as Expression
 
 

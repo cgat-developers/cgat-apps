@@ -2,7 +2,7 @@
 import sys
 import os
 import shutil
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 

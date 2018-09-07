@@ -112,7 +112,7 @@ import sys
 import re
 import math
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Genomics as Genomics
 import cgatcore.iotools as iotools
 import cgat.SequenceProperties as SequenceProperties

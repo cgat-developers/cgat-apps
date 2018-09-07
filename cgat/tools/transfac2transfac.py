@@ -30,7 +30,7 @@ Command line options
 
 import sys
 import re
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 def main(argv=None):

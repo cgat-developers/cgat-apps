@@ -61,7 +61,7 @@ try:
 except ImportError:
     pass
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Bed as Bed
 import collections
 import cgatcore.iotools as iotools

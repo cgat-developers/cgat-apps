@@ -109,7 +109,7 @@ Command line options
 
 import sys
 import pysam
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 from cgat.BamTools.bamtools import merge_pairs
 
 

@@ -119,7 +119,7 @@ Command line options
 
 import sys
 import quicksect
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.GTF as GTF
 import cgat.Genomics as Genomics
 import cgatcore.iotools as iotools

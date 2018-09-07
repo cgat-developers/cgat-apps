@@ -34,7 +34,7 @@ import sys
 
 cimport numpy
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 def parse_region_string(s):
     """parse a genomic region string.

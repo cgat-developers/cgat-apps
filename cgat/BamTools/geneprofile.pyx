@@ -5,7 +5,7 @@ from pysam.libcalignmentfile cimport *
 import pysam
 
 import collections, array, struct, sys, itertools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Intervals as Intervals
 import cgat.GTF as GTF
 import cgat.Stats as Stats

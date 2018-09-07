@@ -30,8 +30,8 @@ Command line options
 '''
 import sys
 
-import cgatcore.Experiment as E
-import cgatcore.CSV as CSV
+import cgatcore.experiment as E
+import cgatcore.csv as CSV
 import hashlib
 
 
@@ -91,8 +91,8 @@ def main(argv=None):
 
     options.filename1, options.filename2 = args
 
-    fields1, table1 = CSV.readTable(open(options.filename1, "r"))
-    fields2, table2 = CSV.readTable(open(options.filename2, "r"))
+    fields1, table1 = csv.readTable(open(options.filename1, "r"))
+    fields2, table2 = csv.readTable(open(options.filename2, "r"))
 
     if options.unique:
         outfile = UniqueBuffer(sys.stdout)

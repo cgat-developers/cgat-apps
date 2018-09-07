@@ -23,7 +23,7 @@ import string
 
 from math import log
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 RANGES = {

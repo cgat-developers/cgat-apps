@@ -70,7 +70,7 @@ import sys
 import re
 import collections
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 DATA = collections.namedtuple(

@@ -125,7 +125,7 @@ import sys
 import collections
 import numpy
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 
 

@@ -79,7 +79,7 @@ Command line options
 
 '''
 import cgat.IndexedFasta as IndexedFasta
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import sys
 
 

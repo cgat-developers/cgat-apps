@@ -89,7 +89,7 @@ import re
 import pysam
 
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.FastqTools as fastqtools
 
 

@@ -40,7 +40,7 @@ Command line options
 
 import sys
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 from cgat.Diamond import *
 import collections
 import cgatcore.iotools as iotools

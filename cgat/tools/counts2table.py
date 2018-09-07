@@ -146,7 +146,7 @@ Document!!!
 import sys
 import pandas as pd
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Expression as Expression
 import cgatcore.iotools as iotools
 import cgat.Counts as Counts

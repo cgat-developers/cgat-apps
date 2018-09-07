@@ -36,7 +36,7 @@ import sys
 import re
 import glob
 import os.path
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 def getLastLine(filename, read_size=1024):

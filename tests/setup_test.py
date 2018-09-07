@@ -64,7 +64,7 @@ Code
 import os
 import sys
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 # common tests to perform
 # basic_test: call script, ask for version

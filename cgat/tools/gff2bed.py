@@ -50,7 +50,7 @@ Command line options
 
 import sys
 import itertools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.GTF as GTF
 import cgat.Bed as Bed
 

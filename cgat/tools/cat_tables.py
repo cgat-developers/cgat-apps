@@ -26,7 +26,7 @@ Command line options
 import sys
 import fileinput
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 
 
 def main(argv=None):

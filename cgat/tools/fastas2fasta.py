@@ -56,7 +56,7 @@ Command line options
 import sys
 import re
 
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.FastaIterator as FastaIterator
 

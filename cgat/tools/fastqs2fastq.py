@@ -42,7 +42,7 @@ import collections
 import copy
 
 import cgatcore.iotools as iotools
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgat.Fastq as Fastq
 import cgat.Genomics as Genomics
 

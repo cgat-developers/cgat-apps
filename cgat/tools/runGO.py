@@ -158,7 +158,7 @@ Command line options
 import sys
 import collections
 import cgatcore.database as Database
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 
 import cgat.GO as GO

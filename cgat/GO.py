@@ -23,7 +23,7 @@ from cgat import Stats as Stats
 from cgatcore import Experiment as E
 from cgatcore import iotools as iotools
 from cgatcore import Database as Database
-from cgatcore import CSV as CSV
+from cgatcore import csv as csv
 
 from rpy2.robjects import r as R
 
@@ -907,7 +907,7 @@ def ReadGeneLists(filename_genes, gene_pattern=None):
     else:
         infile = iotools.open_file(filename_genes, "r")
 
-    headers, table = CSV.readTable(infile.readlines(), as_rows=False)
+    headers, table = csv.readTable(infile.readlines(), as_rows=False)
 
     if filename_genes != "-":
         infile.close()

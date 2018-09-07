@@ -36,7 +36,7 @@ import copy
 import platform
 
 from nose.tools import ok_
-import cgatcore.Experiment as E
+import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import TestUtils
 
