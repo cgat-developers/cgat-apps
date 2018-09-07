@@ -386,7 +386,7 @@ def main(argv=None):
         # validate design against counts and model
         design.validate(model=options.model)
 
-        experiment = Expression.DEexperiment_Sleuth()
+        experiment = Expression.DEExperiment_Sleuth()
         results = experiment.run(design,
                                  base_dir=options.sleuth_counts_dir,
                                  model=options.model,
@@ -414,7 +414,7 @@ def main(argv=None):
         # validate design against counts and model
         # design.validate(model=options.model)
 
-        experiment = Expression.DEexperiment_DEXSeq()
+        experiment = Expression.DEExperiment_DEXSeq()
         results = experiment.run(design,
                                  base_dir=options.dexseq_counts_dir,
                                  model=options.model,
@@ -461,11 +461,11 @@ def main(argv=None):
 
         # set up experiment and run tests
         if options.method == "ttest":
-            experiment = Expression.DEexperiment_TTest()
+            experiment = Expression.DEExperiment_TTest()
             results = experiment.run(counts, design)
 
         elif options.method == "edger":
-            experiment = Expression.DEexperiment_edgeR()
+            experiment = Expression.DEExperiment_edgeR()
             results = experiment.run(counts,
                                      design,
                                      model=options.model,
@@ -477,7 +477,7 @@ def main(argv=None):
 
         elif options.method == "deseq2":
 
-            experiment = Expression.DEexperiment_DESeq2()
+            experiment = Expression.DEExperiment_DESeq2()
             results = experiment.run(counts,
                                      design,
                                      model=options.model,

@@ -353,7 +353,7 @@ class experimentalDesign(object):
         return groups_to_keep_tracks, groups_to_spike_tracks
 
 
-class DEexperiment(object):
+class DEExperiment(object):
     ''' base clase for DE experiments '''
 
     def __init__(self):
@@ -578,7 +578,7 @@ class DEResult(object):
         abline(0,1)''' % locals())
 
 
-class DEexperiment_TTest(DEExperiment):
+class DEExperiment_TTest(DEExperiment):
     '''DECaller object to run TTest on counts data'''
 
     # TS: to do: deal with genes/regions with zero counts
@@ -651,8 +651,8 @@ class DEResult_TTest(DEResult):
                                               self.table['treatment_name']))
 
 
-class DEexperiment_edgeR(DEExperiment):
-    '''DEexperiment object to run edgeR on counts data
+class DEExperiment_edgeR(DEExperiment):
+    '''DEExperiment object to run edgeR on counts data
 
     See page 13 of the EdgeR user guide::
 
@@ -845,8 +845,8 @@ class DEResult_edgeR(DEResult):
         self.table = pandas.DataFrame(df_dict)
 
 
-class DEexperiment_DESeq2(DEExperiment):
-    '''DEexperiment object to run DESeq2 on counts data'''
+class DEExperiment_DESeq2(DEExperiment):
+    '''DEExperiment object to run DESeq2 on counts data'''
 
     def run(self,
             counts,
@@ -1116,8 +1116,8 @@ class DEResult_DESeq2(DEResult):
         # self.table.set_index("test_id", inplace=True)
 
 
-class DEexperiment_DEXSeq(DEExperiment):
-    '''DEexperiment object to run DEXSeq on counts data'''
+class DEExperiment_DEXSeq(DEExperiment):
+    '''DEExperiment object to run DEXSeq on counts data'''
 
     def run(self,
             design,
@@ -1237,9 +1237,9 @@ class DEResult_DEXSeq(DEResult):
         raise ValueError("MA plotting is not yet implemented for DESeq")
 
 
-class DEexperiment_Sleuth(DEExperiment):
-    '''DEexperiment object to run sleuth on kallisto bootstrap files
-    Unlike the other DEexperiment instances, this does not operate on
+class DEExperiment_Sleuth(DEExperiment):
+    '''DEExperiment object to run sleuth on kallisto bootstrap files
+    Unlike the other DEExperiment instances, this does not operate on
     a Counts.Counts object but instead reads the bootstrap hd5 files
     from kallisto into memory in R and then performs the differential
     testing

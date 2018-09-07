@@ -34,7 +34,7 @@ import sys
 import csv
 import _csv
 import cgatcore.experiment as E
-import cgatcore.csv as csv
+from cgatcore.csv import CommentStripper, DictReaderLarge
 
 
 def main(argv=None):
@@ -74,10 +74,10 @@ def main(argv=None):
     statement = " ".join(args)
 
     if options.large:
-        reader = csv.DictReaderLarge(csv.CommentStripper(sys.stdin),
-                                     dialect=options.csv_dialect)
+        reader = DictReaderLarge(CommentStripper(sys.stdin),
+                                 dialect=options.csv_dialect)
     else:
-        reader = csv.DictReader(csv.CommentStripper(sys.stdin),
+        reader = csv.DictReader(CommentStripper(sys.stdin),
                                 dialect=options.csv_dialect)
 
     exec("f = lambda r: %s" % statement, globals())
@@ -88,7 +88,6 @@ def main(argv=None):
                             lineterminator=options.csv_lineterminator)
 
     writer.writerow(dict((fn, fn) for fn in reader.fieldnames))
-
     while 1:
         counter.input += 1
         try:

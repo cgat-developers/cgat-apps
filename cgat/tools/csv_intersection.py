@@ -31,7 +31,7 @@ Command line options
 import sys
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
-import cgatcore.csv as csv
+from cgatcore.csv import readTable
 import csv
 import hashlib
 
@@ -76,8 +76,8 @@ def main(argv=None):
 
     options.filename1, options.filename2 = args
 
-    table1 = csv.readTable(iotools.open_file(options.filename1, "r"))
-    table2 = csv.readTable(iotools.open_file(options.filename2, "r"))
+    table1 = readTable(iotools.open_file(options.filename1, "r"))
+    table2 = readTable(iotools.open_file(options.filename2, "r"))
 
     if options.unique:
         outfile = UniqueBuffer(sys.stdout)
