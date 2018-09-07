@@ -62,7 +62,7 @@ import cgat.GTF as GTF
 import cgatcore.IOTools as IOTools
 import cgat.Bed as Bed
 import cgat.IndexedGenome as IndexedGenome
-from cgat.Bamtools.bamtools import bams2bam_filter
+from cgat.BamTools.bamtools import bams2bam_filter
 
 
 def main(argv=None):

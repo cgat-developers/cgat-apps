@@ -61,7 +61,7 @@ def global_align(seqj, seqi, gap=-1, match=1, mismatch=-1, nmatch=0):
 
     score[0, 1:] = gap * numpy.arange(max_j)
     score[1:, 0] = gap * numpy.arange(max_i)
-    
+
     for i in range(1, max_i + 1):
         ci = seqi[i - 1]
         for j in range(1, max_j + 1):
@@ -130,7 +130,7 @@ def get_consensus(sequences, ignore_gaps=False, min_gap_proportion=0):
             if min_gap_proportion > 0:
                 threshold = min_gap_proportion * float(len(sequences))
                 counts_df.loc[counts_df["-"] < threshold, ["-"]] = 0
-                
+
     consensus = "".join(counts_df.idxmax(axis=1)).upper()
     return consensus
 
@@ -257,7 +257,7 @@ def main(argv=None):
                     map_ref2ref_base.get(x, "") for x in range(region_start - anchor, region_start))
 
                 downstream_anchor = "".join(
-                    map_ref2ref_base.get(x, "") for x in range(region_end, region_end +  anchor))
+                    map_ref2ref_base.get(x, "") for x in range(region_end, region_end + anchor))
 
                 # check if at least one anchor is aligned
                 upstream_matches = sum([x.isupper() for x in upstream_anchor])
@@ -436,7 +436,7 @@ def main(argv=None):
                                  eval_df.consensus_support.describe().tolist() +
                                  eval_df.consensus_counts.describe().tolist() +
                                  eval_df.offconsensus_counts.describe().tolist())) + "\n")
-        
+
     E.stop()
 
 

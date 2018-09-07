@@ -119,7 +119,7 @@ class NCL(NCLSimple):
         val = cc.execute(
             "SELECT value FROM data WHERE id = '%i'" % key).fetchone()[0]
         cc.close()
-        return pickle.loads(str(val))
+        return pickle.loads(val)
 
     def find(self, start, end):
         """find intervals overlapping *start* and *end*.

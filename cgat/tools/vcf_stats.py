@@ -92,7 +92,7 @@ import pysam
 
 import cgatcore.Experiment as E
 
-from cgat.tools.VCFTools import vcf2stats_count
+from cgat.VCFTools import vcf2stats_count
 
 
 def main(argv=sys.argv):

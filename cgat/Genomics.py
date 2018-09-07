@@ -16,7 +16,6 @@ import re
 import hashlib
 import base64
 import tempfile
-import sys
 from functools import reduce
 
 try:
@@ -31,6 +30,25 @@ global_forward_sequences = {}
 global_last_sbjct_token = None
 
 global_translator = str.maketrans("ACGTacgt", "TGCAtgca")
+
+
+def parse_region_string(s):
+    """parse a genomic region string.
+
+    Returns tuple of contig, start, end. Missing values are None.
+    """
+    if not s:
+        return None, None, None
+    if ":" in s:
+        contig, coords = s.split(":")
+        if "-" in coords:
+            start, end = list(map(int, coords.split("-")))
+        else:
+            start = int(start)
+            end = None
+        return contig, start, end
+    else:
+        return s, None, None
 
 
 def reverse_complement(s):

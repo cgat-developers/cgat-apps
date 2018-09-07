@@ -25,7 +25,8 @@ import random
 import sys
 import sklearn.preprocessing as preprocessing
 
-pandas2ri.activate()
+# AH: disable as a package wide statement
+# pandas2ri.activate()
 
 
 def geometric_mean(array, axis=0):
@@ -35,7 +36,6 @@ def geometric_mean(array, axis=0):
     non_zero = ma.masked_values(array, 0)
     log_a = np.log(non_zero)
     return log_a.mean(axis=axis)
-#ma.exp(log_a.mean(axis=axis))
 
 
 class Counts(object):

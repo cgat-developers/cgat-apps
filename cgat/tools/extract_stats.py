@@ -74,7 +74,7 @@ def cleanStatsTable(stats_file):
     # , mangle_dupe_cols=False)
     # AH: disabled, because "ValueError: Setting mangle_dupe_cols=False is not supported yet"
     df = pandas.read_table(stats_file, sep="\t", header=0,
-                            index_col=None)
+                           index_col=None)
 
     # drop duplicates is case sensitive, convert all to
     # same case - SQL is not case sensitive so will throw
@@ -213,7 +213,7 @@ def main(argv=None):
 
     parser.add_option("-t", "--table-name", dest="table", type="string",
                       help="table in SQLite DB to extract")
-                      
+
     # add common options (-h/--help, ...) and parse command line
     (options, args) = E.start(parser, argv=argv, add_database_options=True)
 

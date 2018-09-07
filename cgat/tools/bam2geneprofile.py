@@ -792,7 +792,7 @@ def main(argv=None):
         c.setNormalization(options.transcript_normalization)
         if options.output_all_profiles:
             c.setOutputProfiles(IOTools.open_file(E.get_output_file(c.name) +
-                                                 ".profiles.tsv.gz", "w"))
+                                                  ".profiles.tsv.gz", "w"))
 
     if options.input_filename_counts:
         # read counts from file
@@ -841,7 +841,7 @@ def main(argv=None):
         matrix = matrix.transpose()
 
         with IOTools.open_file(E.get_output_file(counter.name) +
-                              ".matrix.tsv.gz", "w") as outfile:
+                               ".matrix.tsv.gz", "w") as outfile:
             outfile.write("bin\tregion\tregion_bin\t%s\n" % "\t".join(
                 options.profile_normalizations))
             fields = []
@@ -857,7 +857,7 @@ def main(argv=None):
                               ("\t".join([str(x) for x in cols[-1]])))
 
         with IOTools.open_file(E.get_output_file(counter.name) +
-                              ".lengths.tsv.gz", "w") as outfile:
+                               ".lengths.tsv.gz", "w") as outfile:
             counter.writeLengthStats(outfile)
 
         if options.output_all_profiles:

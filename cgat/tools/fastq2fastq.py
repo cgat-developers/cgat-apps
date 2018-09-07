@@ -308,7 +308,7 @@ def process_daisy(options):
 
     quality_offset = options.quality_offset
     counter = E.Counter()
-    
+
     with pysam.FastxFile(options.input_fastq_file) as inf:
         for read in inf:
             counter.input += 1
@@ -369,7 +369,7 @@ def process_daisy(options):
     if options.output_stats_tsv:
         with IOTools.open_file(options.output_stats_tsv, "w") as outf:
             outf.write(counter.asTable(as_rows=False) + "\n")
-            
+
     return counter
 
 
@@ -519,7 +519,7 @@ def main(argv=sys.argv):
                               "sort",
                               "trim3",
                               "trim5",
-                            "unique",
+                              "unique",
                               "reverse-complement",
                               "grep"]:
         options.method = options.methods[0]

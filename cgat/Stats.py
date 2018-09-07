@@ -128,7 +128,7 @@ def doLogLikelihoodTest(complex_ll, complex_np,
     if df <= 0:
         raise ValueError("difference of degrees of freedom not larger than 0")
 
-    p = scipy.stats.chisqprob(chi, df)
+    p = scipy.stats.distributions.chi2.sf(chi, df)
 
     l = LogLikelihoodTest()
 

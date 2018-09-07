@@ -5,7 +5,7 @@ import random
 import tempfile
 import shutil
 import os
-from CGAT.NCL import *
+from cgat.NCL import *
 
 
 class TestNCLSimpleNegativeIntervals(unittest.TestCase):

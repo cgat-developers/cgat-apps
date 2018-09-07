@@ -112,7 +112,7 @@ class Masker:
         Masker.__init__(self)
 
         outfile, filename_peptide = tempfile.mkstemp()
-        os.write(outfile, ">test\n%s\n" % (peptide_sequence))
+        os.write(outfile, (">test\n%s\n" % (peptide_sequence)).encode())
         os.close(outfile)
 
         infile = filename_peptide
@@ -134,8 +134,7 @@ class Masker:
 
         os.remove(filename_peptide)
 
-        masked_sequence = re.sub(
-            "\s", "", string.join(out.split("\n")[1:], ""))
+        masked_sequence = re.sub("\s", "", "".join(out.decode().split("\n")[1:]))
         return masked_sequence
 
     def maskSequences(self, sequences):

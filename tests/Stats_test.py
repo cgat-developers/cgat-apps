@@ -1,31 +1,8 @@
-##########################################################################
-#   Gene prediction pipeline
-#
-#   $Id: Stats_test.py 2784 2009-09-10 11:41:14Z andreas $
-#
-#   Copyright (C) 2004 Andreas Heger
-#
-#   This program is free software; you can redistribute it and/or
-#   modify it under the terms of the GNU General Public License
-#   as published by the Free Software Foundation; either version 2
-#   of the License, or (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program; if not, write to the Free Software
-#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-##########################################################################
 """unit testing module for the Tree.py class."""
-
-
 import numpy
 import scipy.stats
 import unittest
-import CGAT.Stats as Stats
+import cgat.Stats as Stats
 from rpy2.robjects import r as R
 import rpy2.robjects as ro
 
@@ -130,9 +107,11 @@ class TestFDRRAgainstR(unittest.TestCase):
             self.assertEqual(
                 a, b, "threshold-passed flag not equal: %s != %s" % (a, b))
 
+    @unittest.skip("requires R qvalue package")
     def testFDRSmoother(self):
         self.checkFDR("smoother")
 
+    @unittest.skip("requires R qvalue package")
     def testFDRBootstrap(self):
         self.checkFDR("bootstrap")
 
@@ -166,6 +145,7 @@ class TestFDRPythonAgainstRDataset1(unittest.TestCase):
         # dtype=float) / 100.0
         # print self.pvalues
 
+    @unittest.skip("requires R qvalue package")
     def testAgainstQValue(self):
 
         R.assign("pvalues", self.pvalues)
@@ -179,6 +159,7 @@ class TestFDRPythonAgainstRDataset1(unittest.TestCase):
         for a, b in zip(r_qvalues, new.mQValues):
             self.assertAlmostEqual(a, b, places=self.nplaces)
 
+    @unittest.skip("requires R qvalue package")
     def checkFDR(self, **kwargs):
 
         old = Stats.doFDR(self.pvalues, **kwargs)
@@ -198,15 +179,19 @@ class TestFDRPythonAgainstRDataset1(unittest.TestCase):
                  self.max_error,
                  pvalue, a, b))
 
+    @unittest.skip("requires R qvalue package")
     def testFDR(self):
         self.checkFDR()
 
+    @unittest.skip("requires R qvalue package")
     def testFDRSmoother(self):
         self.checkFDR(pi0_method="smoother")
 
+    @unittest.skip("requires R qvalue package")
     def testFDRBootstrap(self):
         self.checkFDR(pi0_method="bootstrap")
 
+    @unittest.skip("requires R qvalue package")
     def testFDRLambda(self):
         self.checkFDR(vlambda=(0.5,))
 
@@ -439,6 +424,7 @@ class TestPValueAdust(unittest.TestCase):
 
     def testNone(self):
         self.check("none")
+
 
 if __name__ == "__main__":
     unittest.main()

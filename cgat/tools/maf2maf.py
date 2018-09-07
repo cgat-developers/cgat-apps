@@ -9,7 +9,7 @@ import re
 import collections
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-from cgatcore.Toolkit import parse_region_string
+from cgat.Genomics import parse_region_string
 
 
 def iterate_maf_blocks(infile):

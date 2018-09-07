@@ -751,11 +751,11 @@ def main(argv=None):
             outfile.write(
                 "percent_genes_in_fg_with_association\t%s\tpercent genes in sample with GO assignments\n" % (
                     IOTools.pretty_percent(len(go_results.mSampleGenes),
-                                          len(foreground), "%5.2f")))
+                                           len(foreground), "%5.2f")))
             outfile.write(
                 "percent_genes_in_bg_with_associations\t%s\tpercent genes background with GO assignments\n" % (
                     IOTools.pretty_percent(len(go_results.mBackgroundGenes),
-                                          nbackground, "%5.2f")))
+                                           nbackground, "%5.2f")))
             outfile.write(
                 "significant\t%i\tsignificant results reported\n" % nselected)
             outfile.write(

@@ -15,10 +15,9 @@ import sys
 import pandas
 import numpy
 import re
-import os
 import matplotlib.pyplot as plt
-import cgatcore.Experiment as E
-from cgatcore.Plots.VariantPlots import MutationProfileBarPlot, DepthProfilePlot, \
+import cgatcore.experiment as E
+from cgat.Plots.VariantPlots import MutationProfileBarPlot, DepthProfilePlot, \
     ManhattanPlot
 
 

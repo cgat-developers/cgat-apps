@@ -285,15 +285,19 @@ cdef class IntervalDB:
       msg='empty IntervalDB, not searchable!'
       raise IndexError(msg)
 
-  def write_binaries(self,filestem,div=256):
+  def write_binaries(self, filestem, div=256):
     """commit database to filesystem using *filestem* as 
     root name of files.
 
     *div* refers to the block size.
     """
     cdef char *err_msg
-    err_msg=write_binary_files(self.im,self.n,self.ntop,div,
-                               self.subheader,self.nlists,filestem)
+    err_msg = write_binary_files(self.im,
+                                 self.n,
+                                 self.ntop,div,
+                                 self.subheader,
+                                 self.nlists,
+                                 filestem.encode())
     if err_msg:
       raise IOError(err_msg)
 
@@ -328,10 +332,10 @@ cdef class IntervalFileDB:
     if filestem is not None:
       self.open(filestem)
 
-  def open(self,filestem):
+  def open(self, filestem):
     cdef char err_msg[1024]
-    self.db=read_binary_files(filestem,err_msg,1024)
-    if self.db==NULL:
+    self.db = read_binary_files(filestem.encode(), err_msg,1024)
+    if self.db == NULL:
       raise IOError(err_msg)
 
   def find_overlap(self,int start,int end):
