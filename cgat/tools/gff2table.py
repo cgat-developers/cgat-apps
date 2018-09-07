@@ -43,13 +43,13 @@ import sys
 import re
 
 import cgatcore.Experiment as E
-import CGAT.Genomics as Genomics
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.IndexedGenome as IndexedGenome
+import cgat.Genomics as Genomics
+import cgat.IndexedFasta as IndexedFasta
+import cgat.IndexedGenome as IndexedGenome
 
-import CGAT.Intervals as Intervals
-import CGAT.Stats as Stats
-import CGAT.GTF as GTF
+import cgat.Intervals as Intervals
+import cgat.Stats as Stats
+import cgat.GTF as GTF
 
 
 def decorator_counts(intervals, start, end, contig, fasta):

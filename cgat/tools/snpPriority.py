@@ -32,7 +32,7 @@ Command line options
 
 import sys
 import cgatcore.Experiment as E
-import CGAT.GWAS as gwas
+import cgat.GWAS as gwas
 import pandas as pd
 import cgatcore.IOTools as IOTools
 

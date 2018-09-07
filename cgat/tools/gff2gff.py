@@ -141,11 +141,11 @@ import quicksect
 import pandas as pd
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.GTF as GTF
-import CGAT.AGP as AGP
-import CGAT.Genomics as Genomics
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Intervals as Intervals
+import cgat.GTF as GTF
+import cgat.AGP as AGP
+import cgat.Genomics as Genomics
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Intervals as Intervals
 import csv
 
 

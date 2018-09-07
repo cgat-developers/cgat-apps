@@ -4,7 +4,7 @@ import os
 import shutil
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 
 '''
 Filters a GTF to generate a geneset over which to count reads and look for

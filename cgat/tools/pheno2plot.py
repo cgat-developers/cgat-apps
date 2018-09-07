@@ -33,7 +33,7 @@ Command line options
 import sys
 import cgatcore.Experiment as E
 import pandas as pd
-import CGAT.GWAS as gwas
+import cgat.GWAS as gwas
 
 
 def main(argv=None):

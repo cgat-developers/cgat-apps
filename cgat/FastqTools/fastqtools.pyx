@@ -13,7 +13,7 @@ from libc.stdio cimport puts, printf
 from cpython cimport array as c_array
 
 import cgatcore.Experiment as E
-from CGAT.Genomics import reverse_complement
+from cgat.Genomics import reverse_complement
 import numpy
 cimport numpy
 DTYPE = numpy.uint32

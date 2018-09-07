@@ -29,7 +29,7 @@ and this toy example (``small.fasta``) of an indexed fasta file::
    GCCGGCCTCTACCTGCAGCAGATGCCCTAT
 
 Both files (``small.gtf`` and ``small.fasta``) are included
-in the `GitHub <https://github.com/CGATOxford/cgat>`_ repository.
+in the `GitHub <https://github.com/cgatOxford/cgat>`_ repository.
 
 genomic method
 ++++++++++++++
@@ -108,8 +108,8 @@ import math
 import collections
 
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.GTF as GTF
+import cgat.IndexedFasta as IndexedFasta
+import cgat.GTF as GTF
 
 
 def printValues(contig, max_size, window_size, values, options):

@@ -52,7 +52,7 @@ import subprocess
 import cgatcore.Experiment as E
 import pysam
 import cgatcore.IOTools as IOTools
-from CGAT.BamTools.bamtools import merge_pairs
+from cgat.BamTools.bamtools import merge_pairs
 
 
 class SpanWriter(object):

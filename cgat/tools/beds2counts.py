@@ -62,10 +62,10 @@ except ImportError:
     pass
 
 import cgatcore.Experiment as E
-import CGAT.Bed as Bed
+import cgat.Bed as Bed
 import collections
 import cgatcore.IOTools as IOTools
-import CGAT.IndexedGenome as IndexedGenome
+import cgat.IndexedGenome as IndexedGenome
 
 
 def main(argv=None):

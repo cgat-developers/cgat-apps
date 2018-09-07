@@ -462,9 +462,9 @@ import sys
 import pysam
 
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.GeneModelAnalysis as GeneModelAnalysis
+import cgat.GTF as GTF
+import cgat.IndexedFasta as IndexedFasta
+import cgat.GeneModelAnalysis as GeneModelAnalysis
 
 import pyBigWig
 

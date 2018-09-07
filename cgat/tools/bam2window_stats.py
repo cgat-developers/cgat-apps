@@ -10,7 +10,7 @@ iterating over the file. The metrics output are:
 import pysam
 
 import cgatcore.Experiment as E
-from CGAT.BamTools.bamtools import bam2stats_window_count
+from cgat.BamTools.bamtools import bam2stats_window_count
 
 
 def main(argv=None):

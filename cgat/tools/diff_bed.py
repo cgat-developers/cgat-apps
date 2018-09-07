@@ -60,7 +60,7 @@ import sys
 import re
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.Bed as Bed
+import cgat.Bed as Bed
 import numpy
 
 

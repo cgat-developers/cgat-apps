@@ -22,7 +22,7 @@ try:
 except ImportError:
     pass
 
-from CGAT import Components as Components
+from cgat import Components as Components
 from cgatcore import Experiment as E
 
 

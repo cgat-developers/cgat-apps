@@ -7,7 +7,7 @@ either through the samtools faidx tool (accessible through pysam_) or
 using the in-house methods implemented in this module.
 
 The main class is :class:`IndexedFasta`. This is a factory function
-that provides transparent access to both samtools or CGAT indexed
+that provides transparent access to both samtools or cgat indexed
 fasta files.  The basic usage to retrieve the sequence spanning the
 region chr12:10,000-10,100 is::
 
@@ -50,8 +50,8 @@ import tempfile
 import io
 from cgatcore import Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.Genomics as Genomics
-from CGAT.AString import AString
+import cgat.Genomics as Genomics
+from cgat.AString import AString
 import pysam
 import dbm
 from io import StringIO
@@ -591,7 +591,7 @@ PREFERENCES = (
     'uncompressed', 'lzo', 'dictzip', 'zlib', 'gzip', 'bzip2', 'debug')
 
 
-class CGATIndexedFasta:
+class cgatIndexedFasta:
 
     """an indexed fasta file."""
 
@@ -960,10 +960,10 @@ class CGATIndexedFasta:
         return token, strand, start, end
 
 
-class PysamIndexedFasta(CGATIndexedFasta):
+class PysamIndexedFasta(cgatIndexedFasta):
 
     '''interface a  pysam/samtools indexed fasta file with the
-    CGATIndexedFasta API.'''
+    cgatIndexedFasta API.'''
 
     def __init__(self, dbname):
 
@@ -1065,7 +1065,7 @@ def IndexedFasta(dbname, *args, **kwargs):
                  os.path.exists(dbname + ".fa.fai")):
         return PysamIndexedFasta(dbname, *args, **kwargs)
     else:
-        return CGATIndexedFasta(dbname, *args, **kwargs)
+        return cgatIndexedFasta(dbname, *args, **kwargs)
 
 
 def _one_forward_closed(x, y, c, l):

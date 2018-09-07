@@ -99,7 +99,7 @@ Command line options
 import sys
 import cgatcore.Table
 from cgatcore.Table import main
-from CGAT import Stats
+from cgat import Stats
 
 # monkeypatch: import Stats in cgatcore.Table's namespace.
 cgatcore.Table.Stats = Stats

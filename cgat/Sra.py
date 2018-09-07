@@ -18,7 +18,7 @@ import tempfile
 import shutil
 import itertools
 import cgatcore.Experiment as E
-import CGAT.Fastq as Fastq
+import cgat.Fastq as Fastq
 import cgatcore.IOTools as IOTools
 from urllib.request import urlopen
 

@@ -4,7 +4,7 @@ from pysam.libcalignmentfile cimport *
 import collections
 import cgatcore.Experiment as E
 import numpy
-import CGAT.Stats as Stats
+import cgat.Stats as Stats
 
 PeakShapeResult = collections.namedtuple(
     "PeakShapeResult",

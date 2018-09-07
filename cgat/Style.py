@@ -2,7 +2,7 @@
 ============
 
 utility functions for checking coding style in
-CGAT scripts.
+cgat scripts.
 
 '''
 

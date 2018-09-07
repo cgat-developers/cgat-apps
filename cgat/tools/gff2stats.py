@@ -72,10 +72,10 @@ Command line options
 import sys
 import collections
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
-import CGAT.Stats as Stats
+import cgat.GTF as GTF
+import cgat.Stats as Stats
 import cgatcore.IOTools as IOTools
-import CGAT.Intervals as Intervals
+import cgat.Intervals as Intervals
 
 
 class counter_gff:

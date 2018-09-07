@@ -92,17 +92,17 @@ Command line options
 import re
 import sys
 import collections
-import CGAT.GTF as GTF
-import CGAT.Bed as Bed
+import cgat.GTF as GTF
+import cgat.Bed as Bed
 import cgatcore.IOTools as IOTools
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.SequenceProperties as SequenceProperties
-import CGAT.Intervals as Intervals
+import cgat.IndexedFasta as IndexedFasta
+import cgat.SequenceProperties as SequenceProperties
+import cgat.Intervals as Intervals
 import numpy
 import pysam
 
-import CGAT.GeneModelAnalysis as GeneModelAnalysis
+import cgat.GeneModelAnalysis as GeneModelAnalysis
 
 
 class Counter(object):

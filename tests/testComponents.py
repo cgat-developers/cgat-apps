@@ -1,4 +1,4 @@
-import CGAT.Components as Components
+import cgat.Components as Components
 
 c = Components.SComponents()
 

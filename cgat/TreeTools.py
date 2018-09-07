@@ -14,7 +14,7 @@ import Bio.Nexus.Trees
 import string
 import re
 from io import StringIO
-from CGAT import Tree as Tree
+from cgat import Tree as Tree
 
 
 def Newick2Nexus(infile):

@@ -40,11 +40,11 @@ Command line options
 
 import sys
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Blat as Blat
-import CGAT.GTF as GTF
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Blat as Blat
+import cgat.GTF as GTF
 import alignlib_lite
-import CGAT.Intervals as Intervals
+import cgat.Intervals as Intervals
 
 
 def main(argv=None):

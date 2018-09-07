@@ -7,7 +7,7 @@ Purpose
 -------
 
 This script indexes one or more :term:`fasta` formatted files into a
-database that can be used by other scripts in the CGAT code collection
+database that can be used by other scripts in the cgat code collection
 and :mod:`IndexedFasta` for quick access to a particular part of a sequence.
 This is very useful for large genomic sequences.
 
@@ -78,7 +78,7 @@ Command line options
 --------------------
 
 '''
-import CGAT.IndexedFasta as IndexedFasta
+import cgat.IndexedFasta as IndexedFasta
 import cgatcore.Experiment as E
 import sys
 
@@ -269,7 +269,7 @@ def main(argv=None):
         timer = timeit.Timer(
             stmt="IndexedFasta.benchmarkRandomFragment(fasta=fasta, size=%i)" %
             (options.benchmark_fragment_size),
-            setup="from CGAT import IndexedFasta\n"
+            setup="from cgat import IndexedFasta\n"
             "fasta=IndexedFasta.IndexedFasta('%s')" % (args[0]))
 
         t = timer.timeit(number=options.benchmark_num_iterations)

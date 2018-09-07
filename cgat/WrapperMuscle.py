@@ -15,7 +15,7 @@ import shutil
 
 from types import *
 from cgatcore import Experiment as Experiment
-from CGAT import Mali as Mali
+from cgat import Mali as Mali
 
 
 class Error(Exception):

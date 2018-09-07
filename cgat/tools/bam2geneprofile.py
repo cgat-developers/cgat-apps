@@ -43,8 +43,8 @@ Quick start examples
 ++++++++++++++++++++
 
 The following command will generate the gene profile plot similar to
-Fig 1(a) in the published CGAT paper, but using a test dataset that is
-much smaller and simpler than the dataset used for publishing the CGAT
+Fig 1(a) in the published cgat paper, but using a test dataset that is
+much smaller and simpler than the dataset used for publishing the cgat
 paper. ::
 
     python ./scripts/bam2geneprofile.py
@@ -300,11 +300,11 @@ import sys
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
 import pysam
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 import numpy
 import pandas
 
-from CGAT.BamTools import geneprofile
+from cgat.BamTools import geneprofile
 
 
 def main(argv=None):

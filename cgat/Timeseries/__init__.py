@@ -25,7 +25,7 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects import r as R
 import rpy2.robjects as ro
 import random
-from CGAT.Timeseries import cmetrics as c2m
+from cgat.Timeseries import cmetrics as c2m
 
 
 def get_r_path():

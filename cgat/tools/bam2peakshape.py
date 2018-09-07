@@ -160,12 +160,12 @@ import re
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
 import pysam
-import CGAT.Bed as Bed
+import cgat.Bed as Bed
 import numpy
 import collections
 import pyBigWig
 
-import CGAT.BamTools.peakshape as bam2peakshape
+import cgat.BamTools.peakshape as bam2peakshape
 
 
 def buildOptionParser(argv):

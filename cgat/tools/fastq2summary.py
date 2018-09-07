@@ -59,7 +59,7 @@ Command line options
 import sys
 import numpy as np
 import cgatcore.Experiment as E
-import CGAT.Fastq as Fastq
+import cgat.Fastq as Fastq
 
 
 def main(argv=None):

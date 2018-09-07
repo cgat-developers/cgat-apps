@@ -25,7 +25,7 @@ Command line options
 
 import cgatcore.Experiment as E
 import sys
-import CGAT.IndexedFasta as IndexedFasta
+import cgat.IndexedFasta as IndexedFasta
 
 
 def main(argv=None):

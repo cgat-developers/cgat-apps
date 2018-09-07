@@ -44,7 +44,7 @@ import base64
 import itertools
 import six
 
-from CGAT import Genomics as Genomics
+from cgat import Genomics as Genomics
 
 import Bio.Alphabet.IUPAC
 

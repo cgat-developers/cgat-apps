@@ -15,7 +15,7 @@ a :term:`bed` formatted file using a corresponding genome file.
 Usage
 -----
 
-A required input to bed2fasta.py is a CGAT indexed genome. To obtain an
+A required input to bed2fasta.py is a cgat indexed genome. To obtain an
 idexed human reference genome we would type
 
 Example::
@@ -45,9 +45,9 @@ Command line options
 '''
 import sys
 import cgatcore.Experiment as E
-import CGAT.Bed as Bed
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Masker as Masker
+import cgat.Bed as Bed
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Masker as Masker
 
 
 def main(argv=None):

@@ -93,7 +93,7 @@ import collections
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
 import pysam
-import CGAT.Intervals as Intervals
+import cgat.Intervals as Intervals
 
 
 def isContainedInAll(contig, start, end, bedfiles):

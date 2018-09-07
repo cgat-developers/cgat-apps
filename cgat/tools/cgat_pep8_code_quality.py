@@ -1,5 +1,5 @@
 '''
-cgat_pep8_check_code_quality.py - check PEP8 conformance of CGAT Code
+cgat_pep8_check_code_quality.py - check PEP8 conformance of cgat Code
 =====================================================================
 
 :Author:
@@ -8,14 +8,14 @@ cgat_pep8_check_code_quality.py - check PEP8 conformance of CGAT Code
 Purpose
 -------
 
-This script runs pep8.py on the CGAT code collection and outputs
+This script runs pep8.py on the cgat code collection and outputs
 summary statistics of code quality onto stdout.
 
 Usage
 -----
 
 To use, simply run the script from the root directory of the
-CGAT code collection::
+cgat code collection::
 
    python cgat_pep8_check_code_quality.py
 
@@ -34,7 +34,7 @@ Command line options
 import collections
 import sys
 import cgatcore.Experiment as E
-import CGAT.Style
+import cgat.Style
 
 DATA = collections.namedtuple('DATA', 'count code description')
 
@@ -43,9 +43,9 @@ expressions = (
     ('scripts', 'scripts/*.py'),
     ('optic', 'scripts/optic/*.py'),
     ('gpipe', 'scripts/gpipe/*.py'),
-    ('CGAT', 'CGAT/*.py'),
-    ('CGATPipelines', 'CGATPipelines/*.py'),
-    ('trackers', 'CGATPipelines/pipeline_docs/*/trackers/*.py'))
+    ('cgat', 'cgat/*.py'),
+    ('cgatPipelines', 'cgatPipelines/*.py'),
+    ('trackers', 'cgatPipelines/pipeline_docs/*/trackers/*.py'))
 
 
 def main(argv=None):
@@ -67,7 +67,7 @@ def main(argv=None):
     rows = []
     labels = {}
     for label, expr in expressions:
-        nchecked, data = CGAT.Style.runPep8(expr)
+        nchecked, data = cgat.Style.runPep8(expr)
         rows.append((label, nchecked, data))
         labels.update(dict([(x.code, x.description) for x in data]))
 

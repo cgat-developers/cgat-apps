@@ -310,8 +310,8 @@ import numpy
 import pandas
 import pysam
 
-import CGAT.GTF as GTF
-from CGAT.BamTools.bamtools import bam2stats_count
+import cgat.GTF as GTF
+from cgat.BamTools.bamtools import bam2stats_count
 
 FLAGS = {
     1: 'paired',

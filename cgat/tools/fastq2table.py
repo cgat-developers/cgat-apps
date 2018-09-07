@@ -92,8 +92,8 @@ Command line options
 import sys
 
 import cgatcore.Experiment as E
-import CGAT.Stats as Stats
-import CGAT.Fastq as Fastq
+import cgat.Stats as Stats
+import cgat.Fastq as Fastq
 
 
 def main(argv=None):

@@ -90,7 +90,7 @@ import pysam
 
 import cgatcore.IOTools as IOTools
 import cgatcore.Experiment as E
-import CGAT.FastqTools as fastqtools
+import cgat.FastqTools as fastqtools
 
 
 class PatternGetter:

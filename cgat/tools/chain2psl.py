@@ -50,7 +50,7 @@ Command line options
 
 import sys
 import cgatcore.Experiment as E
-import CGAT.Blat as Blat
+import cgat.Blat as Blat
 import alignlib_lite
 
 

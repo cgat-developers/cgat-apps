@@ -163,9 +163,9 @@ Command line options
 
 import sys
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Bed as Bed
-import CGAT.Intervals as Intervals
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Bed as Bed
+import cgat.Intervals as Intervals
 from collections import defaultdict as defaultdict
 import pysam
 import csv

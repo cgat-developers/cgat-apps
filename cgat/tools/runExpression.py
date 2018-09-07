@@ -139,7 +139,7 @@ from rpy2.robjects import r as R
 import rpy2.robjects.numpy2ri
 
 import cgatcore.Experiment as E
-import CGAT.Expression as Expression
+import cgat.Expression as Expression
 
 
 def main(argv=None):

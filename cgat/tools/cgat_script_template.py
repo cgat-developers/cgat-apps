@@ -1,5 +1,5 @@
 '''
-cgat_script_template.py - template for CGAT scripts
+cgat_script_template.py - template for cgat scripts
 ====================================================
 
 :Author:

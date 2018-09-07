@@ -191,8 +191,8 @@ import os
 import pandas as pd
 import numpy as np
 import cgatcore.Experiment as E
-import CGAT.Counts as Counts
-import CGAT.Expression as Expression
+import cgat.Counts as Counts
+import cgat.Expression as Expression
 import cgatcore.IOTools as IOTools
 
 

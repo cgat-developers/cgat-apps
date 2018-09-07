@@ -68,9 +68,9 @@ Command line options
 '''
 import sys
 import collections
-import CGAT.Bed as Bed
+import cgat.Bed as Bed
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
+import cgat.IndexedFasta as IndexedFasta
 
 
 class Counter:

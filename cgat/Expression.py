@@ -73,7 +73,7 @@ import os
 try:
     import cgatcore.Experiment as E
     import cgatcore.IOTools as IOTools
-    import CGAT.Stats as Stats
+    import cgat.Stats as Stats
 except ImportError:
     import Experiment as E
     import IOTools

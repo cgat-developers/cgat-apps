@@ -35,7 +35,7 @@ import glob
 import imp
 import collections
 import cgatcore.IOTools as IOTools
-import CGAT
+import cgat
 
 
 def mapKeyword2Script(path):
@@ -90,7 +90,7 @@ def main(argv=None):
 
     argv = sys.argv
 
-    path = os.path.join(os.path.abspath(os.path.dirname(CGAT.__file__)),
+    path = os.path.join(os.path.abspath(os.path.dirname(cgat.__file__)),
                         "tools")
 
     if len(argv) == 1 or argv[1] == "--help" or argv[1] == "-h":
@@ -100,7 +100,7 @@ def main(argv=None):
 
         if len(argv) <= 2:
 
-            print('CGAT tools are grouped by keywords. The following keywords')
+            print('cgat tools are grouped by keywords. The following keywords')
             print('are defined:\n')
             print(("%s\n" % printListInColumns(list(map_keyword2script.keys()),
                                                3)))

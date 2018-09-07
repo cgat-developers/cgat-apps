@@ -61,8 +61,8 @@ Command line options
 """
 import sys
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
-import CGAT.Bed as Bed
+import cgat.GTF as GTF
+import cgat.Bed as Bed
 
 
 def main(argv=sys.argv):

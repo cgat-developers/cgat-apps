@@ -126,7 +126,7 @@ import collections
 import numpy
 
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
+import cgat.IndexedFasta as IndexedFasta
 
 
 def chain_iterator(infile):

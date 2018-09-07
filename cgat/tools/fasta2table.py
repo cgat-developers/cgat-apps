@@ -113,10 +113,10 @@ import re
 import math
 
 import cgatcore.Experiment as E
-import CGAT.Genomics as Genomics
+import cgat.Genomics as Genomics
 import cgatcore.IOTools as IOTools
-import CGAT.SequenceProperties as SequenceProperties
-import CGAT.FastaIterator as FastaIterator
+import cgat.SequenceProperties as SequenceProperties
+import cgat.FastaIterator as FastaIterator
 
 
 def main(argv=None):

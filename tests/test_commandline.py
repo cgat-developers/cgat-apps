@@ -48,7 +48,7 @@ PARSER = None
 
 # DIRECTORIES to examine for python modules/scripts
 EXPRESSIONS = (
-    ('tools', 'CGAT/tools/*.py'),)
+    ('tools', 'cgat/tools/*.py'),)
 
 EXCLUDE = [
     "__init__.py",

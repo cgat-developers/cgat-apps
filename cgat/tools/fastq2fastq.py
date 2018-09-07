@@ -135,8 +135,8 @@ import pysam
 import numpy
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.Fastq as Fastq
-import CGAT.Genomics as Genomics
+import cgat.Fastq as Fastq
+import cgat.Genomics as Genomics
 
 
 def process_cgat(options):

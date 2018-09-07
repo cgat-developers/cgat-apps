@@ -38,7 +38,7 @@ import re
 import collections
 
 import cgatcore.Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
+import cgat.IndexedFasta as IndexedFasta
 import cgatcore.IOTools as IOTools
 
 import pyBigWig

@@ -20,7 +20,7 @@ def timenow():
     return time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(time.time()))
 
 
-class CGATBase():
+class cgatBase():
 
     """
     simple base class with some utilities for Picard
@@ -126,7 +126,7 @@ def __main__():
 
     options, unknown = parser.parse_known_args()
 
-    cgat = CGATBase(options)
+    cgat = cgatBase(options)
 
     option_map = []
 

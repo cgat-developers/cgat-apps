@@ -8,11 +8,11 @@ cgat_get_options.py - build a sorted list of all options used in scripts
 Purpose
 -------
 
-Go through all scripts in the CGAT code collection and collect
+Go through all scripts in the cgat code collection and collect
 options used in the scripts.
 
 This script expects to be executed at the root of the
-CGAT code repository.
+cgat code repository.
 
 
 Usage

@@ -91,7 +91,7 @@ Command line options
 '''
 import sys
 import re
-import CGAT.FastaIterator as FastaIterator
+import cgat.FastaIterator as FastaIterator
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
 

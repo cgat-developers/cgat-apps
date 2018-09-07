@@ -43,8 +43,8 @@ import copy
 
 import cgatcore.IOTools as IOTools
 import cgatcore.Experiment as E
-import CGAT.Fastq as Fastq
-import CGAT.Genomics as Genomics
+import cgat.Fastq as Fastq
+import cgat.Genomics as Genomics
 
 
 def main(argv=None):

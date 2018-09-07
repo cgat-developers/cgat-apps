@@ -1,4 +1,4 @@
-'''cgat2rdf.py - create rdf description of CGAT script
+'''cgat2rdf.py - create rdf description of cgat script
 ====================================================
 
 :Tags: Python
@@ -6,7 +6,7 @@
 Purpose
 -------
 
-This script creates an rdf description of a CGAT
+This script creates an rdf description of a cgat
 script.
 
 Optionally, the script outputs also a galaxy xml
@@ -28,7 +28,7 @@ for command line help.
 Documentation
 -------------
 
-This script takes a CGAT script and attempts to write an interface
+This script takes a cgat script and attempts to write an interface
 definition for this script. In order to guess the file types
 correctly, :file:`cgat2rdf.py` makes use of the following information:
 
@@ -354,7 +354,7 @@ def guessFormats(scriptname, docstring):
     if "2" in scriptname:
         input_format, output_format = scriptname.split("2")
 
-    # map CGAT format names to GALAXY ones
+    # map cgat format names to GALAXY ones
     input_format = MAP_FORMATS.get(input_format, input_format)
     output_format = MAP_FORMATS.get(output_format, output_format)
 
@@ -426,7 +426,7 @@ def processScript(script_name, outfile, options):
 
     data = collections.defaultdict(str)
 
-    data['meta_title'] = 'Interface generator for CGAT scripts'
+    data['meta_title'] = 'Interface generator for cgat scripts'
     data['meta_author'] = 'Andreas Heger'
     data['meta_version'] = 0.1
 
@@ -436,7 +436,7 @@ def processScript(script_name, outfile, options):
     data['description'] = getDescription(basename, docstring)
     data['help'] = docstring
     data['version'] = "1.0"
-    data['owner'] = "CGAT"
+    data['owner'] = "cgat"
     data['email'] = "andreas.heger@gmail.com"
     data['binary'] = script_name
 
@@ -727,7 +727,7 @@ def main(argv=None):
 
     if options.output_format == "galaxy":
         options.stdout.write(
-            '''<section name="CGAT Tools" id="cgat_tools">\n''')
+            '''<section name="cgat Tools" id="cgat_tools">\n''')
 
     for script_name in args:
         if not script_name.endswith(".py"):

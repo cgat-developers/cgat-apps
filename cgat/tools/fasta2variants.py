@@ -43,8 +43,8 @@ import sys
 import collections
 
 import cgatcore.Experiment as E
-import CGAT.Genomics as Genomics
-import CGAT.FastaIterator as FastaIterator
+import cgat.Genomics as Genomics
+import cgat.FastaIterator as FastaIterator
 
 
 def main(argv=None):

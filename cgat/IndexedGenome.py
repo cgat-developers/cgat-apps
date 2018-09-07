@@ -39,7 +39,7 @@ Reference
 ---------
 
 '''
-from CGAT import NCL as ncl
+from cgat import NCL as ncl
 import quicksect
 
 

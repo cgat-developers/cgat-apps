@@ -24,7 +24,7 @@ try:
 except ImportError:
     pass
 
-from CGAT import AString as AString
+from cgat import AString as AString
 
 global_last_filename_genome = None
 global_forward_sequences = {}

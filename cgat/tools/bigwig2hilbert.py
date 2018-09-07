@@ -1,5 +1,5 @@
 '''
-bigwig2hilbert.py - template for CGAT scripts
+bigwig2hilbert.py - template for cgat scripts
 ====================================================
 
 :Author:

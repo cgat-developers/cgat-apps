@@ -89,7 +89,7 @@ import sys
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
 import pysam
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 
 
 def main(argv=None):

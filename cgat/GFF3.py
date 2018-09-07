@@ -9,7 +9,7 @@ functionality to allow working with :term:`GFF3` formatted files.
 
 import collections
 import itertools
-from CGAT import GTF as GTF
+from cgat import GTF as GTF
 
 
 class Entry(GTF.Entry):

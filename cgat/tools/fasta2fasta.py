@@ -122,9 +122,9 @@ import pysam
 
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.Genomics as Genomics
-import CGAT.FastaIterator as FastaIterator
-import CGAT.Masker as Masker
+import cgat.Genomics as Genomics
+import cgat.FastaIterator as FastaIterator
+import cgat.Masker as Masker
 
 
 def getCodons(sequence, gap_chars="-."):

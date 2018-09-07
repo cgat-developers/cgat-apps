@@ -19,7 +19,7 @@ import scipy
 import scipy.stats
 import scipy.special
 import numpy
-from CGAT import Stats as Stats
+from cgat import Stats as Stats
 from cgatcore import Experiment as E
 from cgatcore import IOTools as IOTools
 from cgatcore import Database as Database

@@ -11,8 +11,8 @@ Code
 import collections
 
 from cgatcore import Experiment as E
-from CGAT import Genomics as Genomics
-from CGAT import NCL as ncl
+from cgat import Genomics as Genomics
+from cgat import NCL as ncl
 
 Variant = collections.namedtuple("Variant",
                                  "pos, reference, genotype")

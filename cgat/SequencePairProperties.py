@@ -12,8 +12,8 @@ Reference
 
 """
 import numpy
-from CGAT import Mali as Mali
-from CGAT import WrapperCodeML as WrapperCodeML
+from cgat import Mali as Mali
+from cgat import WrapperCodeML as WrapperCodeML
 
 
 class SequencePairProperties:

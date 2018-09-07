@@ -31,7 +31,7 @@ Command line options
 import sys
 import re
 import os
-import CGAT.FastaIterator as FastaIterator
+import cgat.FastaIterator as FastaIterator
 import cgatcore.IOTools as IOTools
 import cgatcore.Experiment as E
 

@@ -27,7 +27,7 @@ Command line options
 import sys
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.Bed as Bed
+import cgat.Bed as Bed
 
 
 def main(argv=None):

@@ -36,9 +36,9 @@ Apart from basic iteration, this module provides the following utilities:
 """
 
 import collections
-from CGAT import Intervals as Intervals
-from CGAT import Genomics as Genomics
-from CGAT import IndexedGenome as IndexedGenome
+from cgat import Intervals as Intervals
+from cgat import Genomics as Genomics
+from cgat import IndexedGenome as IndexedGenome
 import pysam
 from cgatcore import IOTools as IOTools
 

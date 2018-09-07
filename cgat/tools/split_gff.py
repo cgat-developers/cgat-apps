@@ -65,7 +65,7 @@ Command line options
 
 import sys
 import os
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 import cgatcore.IOTools as IOTools
 import cgatcore.Experiment as E
 

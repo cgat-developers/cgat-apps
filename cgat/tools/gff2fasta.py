@@ -120,12 +120,12 @@ Command line options
 import sys
 import quicksect
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
-import CGAT.Genomics as Genomics
+import cgat.GTF as GTF
+import cgat.Genomics as Genomics
 import cgatcore.IOTools as IOTools
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Intervals as Intervals
-import CGAT.Masker as Masker
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Intervals as Intervals
+import cgat.Masker as Masker
 
 
 def main(argv=None):

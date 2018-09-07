@@ -41,7 +41,7 @@ Command line options
 import sys
 
 import cgatcore.Experiment as E
-from CGAT.Diamond import *
+from cgat.Diamond import *
 import collections
 import cgatcore.IOTools as IOTools
 

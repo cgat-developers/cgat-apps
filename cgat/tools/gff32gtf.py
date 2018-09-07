@@ -83,8 +83,8 @@ Command line options
 import sys
 
 import cgatcore.Experiment as E
-import CGAT.GFF3 as GFF3
-import CGAT.GTF as GTF
+import cgat.GFF3 as GFF3
+import cgat.GTF as GTF
 import cgatcore.IOTools as IOTools
 
 

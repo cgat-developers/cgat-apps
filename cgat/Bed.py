@@ -26,7 +26,7 @@ import numpy
 import bisect
 import itertools
 
-from CGAT import NCL as ncl
+from cgat import NCL as ncl
 from cgatcore import IOTools as IOTools
 
 Headers = [

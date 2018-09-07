@@ -21,16 +21,16 @@ import collections
 import itertools
 import quicksect
 
-import CGAT.GTF as GTF
-import CGAT.Bed as Bed
+import cgat.GTF as GTF
+import cgat.Bed as Bed
 import cgatcore.IOTools as IOTools
 from cgatcore import Experiment as E
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Stats as Stats
-import CGAT.SequenceProperties as SequenceProperties
-import CGAT.Genomics as Genomics
-import CGAT.Intervals as Intervals
-import CGAT.IndexedGenome as IndexedGenome
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Stats as Stats
+import cgat.SequenceProperties as SequenceProperties
+import cgat.Genomics as Genomics
+import cgat.Intervals as Intervals
+import cgat.IndexedGenome as IndexedGenome
 
 import numpy
 import pysam

@@ -33,7 +33,7 @@ Code
 
 import sys
 import optparse
-import CGAT.Metaphlan as Metaphlan
+import cgat.Metaphlan as Metaphlan
 import cgatcore.Experiment as E
 
 

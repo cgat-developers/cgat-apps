@@ -130,9 +130,9 @@ import re
 import numpy
 
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 import cgatcore.IOTools as IOTools
-import CGAT.NCL as NCL
+import cgat.NCL as NCL
 
 
 class Counter:

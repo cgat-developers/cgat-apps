@@ -6,9 +6,9 @@ import pysam
 
 import collections, array, struct, sys, itertools
 import cgatcore.Experiment as E
-import CGAT.Intervals as Intervals
-import CGAT.GTF as GTF
-import CGAT.Stats as Stats
+import cgat.Intervals as Intervals
+import cgat.GTF as GTF
+import cgat.Stats as Stats
 import numpy
 
 CountResult = collections.namedtuple(

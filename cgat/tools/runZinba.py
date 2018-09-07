@@ -39,7 +39,7 @@ from rpy2.robjects import r as R
 
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.BamTools as BamTools
+import cgat.BamTools as BamTools
 
 
 def bamToBed(infile, outfile,

@@ -282,9 +282,9 @@ import itertools
 
 import cgatcore.experiment as E
 import cgatcore.iotools as IOTools
-import CGAT.GTF as GTF
-import CGAT.Genomics as Genomics
-import CGAT.Intervals as Intervals
+import cgat.GTF as GTF
+import cgat.Genomics as Genomics
+import cgat.Intervals as Intervals
 
 
 def find_retained_introns(gene):

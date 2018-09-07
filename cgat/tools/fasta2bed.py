@@ -55,7 +55,7 @@ import collections
 import pybedtools
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.FastaIterator as FastaIterator
+import cgat.FastaIterator as FastaIterator
 import cgatcore.IOTools as IOTools
 
 

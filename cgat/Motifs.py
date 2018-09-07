@@ -9,8 +9,8 @@ Code
 
 '''
 import collections
-from CGAT import Genomics as Genomics
-from CGAT import FastaIterator as FastaIterator
+from cgat import Genomics as Genomics
+from cgat import FastaIterator as FastaIterator
 
 
 def countMotifs(infile, motifs):

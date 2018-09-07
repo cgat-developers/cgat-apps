@@ -58,11 +58,11 @@ import sys
 import pysam
 
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 import cgatcore.IOTools as IOTools
-import CGAT.Bed as Bed
-import CGAT.IndexedGenome as IndexedGenome
-from CGAT.Bamtools.bamtools import bams2bam_filter
+import cgat.Bed as Bed
+import cgat.IndexedGenome as IndexedGenome
+from cgat.Bamtools.bamtools import bams2bam_filter
 
 
 def main(argv=None):

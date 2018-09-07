@@ -110,7 +110,7 @@ Command line options
 import sys
 import pysam
 import cgatcore.Experiment as E
-from CGAT.BamTools.bamtools import merge_pairs
+from cgat.BamTools.bamtools import merge_pairs
 
 
 def main(argv=None):

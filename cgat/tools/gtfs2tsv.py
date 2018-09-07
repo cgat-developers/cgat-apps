@@ -100,7 +100,7 @@ import os
 import quicksect
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
-import CGAT.GTF as GTF
+import cgat.GTF as GTF
 
 
 def GetNextLine(infile):

@@ -144,10 +144,10 @@ import collections
 import array
 
 import cgatcore.Experiment as E
-import CGAT.GTF as GTF
-import CGAT.IndexedFasta as IndexedFasta
-import CGAT.Genomics as Genomics
-import CGAT.Intervals as Intervals
+import cgat.GTF as GTF
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Genomics as Genomics
+import cgat.Intervals as Intervals
 
 MAP_ENSEMBL = {'miRNA': 'm',
                'misc_RNA': 'l',

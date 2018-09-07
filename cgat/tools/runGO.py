@@ -161,7 +161,7 @@ import cgatcore.Database as Database
 import cgatcore.Experiment as E
 import cgatcore.IOTools as IOTools
 
-import CGAT.GO as GO
+import cgat.GO as GO
 
 
 def main(argv=None):

@@ -7,13 +7,13 @@
 Purpose
 -------
 
-This script iterates over all scripts and modules in the CGAT
+This script iterates over all scripts and modules in the cgat
 script collection and checks/list the dependencies.
 
 Usage
 -----
 
-The script expects to be executed in the root directory of the CGAT
+The script expects to be executed in the root directory of the cgat
 repository.
 
 Example::
@@ -56,7 +56,7 @@ def main(argv=None):
                       help="supply help")
 
     parser.set_defaults(
-        directories=["scripts", "CGAT", "CGAT/scripts", "CGATPipelines"])
+        directories=["scripts", "cgat", "cgat/scripts", "cgatPipelines"])
 
     # add common options (-h/--help, ...) and parse command line
     (options, args) = E.start(parser, argv=argv)

@@ -1,4 +1,4 @@
-'''cgat2dot.py - create a graph between CGAT scripts
+'''cgat2dot.py - create a graph between cgat scripts
 ====================================================
 
 :Tags: Python
@@ -6,7 +6,7 @@
 Purpose
 -------
 
-This script creates an rdf description of a CGAT script.
+This script creates an rdf description of a cgat script.
 
 Optionally, the script outputs also a galaxy xml description of the
 scripts' interface.
@@ -116,7 +116,7 @@ def guessFormats(scriptname, docstring):
     if "2" in scriptname:
         input_format, output_format = scriptname.split("2")
 
-    # map CGAT format names to GALAXY ones
+    # map cgat format names to GALAXY ones
     input_format = MAP_FORMATS.get(input_format, input_format)
     output_format = MAP_FORMATS.get(output_format, output_format)
 
@@ -362,7 +362,7 @@ def main(argv=None):
             "please specify --input-regex when using --output-filename-pattern")
 
     outfile = options.stdout
-    outfile.write("""digraph CGAT {
+    outfile.write("""digraph cgat {
     size="10,20";
     # scale graph so that there are no overlaps
     overlap=scale;

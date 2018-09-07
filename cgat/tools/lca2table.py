@@ -28,7 +28,7 @@ Command line options
 '''
 
 import sys
-import CGAT.LCA as LCA
+import cgat.LCA as LCA
 import cgatcore.Experiment as E
 import collections
 
