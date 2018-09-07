@@ -34,6 +34,8 @@ import re
 import glob
 import imp
 import collections
+import shlex
+import subprocess
 import CGATCore.IOTools as IOTools
 import CGAT
 
@@ -124,11 +126,23 @@ def main(argv=None):
     command = argv[1]
 
     command = re.sub("-", "_", command)
-    
-    (file, pathname, description) = imp.find_module(command, [path, ])
-    module = imp.load_module(command, file, pathname, description)
-    # remove 'cgat' from sys.argv
-    del sys.argv[0]
+    if os.path.exists(os.path.join(path, command + ".R")):
+        rscriptname = os.path.join(path, command + ".R")
+        statement = (
+            "export R_ROOT={r_root} && "
+            "Rscript {rscriptname} "
+            "{args}".format(
+                r_root=os.path.dirname(path),
+                rscriptname=rscriptname,
+                args=" ".join([shlex.quote(x) for x in argv[2:]])))
+        return subprocess.call(statement, shell=True, executable=os.environ["SHELL"])
+    else:
+        # remove 'cgat' from sys.argv
+        del sys.argv[0]
+
+        (file, pathname, description) = imp.find_module(command, [path, ])
+        module = imp.load_module(command, file, pathname, description)
+
     module.main(sys.argv)
 
 if __name__ == "__main__":
