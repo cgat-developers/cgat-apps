@@ -28,9 +28,9 @@ Command line options
 
 '''
 import sys
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.GTF as GTF
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import bx.intervals.intersection
 import numpy
 

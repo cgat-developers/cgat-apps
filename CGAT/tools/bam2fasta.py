@@ -36,8 +36,8 @@ import collections
 import pysam
 import numpy
 import pandas
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 # adapted from here: https://bitbucket.org/brentp/biostuff/src/282b504ac9020fe1449e23f800b20b5bd7d12061/nwalign/pairwise.py?at=default&fileviewer=file-view-default

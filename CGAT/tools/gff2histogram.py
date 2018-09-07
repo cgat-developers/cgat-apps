@@ -102,7 +102,7 @@ Command line options
 '''
 import sys
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.GTF as GTF
 import CGAT.Bed as Bed
 import CGAT.Histogram as Histogram

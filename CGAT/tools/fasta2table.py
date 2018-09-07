@@ -112,9 +112,9 @@ import sys
 import re
 import math
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Genomics as Genomics
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.SequenceProperties as SequenceProperties
 import CGAT.FastaIterator as FastaIterator
 

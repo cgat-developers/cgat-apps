@@ -86,8 +86,8 @@ reference genome annotation database (Ensembl, UCSC etc.).
 '''
 
 import sys
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import pysam
 import CGAT.GTF as GTF
 

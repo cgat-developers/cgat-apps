@@ -53,10 +53,10 @@ import subprocess
 import glob
 import collections
 import pybedtools
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.FastaIterator as FastaIterator
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 
 
 def segmentWithCpG(infile, with_contig_sizes=False):

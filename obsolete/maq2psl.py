@@ -31,7 +31,7 @@ Command line options
 '''
 import sys
 import itertools
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.Blat as Blat
 import CGAT.Maq as Maq

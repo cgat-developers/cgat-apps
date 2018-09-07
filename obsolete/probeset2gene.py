@@ -37,7 +37,7 @@ import sys
 import collections
 
 from rpy2.robjects import r as R
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def getProbeset2Gene(database):

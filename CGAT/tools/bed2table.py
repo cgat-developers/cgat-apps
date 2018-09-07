@@ -94,8 +94,8 @@ import sys
 import collections
 import CGAT.GTF as GTF
 import CGAT.Bed as Bed
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.SequenceProperties as SequenceProperties
 import CGAT.Intervals as Intervals

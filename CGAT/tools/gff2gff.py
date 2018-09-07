@@ -139,8 +139,8 @@ import collections
 import numpy
 import quicksect
 import pandas as pd
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.GTF as GTF
 import CGAT.AGP as AGP
 import CGAT.Genomics as Genomics

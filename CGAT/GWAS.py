@@ -5,8 +5,8 @@
 #########################################################################
 #########################################################################
 
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import numpy as np
 import pandas as pd
 import pandas.io.sql as pdsql

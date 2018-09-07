@@ -49,8 +49,8 @@ import sys
 import pandas
 import numpy
 import re
-import CGATCore.Experiment as E
-import CGATCore.Database as Database
+import cgatcore.Experiment as E
+import cgatcore.Database as Database
 
 
 def getTableFromDb(database_url, table):

@@ -306,12 +306,12 @@ import sys
 import collections
 import itertools
 
+import cgatcore.experiment as E
+import cgatcore.iotools as IOTools
 import CGAT.GTF as GTF
-import CGATCore.Experiment as E
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.Genomics as Genomics
 import CGAT.Intervals as Intervals
-import CGATCore.IOTools as IOTools
 
 
 def addSegment(feature, start, end, template, options):

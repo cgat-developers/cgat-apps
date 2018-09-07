@@ -80,11 +80,11 @@ import time
 import collections
 import warnings
 import alignlib_lite
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Genomics as Genomics
 import CGAT.Blat as Blat
 import CGAT.GTF as GTF
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.IndexedGenome as IndexedGenome
 

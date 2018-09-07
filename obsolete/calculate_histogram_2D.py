@@ -30,7 +30,7 @@ Command line options
 import sys
 import string
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Histogram2D as Histogram2D
 
 USAGE = """python calculate_histogram.py < stdin > stdout

@@ -49,8 +49,8 @@ import sys
 import math
 
 import numpy
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.CorrespondenceAnalysis as CorrespondenceAnalysis
 import CGAT.MatlabTools as MatlabTools
 import scipy

@@ -4,8 +4,8 @@
 import collections
 import pysam
 import sys
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import quicksect
 
 

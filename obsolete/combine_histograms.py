@@ -39,7 +39,7 @@ Command line options
 import sys
 import os
 import getopt
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Histogram as Histogram
 
 param_long_options = ["missing=", "headers=", "titles", "normalize",

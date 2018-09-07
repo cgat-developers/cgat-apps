@@ -120,8 +120,8 @@ import random
 from itertools import zip_longest
 import pysam
 
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.Genomics as Genomics
 import CGAT.FastaIterator as FastaIterator
 import CGAT.Masker as Masker

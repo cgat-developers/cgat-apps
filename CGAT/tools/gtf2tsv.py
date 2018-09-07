@@ -82,7 +82,7 @@ Command line options
 import sys
 import re
 import CGAT.GTF as GTF
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.GFF3 as GFF3
 
 

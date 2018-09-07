@@ -36,8 +36,8 @@ import sys
 import os
 import numpy
 import numpy.ma
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 def main(argv=None):

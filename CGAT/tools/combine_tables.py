@@ -38,7 +38,7 @@ Command line options
 '''
 
 import sys
-from CGATCore.Tables import main
+from cgatcore.Tables import main
 
 
 if __name__ == '__main__':

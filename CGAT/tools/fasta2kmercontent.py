@@ -94,7 +94,7 @@ import sys
 import re
 import CGAT.FastaIterator as FastaIterator
 import itertools
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def main(argv=None):

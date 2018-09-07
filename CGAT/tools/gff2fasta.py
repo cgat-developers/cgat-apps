@@ -119,10 +119,10 @@ Command line options
 
 import sys
 import quicksect
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.GTF as GTF
 import CGAT.Genomics as Genomics
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.IndexedFasta as IndexedFasta
 import CGAT.Intervals as Intervals
 import CGAT.Masker as Masker

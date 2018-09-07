@@ -29,7 +29,7 @@ import sys
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def readread(s):

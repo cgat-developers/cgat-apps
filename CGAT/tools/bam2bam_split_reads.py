@@ -6,8 +6,8 @@ import pysam
 import sys
 import tempfile
 import copy
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 from CGAT.BamTools.bamtools import bam2bam_split_reads
 
 

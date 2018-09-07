@@ -32,8 +32,8 @@ import sys
 import re
 import os
 import CGAT.FastaIterator as FastaIterator
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 
 
 class Files:

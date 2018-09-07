@@ -15,11 +15,10 @@ scikit-learn
 sortedcontainers
 pybedtools
 alignlib-lite
+quicksect
 
 # conda only
 ucsc-wigtobigwig
-
-# Additional: pip install quicksect
 
 # other - for system tools, tests, docs, etc
 pep8

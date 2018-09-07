@@ -68,7 +68,7 @@ import sys
 import re
 import pandas as pd
 import numpy as np
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def groupMappers(design_table, spike_regex, shuffle_suffix, keep_suffix):

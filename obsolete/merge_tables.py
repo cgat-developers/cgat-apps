@@ -28,7 +28,7 @@ Command line options
 '''
 import sys
 import string
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 parser = E.OptionParser(
     version="%prog version: $Id$")

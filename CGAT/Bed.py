@@ -27,7 +27,7 @@ import bisect
 import itertools
 
 from CGAT import NCL as ncl
-from CGATCore import IOTools as IOTools
+from cgatcore import IOTools as IOTools
 
 Headers = [
     "contig", "start", "end",

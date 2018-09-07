@@ -30,8 +30,8 @@ Command line options
 import sys
 import re
 import os
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 
 
 def main(argv=None):

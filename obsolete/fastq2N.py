@@ -31,7 +31,7 @@ Command line options
 '''
 
 import sys
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Fastq as Fastq
 import gzip
 

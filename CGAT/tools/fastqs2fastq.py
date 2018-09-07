@@ -41,8 +41,8 @@ import sys
 import collections
 import copy
 
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 import CGAT.Fastq as Fastq
 import CGAT.Genomics as Genomics
 

@@ -66,8 +66,8 @@ Command line options
 import sys
 import os
 import CGAT.GTF as GTF
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 
 
 class OutputChunk:

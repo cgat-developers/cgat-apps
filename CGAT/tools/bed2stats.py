@@ -69,7 +69,7 @@ Command line options
 import sys
 import collections
 import CGAT.Bed as Bed
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.IndexedFasta as IndexedFasta
 
 

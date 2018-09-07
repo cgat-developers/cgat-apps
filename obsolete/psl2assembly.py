@@ -56,7 +56,7 @@ import scipy
 import scipy.stats
 import numpy
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Blat as Blat
 import CGAT.IndexedFasta as IndexedFasta
 import alignlib_lite

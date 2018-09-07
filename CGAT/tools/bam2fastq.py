@@ -43,8 +43,8 @@ import os
 import sys
 import tempfile
 import shutil
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 import pysam
 

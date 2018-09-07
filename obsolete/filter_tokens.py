@@ -30,7 +30,7 @@ Command line options
 '''
 import sys
 import re
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 USAGE = """python %s [token1 [token2 [...]]] < stdin > stdout
 

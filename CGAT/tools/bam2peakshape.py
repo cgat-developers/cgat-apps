@@ -157,8 +157,8 @@ Command line options
 import sys
 import os
 import re
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import pysam
 import CGAT.Bed as Bed
 import numpy

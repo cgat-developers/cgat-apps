@@ -15,7 +15,7 @@ The script currently implements the following methods:
 
 import sys
 import re
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.IndexedFasta as IndexedFasta
 
 

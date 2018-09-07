@@ -88,8 +88,8 @@ import sys
 import re
 import pysam
 
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 import CGAT.FastqTools as fastqtools
 
 

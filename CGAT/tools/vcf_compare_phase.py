@@ -7,7 +7,7 @@ import os
 import pysam
 import collections
 import string
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def main(argv=sys.argv):

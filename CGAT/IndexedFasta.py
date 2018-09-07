@@ -48,8 +48,8 @@ import zlib
 import gzip
 import tempfile
 import io
-from CGATCore import Experiment as E
-import CGATCore.IOTools as IOTools
+from cgatcore import Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.Genomics as Genomics
 from CGAT.AString import AString
 import pysam

@@ -41,7 +41,7 @@ import optparse
 import pysam
 import collections
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.FastaIterator as FastaIterator
 
 

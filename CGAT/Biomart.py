@@ -16,7 +16,7 @@ Reference
 
 '''
 
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 
 from rpy2.robjects import r as R
 import rpy2.robjects.numpy2ri

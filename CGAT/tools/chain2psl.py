@@ -49,7 +49,7 @@ Command line options
 """
 
 import sys
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Blat as Blat
 import alignlib_lite
 

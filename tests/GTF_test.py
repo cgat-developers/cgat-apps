@@ -2,7 +2,7 @@ import unittest
 import os
 
 import CGAT.GTF as GTF
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 
 
 class TestIteration(unittest.TestCase):

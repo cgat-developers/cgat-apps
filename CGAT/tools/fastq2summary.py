@@ -58,7 +58,7 @@ Command line options
 
 import sys
 import numpy as np
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Fastq as Fastq
 
 

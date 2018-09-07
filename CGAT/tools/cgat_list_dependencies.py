@@ -36,8 +36,8 @@ import glob
 import os
 import collections
 import numpy
-import CGATCore.Experiment as E
-import CGATCore.Requirements as Requirements
+import cgatcore.Experiment as E
+import cgatcore.Requirements as Requirements
 
 
 def main(argv=None):

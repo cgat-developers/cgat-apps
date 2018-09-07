@@ -32,7 +32,7 @@ import json
 import re
 import pandas
 import pysam
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def generate_from_bed(bam_file, bed_file, **kwargs):

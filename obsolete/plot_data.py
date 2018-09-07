@@ -34,7 +34,7 @@ Command line options
 '''
 import sys
 import os
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import numpy
 import numpy.ma as MA
 

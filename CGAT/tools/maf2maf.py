@@ -7,9 +7,9 @@ This script currently only processes pairwise MAF alignments.
 import sys
 import re
 import collections
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
-from CGATCore.Toolkit import parse_region_string
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
+from cgatcore.Toolkit import parse_region_string
 
 
 def iterate_maf_blocks(infile):

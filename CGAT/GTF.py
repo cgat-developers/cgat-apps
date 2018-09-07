@@ -40,7 +40,7 @@ from CGAT import Intervals as Intervals
 from CGAT import Genomics as Genomics
 from CGAT import IndexedGenome as IndexedGenome
 import pysam
-from CGATCore import IOTools as IOTools
+from cgatcore import IOTools as IOTools
 
 
 def iterator(infile):

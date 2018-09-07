@@ -129,9 +129,9 @@ import sys
 import re
 import numpy
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.GTF as GTF
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.NCL as NCL
 
 

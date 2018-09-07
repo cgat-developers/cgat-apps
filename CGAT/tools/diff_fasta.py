@@ -92,8 +92,8 @@ Command line options
 import sys
 import re
 import CGAT.FastaIterator as FastaIterator
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 def MapIdentifiers(seqs, pattern):

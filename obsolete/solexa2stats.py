@@ -42,7 +42,7 @@ Command line options
 import sys
 import collections
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def main(argv=None):

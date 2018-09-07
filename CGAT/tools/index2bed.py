@@ -24,7 +24,7 @@ Command line options
 import sys
 import re
 import CGAT.IndexedFasta as IndexedFasta
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def getFixedWidthWindows(map_contig2size, window_size):

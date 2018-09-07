@@ -14,7 +14,7 @@ import subprocess
 import shutil
 
 from types import *
-from CGATCore import Experiment as Experiment
+from cgatcore import Experiment as Experiment
 from CGAT import Mali as Mali
 
 

@@ -30,8 +30,8 @@ Command line options
 '''
 import sys
 
-import CGATCore.Experiment as E
-import CGATCore.CSV as CSV
+import cgatcore.Experiment as E
+import cgatcore.CSV as CSV
 import hashlib
 
 

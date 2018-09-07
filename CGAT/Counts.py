@@ -12,8 +12,8 @@ Code
 ----
 
 '''
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import pandas as pd
 from rpy2.robjects import r as R
 from rpy2.robjects import pandas2ri

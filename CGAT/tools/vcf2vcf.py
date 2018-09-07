@@ -49,8 +49,8 @@ import numpy
 import re
 import pysam
 import quicksect
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 def read_liftover_chain(infile):
@@ -219,7 +219,7 @@ def main(argv=None):
             len(header) - 1,
             '##FORMAT=<ID=GT,Number=1,Type=String,Description='
             '"Genotypes of reference and alternative alleles, '
-            'added by CGATCore vcf2vcf.">')
+            'added by cgatcore vcf2vcf.">')
 
         header = "\n".join(header)
         if options.normal_sample_regex:

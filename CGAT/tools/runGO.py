@@ -157,9 +157,9 @@ Command line options
 '''
 import sys
 import collections
-import CGATCore.Database as Database
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Database as Database
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 import CGAT.GO as GO
 

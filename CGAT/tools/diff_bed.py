@@ -58,8 +58,8 @@ Command line options
 
 import sys
 import re
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.Bed as Bed
 import numpy
 

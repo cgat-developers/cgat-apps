@@ -41,7 +41,7 @@ import re
 import itertools
 import collections
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Bed as Bed
 import CGAT.IndexedFasta as IndexedFasta
 

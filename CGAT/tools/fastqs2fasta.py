@@ -79,9 +79,9 @@ Command line options
 import sys
 from itertools import zip_longest
 
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.Fastq as Fastq
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 class PairedReadError(Exception):

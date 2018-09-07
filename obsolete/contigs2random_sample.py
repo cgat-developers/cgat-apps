@@ -47,9 +47,9 @@ import sys
 import optparse
 import glob
 import random
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.FastaIterator as FastaIterator
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 
 
 def main(argv=None):

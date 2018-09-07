@@ -36,8 +36,8 @@ import copy
 import platform
 
 from nose.tools import ok_
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import TestUtils
 
 # handle to original E.Start function

@@ -50,8 +50,8 @@ import sys
 import optparse
 import pysam
 import CGAT.GTF as GTF
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 import numpy as np
 
 

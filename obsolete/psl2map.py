@@ -35,7 +35,7 @@ Command line options
 
 import sys
 import CGAT.Intervals as Intervals
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Histogram as Histogram
 import CGAT.Blat as Blat
 import CGAT.GTF as GTF

@@ -133,8 +133,8 @@ import re
 import random
 import pysam
 import numpy
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.Fastq as Fastq
 import CGAT.Genomics as Genomics
 

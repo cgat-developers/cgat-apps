@@ -85,8 +85,8 @@ from future.moves.urllib.request import urlopen
 import collections
 import xml.etree.ElementTree as ET
 
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 from Bio import Entrez
 
 MAP_CODE2DESIGN = \

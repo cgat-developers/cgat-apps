@@ -37,8 +37,8 @@ import subprocess
 
 from rpy2.robjects import r as R
 
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import CGAT.BamTools as BamTools
 
 

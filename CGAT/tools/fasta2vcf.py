@@ -9,7 +9,7 @@ to a fasta file.
 
 import sys
 import random
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import pysam
 
 

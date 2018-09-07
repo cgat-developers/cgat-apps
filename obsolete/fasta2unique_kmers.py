@@ -68,8 +68,8 @@ import numpy as np
 import resource
 
 import CGAT.FastaIterator as FastaIterator
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 
 
 def using(point=""):

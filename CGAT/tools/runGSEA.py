@@ -117,7 +117,7 @@ Command line options
 --------------------
 '''
 import sys
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import numpy as np
 #import matplotlib as mpl #noqa:E402
 #mpl.use('Agg') #noqa:E402

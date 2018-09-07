@@ -38,8 +38,8 @@ import glob
 import collections
 import pandas
 
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 
 
 def read_tables(filenames, *args, **kwargs):

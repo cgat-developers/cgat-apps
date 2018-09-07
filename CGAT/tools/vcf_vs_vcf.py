@@ -12,8 +12,8 @@ import sys
 import re
 import pysam
 import pandas
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 def read_vcf_positions_into_dataframe(filename, filters=None):

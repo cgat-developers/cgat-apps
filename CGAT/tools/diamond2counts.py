@@ -40,10 +40,10 @@ Command line options
 
 import sys
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 from CGAT.Diamond import *
 import collections
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 
 
 def readCogMap(cog_map):

@@ -23,8 +23,8 @@ info
 import sys
 import re
 import pandas
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 def compute_table_summary(table):

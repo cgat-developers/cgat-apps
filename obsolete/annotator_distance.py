@@ -44,8 +44,8 @@ import itertools
 import CGAT.GTF as GTF
 import CGAT.Bed as Bed
 import CGAT.Intervals as Intervals
-import CGATCore.IOTools as IOTools
-import CGATCore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.Experiment as E
 import bx.intervals.intersection
 import numpy
 import random

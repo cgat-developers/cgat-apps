@@ -29,9 +29,9 @@ Command line options
 
 '''
 import sys
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
-import CGATCore.CSV as CSV
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
+import cgatcore.CSV as CSV
 import csv
 import hashlib
 

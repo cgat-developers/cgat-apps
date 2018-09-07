@@ -90,8 +90,8 @@ import re
 import itertools
 import collections
 
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 import pysam
 import CGAT.Intervals as Intervals
 

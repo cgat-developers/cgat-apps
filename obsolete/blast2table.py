@@ -90,7 +90,7 @@ they are found::
 
 import sys
 import collections
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 BlastResult = collections.namedtuple(
     "blastresult",

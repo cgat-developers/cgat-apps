@@ -39,7 +39,7 @@ import socket
 import pysam
 
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 class IGV(object):

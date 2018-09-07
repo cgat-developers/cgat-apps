@@ -20,10 +20,10 @@ import scipy.stats
 import scipy.special
 import numpy
 from CGAT import Stats as Stats
-from CGATCore import Experiment as E
-from CGATCore import IOTools as IOTools
-from CGATCore import Database as Database
-from CGATCore import CSV as CSV
+from cgatcore import Experiment as E
+from cgatcore import IOTools as IOTools
+from cgatcore import Database as Database
+from cgatcore import CSV as CSV
 
 from rpy2.robjects import r as R
 

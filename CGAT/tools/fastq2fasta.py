@@ -23,7 +23,7 @@ import sys
 import pysam
 import math
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def main(argv=sys.argv):

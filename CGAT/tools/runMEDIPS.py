@@ -33,11 +33,11 @@ import math
 from rpy2.robjects import r as R
 import rpy2.rinterface
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Expression as Expression
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.IndexedFasta as IndexedFasta
-import CGATCore.CSV as CSV
+import cgatcore.CSV as CSV
 import CGAT.BamTools as BamTools
 
 

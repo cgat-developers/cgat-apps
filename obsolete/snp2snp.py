@@ -30,7 +30,7 @@ import sys
 import glob
 import pysam
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 def validateSNPs(options, fastafile):

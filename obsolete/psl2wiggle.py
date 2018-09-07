@@ -38,10 +38,10 @@ import tempfile
 import subprocess
 import shutil
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Blat as Blat
 import CGAT.IndexedFasta as IndexedFasta
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import numpy
 
 

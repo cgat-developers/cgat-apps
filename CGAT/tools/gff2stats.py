@@ -71,10 +71,10 @@ Command line options
 '''
 import sys
 import collections
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.GTF as GTF
 import CGAT.Stats as Stats
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.Intervals as Intervals
 
 

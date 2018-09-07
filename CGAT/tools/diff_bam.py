@@ -76,7 +76,7 @@ Command line options
 import sys
 import itertools
 import pysam
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 
 
 class multiway_groupby(object):

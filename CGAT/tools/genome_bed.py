@@ -23,7 +23,7 @@ Command line options
 """
 
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import sys
 import CGAT.IndexedFasta as IndexedFasta
 

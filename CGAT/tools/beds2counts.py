@@ -61,10 +61,10 @@ try:
 except ImportError:
     pass
 
-import CGATCore.Experiment as E
+import cgatcore.Experiment as E
 import CGAT.Bed as Bed
 import collections
-import CGATCore.IOTools as IOTools
+import cgatcore.IOTools as IOTools
 import CGAT.IndexedGenome as IndexedGenome
 
 

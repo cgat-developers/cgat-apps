@@ -42,8 +42,8 @@ import pandas.io.sql as pdsql
 import numpy as np
 from rpy2.robjects import r as R
 from rpy2.robjects.numpy2ri import numpy2ri
-import CGATCore.Experiment as E
-import CGATCore.IOTools as IOTools
+import cgatcore.Experiment as E
+import cgatcore.IOTools as IOTools
 
 
 def testSignificanceOfMatrices(background,
