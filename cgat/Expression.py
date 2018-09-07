@@ -120,7 +120,7 @@ def pvaluesToSignficant(p_values, fdr):
     return [int(x < fdr) for x in p_values]
 
 
-class experimentalDesign(object):
+class ExperimentalDesign(object):
     """Objects representing experimental designs.
 
     This class takes an experimental design in tabular

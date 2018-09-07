@@ -356,7 +356,7 @@ def main(argv=None):
         raise ValueError("Must provide a reference group ('--reference-group')")
 
     # create Design object
-    design = Expression.experimentalDesign(
+    design = Expression.ExperimentalDesign(
         pd.read_csv(iotools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
 
@@ -407,7 +407,7 @@ def main(argv=None):
             "need to specify the location of the .txt counts files")
 
         # create Design object
-        design = Expression.experimentalDesign(
+        design = Expression.ExperimentalDesign(
             pd.read_csv(iotools.open_file(options.input_filename_design, "r"),
                         sep="\t", index_col=0, comment="#"))
 
