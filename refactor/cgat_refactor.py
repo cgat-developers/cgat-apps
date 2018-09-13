@@ -86,8 +86,8 @@ import re
 import glob
 import pandas
 
-import CGAT.Experiment as E
-import CGAT.IOTools as IOTools
+import CGAT.experiment as E
+import CGAT.iotools as iotools
 
 
 def checkUnique(l):
@@ -138,7 +138,7 @@ def updateFiles(dirs, map_old2new, counter,
 
                 counter.files_examined += 1
                 fn = os.path.join(root, f)
-                with IOTools.openFile(fn, "r") as inf:
+                with iotools.openFile(fn, "r") as inf:
                     old_data = inf.read()
 
                 changed = False
@@ -157,7 +157,7 @@ def updateFiles(dirs, map_old2new, counter,
                     counter.files_changed += 1
 
                     if not dry_run:
-                        with IOTools.openFile(fn, "w") as outf:
+                        with iotools.openFile(fn, "w") as outf:
                             outf.write(new_data)
 
 
@@ -228,7 +228,7 @@ def main(argv=None):
     if options.rename_scripts or options.split_prefix:
 
         if options.rename:
-            with IOTools.openFile(options.rename_scripts, "r") as inf:
+            with iotools.openFile(options.rename_scripts, "r") as inf:
                 for line in inf:
                     if line.startswith("#"):
                         continue
@@ -283,7 +283,7 @@ def main(argv=None):
     elif options.rename_options:
         # read refactoring guides
         table = pandas.read_csv(
-            IOTools.openFile(options.rename_options),
+            iotools.openFile(options.rename_options),
             sep="\t")
 
         # select all options that need to renamed

@@ -5,7 +5,7 @@ import random
 import tempfile
 import shutil
 import os
-from CGAT.NCL import *
+from cgat.NCL import *
 
 
 class TestNCLSimpleNegativeIntervals(unittest.TestCase):
@@ -81,7 +81,7 @@ class TestNCLSimple(unittest.TestCase):
 
         index = self.buildIndex(self.l)
 
-        for x in xrange(0, len(bits)):
+        for x in range(0, len(bits)):
             r = len(list(index.find(x, x + 1)))
             self.assertEqual(
                 r > 0, bits[x], "invalid return at position %i (expected %i, got %i)" % (x, bits[x], r))
@@ -91,7 +91,7 @@ class TestNCLSimple(unittest.TestCase):
 
         index = self.buildIndex(self.l)
 
-        for x in xrange(0, len(bits)):
+        for x in range(0, len(bits)):
             self.assertRaises(IndexError, index.find, x, x)
 
 

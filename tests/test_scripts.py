@@ -41,7 +41,7 @@ PYTHON_VERSION = platform.python_version()
 SUBDIRS = ("gpipe", "optic")
 
 # directory where tools are located, relative to root
-TOOLS_DIR = os.path.join("CGAT", "tools")
+TOOLS_DIR = os.path.join("cgat", "tools")
 
 # Setup logging
 LOGFILE = open("test_scripts.log", "a")
@@ -251,9 +251,9 @@ def test_scripts():
                 if "manifest" in values:
                     # take scripts defined in the MANIFEST.in file
                     test_dirs = [x for x in open("MANIFEST.in")
-                                 if x.startswith("include CGAT/tools") and
+                                 if x.startswith("include cgat/tools") and
                                  x.endswith(".py\n")]
-                    test_dirs = [re.sub("include\s*CGAT/tools/", "tests/",
+                    test_dirs = [re.sub("include\s*cgat/tools/", "tests/",
                                         x[:-1]) for x in test_dirs]
 
                 if "regex" in values:

@@ -1,6 +1,6 @@
 import unittest
 import pandas
-import CGAT.Counts as Counts
+import cgat.Counts as Counts
 
 
 class TestCountsClass(unittest.TestCase):
@@ -21,5 +21,10 @@ class TestCountsClass(unittest.TestCase):
 
     def test_removeSamples_fails_with_string(self):
         self.assertRaises(
+            TypeError,
             self.counts.removeSamples,
             min_counts_per_sample='3')
+
+
+if __name__ == "__main__":
+    unittest.main()

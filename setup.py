@@ -63,7 +63,7 @@ IS_OSX = sys.platform == 'darwin'
 ########################################################################
 ########################################################################
 # collect CGAT version
-sys.path.insert(0, "CGAT")
+sys.path.insert(0, "cgat")
 import version
 
 version = version.__version__
@@ -170,11 +170,11 @@ elif major == 3:
     pass
 
 cgat_packages = find_packages()
-cgat_package_dirs = {'CGAT': 'CGAT'}
+cgat_package_dirs = {'cgat': 'cgat'}
 
 ##########################################################
 ##########################################################
-# Classifiers
+# classifiers
 classifiers = """
 Development Status :: 3 - Alpha
 Intended Audience :: Science/Research
@@ -215,32 +215,32 @@ extra_link_args_pysam = ['-Wl,-rpath,{}'.format(x) for x in pysam_libdirs]
 
 extensions = [
     Extension(
-        'CGAT.Components',
-        ['CGAT/Components/Components.pyx',
-         'CGAT/Components/connected_components.cpp', ],
+        'cgat.Components',
+        ['cgat/Components/Components.pyx',
+         'cgat/Components/connected_components.cpp', ],
         library_dirs=[],
         libraries=[],
         language="c++",
     ),
     Extension(
-        "CGAT.NCL.cnestedlist",
-        ["CGAT/NCL/cnestedlist.pyx",
-         "CGAT/NCL/intervaldb.c"],
+        "cgat.NCL.cnestedlist",
+        ["cgat/NCL/cnestedlist.pyx",
+         "cgat/NCL/intervaldb.c"],
         library_dirs=[],
         libraries=[],
         language="c",
     ),
     Extension(
-        "CGAT.Timeseries.cmetrics",
-        ["CGAT/Timeseries/cmetrics.pyx"],
+        "cgat.Timeseries.cmetrics",
+        ["cgat/Timeseries/cmetrics.pyx"],
         include_dirs=[numpy.get_include()],
         library_dirs=[],
         libraries=[],
         language="c",
     ),
     Extension(
-        "CGAT.GeneModelAnalysis",
-        ["CGAT/GeneModelAnalysis.pyx"],
+        "cgat.GeneModelAnalysis",
+        ["cgat/GeneModelAnalysis.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
         library_dirs=[],
         libraries=[],
@@ -248,8 +248,8 @@ extensions = [
         language="c",
     ),
     Extension(
-        "CGAT.BamTools.bamtools",
-        ["CGAT/BamTools/bamtools.pyx"],
+        "cgat.BamTools.bamtools",
+        ["cgat/BamTools/bamtools.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
@@ -258,8 +258,8 @@ extensions = [
         extra_link_args=extra_link_args_pysam,
     ),
     Extension(
-        "CGAT.BamTools.geneprofile",
-        ["CGAT/BamTools/geneprofile.pyx"],
+        "cgat.BamTools.geneprofile",
+        ["cgat/BamTools/geneprofile.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
@@ -268,8 +268,8 @@ extensions = [
         extra_link_args=extra_link_args_pysam,
     ),
     Extension(
-        "CGAT.BamTools.peakshape",
-        ["CGAT/BamTools/peakshape.pyx"],
+        "cgat.BamTools.peakshape",
+        ["cgat/BamTools/peakshape.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
@@ -278,8 +278,8 @@ extensions = [
         extra_link_args=extra_link_args_pysam,
     ),
     Extension(
-        "CGAT.VCFTools",
-        ["CGAT/VCFTools/vcftools.pyx"],
+        "cgat.VCFTools",
+        ["cgat/VCFTools/vcftools.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
@@ -288,8 +288,8 @@ extensions = [
         extra_link_args=extra_link_args_pysam,
     ),
     Extension(
-        "CGAT.FastqTools",
-        ["CGAT/FastqTools/fastqtools.pyx"],
+        "cgat.FastqTools",
+        ["cgat/FastqTools/fastqtools.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
@@ -302,15 +302,15 @@ extensions = [
 
 setup(
     # package information
-    name='CGAT',
+    name='cgat',
     version=version,
-    description='CGAT : the Computational Genomics Analysis Toolkit',
+    description='cgat : the Computational Genomics Analysis Toolkit',
     author='Andreas Heger',
     author_email='andreas.heger@gmail.com',
     license="MIT",
     platforms=["any"],
     keywords="computational genomics",
-    long_description='CGAT : the Computational Genomics Analysis Toolkit',
+    long_description='cgat : the Computational Genomics Analysis Toolkit',
     classifiers=[_f for _f in classifiers.split("\n") if _f],
     url="http://www.cgat.org/cgat/Tools/",
     # package contents
@@ -318,7 +318,7 @@ setup(
     package_dir=cgat_package_dirs,
     include_package_data=True,
     entry_points={
-        'console_scripts': ['cgat = CGAT.cgat:main']
+        'console_scripts': ['cgat = cgat.cgat:main']
     },
     # dependencies
     install_requires=install_requires,

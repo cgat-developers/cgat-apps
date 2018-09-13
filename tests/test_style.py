@@ -25,8 +25,8 @@ from nose.tools import ok_
 # DIRECTORIES to examine for python modules/scripts
 EXPRESSIONS = (
     ('tests', 'tests/*.py'),
-    ('scripts', 'CGAT/scripts/*.py'),
-    ('CGAT', 'CGAT/*.py'))
+    ('scripts', 'cgat/tools/*.py'),
+    ('cgat', 'cgat/*.py'))
 
 # Codes to ignore in the pep8 BaseReport
 IGNORE = set(('E101',  # indentation contains mixed spaces and tabs

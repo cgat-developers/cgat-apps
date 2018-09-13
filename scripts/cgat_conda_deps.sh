@@ -75,7 +75,7 @@ PY_DEPS[weblogolib]="python-weblogo"
 PY_DEPS[yaml]="pyyaml"
 PY_DEPS[Experiment]="cgat-core"
 PY_DEPS[IOTools]="cgat-core"
-PY_DEPS[CGATCore]="cgat-core"
+PY_DEPS[cgatcore]="cgat-core"
 PY_DEPS[quicksect]="quicksect"
 
 
@@ -447,7 +447,7 @@ else
    # Also bring associated module files
    for f in `find ${TMP_D}` ; do awk '/^import CGAT/ {print $2}' $f 2>/dev/null ; done \
     | sort -u \
-    | egrep -v 'CGATCore|NCL|GeneModelAnalysis|BamTools|FastqTools' \
+    | egrep -v 'cgatcore|NCL|GeneModelAnalysis|BamTools|FastqTools' \
     | sed 's/\./\//g' \
     > ${TMP_D}/imported-modules
 
