@@ -41,3 +41,4 @@ dependencies:
 - r-coloc
 - r-ggplot2
 - r-qqman
+- seaborn

@@ -41,3 +41,4 @@ dependencies:
 - sortedcontainers=1.5.9
 - ucsc-wigtobigwig=357
 - zlib=1.2.11
+- seaborn

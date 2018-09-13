@@ -31,6 +31,7 @@ dependencies:
 - r-base=3.4.1
 - r-deconstructsigs=1.8.0
 - rpy2=2.8.5
+- seaborn
 - scipy=0.19.1
 - setuptools=39.0.1
 - six=1.11.0

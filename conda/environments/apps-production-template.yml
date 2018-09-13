@@ -24,6 +24,7 @@ dependencies:
 - python-lzo
 - pyyaml
 - quicksect
+- seaborn
 - rpy2=2.8.5
 - scipy=0.19.1
 - setuptools
