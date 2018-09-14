@@ -23,7 +23,7 @@ dependencies:
 - pandas=0.22.0
 - pybedtools=0.7.10
 - pybigwig=0.3.5
-- pysam=0.14.0
+- pysam=0.15.0.1
 - python=3.6.4
 - python-lzo=1.11
 - pyyaml=3.12
