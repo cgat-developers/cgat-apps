@@ -409,7 +409,7 @@ def main(argv=None):
                 options.input_filename_design)
 
             # create Design object
-            design = Expression.experimentalDesign(
+            design = Expression.ExperimentalDesign(
                 pd.read_csv(
                     iotools.open_file(options.input_filename_design, "r"),
                     sep="\t", index_col=0, comment="#"))
