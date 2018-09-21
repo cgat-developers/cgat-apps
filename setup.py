@@ -231,14 +231,6 @@ extensions = [
         language="c",
     ),
     Extension(
-        "cgat.Timeseries.cmetrics",
-        ["cgat/Timeseries/cmetrics.pyx"],
-        include_dirs=[numpy.get_include()],
-        library_dirs=[],
-        libraries=[],
-        language="c",
-    ),
-    Extension(
         "cgat.GeneModelAnalysis",
         ["cgat/GeneModelAnalysis.pyx"],
         include_dirs=pysam.get_include() + [numpy.get_include()],
