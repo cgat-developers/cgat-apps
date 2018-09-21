@@ -37,8 +37,4 @@ dependencies:
 - six
 - sortedcontainers
 # R deps
-- r-base=3.4.1
-- r-coloc
-- r-ggplot2
-- r-qqman
 - seaborn

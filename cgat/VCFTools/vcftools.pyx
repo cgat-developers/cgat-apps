@@ -21,14 +21,14 @@ import pandas
 import re
 import string
 import sys
-
-import rpy2.robjects
-from rpy2.robjects import r as R
-from rpy2.robjects.packages import importr
-from rpy2.robjects import pandas2ri
-pandas2ri.activate()
-
 import cgatcore.experiment as E
+
+
+# deprecated: avoid R dependencies in cgat-apps
+# import rpy2.robjects
+# from rpy2.robjects import r as R
+# from rpy2.robjects.packages import importr
+# from rpy2.robjects import pandas2ri
 
 cimport numpy
 
@@ -440,73 +440,74 @@ cdef class CounterMutationalSignatureProfile(CounterMutationalSignature):
     cdef object counts_method
 
     def __init__(self, *args, **kwargs):
-        CounterMutationalSignature.__init__(self, *args, **kwargs)
-        deconstructSigs = importr('deconstructSigs')
-        R('''library(deconstructSigs)''')
+        raise NotImplementedError("R dependencies are not resolved")
+    #     CounterMutationalSignature.__init__(self, *args, **kwargs)
+    #     deconstructSigs = importr('deconstructSigs')
+    #     R('''library(deconstructSigs)''')
 
-        self.signatures_database = "signatures.cosmic"
-        self.counts_method = "genome"
+    #     self.signatures_database = "signatures.cosmic"
+    #     self.counts_method = "genome"
         
-    def output(self):
+    # def output(self):
 
-        colnames = list(R('''colnames(randomly.generated.tumors)'''))
+    #     colnames = list(R('''colnames(randomly.generated.tumors)'''))
 
-        # colnames are of format:
-        # [1] "A[C>A]A" "A[C>A]C" "A[C>A]G" "A[C>A]T" "C[C>A]A" "C[C>A]C" "C[C>A]G"
-        # [8] "C[C>A]T" "G[C>A]A" "G[C>A]C" "G[C>A]G" "G[C>A]T" "T[C>A]A" "T[C>A]C"
+    #     # colnames are of format:
+    #     # [1] "A[C>A]A" "A[C>A]C" "A[C>A]G" "A[C>A]T" "C[C>A]A" "C[C>A]C" "C[C>A]G"
+    #     # [8] "C[C>A]T" "G[C>A]A" "G[C>A]C" "G[C>A]G" "G[C>A]T" "T[C>A]A" "T[C>A]C"
 
-        rows = []
-        samples = []
-        for sample, dd in self.signatures.items():
-            values = {}
-            for cls, d in dd.items():
-                for context, count in d.items():
-                    # context = "G.G", cls = C>T
-                    values["{}[{}]{}".format(
-                        context[0], cls, context[2])] = count
+    #     rows = []
+    #     samples = []
+    #     for sample, dd in self.signatures.items():
+    #         values = {}
+    #         for cls, d in dd.items():
+    #             for context, count in d.items():
+    #                 # context = "G.G", cls = C>T
+    #                 values["{}[{}]{}".format(
+    #                     context[0], cls, context[2])] = count
 
-            extra = set(values.keys()).difference(colnames)
-            missing = set(colnames).difference(values.keys())
-            if len(extra) > 0:
-                raise AssertionError(
-                    "unexpected additional columns in sample {}: {}".format(
-                        sample, sorted(extra)))
-            if len(missing) > 0:
-                E.warn("missing counts for sample {}: {} will be set to 0".format(
-                    sample, sorted(missing)))
+    #         extra = set(values.keys()).difference(colnames)
+    #         missing = set(colnames).difference(values.keys())
+    #         if len(extra) > 0:
+    #             raise AssertionError(
+    #                 "unexpected additional columns in sample {}: {}".format(
+    #                     sample, sorted(extra)))
+    #         if len(missing) > 0:
+    #             E.warn("missing counts for sample {}: {} will be set to 0".format(
+    #                 sample, sorted(missing)))
 
-            samples.append(sample)
-            rows.append([values.get(x, 0) for x in colnames])
+    #         samples.append(sample)
+    #         rows.append([values.get(x, 0) for x in colnames])
 
-        df = pandas.DataFrame.from_records(rows,
-                                           columns=colnames,
-                                           index=samples)
+    #     df = pandas.DataFrame.from_records(rows,
+    #                                        columns=colnames,
+    #                                        index=samples)
 
-        # convert to R dataframe. The conversion translates special charactes
-        # such as []< to ., so set column names explicitely.
-        rdf = pandas2ri.py2ri(df)
-        rdf.colnames = rpy2.robjects.StrVector(colnames)
-        R.assign("rdf", rdf)
-        results = []
-        for sample in df.index:
-            R('''result = whichSignatures(rdf,
-            sample.id='{sample}',
-            signatures.ref={signatures},
-            contexts.needed=TRUE,
-            signature.cutoff=0,
-            tri.counts.method="{counts_method}")'''.format(
-                sample=sample,
-                signatures=self.signatures_database,
-                counts_method=self.counts_method))
-            results.append(R('''result$weights'''))
+    #     # convert to R dataframe. The conversion translates special charactes
+    #     # such as []< to ., so set column names explicitely.
+    #     rdf = pandas2ri.py2ri(df)
+    #     rdf.colnames = rpy2.robjects.StrVector(colnames)
+    #     R.assign("rdf", rdf)
+    #     results = []
+    #     for sample in df.index:
+    #         R('''result = whichSignatures(rdf,
+    #         sample.id='{sample}',
+    #         signatures.ref={signatures},
+    #         contexts.needed=TRUE,
+    #         signature.cutoff=0,
+    #         tri.counts.method="{counts_method}")'''.format(
+    #             sample=sample,
+    #             signatures=self.signatures_database,
+    #             counts_method=self.counts_method))
+    #         results.append(R('''result$weights'''))
 
-        results = pandas.concat(results, axis=0)
-        results.columns = [re.sub("[.]", "", x).lower() for x in results.columns]
-        results.index.name = "sample"
-        results = results.reset_index()
+    #     results = pandas.concat(results, axis=0)
+    #     results.columns = [re.sub("[.]", "", x).lower() for x in results.columns]
+    #     results.index.name = "sample"
+    #     results = results.reset_index()
 
-        with E.open_output_file("mutation_profile_signatures") as outf:
-            results.to_csv(outf, sep="\t", index=False)
+    #     with E.open_output_file("mutation_profile_signatures") as outf:
+    #         results.to_csv(outf, sep="\t", index=False)
 
 
 cdef class CounterGCContext(Counter):

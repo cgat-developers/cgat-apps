@@ -31,8 +31,6 @@ dependencies:
 - six
 - sortedcontainers
 # R dependencies
-- r-base
-- r-deconstructsigs
 # Misc dependencies
 - bedtools
 - coreutils

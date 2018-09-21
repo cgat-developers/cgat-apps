@@ -23,7 +23,7 @@ from rpy2.robjects import r as R
 from cgat import Stats as Stats
 from cgatcore import experiment as E
 from cgatcore import iotools as iotools
-from cgatcore import database as Database
+from cgatcore import database as database
 from cgatcore import csv as csv
 
 MIN_FLOAT = sys.float_info.min
@@ -738,7 +738,7 @@ def ReadGene2GOFromDatabase(dbhandle, go_type, database, species):
     """
 
     statement = GetGOStatement(go_type, database, species)
-    result = Database.executewait(dbhandle, statement,
+    result = database.executewait(dbhandle, statement,
                                   retries=0).fetchall()
 
     gene2go = {}
@@ -781,7 +781,7 @@ def DumpGOFromDatabase(outfile,
                                    options.database_url,
                                    options.species)
 
-        results = Database.executewait(
+        results = database.executewait(
             dbhandle, statement, retries=0).fetchall()
 
         for result in results:
