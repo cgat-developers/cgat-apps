@@ -14,8 +14,6 @@ import scipy
 import scipy.stats
 import scipy.interpolate
 import collections
-from rpy2.robjects import r as R
-import rpy2.robjects as ro
 from functools import reduce
 
 

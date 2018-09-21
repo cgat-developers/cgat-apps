@@ -21,14 +21,14 @@ import pandas
 import re
 import string
 import sys
-
-import rpy2.robjects
-from rpy2.robjects import r as R
-from rpy2.robjects.packages import importr
-from rpy2.robjects import pandas2ri
-pandas2ri.activate()
-
 import cgatcore.experiment as E
+
+
+# deprecated: avoid R dependencies in cgat-apps
+# import rpy2.robjects
+# from rpy2.robjects import r as R
+# from rpy2.robjects.packages import importr
+# from rpy2.robjects import pandas2ri
 
 cimport numpy
 
@@ -440,6 +440,7 @@ cdef class CounterMutationalSignatureProfile(CounterMutationalSignature):
     cdef object counts_method
 
     def __init__(self, *args, **kwargs):
+        raise NotImplementeError("R dependencies are not resolved")
         CounterMutationalSignature.__init__(self, *args, **kwargs)
         deconstructSigs = importr('deconstructSigs')
         R('''library(deconstructSigs)''')
