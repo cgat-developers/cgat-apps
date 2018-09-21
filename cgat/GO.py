@@ -19,13 +19,12 @@ import scipy
 import scipy.stats
 import scipy.special
 import numpy
+from rpy2.robjects import r as R
 from cgat import Stats as Stats
 from cgatcore import experiment as E
 from cgatcore import iotools as iotools
 from cgatcore import database as database
 from cgatcore import csv as csv
-
-from rpy2.robjects import r as R
 
 MIN_FLOAT = sys.float_info.min
 
