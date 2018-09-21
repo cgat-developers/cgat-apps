@@ -128,6 +128,12 @@ def doLogLikelihoodTest(complex_ll, complex_np,
     return l
 
 
+class FDRResult:
+
+    def __init__(self):
+        pass
+
+
 class BinomialTest:
 
     def __init__(self):
