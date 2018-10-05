@@ -31,7 +31,7 @@ Command line options
 import sys
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
-from cgatcore.csv import readTable
+from cgatcore.csvutils import readTable
 import csv
 import hashlib
 

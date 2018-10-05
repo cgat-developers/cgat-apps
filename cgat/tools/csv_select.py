@@ -34,7 +34,7 @@ import sys
 import csv
 import _csv
 import cgatcore.experiment as E
-from cgatcore.csv import CommentStripper, DictReaderLarge
+from cgatcore.csvutils import CommentStripper, DictReaderLarge
 
 
 def main(argv=None):

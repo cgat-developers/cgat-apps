@@ -42,7 +42,7 @@ import csv
 import six
 import _csv
 import hashlib
-from cgatcore.csv import CommentStripper, DictReaderLarge
+from cgatcore.csvutils import CommentStripper, DictReaderLarge
 
 
 class UniqueBuffer:
