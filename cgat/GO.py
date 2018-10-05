@@ -24,7 +24,7 @@ from cgat import Stats as Stats
 from cgatcore import experiment as E
 from cgatcore import iotools as iotools
 from cgatcore import database as database
-from cgatcore import csv as csv
+from cgatcore import csvutils as csvutils
 
 MIN_FLOAT = sys.float_info.min
 
@@ -906,7 +906,7 @@ def ReadGeneLists(filename_genes, gene_pattern=None):
     else:
         infile = iotools.open_file(filename_genes, "r")
 
-    headers, table = csv.readTable(infile.readlines(), as_rows=False)
+    headers, table = csvutils.readTable(infile.readlines(), as_rows=False)
 
     if filename_genes != "-":
         infile.close()
