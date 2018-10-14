@@ -183,7 +183,7 @@ def fetch_TCGA_fastq(acc, filename, token=None, outdir="."):
     statement.append("rm -r %(out_name)s")
     statement.append("rename %(outdir)s/*_1.fastq.gz %(outdir)s/%(acc)s_1.fastq.gz %(outdir)s/*")
     statement.append("rename %(outdir)s/*_2.fastq.gz %(outdir)s/%(acc)s_2.fastq.gz %(outdir)s/*")
-    statement = "; checkpoint;".join(statement)
+    statement = " && ".join(statement)
 
     return statement % locals()
 
@@ -221,7 +221,7 @@ def fetch_TCGA_BAM(acc, token, outdir=".", filter_bed=None):
                                    %(to_prefix)s.bam
                                    %(from_prefix)s''')
     
-    statement = "; checkpoint;".join(statement)
+    statement = " && ".join(statement)
     return statement % locals(), to_prefix + ".bam"
 
 
@@ -242,4 +242,4 @@ def process_remote_BAM(infile, token=None, outdir=".", filter_bed=None):
             raise ValueError(
                 "Repository %s not implimented for BAM files" % f[0])
 
-    return "; checkpoint;".join(statement), files
+    return " && ".join(statement), files
