@@ -51,7 +51,7 @@ trap 'error_handler ${LINENO} $? ${BASH_COMMAND}' ERR INT TERM
 
 # log installation information
 log() {
-   echo "# install-CGAT-tools.sh log | `hostname` | `date` | $1 "
+   echo "# install.sh log | `hostname` | `date` | $1 "
 }
 
 # report error and exit
@@ -733,29 +733,29 @@ cleanup_env() {
 help_message() {
 echo
 echo " This script uses Conda to install cgat-apps. To proceed, please type:"
-echo " ./install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " The default install folder will be: $HOME/cgat-install"
 echo
 echo " It will create a new Conda environment ready to run the CGAT code."
 echo
 echo " It is also possible to install/test a specific branch of the code on github:"
-echo " ./install-CGAT-tools.sh --devel --branch <name-of-branch> [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --devel --branch <name-of-branch> [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " By default, cgat-apps will install the master branch of cgat-core:"
 echo " https://github.com/cgat-developers/cgat-core"
 echo
 echo " Change that with:"
-echo " ./install-CGAT-tools.sh --devel --core-branch <name-of-branch>"
+echo " ./install.sh --devel --core-branch <name-of-branch>"
 echo
 echo " To test the installation:"
-echo " ./install-CGAT-tools.sh --test [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --test [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " To update the Conda packages:"
-echo " ./install-CGAT-tools.sh --update [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --update [--location </full/path/to/folder/without/trailing/slash>]"
 echo 
 echo " To uninstall the CGAT code:"
-echo " ./install-CGAT-tools.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " Please submit any issues via Git Hub:"
 echo " https://github.com/cgat-developers/cgat-apps/issues"

@@ -10,79 +10,15 @@ include README.rst
 include KNOWN_BUGS
 include THANKS.txt
 
-include install-CGAT-tools.sh
+include install.sh
 include requires.txt
 
-exclude CGAT/tools/*
-
-# CGAT scripts to include - these
-# are named explicitely
-include CGAT/tools/bam_vs_bam.py
-include CGAT/tools/bam_vs_bed.py
-include CGAT/tools/bam_vs_gtf.py
-include CGAT/tools/bam2bam.py
-include CGAT/tools/bam2bed.py
-include CGAT/tools/bam2fastq.py
-include CGAT/tools/bam2geneprofile.py
-include CGAT/tools/bam2peakshape.py
-include CGAT/tools/bam2stats.py
-include CGAT/tools/bam2wiggle.py
-include CGAT/tools/bed2bed.py
-include CGAT/tools/beds2counts.py
-include CGAT/tools/bed2fasta.py
-include CGAT/tools/bed2gff.py
-include CGAT/tools/bed2stats.py
-include CGAT/tools/bed2table.py
-include CGAT/tools/beds2beds.py
-include CGAT/tools/chain2psl.py
-include CGAT/tools/chain2stats.py
-include CGAT/tools/diff_bam.py
-include CGAT/tools/diff_bed.py
-include CGAT/tools/diff_chains.py
-include CGAT/tools/diff_fasta.py
-include CGAT/tools/diff_gtf.py
-include CGAT/tools/fasta2bed.py
-include CGAT/tools/fasta2fasta.py
-include CGAT/tools/fasta2kmercontent.py
-include CGAT/tools/fasta2table.py
-include CGAT/tools/fasta2variants.py
-include CGAT/tools/fastas2fasta.py
-include CGAT/tools/fastq2fastq.py
-include CGAT/tools/fastq2table.py
-include CGAT/tools/fastqs2fasta.py
-include CGAT/tools/fastqs2fastqs.py
-include CGAT/tools/gff2bed.py
-include CGAT/tools/gff2coverage.py
-include CGAT/tools/gff2fasta.py
-include CGAT/tools/gff2gff.py
-include CGAT/tools/gff2histogram.py
-include CGAT/tools/gff2psl.py
-include CGAT/tools/gff2stats.py
-include CGAT/tools/gtf2fasta.py
-include CGAT/tools/gtf2gff.py
-include CGAT/tools/gtf2gtf.py
-include CGAT/tools/gtf2tsv.py
-include CGAT/tools/gtf2table.py
-include CGAT/tools/gtfs2tsv.py
-include CGAT/tools/index_fasta.py
-include CGAT/tools/randomize_lines.py
-include CGAT/tools/split_gff.py
-include CGAT/tools/vcf2vcf.py
-
-# other CGAT/tools
-include CGAT/tools/__init__.py
-include CGAT/tools/cgat.py
-include CGAT/tools/version.py
-
-# extensions
-# include CGAT/tools/*.pyxbld
-# include CGAT/tools/*.pyx
-include CGAT/Components/*.h
-include CGAT/Components/*.cpp
-include CGAT/NCL/*.h
-include CGAT/NCL/*.pxd
-include CGAT/NCL/intervaldb.c
-include CGAT/Components/*.h
-include CGAT/Components/*.cpp
-include CGAT/BamTools/*.pyx
-include CGAT/VCFTools/*.pyx
+include cgat/Components/*.h
+include cgat/Components/*.cpp
+include cgat/NCL/*.h
+include cgat/NCL/*.pxd
+include cgat/NCL/intervaldb.c
+include cgat/Components/*.h
+include cgat/Components/*.cpp
+include cgat/BamTools/*.pyx
+include cgat/VCFTools/*.pyx

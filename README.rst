@@ -26,13 +26,13 @@ The preferred method to install CGAT Apps is using the installation script, whic
 Here are the steps::
 
         # download installation script:
-        curl -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/master/install-CGAT-tools.sh
+        curl -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/master/install.sh
 
         # see help:
-        bash install-CGAT-tools.sh
+        bash install.sh
 
         # install the development version (recommended, no production version yet):
-        bash install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
+        bash install.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
 
         # the code is downloaded in zip format by default. If you want to get a git clone, use:
         --git # for an HTTPS clone

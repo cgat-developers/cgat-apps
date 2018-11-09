@@ -22,16 +22,16 @@ The preferred method to install the CGAT code collection is using the installati
 Here are the steps::
 
         # download installation script:
-        curl -O https://raw.githubusercontent.com/CGATOxford/cgat/master/install-CGAT-tools.sh
+        curl -O https://raw.githubusercontent.com/CGATOxford/cgat/master/install.sh
 
         # see help:
-        bash install-CGAT-tools.sh
+        bash install.sh
 
         # install set of production scripts (well tested):
-        bash install-CGAT-tools.sh --production [--location </full/path/to/folder/without/trailing/slash>]
+        bash install.sh --production [--location </full/path/to/folder/without/trailing/slash>]
 
         # or go for the latest development version:
-        bash install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
+        bash install.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
 
         # enable the conda environment as requested by the installation script
         # NB: you probably want to automate this by adding the instructions below to your .bashrc
