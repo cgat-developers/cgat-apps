@@ -18,7 +18,8 @@ include cgat/Components/*.cpp
 include cgat/NCL/*.h
 include cgat/NCL/*.pxd
 include cgat/NCL/intervaldb.c
-include cgat/Components/*.h
-include cgat/Components/*.cpp
+include cgat/Components/connected_components.h
+include cgat/Components/connected_components.cpp
+exclude cgat/Components/Components.cpp
 include cgat/BamTools/*.pyx
 include cgat/VCFTools/*.pyx
