@@ -9,7 +9,8 @@ CGAT Apps is a collection of scripts to analyse high-throughput sequencing data.
 
 After installation, use the ``cgat`` command to see how to use them.
 
-More details coming soon, so stay tuned!
+We are attempting to improve our documentation. However, our current docuemtation
+can be found `here <https://www.cgat.org/downloads/public/cgat/documentation/>`_
 
 For questions, please open a discussion on the GitHub 
 `issue page <https://github.com/cgat-developers/cgat-apps/issues>`_.
