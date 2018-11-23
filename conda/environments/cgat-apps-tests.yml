@@ -14,7 +14,6 @@ dependencies:
 - alignlib-lite
 - biopython
 - cython
-- ggplot
 - jinja2
 - libpng
 - matplotlib
@@ -29,7 +28,6 @@ dependencies:
 - pyyaml
 - quicksect
 - rdflib
-- rpy2
 - scikit-learn
 - scipy
 - setuptools
