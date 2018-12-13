@@ -46,6 +46,7 @@ dependencies:
 - tar
 - ucsc-bedgraphtobigwig
 - ucsc-wigtobigwig
-- util-linux
+# does not exist on OSX
+# - util-linux
 - wget
 - zlib
