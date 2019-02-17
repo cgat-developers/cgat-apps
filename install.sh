@@ -415,7 +415,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       [[ $CODE_DOWNLOAD_TYPE -ge 1 ]] && git checkout -- setup.py
 
       # environment pinning
-      python scripts/conda.py
+      # python scripts/conda.py
 
    fi # if INSTALL_DEVEL
 
