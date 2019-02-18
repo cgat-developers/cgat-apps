@@ -91,14 +91,14 @@ get_cgat_env() {
 if [[ $TRAVIS_INSTALL ]] ; then
 
    CGAT_HOME=$TRAVIS_BUILD_DIR
-   CONDA_INSTALL_TYPE_APPS="apps-nosetests.yml"
-   CONDA_INSTALL_TYPE_CORE="core-production.yml"
+   CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+   CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
 
 elif [[ $JENKINS_INSTALL ]] ; then
 
    CGAT_HOME=$WORKSPACE
-   CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
-   CONDA_INSTALL_TYPE_CORE="core-production.yml"
+   CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+   CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
 
 else
 
