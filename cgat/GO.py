@@ -19,7 +19,6 @@ import scipy
 import scipy.stats
 import scipy.special
 import numpy
-from rpy2.robjects import r as R
 from cgat import Stats as Stats
 from cgatcore import experiment as E
 from cgatcore import iotools as iotools
@@ -1323,6 +1322,7 @@ def computeFDRs(go_results,
 
             fdrs[k] = (fdr, a, b)
     else:
+        raise NotImplementedError()
         qvalues = R['p.adjust'](
             observed_min_pvalues, method=options.qvalue_method)
         fdr_data = Stats.FDRResult()
@@ -1595,6 +1595,7 @@ def pairwiseGOEnrichment(results_per_genelist, labels, test_ontology, go2info,
 
             qvalues = fdr_data.mQValues
         else:
+            raise NotImplementedError()
             qvalues = R['p.adjust'](pvalues, method=options.qvalue_method)
 
         # update qvalues
