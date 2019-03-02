@@ -5,8 +5,8 @@
 name: cgat-a
 
 channels:
-- bioconda
 - conda-forge
+- bioconda
 - defaults
 
 dependencies:
