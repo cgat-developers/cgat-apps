@@ -433,7 +433,7 @@ def heatmap_plot(hh1, nl):
 
     plt.tight_layout()
     plt.savefig(
-        'Leading_Edge_Analysis/Leading_Edge_similarity_matrix_heatmap.jpeg',
+        'Leading_Edge_Analysis/Leading_Edge_similarity_matrix_heatmap.svg',
         bbox_inches='tight')
     plt.close()
     return
@@ -590,7 +590,7 @@ def leading_edge_clustering(SCB, SCB_2, name_x, name_y):
         FINAL_BOOLEAN_MA,
         name_l_x_clus,
         name_l_y_clus,
-        'Leading_Edge_Analysis/Leading_Edge_heatmap_clustered.jpeg',
+        'Leading_Edge_Analysis/Leading_Edge_heatmap_clustered.svg',
         1,
         cMap)
     return
@@ -631,7 +631,7 @@ def plot_enrichment_score(
     plt.xticks(fontsize=12, weight='bold')
     plt.yticks(fontsize=12, weight='bold')
     q = in_list[A_W]
-    file_to_report_pic = ".".join(["enplot", q[0], 'jpeg'])
+    file_to_report_pic = ".".join(["enplot", q[0], 'svg'])
     q2 = "".join(['\nGene List Index', '\n\nNumber of genes: ',
                   str(l_id), '(in list), ', str(q[3]), '(in gene set)'])
     plt.xlabel(q2, **axis_font)
@@ -655,7 +655,7 @@ def plot_random_ES(store_permute, A_W, in_list):
     plt.xlabel('\nEnrichment Score', **axis_font)
     plt.ylabel('Frequency', **axis_font, labelpad=28)
     q = in_list[A_W]
-    file_to_report_pic = ".".join(["random_enplot", q[0], 'jpeg'])
+    file_to_report_pic = ".".join(["random_enplot", q[0], 'svg'])
     #plt.title(''.join([q[0], ":Random ES Distribution"]), **title_font_ran)
     plt.title("Random ES Distribution", **title_font_ran)
     plt.grid(b=True, which='both', linestyle='--')
@@ -689,7 +689,7 @@ def plot_enrichment_score_subplot(store_enrichment_score, original_es_index,
     plt.xticks(fontsize=12, weight='bold')
     plt.yticks(fontsize=12, weight='bold')
     q = in_list[A_W]
-    # file_to_report_pic = ".".join(["enplot",q[0],'jpeg'])
+    # file_to_report_pic = ".".join(["enplot",q[0],'svg'])
     if(s_index == 10):
         plt.ylabel(
             '\n\nR u n n i n g    e n r i c h m e n t    s c o r e (RES)',
@@ -727,7 +727,7 @@ def plot_dendrogram_for_cluster(ZZ, name_leaf, text_to_save):
     plt.yticks(fontsize=12, weight='bold')
     plt.xticks(weight='bold')
     plt.tight_layout()
-    t_s = "Leading_Edge_Analysis/Last_20_merged_cluster_dendrogram_" + text_to_save + ".jpeg"
+    t_s = "Leading_Edge_Analysis/Last_20_merged_cluster_dendrogram_" + text_to_save + ".svg"
     plt.savefig(t_s, bbox_inches='tight')
     plt.close()
     fig, ax = plt.subplots()
@@ -745,7 +745,7 @@ def plot_dendrogram_for_cluster(ZZ, name_leaf, text_to_save):
     plt.xlabel(text_to_save, fontsize=18, weight='bold')
     plt.ylabel('Distance', fontsize=18, weight='bold', labelpad=28)
     plt.tight_layout()
-    t_s = "Leading_Edge_Analysis/Hierarchical_cluster_dendrogram_" + text_to_save + ".jpeg"
+    t_s = "Leading_Edge_Analysis/Hierarchical_cluster_dendrogram_" + text_to_save + ".svg"
     plt.savefig(t_s, bbox_inches='tight')
     plt.close()
     return
@@ -793,7 +793,7 @@ def plot_summary_report(nui, fg1, ufp, g_set, c):
               fontsize=25, weight='bold', color='darkblue')
     plt.gca().invert_yaxis()
     plt.tight_layout()
-    c2 = "Top_" + str(loop_plot) + "_" + c + "_genesets_by_treatment.jpeg"
+    c2 = "Top_" + str(loop_plot) + "_" + c + "_genesets_by_treatment.svg"
     plt.savefig(c2, bbox_inches='tight')
     plt.close()
     return
@@ -828,7 +828,7 @@ def plot_summary_report_for_fdr(pl_x, pl_y):
     plt.grid(b=True, which='minor', linestyle='--')
     plt.tight_layout()
     plt.savefig(
-        "Top_enriched_genesets(fdr_sorted).jpeg",
+        "Top_enriched_genesets(fdr_sorted).svg",
         bbox_inches='tight')
     plt.close()
     return
@@ -1233,7 +1233,7 @@ def main(argv=None):
                 len(id),
                 xcc,
                 i + 1,
-                "enplot_upregulated_summary.jpeg",
+                "enplot_upregulated_summary.svg",
                 options.plot_no)
     for i in range(0, options.plot_no):
         if(len(nes_down_index) > 0):
@@ -1247,7 +1247,7 @@ def main(argv=None):
                 len(id),
                 xcc,
                 i + 1,
-                "enplot_downregulated_summary.jpeg",
+                "enplot_downregulated_summary.svg",
                 options.plot_no)
     # Plot summary of top 20 genesets of each phenotype
     if(len(nes_up_index) > 0):
@@ -1306,7 +1306,7 @@ def main(argv=None):
         labelsize='x-large',
         width=20)
     ax2.set_ylabel('\nFDR q-value', **axis_font)
-    plt.savefig('Genesets_null_distribution.jpeg', bbox_inches='tight')
+    plt.savefig('Genesets_null_distribution.svg', bbox_inches='tight')
     plt.close()
 
     # The histogram of the ES across all genesets
@@ -1320,7 +1320,7 @@ def main(argv=None):
     plt.title('Histogram of Normalized Enrichment Score', **title_font)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig('Genesets_NES_Histogram.jpeg', bbox_inches='tight')
+    plt.savefig('Genesets_NES_Histogram.svg', bbox_inches='tight')
     plt.close()
 
     print("Graphical reports has been successfully completed")
@@ -1586,7 +1586,7 @@ def main(argv=None):
         store_unclustered_boolean,
         name_l_x,
         name_l_y,
-        'Leading_Edge_Analysis/Leading_Edge_heatmap_unclustered.jpeg',
+        'Leading_Edge_Analysis/Leading_Edge_heatmap_unclustered.svg',
         0,
         cMap)
     leading_edge_clustering(
@@ -1621,7 +1621,7 @@ def main(argv=None):
     plt.setp(labels, rotation=90, **axis_font_h)
     plt.tight_layout()
     plt.savefig(
-        'Leading_Edge_Analysis/Genes_in_leading_edge_subset.jpeg',
+        'Leading_Edge_Analysis/Genes_in_leading_edge_subset.svg',
         bbox_inches='tight')
     plt.close()
     del temp_dict_k
@@ -1639,7 +1639,7 @@ def main(argv=None):
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(
-        'Leading_Edge_Analysis/Jacquard_distribution.jpeg',
+        'Leading_Edge_Analysis/Jacquard_distribution.svg',
         bbox_inches='tight')
     plt.close()
 
