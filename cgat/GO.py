@@ -1322,7 +1322,7 @@ def computeFDRs(go_results,
 
             fdrs[k] = (fdr, a, b)
     else:
-        raise NotImplementedError()
+
         qvalues = R['p.adjust'](
             observed_min_pvalues, method=options.qvalue_method)
         fdr_data = Stats.FDRResult()
