@@ -19,6 +19,7 @@ import scipy
 import scipy.stats
 import scipy.special
 import numpy
+import statsmodels.stats.multitest as smm
 from cgat import Stats as Stats
 from cgatcore import experiment as E
 from cgatcore import iotools as iotools
@@ -1322,9 +1323,13 @@ def computeFDRs(go_results,
 
             fdrs[k] = (fdr, a, b)
     else:
-
-        qvalues = R['p.adjust'](
-            observed_min_pvalues, method=options.qvalue_method)
+        # qvalue correction was initially implimented in rpy2
+        # this maps the R method to the multipletests method
+        if options.qvalue_method == "BH":
+            qvalue_method = "fdr_bh"
+        else:
+            raise NotImplementedError()
+        reject, qvalues = smm.multipletests(observed_min_pvalues, method=qvalue_method)[:2] 
         fdr_data = Stats.FDRResult()
         fdr_data.mQValues = list(qvalues)
         for pair, qvalue in zip(pairs, fdr_data.mQValues):
