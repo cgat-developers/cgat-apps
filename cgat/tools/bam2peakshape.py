@@ -166,7 +166,7 @@ import collections
 import pyBigWig
 
 import cgat.BamTools.peakshape as bam2peakshape
-numpy.random.seed(44)
+
 
 def buildOptionParser(argv):
 
@@ -652,6 +652,6 @@ def main(argv=None):
     # write footer and output benchmark information.
     E.stop()
 
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
-
