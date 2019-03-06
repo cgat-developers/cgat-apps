@@ -166,7 +166,7 @@ import collections
 import pyBigWig
 
 import cgat.BamTools.peakshape as bam2peakshape
-
+numpy.random.seed(44)
 
 def buildOptionParser(argv):
 
@@ -616,7 +616,6 @@ def main(argv=None):
         # normalise
         new_data = []
         for foreground, bed, controls, shifted in features_per_interval:
-
             foreground = foreground._replace(
                 counts=numpy.array(foreground.counts,
                                    dtype=numpy.float) / norm)
