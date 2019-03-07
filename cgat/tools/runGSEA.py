@@ -1,3 +1,14 @@
+from scipy.cluster.hierarchy import dendrogram, linkage
+from matplotlib import font_manager
+import scipy
+import os
+import itertools
+import pandas as pd
+from matplotlib.colors import ListedColormap
+import statsmodels.sandbox.stats.multicomp as sm
+import csv
+import matplotlib.font_manager as font_manager
+import matplotlib.pyplot as plt
 '''
 runGSEA.py
 =============================================
@@ -121,17 +132,6 @@ import cgatcore.experiment as E
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as font_manager
-import csv
-import statsmodels.sandbox.stats.multicomp as sm
-from matplotlib.colors import ListedColormap
-import pandas as pd
-import itertools
-import os
-import scipy
-from matplotlib import font_manager
-from scipy.cluster.hierarchy import dendrogram, linkage
 ##################################################
 # PLOT CUSTOMIZATION
 plt.ioff()
@@ -154,7 +154,7 @@ title_font_ran = {'fontname': 'Sans', 'size': '16',
                   'weight': 'bold'}
 axis_font_col = {'fontname': 'Sans', 'size': '10', 'weight': 'bold'}
 # Set the font properties (for use in legend)
-font_path = 'C:\Windows\Fonts\Arial.ttf'
+font_path = r'C:\Windows\Fonts\Arial.ttf'
 font_prop = font_manager.FontProperties(fname=font_path, size=12)
 
 #######################################################
@@ -1191,7 +1191,7 @@ def main(argv=None):
 
     # If specified number of top genesets for plotting enrichemnt score is higher than the total number of genesets.I will
     # plot enrichemnt score for all genesets.
-    #if(options.plot_no >= len(GG)):
+    # if(options.plot_no >= len(GG)):
     #options.plot_no = len(GG)
     if(options.plot_no >= len(nes_up_index)):
         options.plot_no = len(nes_up_index)
