@@ -119,8 +119,8 @@ Command line options
 import sys
 import cgatcore.experiment as E
 import numpy as np
-#import matplotlib as mpl #noqa:E402
-#mpl.use('Agg') #noqa:E402
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 import csv
