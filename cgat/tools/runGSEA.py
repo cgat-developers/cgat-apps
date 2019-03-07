@@ -585,6 +585,8 @@ def leading_edge_clustering(SCB, SCB_2, name_x, name_y):
     f.close()
     f2.close()
     ###################################################################
+    cMap = plt.cm.Reds
+    heatmap_plot_assign(
         FINAL_BOOLEAN_MA,
         name_l_x_clus,
         name_l_y_clus,
