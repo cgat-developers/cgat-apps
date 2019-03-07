@@ -139,20 +139,20 @@ legend_properties = {'weight': 'bold'}
 plt.rc('legend', fontsize=20)
 plt.style.use('seaborn-white')
 title_font = {
-    'fontname': 'Ubuntu',
+    'fontname': 'Sans',
     'size': '20',
     'color': 'darkblue',
     'weight': 'bold',
     'verticalalignment': 'bottom'}  # Bottom vertical alignment for more space
-axis_font = {'fontname': 'Ubuntu', 'size': '16', 'weight': 'bold'}
-axis_font_h = {'fontname': 'Ubuntu', 'size': '12', 'weight': 'bold'}
-title_font_h = {'fontname': 'Ubuntu', 'size': '20',
+axis_font = {'fontname': 'Sans', 'size': '16', 'weight': 'bold'}
+axis_font_h = {'fontname': 'Sans', 'size': '12', 'weight': 'bold'}
+title_font_h = {'fontname': 'Sans', 'size': '20',
                 'color': 'darkblue',
                 'weight': 'bold'}
-title_font_ran = {'fontname': 'Ubuntu', 'size': '16',
+title_font_ran = {'fontname': 'Sans', 'size': '16',
                   'color': 'darkblue',
                   'weight': 'bold'}
-axis_font_col = {'fontname': 'Ubuntu', 'size': '10', 'weight': 'bold'}
+axis_font_col = {'fontname': 'Sans', 'size': '10', 'weight': 'bold'}
 # Set the font properties (for use in legend)
 font_path = 'C:\Windows\Fonts\Arial.ttf'
 font_prop = font_manager.FontProperties(fname=font_path, size=12)
