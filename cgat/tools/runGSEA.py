@@ -153,9 +153,6 @@ title_font_ran = {'fontname': 'Sans', 'size': '16',
                   'color': 'darkblue',
                   'weight': 'bold'}
 axis_font_col = {'fontname': 'Sans', 'size': '10', 'weight': 'bold'}
-# Set the font properties (for use in legend)
-font_path = 'C:\Windows\Fonts\Arial.ttf'
-font_prop = font_manager.FontProperties(fname=font_path, size=12)
 
 #######################################################
 
