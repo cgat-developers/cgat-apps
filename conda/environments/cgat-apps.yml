@@ -5,13 +5,13 @@
 name: cgat-a
 
 channels:
-- bioconda
 - conda-forge
+- bioconda
 - defaults
 
 dependencies:
 # python dependencies
-- python
+- python >= 3.6
 - alignlib-lite
 - biopython
 - cython
@@ -50,3 +50,4 @@ dependencies:
 # - util-linux
 - wget
 - zlib
+- nomkl
