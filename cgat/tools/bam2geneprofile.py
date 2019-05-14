@@ -530,6 +530,15 @@ def main(argv=None):
         "to be considered for background meta-gene normalization "
         "[%default]")
 
+    parser.add_option("--output-res",
+                      dest="resolution_images", type="int",
+                      help="the output dpi for the figure plot - will default to "
+                      "[%default]")
+
+    parser.add_option("--image-format", dest="image_format", type="string",
+                      help="The output format for the figure plot - defaults to "
+                      "[%default]")                      
+
     parser.set_defaults(
         remove_rna=False,
         ignore_pairs=False,
@@ -579,6 +588,8 @@ def main(argv=None):
         output_all_profiles=False,
         background_region_bins=10,
         input_filename_counts=None,
+        resolution_images=None,
+        image_format="png",
     )
 
     # add common options (-h/--help, ...) and parse command line
@@ -892,8 +903,8 @@ def main(argv=None):
 
                 figname = counter.name + ".full"
 
-                fn = E.get_output_file(figname) + ".png"
-                plt.savefig(os.path.expanduser(fn))
+                fn = E.get_output_file(figname) + "." + options.image_format
+                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
 
                 plt.figure()
 
@@ -917,8 +928,8 @@ def main(argv=None):
 
                 figname = counter.name + ".detail"
 
-                fn = E.get_output_file(figname) + ".png"
-                plt.savefig(os.path.expanduser(fn))
+                fn = E.get_output_file(figname) + "." + options.image_format
+                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
 
             elif method == "tssprofile":
 
@@ -943,8 +954,8 @@ def main(argv=None):
                          counter.aggregate_counts[1])
                 plt.legend(counter.fields[:2])
 
-                fn = E.get_output_file(counter.name) + ".png"
-                plt.savefig(os.path.expanduser(fn))
+                fn = E.get_output_file(counter.name) + "." + options.image_format
+                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
 
             elif method == "midpointprofile":
 
@@ -954,8 +965,8 @@ def main(argv=None):
                 plt.plot(numpy.arange(0, options.resolution_downstream),
                          counter.aggregate_counts[1])
 
-                fn = E.get_output_file(counter.name) + ".png"
-                plt.savefig(os.path.expanduser(fn))
+                fn = E.get_output_file(counter.name) + "." + options.image_format
+                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
 
     # write footer and output benchmark information.
     E.stop()
