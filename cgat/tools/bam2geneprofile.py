@@ -530,12 +530,12 @@ def main(argv=None):
         "to be considered for background meta-gene normalization "
         "[%default]")
 
-	parser.add_option("--output-res",
+    parser.add_option("--output-res",
                       dest="resolution_images", type="int",
                       help="the output dpi for the figure plot - will default to "
                       "[%default]")
 
-	parser.add_option("--image-format", dest="image_format", type="string",
+    parser.add_option("--image-format", dest="image_format", type="string",
                       help="The output format for the figure plot - defaults to "
                       "[%default]")                      
 
@@ -589,7 +589,7 @@ def main(argv=None):
         background_region_bins=10,
         input_filename_counts=None,
         resolution_images=None,
-        image_format=png,
+        image_format="png",
     )
 
     # add common options (-h/--help, ...) and parse command line
