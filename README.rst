@@ -18,18 +18,18 @@ For questions, please open a discussion on the GitHub
 Installation
 ============
 
-Install using Conda
--------------------
+End users: install using Conda
+------------------------------
 The preferred method to install CGAT Apps is using the installation script, which uses
 `Conda <https://conda.io>`_.
 
 To install cgat-apps using conda::
     
-    conda install -c bioconda cgat-apps
+    conda install -c conda-forge -c bioconda cgat-apps
 
-Installation using our conda script
------------------------------------
-Alternatively, installation can be perfromed using our install script that will
+Developers: try the installation script
+---------------------------------------
+Alternatively, installation can be performed using our install script that will
 automate the process for you.
 
 Here are the steps::
