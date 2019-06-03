@@ -145,7 +145,7 @@ def fetch_ENA_files(accession):
         raise
 
     paths = list(itertools.chain.from_iterable(
-        [p.strip().split(";") for p in paths]))
+        [p.decode('utf-8').strip().split(";") for p in paths]))
     filenames = [os.path.basename(x) for x in paths]
     dl_paths = [os.path.join(*x.split("/")[1:]) for x in paths]
     return filenames, dl_paths
@@ -214,7 +214,6 @@ def fetch_TCGA_BAM(acc, token, outdir=".", filter_bed=None):
                                      %(from_prefix)s.bam
                                      -L %(filter_bed)s >
                                      %(to_prefix)s.bam;
-                            checkpoint;
                             samtools index %(to_prefix)s.bam""")
     else:
         statement.append('''rename %(from_prefix)s.bam
