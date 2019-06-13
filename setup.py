@@ -198,9 +198,9 @@ pysam_libraries = pysam.get_libraries()
 pysam_libdirs = list(set(os.path.dirname(x) for x in
                          pysam_libraries)) + conda_libdirs
 
-# remove lib and .so
-pysam_libs = list([os.path.basename(x)[3:-3] for x in
-                   pysam_libraries])
+# remove lib and .so and add htslib
+pysam_libs = ["hts"] + list([os.path.basename(x)[3:-3] for x in
+                             pysam_libraries])
 
 pysam_dirname = os.path.dirname(pysam.__file__)
 if IS_OSX:
@@ -211,7 +211,8 @@ else:
     extra_link_args = [os.path.join(pysam_dirname, x) for x in
                        pysam.get_libraries()]
 
-extra_link_args_pysam = ['-Wl,-rpath,{}'.format(x) for x in pysam_libdirs]
+extra_link_args_pysam = ['-Wl,-rpath,{}'.format(x) for x in pysam_libdirs] +\
+                        ['-Wl,-rpath,{}'.format(x) for x in conda_libdirs]
 
 extensions = [
     Extension(
@@ -233,7 +234,7 @@ extensions = [
     Extension(
         "cgat.GeneModelAnalysis",
         ["cgat/GeneModelAnalysis.pyx"],
-        include_dirs=pysam.get_include() + [numpy.get_include()],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
         library_dirs=[],
         libraries=[],
         define_macros=pysam.get_defines(),
@@ -242,7 +243,7 @@ extensions = [
     Extension(
         "cgat.BamTools.bamtools",
         ["cgat/BamTools/bamtools.pyx"],
-        include_dirs=pysam.get_include() + [numpy.get_include()],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
@@ -252,7 +253,7 @@ extensions = [
     Extension(
         "cgat.BamTools.geneprofile",
         ["cgat/BamTools/geneprofile.pyx"],
-        include_dirs=pysam.get_include() + [numpy.get_include()],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
@@ -262,7 +263,7 @@ extensions = [
     Extension(
         "cgat.BamTools.peakshape",
         ["cgat/BamTools/peakshape.pyx"],
-        include_dirs=pysam.get_include() + [numpy.get_include()],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
@@ -272,7 +273,7 @@ extensions = [
     Extension(
         "cgat.VCFTools",
         ["cgat/VCFTools/vcftools.pyx"],
-        include_dirs=pysam.get_include() + [numpy.get_include()],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
@@ -282,7 +283,7 @@ extensions = [
     Extension(
         "cgat.FastqTools",
         ["cgat/FastqTools/fastqtools.pyx"],
-        include_dirs=pysam.get_include() + [numpy.get_include()],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
         library_dirs=pysam_libdirs,
         libraries=pysam_libs,
         define_macros=pysam.get_defines(),
