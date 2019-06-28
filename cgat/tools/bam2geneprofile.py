@@ -303,6 +303,7 @@ import pysam
 import cgat.GTF as GTF
 import numpy
 import pandas
+import pyBigWig
 
 from cgat.BamTools import geneprofile
 
@@ -685,7 +686,7 @@ def main(argv=None):
                 control_factor=options.control_factor)
 
         elif options.infiles[0].endswith(".bw"):
-            wigfiles = [BigWigFile(file=open(x)) for x in options.infiles]
+            wigfiles = [pyBigWig.open(x) for x in options.infiles]
             range_counter = geneprofile.RangeCounterBigWig(wigfiles)
 
         else:
