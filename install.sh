@@ -107,11 +107,11 @@ else
    fi
 
    if [[ $INSTALL_PRODUCTION ]] ; then
-      CONDA_INSTALL_TYPE_APPS="apps-production.yml"
-      CONDA_INSTALL_TYPE_CORE="core-production.yml"
+      CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+      CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
    elif [[ $INSTALL_DEVEL ]] ; then
-      CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
-      CONDA_INSTALL_TYPE_CORE="core-devel.yml"
+      CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+      CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
    elif [[ $INSTALL_TEST ]] || [[ $INSTALL_UPDATE ]] ; then
       if [[ -d $CGAT_HOME/conda-install ]] ; then
          AUX=`find $CGAT_HOME/conda-install/envs/cgat-* -maxdepth 0`
