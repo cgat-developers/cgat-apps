@@ -484,21 +484,20 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id: gtf2fasta.py 2861 2010-02-23 17:36:32Z andreas $", usage=globals()["__doc__"])
+    parser = E.OptionParser()
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome [default=%default].")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
+                      help="filename with genome")
 
-    parser.add_option("-i", "--ignore-missing", dest="ignore_missing", action="store_true",
-                      help="Ignore transcripts on contigs that are not in the genome-file [default=%default].")
+    parser.add_argument("-i", "--ignore-missing", dest="ignore_missing", action="store_true",
+                      help="Ignore transcripts on contigs that are not in the genome-file.")
 
-    parser.add_option("--min-intron-length", dest="min_intron_length", type="int",
-                      help="minimum intron length. If the distance between two consecutive exons is smaller, the region will be marked 'unknown' [default=%default].")
+    parser.add_argument("--min-intron-length", dest="min_intron_length", type=int,
+                      help="minimum intron length. If the distance between two consecutive exons is smaller, the region will be marked 'unknown")
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
-                      choices=("full", ),
-                      help="method to apply [default=%default].")
+    parser.add_argument("-m", "--method", dest="method", type=str,
+                      choices=["full"],
+                      help="method to apply")
 
     parser.set_defaults(
         genome_file=None,
@@ -512,14 +511,14 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
-    if not options.genome_file:
+    if not args.genome_file:
         raise ValueError("an indexed genome is required.")
 
-    fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    fasta = IndexedFasta.IndexedFasta(args.genome_file)
 
-    iterator = GTF.transcript_iterator(GTF.iterator(options.stdin))
+    iterator = GTF.transcript_iterator(GTF.iterator(args.stdin))
 
     annotateGenome(iterator, fasta, options)
 
