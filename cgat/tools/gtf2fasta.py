@@ -484,7 +484,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser()
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome")
