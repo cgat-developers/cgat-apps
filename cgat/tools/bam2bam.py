@@ -533,8 +533,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--methods", dest="methods", type=str,
                       action="append",
@@ -641,10 +640,10 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.stdin != sys.stdin:
-        bamfile = options.stdin.name
+    if args.stdin != sys.stdin:
+        bamfile = args.stdin.name
     elif args:
         bamfile = args[0]
         if len(args) > 1:
@@ -652,18 +651,18 @@ def main(argv=None):
     else:
         bamfile = "-"
         
-    if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
-        if "remove-list" in options.filter_methods and "keep-list" in options.filter_methods:
+    if "remove-list" in args.filter_methods or "keep-list" in args.filter_methods:
+        if "remove-list" in args.filter_methods and "keep-list" in args.filter_methods:
             raise ValueError("it is not possible to specify remove-list and keep-list")
 
-        with iotools.open_file(options.filename_read_list) as inf:
+        with iotools.open_file(args.filename_read_list) as inf:
             filter_query_names = set([x.strip() for x in inf.readlines() if not x.startswith("#")])
         E.info("read query_sequence filter list with {} read names".format(len(filter_query_names)))
 
-    if "error-rate" in options.filter_methods and not options.error_rate:
+    if "error-rate" in args.filter_methods and not args.error_rate:
         raise ValueError("filtering by error-rate requires --error-rate to be set")
 
-    if "add-sequence-error" in options.methods and not options.error_rate:
+    if "add-sequence-error" in args.methods and not args.error_rate:
         raise ValueError("--add-error-rate requires --error-rate to be set")
 
     E.info('processing %s' % bamfile)
@@ -672,14 +671,14 @@ def main(argv=None):
         E.stop()
         return
 
-    if options.stdout != sys.stdout:
-        output_bamfile = options.stdout.name
+    if args.stdout != sys.stdout:
+        output_bamfile = args.stdout.name
     else:
         output_bamfile = "-"
-        if options.stdlog == sys.stdout:
+        if args.stdlog == sys.stdout:
             raise ValueError("redirect log-stream to file (--log) if outputting to stdout")
         
-    if options.output_sam:
+    if args.output_sam:
         output_mode = "wh"
     else:
         output_mode = "wb"
