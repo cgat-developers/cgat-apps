@@ -110,7 +110,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "--set-name", dest="name", type=str,
         help="field from the GFF/GTF file to use as the "
-        "name field in the BED file [%default]",
+        "name field in the BED file ",
         choices=("gene_id", "transcript_id", "class", "family",
                  "feature", "source", "repName", "gene_biotype"))
 

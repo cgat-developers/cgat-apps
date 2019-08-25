@@ -100,11 +100,11 @@ def main(argv=None):
         "-w", "--pattern-window",
         dest="pattern_window", type=str,
         help="regular expression to extract window coordinates from "
-        "test id [%default]")
+        "test id ")
 
     parser.add_argument(
         "-i", "--invert", dest="invert", action="store_true",
-        help="invert direction of fold change [%default]")
+        help="invert direction of fold change ")
 
     parser.set_defaults(min_overlap=10,
                         invert=False,

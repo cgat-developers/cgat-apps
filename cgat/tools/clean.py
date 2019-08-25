@@ -95,13 +95,13 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument("-g", "--glob", dest="glob_pattern", type=str,
-                      help="glob pattern to use for collecting files [%default].")
+                      help="glob pattern to use for collecting files .")
 
     parser.add_argument("-n", "--dry-run", dest="dry_run", action="store_true",
-                      help="only print out actions, do not execute them [%default].")
+                      help="only print out actions, do not execute them .")
 
     parser.add_argument("-f", "--file-pattern", dest="file_pattern", type=str,
-                      help="only check files matching this pattern [%default].")
+                      help="only check files matching this pattern .")
 
     parser.set_defaults(glob_pattern="data.dir",
                         file_pattern=".out",

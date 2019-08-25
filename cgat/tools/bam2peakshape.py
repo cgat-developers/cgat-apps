@@ -186,7 +186,7 @@ def buildOptionParser(argv):
         "-o", "--use-interval", dest="use_interval", action="store_true",
         help="only count tags that are in interval given "
         "in bed file. Otherwise, use a fixed width window (see --window-size) "
-        "around peak [%default]")
+        "around peak ")
 
     parser.add_argument(
         "-w", "--window-size", dest="window_size", type=int,

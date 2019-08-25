@@ -549,7 +549,7 @@ def main(argv=None):
                                "downsample-single",
                                "downsample-paired",
                                "add-sequence-error"),
-                      help="methods to apply [%default]")
+                      help="methods to apply ")
 
     parser.add_argument("--strip-method", dest="strip_method", type=str,
                       choices=("all", "match"),
@@ -573,7 +573,7 @@ def main(argv=None):
 
     parser.add_argument("--reference-bam-file", dest="reference_bam",
                       type=str,
-                      help="bam-file to filter with [%default]")
+                      help="bam-file to filter with ")
 
     parser.add_argument("--force-output", dest="force", action="store_true",
                       help="force processing. Some methods such "
@@ -582,19 +582,19 @@ def main(argv=None):
                       )
 
     parser.add_argument("--output-sam", dest="output_sam", action="store_true",
-                      help="output in sam format [%default]")
+                      help="output in sam format ")
 
     parser.add_argument(
         "--first-fastq-file", "-1", dest="fastq_pair1", type=str,
         help="fastq file with read information for first "
         "in pair or unpaired. Used for unstripping sequence "
-        "and quality scores [%default]")
+        "and quality scores ")
 
     parser.add_argument(
         "--second-fastq-file", "-2", dest="fastq_pair2", type=str,
         help="fastq file with read information for second "
         "in pair. Used for unstripping sequence "
-        "and quality scores  [%default]")
+        "and quality scores  ")
 
     parser.add_argument(
         "--downsample", dest="downsample",
@@ -605,23 +605,23 @@ def main(argv=None):
         "--filename-read-list", dest="filename_read_list",
         type=str,
         help="Filename with list of reads to filter if 'keep-list' or 'remove-list' "
-        "filter method is chosen [%default]")
+        "filter method is chosen ")
 
     parser.add_argument(
         "--error-rate", dest="error_rate",
         type="float",
         help="error rate to use as filter. Reads with an error rate "
-        "higher than the threshold will be removed [%default]")
+        "higher than the threshold will be removed ")
 
     parser.add_argument(
         "--minimum-read-length", dest="minimum_read_length",
         type=int,
-        help="minimum read length when filtering [%default]")
+        help="minimum read length when filtering ")
 
     parser.add_argument(
         "--minimum-average-base-quality", dest="minimum_average_base_quality",
         type="float",
-        help="minimum average base quality when filtering [%default]")
+        help="minimum average base quality when filtering ")
 
     parser.set_defaults(
         methods=[],

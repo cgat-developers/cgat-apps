@@ -268,15 +268,15 @@ def main(argv=None):
     parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type="float",
         help="sample size. If less than 0, take a proportion of the chromosome size. "
-        "If greater than 0, take a fixed number of variants [%default]")
+        "If greater than 0, take a fixed number of variants ")
 
     parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type=str,
-        help="filename with reference sequence in fasta format [%default]")
+        help="filename with reference sequence in fasta format ")
 
     parser.add_argument(
         "--input-filename-bam", dest="input_filename_bam", type=str,
-        help="filename with aligned reads [%default]")
+        help="filename with aligned reads ")
 
     parser.add_argument(
         "--no-vcf-columns", dest="no_vcf_columns", action="store_true",
@@ -285,7 +285,7 @@ def main(argv=None):
     parser.add_argument(
         "--counter", dest="counters", type=str, action="append",
         choices=["context", "bam-indels", "bam-allelic-depth", "indel-type"],
-        help="counters to apply [%default]")
+        help="counters to apply ")
 
     parser.set_defaults(
         input_filename_fasta=None,

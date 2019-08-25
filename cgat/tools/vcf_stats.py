@@ -107,17 +107,17 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-f", "--input-fasta", dest="input_fasta_file", type=str,
         help="input fasta file. faidx indexed reference sequence file to "
-        "determine INDEL context [%default]")
+        "determine INDEL context ")
 
     parser.add_argument(
         "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
     parser.add_argument(
         "-r", "--region", dest="region", type=str,
         help="Region string to restrict analysis to. Takes precedence "
-        "over --input-bed. [%default]")
+        "over --input-bed. ")
 
     parser.add_argument(
         "-m", "--method", dest="methods", action="append", type=str,
@@ -127,28 +127,28 @@ def main(argv=sys.argv):
                  "format-distribution",
                  "gc-context",
                  "gc-depth-profile"),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.add_argument(
         "--format-distribution", dest="format_distributions", action="append",
         type=str,
         help="format to compute histograms on. Option can specified multiple times. "
-        "At the moment, only integer metrics are supported [%default]")
+        "At the moment, only integer metrics are supported ")
 
     parser.add_argument(
         "--format-distribution-nbins", dest="format_distributions_nbins", type=int,
-        help="number of bins to use for histograms [%default]")
+        help="number of bins to use for histograms ")
 
     parser.add_argument(
         "--only-variant-positions", dest="only_variant_positions",
         action="store_true",
-        help="only use variant positions [%default]")
+        help="only use variant positions ")
 
     parser.add_argument(
         "--gc-window-size", dest="gc_window_size", type=int,
         help="(half) window size to use for G+C computation. A size "
         "of 50 means that 50 bases on either side of the variant are "
-        "used to compute the G+C content [%default]")
+        "used to compute the G+C content ")
 
     parser.set_defaults(
         methods=[],

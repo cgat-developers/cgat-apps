@@ -335,21 +335,21 @@ def main(argv=None):
                       'Note using geneprofilewithintrons, or '
                       'geneprofileabsolutedistancefromthreeprimeend will '
                       'automatically turn on the --use-base-accuracy option'
-                      '[%default].')
+                      '.')
 
     parser.add_argument("-b", "--bam-file", "--bedfile", "--bigwigfile",
                       dest="infiles",
                       metavar="BAM",
                       type=str, action="append",
                       help="BAM/bed/bigwig files to use. Do not mix "
-                      "different types [%default]")
+                      "different types ")
 
     parser.add_argument("-c", "--control-bam-file", dest="controlfiles",
                       metavar="BAM",
                       type=str, action="append",
                       help="control/input to use. Should be of the same "
                       "type as the bam/bed/bigwig file"
-                      " [%default]")
+                      " ")
 
     parser.add_argument("-g", "--gtf-file", dest="gtffile", type=str,
                       metavar="GTF",
@@ -382,7 +382,7 @@ def main(argv=None):
         " a gene are merged. When 'transcript' is chosen, counts are"
         " computed for each transcript separately with each transcript"
         " contributing equally to the meta-gene profile."
-        " [%default]")
+        " ")
 
     parser.add_argument("-i", "--shift-size", dest="shifts", type=int,
                       action="append",
@@ -476,7 +476,7 @@ def main(argv=None):
         "--extension-introns-absolute-distance-topolya",
         dest="extension_introns_absolute_distance_topolya", type=int,
         help="extension for introns from the absolute distance from "
-        "the topolya in bp [%default]")
+        "the topolya in bp ")
 
     parser.add_argument(
         "--extension-upstream", dest="extension_upstream", type=int,

@@ -156,18 +156,18 @@ def main(argv=None):
         "-e", "--feature", dest="feature", type=str,
         help="filter by a feature, for example 'exon', 'CDS'."
         " If set to the empty string, all entries are output "
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "-f", "--maskregions-bed-file", dest="filename_masks",
         type=str, metavar="gff",
         help="mask sequences with regions given in gff file "
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--remove-masked-regions", dest="remove_masked_regions",
         action="store_true",
-        help="remove regions instead of masking [%default].")
+        help="remove regions instead of masking .")
 
     parser.add_argument(
         "--min-interval-length", dest="min_length", type=int,
@@ -203,16 +203,16 @@ def main(argv=None):
     parser.add_argument(
         "--masker", dest="masker", type=str,
         choices=("dust", "dustmasker", "softmask", "none"),
-        help="apply masker [%default].")
+        help="apply masker .")
 
     parser.add_argument(
         "--fold-at", dest="fold_at", type=int,
-        help="fold sequence every n bases[%default].")
+        help="fold sequence every n bases.")
 
     parser.add_argument(
         "--fasta-name-attribute", dest="naming_attribute", type=str,
         help="use attribute to name fasta entry. Currently only compatable"
-        " with gff format [%default].")
+        " with gff format .")
 
     parser.set_defaults(
         is_gtf=False,

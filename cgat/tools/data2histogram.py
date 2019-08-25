@@ -74,7 +74,7 @@ def main(argv=None):
     parser.add_argument("--ignore-out-of-range", dest="ignore_out_of_range", action="store_true",
                       help="ignore values that are out of range (as opposed to truncating them to range border.")
     parser.add_argument("--missing-value", dest="missing_value", type=str,
-                      help="entry for missing values [%default].")
+                      help="entry for missing values .")
     parser.add_argument("--use-dynamic-bins", dest="dynamic_bins", action="store_true",
                       help="each value constitutes its own bin.")
     parser.add_argument("--on-the-fly", dest="on_the_fly", action="store_true",

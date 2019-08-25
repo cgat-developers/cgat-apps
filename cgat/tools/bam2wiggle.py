@@ -169,7 +169,7 @@ def main(argv=None):
 
     parser.add_argument("-e", "--extend", dest="extend", type=int,
                       help="extend reads by a certain amount "
-                      "(ChIP-Seq) [%default]")
+                      "(ChIP-Seq) ")
 
     parser.add_argument("-p", "--wiggle-span", dest="span", type=int,
                       help="span of a window in wiggle tracks "

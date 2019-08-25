@@ -53,7 +53,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
-                      help="input are cds (nucleotide) sequences [%default]")
+                      help="input are cds (nucleotide) sequences ")
 
     parser.set_defaults(
         is_cds=False,

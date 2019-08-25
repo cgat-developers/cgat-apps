@@ -53,13 +53,13 @@ def main(argv=None):
 
     parser.add_argument(
         "-d", "--delimiter", dest="delimiter", type=str,
-        help="delimiter to separate columns [%default]")
+        help="delimiter to separate columns ")
 
     parser.add_argument(
         "-m", "--method", dest="methods", type=str,
         action="append",
         choices=["row-describe", "column-describe"],
-        help="additional methods to apply [%default]")
+        help="additional methods to apply ")
 
     parser.set_defaults(
         delimiter="\t",

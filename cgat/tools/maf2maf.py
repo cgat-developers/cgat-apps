@@ -73,16 +73,16 @@ def main(argv=sys.argv):
 
     parser.add_argument(
         "--set-prefix", dest="set_prefix", type=str,
-        help="set sequence prefix [%default]")
+        help="set sequence prefix ")
 
     parser.add_argument(
         "--min-length", dest="min_length", type=int,
-        help="minimum alignment length [%default]")
+        help="minimum alignment length ")
 
     parser.add_argument(
         "--method", dest="methods", action="append",
         choices=("shift-region", ),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.set_defaults(
         input_maf_file=None,

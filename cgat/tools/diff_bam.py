@@ -156,7 +156,7 @@ def main(argv=None):
     parser.add_argument(
         "--header-names", dest="headers", type=str,
         help="',' separated list of labels used as headers. "
-        " Should correspond in order to command line arguments [%default]")
+        " Should correspond in order to command line arguments ")
 
     parser.set_defaults(
         headers=None,

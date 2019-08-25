@@ -26,18 +26,18 @@ def main(argv=None):
 
     parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type=str,
-        help="filename with reference sequence in fasta format [%default]")
+        help="filename with reference sequence in fasta format ")
 
     parser.add_argument(
         "--counting-mode", dest="counting_mode", type=str,
         choices=("all", "pileup_defaults"),
         help="counting mode. all=all reads/bases. pileup-defaults= "
         "use default pileup thresholds. Options will be added to "
-        "--mpileup-options. [%default].")
+        "--mpileup-options. .")
 
     parser.add_argument(
         "--mpileup-options", dest="mpileup_options", type=str,
-        help="pileup options to use [%default]")
+        help="pileup options to use ")
 
     parser.set_defaults(
         mpileup_options="",

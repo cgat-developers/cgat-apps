@@ -406,12 +406,12 @@ def main(argv=None):
     parser.add_argument(
         "-d", "--output-details", dest="output_details", action="store_true",
         help="output per-read details into a separate file. Read names are "
-        "md5/base64 encoded [%default]")
+        "md5/base64 encoded ")
 
     parser.add_argument(
         "--output-readmap", dest="output_readmap", action="store_true",
         help="output map between read name and "
-        "md5/base64 encoded short name[%default]")
+        "md5/base64 encoded short name")
 
     parser.add_argument(
         "--add-alignment-details", dest="add_alignment_details", action="store_true",
@@ -422,13 +422,13 @@ def main(argv=None):
         "-q", "--fastq-file", dest="filename_fastq",
         help="filename with sequences and quality scores. This file is only "
         "used to collect sequence identifiers. Thus, for paired end data a "
-        "single file is sufficient [%default]")
+        "single file is sufficient ")
 
     parser.add_argument(
         "--basic-counts", dest="detailed_count", action="store_false",
         help="perform basic counting and do not compute per read stats. "
         "This is more memory efficient and faster stats computation, "
-        "but only a summary counts table is output [%default]")
+        "but only a summary counts table is output ")
 
     parser.set_defaults(
         filename_bed=None,

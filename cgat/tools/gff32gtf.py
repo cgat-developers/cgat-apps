@@ -270,19 +270,19 @@ def main(argv=None):
                       help="Method to use for conversion")
 
     parser.add_argument("-g", "--gene-type", dest="gene_type", type=str,
-                      help="feature type to get gene_id from if possible [%default]")
+                      help="feature type to get gene_id from if possible ")
 
     parser.add_argument("-t", "--transcript-type", dest="transcript_type", type=str,
-                      help="feature type to get transcript_id from if possible [%default]")
+                      help="feature type to get transcript_id from if possible ")
 
     parser.add_argument("-d", "--no-discard", dest="discard", action="store_false",
                       help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
 
     parser.add_argument("--gene-id", dest="gene_field_or_pattern", type=str,
-                      help="Either field or pattern for the gene_id [%default]")
+                      help="Either field or pattern for the gene_id ")
 
     parser.add_argument("--transcript-id", dest="transcript_field_or_pattern", type=str,
-                      help="Either field or pattern for the transcript_id [%default]")
+                      help="Either field or pattern for the transcript_id ")
 
     parser.add_argument("--parent-field", dest="parent", type=str,
                       help="field that specifies the parent relationship. Currently only"

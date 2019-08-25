@@ -69,12 +69,12 @@ def main(argv=None):
     parser.add_argument(
         "-m", "--method", dest="method", type=str,
         choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf", "barcode"),
-        help="method to apply [%default]")
+        help="method to apply ")
 
     parser.add_argument(
         "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
     parser.add_argument(
         "-r", "--region-string", dest="region_string", type=str,

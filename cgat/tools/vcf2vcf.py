@@ -133,30 +133,30 @@ def main(argv=None):
 
     parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type=str,
-        help="filename with reference sequence in fasta format [%default]")
+        help="filename with reference sequence in fasta format ")
 
     parser.add_argument(
         "--input-filename-bam", dest="input_filename_bam", type=str,
-        help="filename with aligned reads [%default]")
+        help="filename with aligned reads ")
 
     parser.add_argument(
         "--method", dest="methods", type=str, action="append",
         choices=["add-strelka-genotype",
                  "lift-over"],
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.add_argument(
         "--input-filename-chain", dest="input_filename_chain", type=str,
-        help="filename with alignment chain for lift-over [%default]")
+        help="filename with alignment chain for lift-over ")
 
     parser.add_argument(
         "--normal-sample-regex", dest="normal_sample_regex", type=str,
         help="regular expression to apply to header to identify normal "
-        "sample id [%default]")
+        "sample id ")
 
     parser.add_argument(
         "--output-filename-unmapped", dest="output_filename_unmapped", type=str,
-        help="filename with variants that could not be lifted over [%default]")
+        help="filename with variants that could not be lifted over ")
 
     parser.set_defaults(
         input_filename_fasta=None,

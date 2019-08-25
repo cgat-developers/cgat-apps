@@ -124,7 +124,7 @@ def main(argv=None):
         "-s", "--correct-gap-shift", dest="correct_shift",
         action="store_true",
         help="correct gap length shifts in alignments. "
-        "Requires alignlib_lite.py [%default]")
+        "Requires alignlib_lite.py ")
 
     parser.add_argument(
         "-1", "--pattern1", dest="pattern1", type=str,
@@ -140,7 +140,7 @@ def main(argv=None):
         "-o", "--output-section", dest="output", type=str,
         action="append",
         choices=("diff", "missed", "seqdiff"),
-        help="what to output [%default]")
+        help="what to output ")
 
     parser.set_defaults(correct_shift=False,
                         pattern1="(\S+)",

@@ -18,26 +18,26 @@ def main(argv=sys.argv):
 
     parser.add_argument(
         "-i", "--input-bam", dest="input_bam_file", type=str,
-        help="input bam file [%default]")
+        help="input bam file ")
 
     parser.add_argument(
         "-o", "--output-bam", dest="output_bam_file", type=str,
-        help="input bam file [%default].")
+        help="input bam file .")
 
     parser.add_argument(
         "-r", "--max-read-length", dest="max_read_length", type=int,
-        help="maximum read length [%default].")
+        help="maximum read length .")
 
     parser.add_argument(
         "-m", "--output-mode", dest="output_mode", type=str,
         choices=["buffered", "direct"],
         help="output mode for files. 'buffered' will output reads in correct "
         "sort order, 'direct' will require the output BAM file to be sorted separately."
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--region", dest="region", type=str,
-        help="genomic region, only split in BAM file within this region [%default].")
+        help="genomic region, only split in BAM file within this region .")
 
     parser.set_defaults(
         input_bam_file="-",

@@ -136,7 +136,7 @@ def main(argv=None):
         "--inplace", dest="inplace", action="store_true",
         help="update option list in place. New options will"
         "be added to the list given by --options-tsv-file. "
-        "Options will only be added, not removed [%default]")
+        "Options will only be added, not removed ")
 
     parser.add_argument(
         "--options-tsv-file", dest="tsv_file", type=str,

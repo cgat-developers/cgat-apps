@@ -337,16 +337,16 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
-                      help="output mismatches [%default]")
+                      help="output mismatches ")
 
     parser.add_argument("-a", "--output-matches", dest="output_matches", action="store_true",
-                      help="output matches [%default]")
+                      help="output matches ")
 
     parser.add_argument("-u", "--output-unique", dest="output_unique", action="store_true",
-                      help="output unique positions [%default]")
+                      help="output unique positions ")
 
     parser.add_argument("-r", "--restrict", dest="restrict", type=str,
-                      help="restrict analysis to a chromosome pair (chr1:chr1:+) [%default]")
+                      help="restrict analysis to a chromosome pair (chr1:chr1:+) ")
 
     parser.set_defaults(
         output_mismatches=False,

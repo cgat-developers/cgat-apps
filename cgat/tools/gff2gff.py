@@ -416,7 +416,7 @@ def main(argv=None):
                           "to-forward-coordinates",
                           "to-forward-strand",
                           "rename-chr"),
-                      help="method to apply [%default]")
+                      help="method to apply ")
 
     parser.add_argument(
         "--ignore-strand", dest="ignore_strand",
@@ -445,7 +445,7 @@ def main(argv=None):
     parser.add_argument(
         "--group-field", dest="group_field", type=str,
         help="""gff field/attribute to group by such as gene_id, "
-        "transcript_id, ... [%default].""")
+        "transcript_id, ... .""")
 
     parser.add_argument(
         "--filter-range", dest="filter_range", type=str,
@@ -457,77 +457,77 @@ def main(argv=None):
         "--sanitize-method", dest="sanitize_method", type=str,
         choices=("ucsc", "ensembl", "genome"),
         help="method to use for sanitizing chromosome names. "
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--flank-method", dest="flank_method", type=str,
         choices=("add", "extend"),
         help="method to use for adding flanks. ``extend`` will "
         "extend existing features, while ``add`` will add new features. "
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--skip-missing", dest="skip_missing", action="store_true",
         help="skip entries on missing contigs. Otherwise an "
-        "exception is raised [%default].")
+        "exception is raised .")
 
     parser.add_argument(
         "--contig-pattern", dest="contig_pattern", type=str,
         help="a comma separated list of regular expressions specifying "
-        "contigs to be removed when running method sanitize [%default].")
+        "contigs to be removed when running method sanitize .")
 
     parser.add_argument(
         "--assembly-report", dest="assembly_report", type=str,
         help="path to assembly report file which allows mapping of "
-        "ensembl to ucsc contigs when running method sanitize [%default].")
+        "ensembl to ucsc contigs when running method sanitize .")
 
     parser.add_argument(
         "--assembly-report-hasids",
         dest="assembly_report_hasIDs", type=int,
         help="path to assembly report file which allows mapping of "
-        "ensembl to ucsc contigs when running method sanitize [%default].")
+        "ensembl to ucsc contigs when running method sanitize .")
 
     parser.add_argument(
         "--assembly-report-ucsccol", dest="assembly_report_ucsccol",
         type=int,
         help="column in the assembly report containing ucsc contig ids"
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--assembly-report-ensemblcol", dest="assembly_report_ensemblcol",
         type=int,
         help="column in the assembly report containing ensembl contig ids"
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--assembly-extras", dest="assembly_extras",
         type="str",
         help="additional mismatches between gtf and fasta to fix when"
-        "sanitizing the genome [%default].")
+        "sanitizing the genome .")
 
     parser.add_argument(
         "--extension-upstream", dest="extension_upstream", type="float",
-        help="extension for upstream end [%default].")
+        help="extension for upstream end .")
 
     parser.add_argument(
         "--extension-downstream", dest="extension_downstream", type="float",
-        help="extension for downstream end [%default].")
+        help="extension for downstream end .")
 
     parser.add_argument(
         "--min-distance", dest="min_distance", type=int,
-        help="minimum distance of features to merge/join [%default].")
+        help="minimum distance of features to merge/join .")
 
     parser.add_argument(
         "--max-distance", dest="max_distance", type=int,
-        help="maximum distance of features to merge/join [%default].")
+        help="maximum distance of features to merge/join .")
 
     parser.add_argument(
         "--min-features", dest="min_features", type=int,
-        help="minimum number of features to merge/join [%default].")
+        help="minimum number of features to merge/join .")
 
     parser.add_argument(
         "--max-features", dest="max_features", type=int,
-        help="maximum number of features to merge/join [%default].")
+        help="maximum number of features to merge/join .")
 
     parser.add_argument(
         "--rename-chr-file", dest="rename_chr_file", type=str,

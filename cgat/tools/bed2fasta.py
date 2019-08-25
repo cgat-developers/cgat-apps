@@ -65,7 +65,7 @@ def main(argv=None):
     parser.add_argument("-m", "--masker", dest="masker", type=str,
                       choices=("dust", "dustmasker", "softmask", "none"),
                       help="apply masker to mask output sequences "
-                      "[%default].")
+                      ".")
 
     parser.add_argument("--output-mode", dest="output_mode", type=str,
                       choices=("intervals", "leftright", "segments"),
@@ -75,13 +75,13 @@ def main(argv=None):
                       "sequences, one in each direction, for each bed "
                       "interval. 'segments' can be used to output "
                       "sequence from bed12 files so that sequence only covers "
-                      "the segements [%default]")
+                      "the segements ")
 
     parser.add_argument("--min-sequence-length", dest="min_length", type=int,
-                      help="require a minimum sequence length [%default]")
+                      help="require a minimum sequence length ")
 
     parser.add_argument("--max-sequence-length", dest="max_length", type=int,
-                      help="require a maximum sequence length [%default]")
+                      help="require a maximum sequence length ")
 
     parser.add_argument(
         "--extend-at", dest="extend_at", type=str,

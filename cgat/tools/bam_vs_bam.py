@@ -67,12 +67,12 @@ def main(argv=None):
     parser.add_argument("-i", "--intervals-bed-file", dest="filename_intervals",
                       type=str,
                       help="filename with intervals to use "
-                      "[%default].")
+                      ".")
 
     parser.add_argument("-e", "--regex-identifier", dest="regex_identifier",
                       type=str,
                       help="regular expression to extract identifier from "
-                      "filename [%default].")
+                      "filename .")
 
     parser.set_defaults(
         filename_intervals=None,

@@ -109,7 +109,7 @@ def main(argv=None):
         "-e", "--exons-file", "--gtf-file",
         dest="filename_exons", type=str, metavar="gtf",
         help="gtf formatted file with non-overlapping exon "
-        "locations (required). [%default]")
+        "locations (required). ")
 
     parser.set_defaults(
         filename_exons=None,

@@ -126,13 +126,13 @@ def main(argv=sys.argv):
 
     parser.add_argument(
         "-f", "--reference-bam", dest="reference_bam_file", type=str,
-        help="reference BAM file [%default]")
+        help="reference BAM file ")
 
     parser.add_argument(
         "-q", "--query-name-regex", dest="query_name_regex", type=str,
         help="regular expression to apply on query name. "
         "Potentially required to match samtools sort order and should "
-        "evaluate to an integer [%default]")
+        "evaluate to an integer ")
 
     parser.set_defaults(
         input_bam_file=None,

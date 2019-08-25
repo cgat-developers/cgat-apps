@@ -80,58 +80,58 @@ def main(argv=None):
 
     parser.add_argument(
         "-g", "--gtf-file", dest="filename_gtf", type=str,
-        help="filename with gene models in gtf format [%default]")
+        help="filename with gene models in gtf format ")
 
     parser.add_argument(
         "-m", "--filename-mismapped", dest="filename_mismapped", type=str,
-        help="output bam file for mismapped reads [%default]")
+        help="output bam file for mismapped reads ")
 
     parser.add_argument(
         "-j", "--junctions-bed-file", dest="filename_junctions", type=str,
-        help="bam file with reads mapped across junctions [%default]")
+        help="bam file with reads mapped across junctions ")
 
     parser.add_argument(
         "-r", "--filename-regions", dest="filename_regions", type=str,
-        help="filename with regions to remove in bed format [%default]")
+        help="filename with regions to remove in bed format ")
 
     parser.add_argument(
         "-t", "--transcripts-gtf-file", dest="filename_transcriptome",
         type=str,
-        help="bam file with reads mapped against transcripts [%default]")
+        help="bam file with reads mapped against transcripts ")
 
     parser.add_argument(
         "-p", "--map-tsv-file", dest="filename_map", type=str,
         help="filename mapping transcript numbers (used by "
         "--filename-transciptome) to transcript names "
-        "(used by --filename-gtf) [%default]")
+        "(used by --filename-gtf) ")
 
     parser.add_argument(
         "-s", "--filename-stats", dest="filename_stats", type=str,
-        help="filename to output stats to [%default]")
+        help="filename to output stats to ")
 
     parser.add_argument(
         "-o", "--colour",
         dest="colour_mismatches", action="store_true",
-        help="mismatches will use colour differences (CM tag) [%default]")
+        help="mismatches will use colour differences (CM tag) ")
 
     parser.add_argument(
         "-i", "--ignore-mismatches",
         dest="ignore_mismatches", action="store_true",
-        help="ignore mismatches [%default]")
+        help="ignore mismatches ")
 
     parser.add_argument(
         "-c", "--remove-contigs", dest="remove_contigs", type=str,
-        help="','-separated list of contigs to remove [%default]")
+        help="','-separated list of contigs to remove ")
 
     parser.add_argument(
         "-f", "--force-output", dest="force", action="store_true",
-        help="force overwriting of existing files [%default]")
+        help="force overwriting of existing files ")
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="remove reads not matching uniquely [%default]")
+                      help="remove reads not matching uniquely ")
 
     parser.add_argument("--output-sam", dest="output_sam", action="store_true",
-                      help="output in sam format [%default]")
+                      help="output in sam format ")
 
     parser.set_defaults(
         filename_gtf=None,

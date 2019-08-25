@@ -96,15 +96,15 @@ def main(argv=None):
 
     parser.add_argument("-m", "--min-overlap", dest="min_overlap",
                       type="float",
-                      help="minimum overlap [%default]")
+                      help="minimum overlap ")
 
     parser.add_argument("-a", "--bam-file", dest="filename_bam",
                       metavar="bam", type=str,
-                      help="bam-file to use (required) [%default]")
+                      help="bam-file to use (required) ")
 
     parser.add_argument("-b", "--bed-file", dest="filename_bed",
                       metavar="bed", type=str,
-                      help="bed-file to use (required) [%default]")
+                      help="bed-file to use (required) ")
 
     parser.add_argument(
         "-s", "--sort-bed", dest="sort_bed",

@@ -386,7 +386,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "--output-removed-tsv", dest="output_removed_tsv", type=str,
         help="if given, sequence identifiers of removed sequences will "
-        "be stored in this file [%default]")
+        "be stored in this file ")
 
     parser.add_argument(
         "--output-stats-tsv", dest="output_stats_tsv", type=str,
@@ -396,7 +396,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "--output-removed-fastq", dest="output_removed_fastq", type=str,
         help="if given, removed fastq records will "
-        "be stored in this file [%default]")
+        "be stored in this file ")
 
     parser.add_argument(
         "-m", "--method", dest="methods", action="append", type=str,
@@ -414,27 +414,27 @@ def main(argv=sys.argv):
                  "unique",
                  "reverse-complement",
                  "grep"),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.add_argument(
         "--set-prefix", dest="set_prefix", type=str,
-        help="set sequence prefix [%default]")
+        help="set sequence prefix ")
 
     parser.add_argument(
         "--input-filter-tsv", dest="input_filter_tsv", type=str,
-        help="list of sequence ides to filter [%default]")
+        help="list of sequence ides to filter ")
 
     parser.add_argument(
         "--min-average-quality", dest="min_average_quality", type="float",
-        help="minimum average quality [%default]")
+        help="minimum average quality ")
 
     parser.add_argument(
         "--min-sequence-length", dest="min_sequence_length", type=int,
-        help="minimum sequence length [%default]")
+        help="minimum sequence length ")
 
     parser.add_argument(
         "--quality-offset", dest="quality_offset", type=int,
-        help="offset to modify quality values with [%default]")
+        help="offset to modify quality values with ")
 
     parser.add_argument(
         "--target-format", dest="target_format", type=str,

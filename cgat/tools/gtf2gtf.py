@@ -366,12 +366,12 @@ def main(argv=None):
                       dest="merge_exons_distance",
                       type=int,
                       help="distance in nucleotides between "
-                      "exons to be merged [%default].")
+                      "exons to be merged .")
 
     parser.add_argument("--pattern-identifier", dest="pattern", type=str,
                       help="pattern to use for renaming genes/transcripts. "
                       "The pattern should contain a %i, for example "
-                      "--pattern-identifier=ENSG%010i [%default].")
+                      "--pattern-identifier=ENSG%010i .")
 
     parser.add_argument("--sort-order",
                       dest="sort_order",
@@ -384,13 +384,13 @@ def main(argv=None):
                                "position+gene",
                                "gene+position",
                                "gene+exon"),
-                      help="sort input data [%default].")
+                      help="sort input data .")
 
     parser.add_argument("--mark-utr",
                       dest="mark_utr",
                       action="store_true",
                       help="mark utr for method --merge-exons. "
-                      "[%default].")
+                      ".")
 
     parser.add_argument(
         "--without-utr",
@@ -399,7 +399,7 @@ def main(argv=None):
         help="exclude UTR in methods --merge-exons, merge-transcripts "
         "and intersect-transripts. Setting this option will remove "
         "non-coding transcripts. "
-        "[%default].")
+        ".")
 
     parser.add_argument(
         "--filter-method", dest="filter_method",
@@ -422,12 +422,12 @@ def main(argv=None):
         "The input needs to be sorted by gene. "
         "'proteincoding': only output protein coding features. "
         "'lincrna': only output lincRNA features. "
-        "[%default].")
+        ".")
 
     parser.add_argument("-a", "--map-tsv-file", dest="filename_filter",
                       type=str,
                       metavar="tsv",
-                      help="filename of ids to map/filter [%default].")
+                      help="filename of ids to map/filter .")
 
     parser.add_argument(
         "--gff-file", dest="filename_gff", type=str,
@@ -440,38 +440,38 @@ def main(argv=None):
                       action="store_true",
                       help="when using --filter, invert selection "
                       "(like grep -v). "
-                      "[%default].")
+                      ".")
 
     parser.add_argument("--sample-size", dest="sample_size", type=int,
                       help="extract a random sample of size # if the option "
                       "'--method=filter --filter-method' is set "
-                      "[%default].")
+                      ".")
 
     parser.add_argument(
         "--intron-min-length",
         dest="intron_min_length", type=int,
         help="minimum length for introns (for --exons-file2introns) "
-        "[%default].")
+        ".")
 
     parser.add_argument("--min-exons-length",
                       dest="min_exons_length",
                       type=int,
                       help="minimum length for gene (sum of exons) "
-                      "(--sam-fileple-size) [%default].")
+                      "(--sam-fileple-size) .")
 
     parser.add_argument(
         "--intron-border",
         dest="intron_border",
         type=int,
         help="number of residues to exclude at intron at either end "
-        "(--exons-file2introns) [%default].")
+        "(--exons-file2introns) .")
 
     parser.add_argument("--ignore-strand",
                       dest="ignore_strand",
                       action="store_true",
                       help="remove strandedness of features (set to '.') when "
                       "using ``transcripts2genes`` or ``filter``"
-                      "[%default].")
+                      ".")
 
     parser.add_argument("--permit-duplicates", dest="strict",
                       action="store_false",
@@ -523,7 +523,7 @@ def main(argv=None):
                           "sort",
                           "transcript2genes",
                           "unset-genes"),
-                      help="Method to apply [%default]."
+                      help="Method to apply ."
                       "Please only select one.")
 
     parser.set_defaults(

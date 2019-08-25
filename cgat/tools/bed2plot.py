@@ -143,17 +143,17 @@ def main(argv=sys.argv):
 
     parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
                       type=str,
-                      help="directory to save snapshots in [%default]")
+                      help="directory to save snapshots in ")
 
     parser.add_argument("-f", "--format", dest="format", type=str,
                       choices=("png", "eps", "svg"),
-                      help="output file format [%default]")
+                      help="output file format ")
 
     parser.add_argument("-o", "--host", dest="host", type=str,
-                      help="host that IGV is running on [%default]")
+                      help="host that IGV is running on ")
 
     parser.add_argument("-p", "--port", dest="port", type=int,
-                      help="port that IGV listens at [%default]")
+                      help="port that IGV listens at ")
 
     parser.add_argument("-e", "--extend", dest="extend", type=int,
                       help="extend each interval by a number of bases "

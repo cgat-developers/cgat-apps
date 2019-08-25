@@ -21,7 +21,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-m", "--method", dest="methods", action="append", type=str,
         choices=("length", ),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.set_defaults(
         methods=[],

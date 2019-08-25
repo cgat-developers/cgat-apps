@@ -135,12 +135,12 @@ def main(argv=None):
         choices=("length", "sequence", "hid", "na", "aa", "cpg", "dn",
                  "degeneracy", "gaps",
                  "codons", "codon-usage", "codon-translator", "codon-bias"),
-        help="which sections to output [%default]")
+        help="which sections to output ")
 
     parser.add_argument(
         "-t", "--sequence-type", dest="seqtype", type=str,
         choices=("na", "aa"),
-        help="type of sequence: na=nucleotides, aa=amino acids [%default].")
+        help="type of sequence: na=nucleotides, aa=amino acids .")
 
     parser.add_argument(
         "-e", "--regex-identifier", dest="regex_identifier", type=str,

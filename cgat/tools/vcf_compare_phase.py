@@ -26,17 +26,17 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-f", "--input-fasta", dest="input_fasta_file", type=str,
         help="input fasta file. faidx indexed reference sequence file to "
-        "determine INDEL context [%default]")
+        "determine INDEL context ")
 
     parser.add_argument(
         "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
     parser.add_argument(
         "-m", "--method", dest="methods", action="append", type=str,
         choices=("mutational-signature", "kinship"),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.set_defaults(
         methods=[],

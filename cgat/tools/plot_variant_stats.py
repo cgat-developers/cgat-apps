@@ -87,13 +87,13 @@ def main(argv=None):
         choices=["mutation-profile-bar-plot",
                  "depth-profile-line-plot",
                  "manhattan-plot"],
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
     parser.add_argument(
         "-t", "--transformation", dest="transformations", type=str,
         action="append",
         choices=["log-depth-ratio"],
-        help="dataframe transformation options [%default]")
+        help="dataframe transformation options ")
 
     parser.add_argument(
         "-r", "--regex-filename", dest="regex_filename", type=str,

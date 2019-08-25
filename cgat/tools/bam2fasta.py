@@ -175,7 +175,7 @@ def main(argv=None):
     parser.add_argument(
         "-e", "--input-bed-file", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
     parser.add_argument(
         "-m", "--merge-intervals", dest="merge_intervals", action="store_true",

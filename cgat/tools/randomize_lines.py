@@ -40,7 +40,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument("-k", "--keep-header", dest="keep_header", type=int,
-                      help="randomize, but keep header in place [%default]")
+                      help="randomize, but keep header in place ")
 
     parser.set_defaults(keep_header=0)
 

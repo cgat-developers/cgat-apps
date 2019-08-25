@@ -218,7 +218,7 @@ def main(argv=None):
     parser.add_argument(
         "-t", "--sequence-type", dest="type", type=str,
         choices=("aa", "na"),
-        help="sequence type (aa or na) [%default]. This option determines "
+        help="sequence type (aa or na) . This option determines "
         "which characters to use for masking [default = %default].")
 
     parser.add_argument(
@@ -235,7 +235,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--fold-width", dest="fold_width", type=int,
-        help="fold width for sequence output. 0 is unfolded [%default]")
+        help="fold width for sequence output. 0 is unfolded ")
     
     parser.set_defaults(
         methods=[],

@@ -112,12 +112,12 @@ def main(argv=sys.argv):
     parser.add_argument("-t", "--no-titles",
                       dest="input_has_titles",
                       action="store_false",
-                      help="no titles in input [%default].")
+                      help="no titles in input .")
 
     parser.add_argument("--ignore-titles",
                       dest="ignore_titles",
                       action="store_true",
-                      help="ignore titles in input [%default]")
+                      help="ignore titles in input ")
 
     parser.add_argument("-i", "--skip-titles",
                       dest="skip_titles",
@@ -131,7 +131,7 @@ def main(argv=sys.argv):
 
     parser.add_argument("--header-names", dest="headers", type=str,
                       help="add headers for files as a ,-separated "
-                      "list [%default].")
+                      "list .")
 
     parser.add_argument("-c", "--columns", dest="columns", type=str,
                       help="columns to use for joining. Multiple columns "
@@ -144,7 +144,7 @@ def main(argv=sys.argv):
                       action="append",
                       help="columns to take. If not set, all columns "
                       "except for "
-                      "the join columns are taken [%default]")
+                      "the join columns are taken ")
 
     parser.add_argument("-g", "--glob", dest="glob", type=str,
                       help="wildcard expression for table names.")
@@ -177,7 +177,7 @@ def main(argv=sys.argv):
                       dest="ignore_empty",
                       action="store_true",
                       help="ignore empty tables - this is "
-                      "the default [%default].")
+                      "the default .")
 
     parser.add_argument("--add-file-prefix",
                       dest="add_file_prefix",

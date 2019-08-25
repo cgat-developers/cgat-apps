@@ -147,7 +147,7 @@ def main(argv=None):
         "them to range border.")
 
     parser.add_argument("--missing-value", dest="missing_value", type=str,
-                      help="entry for missing values [%default].")
+                      help="entry for missing values .")
 
     parser.add_argument("--use-dynamic-bins", dest="dynamic_bins",
                       action="store_true",
@@ -155,16 +155,16 @@ def main(argv=None):
 
     parser.add_argument("--format", dest="format", type=str,
                       choices=("gff", "gtf", "bed"),
-                      help="input file format [%default].")
+                      help="input file format .")
 
     parser.add_argument("--method", dest="methods", type=str,
                       action="append",
                       choices=("all", "hist", "stats", "overlaps", "values"),
-                      help="methods to apply [%default].")
+                      help="methods to apply .")
 
     parser.add_argument("--output-section", dest="output_section", type=str,
                       choices=("all", "size", "distance"),
-                      help="data to compute [%default].")
+                      help="data to compute .")
 
     parser.set_defaults(
         no_empty_bins=True,

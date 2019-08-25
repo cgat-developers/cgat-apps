@@ -28,11 +28,11 @@ def main(argv=None):
 
     parser.add_argument(
         "--region", dest="region", type=str,
-        help="region to restrict analysis to [%default]")
+        help="region to restrict analysis to ")
 
     parser.add_argument(
         "--window-size", dest="window_size", type=int,
-        help="window size to use [%default]")
+        help="window size to use ")
 
     parser.add_argument(
         "--output-all-windows", dest="output_all_windows", action="store_true",
@@ -43,7 +43,7 @@ def main(argv=None):
         "--reference-fasta", "--input-filename-fasta",
         dest="input_filename_fasta", type=str,
         help="filename with reference sequence. If given, used to "
-        "compute G+C content in windows [%default]")
+        "compute G+C content in windows ")
 
     parser.set_defaults(
         force_output=False,
