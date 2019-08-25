@@ -180,7 +180,7 @@ def main(argv=None):
                       help="merge paired-ended reads into a single "
                       "bed interval [default=%default].")
 
-    parser.add_argument("--scale-base", dest="scale_base", type="float",
+    parser.add_argument("--scale-base", dest="scale_base", type=float,
                       help="number of reads/pairs to scale bigwig file to. "
                       "The default is to scale to 1M reads "
                       "[default=%default]")

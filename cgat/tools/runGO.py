@@ -209,7 +209,7 @@ def main(argv=None):
         "separately [default=%default].")
 
     parser.add_argument(
-        "-t", "--threshold", dest="threshold", type="float",
+        "-t", "--threshold", dest="threshold", type=float,
         help="significance threshold [>1.0 = all ]. If --fdr is set, this "
         "refers to the fdr, otherwise it is a cutoff for p-values.")
 
@@ -282,7 +282,7 @@ def main(argv=None):
         help="compute pairwise enrichment for multiple gene lists. "
         "[default=%default].")
 
-    # parser.add_argument( "--fdr-lambda", dest="qvalue_lambda", type="float",
+    # parser.add_argument( "--fdr-lambda", dest="qvalue_lambda", type=float,
     #                   help="fdr computation: lambda [default=%default]."  )
 
     # parser.add_argument( "--qvalue-pi0-method", dest="qvalue_pi0_method", type=str,

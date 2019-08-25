@@ -196,7 +196,7 @@ def main(argv=None):
         help="ignore errors [default = %default].")
 
     parser.add_argument("--sample-proportion", dest="sample_proportion",
-                      type="float",
+                      type=float,
                       help="sample proportion [default = %default].")
 
     parser.add_argument(

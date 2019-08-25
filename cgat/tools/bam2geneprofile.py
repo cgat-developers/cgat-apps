@@ -503,7 +503,7 @@ def main(argv=None):
                       )
 
     parser.add_argument(
-        "--control-factor", dest="control_factor", type="float",
+        "--control-factor", dest="control_factor", type=float,
         help="factor for normalizing control and foreground data. "
         "Computed from data if not set. "
         )

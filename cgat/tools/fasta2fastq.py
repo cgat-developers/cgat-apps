@@ -209,11 +209,11 @@ def main(argv=None):
         help="generate paired end reads [default = %default].")
 
     parser.add_argument(
-        "--insert-length-mean", dest="insert_mean", type="float",
+        "--insert-length-mean", dest="insert_mean", type=float,
         help="mean insert length [default = %default].")
 
     parser.add_argument(
-        "--insert-length-sd", dest="insert_sd", type="float",
+        "--insert-length-sd", dest="insert_sd", type=float,
         help="insert length standard deviation [default = %default].")
 
     parser.add_argument(
@@ -223,12 +223,12 @@ def main(argv=None):
         "copies per entry [default = %default].")
 
     parser.add_argument(
-        "--counts-min", dest="counts_min", type="float",
+        "--counts-min", dest="counts_min", type=float,
         help="minimum number of reads/read pairs per fasta entry"
         "or copies per entry [default = %default].")
 
     parser.add_argument(
-        "--counts-max", dest="counts_max", type="float",
+        "--counts-max", dest="counts_max", type=float,
         help="maximum number of reads/read pairs per fasta entry "
         "or copies per entry [default = %default].")
 
@@ -249,7 +249,7 @@ def main(argv=None):
         help="filename for second fastq outfile [default=%default].")
 
     parser.add_argument(
-        "--premrna-fraction", dest="premrna_fraction", type="float",
+        "--premrna-fraction", dest="premrna_fraction", type=float,
         help="the fraction of reads to simulate from pre-mRNA"
         "[default= % default].")
 

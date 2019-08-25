@@ -425,7 +425,7 @@ def main(argv=sys.argv):
         help="list of sequence ides to filter ")
 
     parser.add_argument(
-        "--min-average-quality", dest="min_average_quality", type="float",
+        "--min-average-quality", dest="min_average_quality", type=float,
         help="minimum average quality ")
 
     parser.add_argument(
@@ -448,7 +448,7 @@ def main(argv=sys.argv):
         help="quality score format to assume if ambiguous [default=%default].")
 
     parser.add_argument(
-        "--sample-size", dest="sample_size", type="float",
+        "--sample-size", dest="sample_size", type=float,
         help="proportion of reads to sample. "
         "Provide a proportion of reads to sample, e.g. 0.1 for 10%, "
         "0.5 for 50%, etc [default=%default].")

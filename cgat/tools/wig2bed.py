@@ -123,7 +123,7 @@ def main(argv=sys.argv):
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome.")
 
-    parser.add_argument("-t", "--threshold", dest="threshold", type="float",
+    parser.add_argument("-t", "--threshold", dest="threshold", type=float,
                       help="threshold to apply [default=%default]")
 
     parser.add_argument(

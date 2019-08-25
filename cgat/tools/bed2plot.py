@@ -159,7 +159,7 @@ def main(argv=sys.argv):
                       help="extend each interval by a number of bases "
                       )
 
-    parser.add_argument("-x", "--expand", dest="expand", type="float",
+    parser.add_argument("-x", "--expand", dest="expand", type=float,
                       help="expand each region by a certain factor "
                       )
 

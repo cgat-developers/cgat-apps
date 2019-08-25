@@ -608,7 +608,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--error-rate", dest="error_rate",
-        type="float",
+        type=float,
         help="error rate to use as filter. Reads with an error rate "
         "higher than the threshold will be removed ")
 
@@ -619,7 +619,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--minimum-average-base-quality", dest="minimum_average_base_quality",
-        type="float",
+        type=float,
         help="minimum average base quality when filtering ")
 
     parser.set_defaults(

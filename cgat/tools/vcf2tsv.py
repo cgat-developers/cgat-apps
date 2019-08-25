@@ -266,7 +266,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-s", "--sample-size", dest="sample_size", type="float",
+        "-s", "--sample-size", dest="sample_size", type=float,
         help="sample size. If less than 0, take a proportion of the chromosome size. "
         "If greater than 0, take a fixed number of variants ")
 

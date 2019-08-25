@@ -506,11 +506,11 @@ def main(argv=None):
         "sanitizing the genome .")
 
     parser.add_argument(
-        "--extension-upstream", dest="extension_upstream", type="float",
+        "--extension-upstream", dest="extension_upstream", type=float,
         help="extension for upstream end .")
 
     parser.add_argument(
-        "--extension-downstream", dest="extension_downstream", type="float",
+        "--extension-downstream", dest="extension_downstream", type=float,
         help="extension for downstream end .")
 
     parser.add_argument(

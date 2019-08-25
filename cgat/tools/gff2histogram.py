@@ -125,11 +125,11 @@ def main(argv=None):
     parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
                       help="bin size.")
 
-    parser.add_argument("--min-value", dest="min_value", type="float",
+    parser.add_argument("--min-value", dest="min_value", type=float,
                       help="minimum value for histogram.")
 
     parser.add_argument(
-        "--max-value", dest="max_value", type="float",
+        "--max-value", dest="max_value", type=float,
         help="maximum value for histogram.")
 
     parser.add_argument(

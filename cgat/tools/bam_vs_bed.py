@@ -95,7 +95,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument("-m", "--min-overlap", dest="min_overlap",
-                      type="float",
+                      type=float,
                       help="minimum overlap ")
 
     parser.add_argument("-a", "--bam-file", dest="filename_bam",

@@ -597,7 +597,7 @@ def main(argv=None):
 
     parser.add_argument("--sample-probability",
                       dest="sample_probability",
-                      type="float",
+                      type=float,
                       help="Specify the probability of whether any"
                       "given read or read pair in a file bam is counted"
                       "Currently only compatible with count-reads")
@@ -623,7 +623,7 @@ def main(argv=None):
 
     parser.add_argument("--min-mapping-quality",
                       dest="minimum_mapping_quality",
-                      type="float",
+                      type=float,
                       help="minimum mapping quality. Reads with a quality "
                       "score of less will be ignored. "
                       "[default=%default]")
