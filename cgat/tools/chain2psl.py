@@ -1,164 +1,164 @@
-"""chain2psl.py - convert a chain file to a psl file
-=================================================
+"""chin2ps.py - convr  chin i o  ps i
 
-:Tags: Genomics Intervals GenomeAlignment PSL CHAIN Conversion
 
-Purpose
+:Tgs: Gnomics Inrvs GnomAignmn PSL CHAIN Convrsion
+
+Prpos
 -------
 
-convert a UCSC `chain
-<http://www.breyer.com/ucsc/htdocs/goldenPath/help/chain.html>`_
-formatted file to a UCSC `psl
-<http://genome.ucsc.edu/FAQ/FAQformat.html#format2>`_ formatted file.
+convr  UCSC `chin
+<hp://www.bryr.com/csc/hocs/gonPh/hp/chin.hm>`_
+orm i o  UCSC `ps
+<hp://gnom.csc./FAQ/FAQorm.hm#orm2>`_ orm i.
 
-This tool is equivalent to the UCSC tool chainToPsl except that it
-will not compute the number of matching, mismatching, etc. bases and
-thus does not require the sequences.
+This oo is qivn o h UCSC oo chinToPs xcp h i
+wi no comp h nmbr o mching, mismching, c. bss n
+hs os no rqir h sqncs.
 
-The nomenclature the UCSC uses for its chain files is
-:file:`targetToQuery.chain` for mapping ``query`` to ``target``
-(reference). According to the UCSC documentation, ``target`` is the
-first entry in ``chain`` files.
+Th nomncr h UCSC ss or is chin is is
+:i:`rgToQry.chin` or mpping ``qry`` o ``rg``
+(rrnc). Accoring o h UCSC ocmnion, ``rg`` is h
+irs nry in ``chin`` is.
 
-We have been using the nomenclature ``QueryToTarget.psl``. In following
-this convention, the correct way to converting a psl file is::
+W hv bn sing h nomncr ``QryToTrg.ps``. In oowing
+his convnion, h corrc wy o convring  ps i is::
 
-   python chain2psl.py < targetToQuery.chain > QueryToTarget.psl
+   pyhon chin2ps.py < rgToQry.chin > QryToTrg.ps
 
-If you would like to keep the TargetToQuery convention, you will need
-to add a pslSwap::
+I yo wo ik o kp h TrgToQry convnion, yo wi n
+o   psSwp::
 
-   python chain2psl.py < targetToQuery.chain | pslSwap stdin stdout > targetToQuery.psl
+   pyhon chin2ps.py < rgToQry.chin | psSwp sin so > rgToQry.ps
 
-Usage
+Usg
 -----
 
-For example::
+For xmp::
 
-   cgat chain2psl.py < in.chain > out.psl
+   cg chin2ps.py < in.chin > o.ps
 
-Type::
+Typ::
 
-   cgat chain2psl.py --help
+   cg chin2ps.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 """
 
-import sys
-import cgatcore.experiment as E
-import cgat.Blat as Blat
-import alignlib_lite
+impor sys
+impor cgcor.xprimn s E
+impor cg.B s B
+impor ignib_i
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    # do sth
-    ninput, nskipped, noutput = 0, 0, 0
+    # o sh
+    ninp, nskipp, nop  0, 0, 0
 
-    psl = None
+    ps  Non
 
-    def chain_iterator(infile):
-        lines = []
-        for line in options.stdin:
+     chin_iror(ini):
+        ins  []
+        or in in opions.sin:
 
-            if line.startswith("#"):
-                continue
-            if line.strip() == "":
-                continue
-            if line.startswith("chain"):
-                if lines:
-                    yield lines
-                lines = []
-            lines.append(line)
+            i in.srswih("#"):
+                conin
+            i in.srip()  "":
+                conin
+            i in.srswih("chin"):
+                i ins:
+                    yi ins
+                ins  []
+            ins.ppn(in)
 
-        yield lines
+        yi ins
 
-    for lines in chain_iterator(options.stdin):
+    or ins in chin_iror(opions.sin):
 
-        ninput += 1
-        psl = Blat.Match()
+        ninp + 1
+        ps  B.Mch()
 
         (_,
          _,
-         psl.mSbjctId,
-         target_length,
-         target_strand,
-         target_start,
-         target_end,
-         psl.mQueryId,
-         query_length,
-         query_strand,
-         query_start,
-         query_end,
-         alignment_id) = lines[0][:-1].split()
+         ps.mSbjcI,
+         rg_ngh,
+         rg_srn,
+         rg_sr,
+         rg_n,
+         ps.mQryI,
+         qry_ngh,
+         qry_srn,
+         qry_sr,
+         qry_n,
+         ignmn_i)  ins[0][:-1].spi()
 
-        (psl.mQueryStart, psl.mQueryEnd, psl.mQueryLength,
-         psl.mSbjctStart, psl.mSbjctEnd, psl.mSbjctLength) = \
-            [int(x) for x in
-             (query_start,
-              query_end,
-              query_length,
-              target_start,
-              target_end,
-              target_length)]
+        (ps.mQrySr, ps.mQryEn, ps.mQryLngh,
+         ps.mSbjcSr, ps.mSbjcEn, ps.mSbjcLngh)  \
+            [in(x) or x in
+             (qry_sr,
+              qry_n,
+              qry_ngh,
+              rg_sr,
+              rg_n,
+              rg_ngh)]
 
-        map_query2target = alignlib_lite.py_makeAlignmentBlocks()
+        mp_qry2rg  ignib_i.py_mkAignmnBocks()
 
-        qstart, tstart = psl.mQueryStart, psl.mSbjctStart
+        qsr, sr  ps.mQrySr, ps.mSbjcSr
 
-        for line in lines[1:-1]:
-            size, dt, dq = [int(x) for x in line[:-1].split()]
-            map_query2target.addDiagonal(qstart,
-                                         qstart + size,
-                                         tstart - qstart)
-            qstart += size + dq
-            tstart += size + dt
+        or in in ins[1:-1]:
+            siz, , q  [in(x) or x in in[:-1].spi()]
+            mp_qry2rg.Digon(qsr,
+                                         qsr + siz,
+                                         sr - qsr)
+            qsr + siz + q
+            sr + siz + 
 
-        size = int(lines[-1][:-1])
+        siz  in(ins[-1][:-1])
 
-        map_query2target.addDiagonal(qstart,
-                                     qstart + size,
-                                     tstart - qstart)
+        mp_qry2rg.Digon(qsr,
+                                     qsr + siz,
+                                     sr - qsr)
 
-        psl.fromMap(map_query2target)
+        ps.romMp(mp_qry2rg)
 
-        # sort out strand
-        # target_strand is always positive
-        assert(target_strand == "+")
+        # sor o srn
+        # rg_srn is wys posiiv
+        ssr(rg_srn  "+")
 
-        # if query strand is negative
-        if query_strand == "-":
-            # invert both query and target
-            psl.switchTargetStrand()
-            # manually invert the query coordinates
-            psl.mQueryFrom, psl.mQueryTo = psl.mQueryLength - \
-                psl.mQueryTo, psl.mQueryLength - psl.mQueryFrom
+        # i qry srn is ngiv
+        i qry_srn  "-":
+            # invr boh qry n rg
+            ps.swichTrgSrn()
+            # mny invr h qry coorins
+            ps.mQryFrom, ps.mQryTo  ps.mQryLngh - \
+                ps.mQryTo, ps.mQryLngh - ps.mQryFrom
 
-        options.stdout.write("%s\n" % psl)
-        noutput += 1
+        opions.so.wri("s\n"  ps)
+        nop + 1
 
-    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
+    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

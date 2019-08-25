@@ -1,94 +1,94 @@
-'''fasta2stats - extract statistics from fasta file
-===================================================
+'''s2ss - xrc sisics rom s i
 
-This tool outputs the number of sequences and total length of
-sequences. It works on uncompressed and compressed files and will make
-use of a samtools faidx index if it exists.
 
-Command line options
+This oo ops h nmbr o sqncs n o ngh o
+sqncs. I works on ncomprss n comprss is n wi mk
+s o  smoos ix inx i i xiss.
+
+Commn in opions
 --------------------
 
 '''
-import os
-import sys
-import numpy
-import pysam
+impor os
+impor sys
+impor nmpy
+impor pysm
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-f", "--fasta", dest="input_filename_fasta",
-        type="string",
-        help="filename with fasta sequences. ")
+    prsr._rgmn(
+        "-", "--s", s"inp_inm_s",
+        yp"sring",
+        hp"inm wih s sqncs. ")
 
-    parser.add_argument(
-        "-o", "--output-filename-sequences", dest="output_filename_sequences",
-        type="string",
-        help="output per sequence information to filename")
+    prsr._rgmn(
+        "-o", "--op-inm-sqncs", s"op_inm_sqncs",
+        yp"sring",
+        hp"op pr sqnc inormion o inm")
 
-    parser.set_defaults(
-        input_filename_fasta=None,
+    prsr.s_s(
+        inp_inm_sNon,
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if len(args) > 0:
-        options.input_filename_fasta = args[0]
+    i n(rgs) > 0:
+        opions.inp_inm_s  rgs[0]
 
-    sequence_pairs = []
+    sqnc_pirs  []
 
-    if options.input_filename_fasta != "-" and os.path.exists(
-            options.input_filename_fasta + ".fai"):
-        has_index = 1
-        fastafile = pysam.FastaFile(options.input_filename_fasta)
-        sequence_pairs = list(zip(fastafile.references, fastafile.lengths))
-    else:
-        has_index = 0
-        iterator = pysam.FastxFile(options.input_filename_fasta)
-        for record in iterator:
-            sequence_pairs.append(
-                (record.name,
-                 len(record.sequence)))
+    i opions.inp_inm_s ! "-" n os.ph.xiss(
+            opions.inp_inm_s + ".i"):
+        hs_inx  1
+        si  pysm.FsFi(opions.inp_inm_s)
+        sqnc_pirs  is(zip(si.rrncs, si.nghs))
+    s:
+        hs_inx  0
+        iror  pysm.FsxFi(opions.inp_inm_s)
+        or rcor in iror:
+            sqnc_pirs.ppn(
+                (rcor.nm,
+                 n(rcor.sqnc)))
 
-    lengths = numpy.array([x[1] for x in sequence_pairs])
+    nghs  nmpy.rry([x[1] or x in sqnc_pirs])
 
-    options.stdout.write("\t".join((
-        "has_index", "nsequences", "total_length", "min_length",
-        "max_length", "median_length", "mean_length")) + "\n")
+    opions.so.wri("\".join((
+        "hs_inx", "nsqncs", "o_ngh", "min_ngh",
+        "mx_ngh", "min_ngh", "mn_ngh")) + "\n")
 
-    if len(lengths) > 0:
-        options.stdout.write("\t".join(map(str, (
-            has_index,
-            len(sequence_pairs),
-            lengths.sum(),
-            lengths.min(),
-            lengths.max(),
-            numpy.median(lengths),
-            lengths.mean()))) + "\n")
-    else:
-        options.stdout.write("\t".join(map(str, (
-            has_index,
-            len(sequence_pairs),
+    i n(nghs) > 0:
+        opions.so.wri("\".join(mp(sr, (
+            hs_inx,
+            n(sqnc_pirs),
+            nghs.sm(),
+            nghs.min(),
+            nghs.mx(),
+            nmpy.min(nghs),
+            nghs.mn()))) + "\n")
+    s:
+        opions.so.wri("\".join(mp(sr, (
+            hs_inx,
+            n(sqnc_pirs),
             0,
             "",
             "",
             "",
             ""))) + "\n")
 
-    if options.output_filename_sequences:
-        with iotools.open_file(options.output_filename_sequences, "w") as outf:
-            outf.write("name\tlength\n")
-            outf.write(
-                "\n".join(["\t".join(map(str, x)) for x in sequence_pairs]) + "\n")
+    i opions.op_inm_sqncs:
+        wih iooos.opn_i(opions.op_inm_sqncs, "w") s o:
+            o.wri("nm\ngh\n")
+            o.wri(
+                "\n".join(["\".join(mp(sr, x)) or x in sqnc_pirs]) + "\n")
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

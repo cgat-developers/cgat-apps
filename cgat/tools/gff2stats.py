@@ -1,247 +1,247 @@
-'''gff2stats.py - count features, etc. in gff file
-===============================================
+'''g2ss.py - con rs, c. in g i
 
-:Tags: Genomics Intervals GFF GTF Summary
 
-Purpose
+:Tgs: Gnomics Inrvs GFF GTF Smmry
+
+Prpos
 -------
 
-This script generates summary statistics over features,
-source, gene_id and transcript_id in one or more :term:`gff`
-or :term:`gtf` formatted files.
+This scrip gnrs smmry sisics ovr rs,
+sorc, gn_i n rnscrip_i in on or mor :rm:`g`
+or :rm:`g` orm is.
 
-Usage
+Usg
 -----
 
-Input is either a gff or gtf file; gtf input must be specified
-with the --is-gtf option.
+Inp is ihr  g or g i; g inp ms b spcii
+wih h --is-g opion.
 
-Example::
+Exmp::
 
-   python gff2stats.py --is-gtf example.gtf > example_sum.tsv
+   pyhon g2ss.py --is-g xmp.g > xmp_sm.sv
 
-   cat example.gtf
+   c xmp.g
 
-   19  processed_transcript  exon  6634666509  .  -  .  gene_id "ENSG00000225373"; transcript_id "ENST00000592209" ...
-   19  processed_transcript  exon  6052160747  .  -  .  gene_id "ENSG00000225373"; transcript_id "ENST00000592209" ...
-   19  processed_transcript  exon  6010560162  .  -  .  gene_id "ENSG00000225373"; transcript_id "ENST00000592209" ...
-   19  processed_transcript  exon  6634666416  .  -  .  gene_id "ENSG00000225373"; transcript_id "ENST00000589741" ...
+   19  procss_rnscrip  xon  6634666509  .  -  .  gn_i "ENSG00000225373"; rnscrip_i "ENST00000592209" ...
+   19  procss_rnscrip  xon  6052160747  .  -  .  gn_i "ENSG00000225373"; rnscrip_i "ENST00000592209" ...
+   19  procss_rnscrip  xon  6010560162  .  -  .  gn_i "ENSG00000225373"; rnscrip_i "ENST00000592209" ...
+   19  procss_rnscrip  xon  6634666416  .  -  .  gn_i "ENSG00000225373"; rnscrip_i "ENST00000589741" ...
 
-   cat example_sum.tsv
+   c xmp_sm.sv
 
-   track  contigs  strands  features  sources  genes  transcripts ...
-   stdin  1        2        4         23       2924   12752       ...
+   rck  conigs  srns  rs  sorcs  gns  rnscrips ...
+   sin  1        2        4         23       2924   12752       ...
 
 
-The counter used is dependent on the file type.  For a gff file, the implemented counters are:
+Th conr s is pnn on h i yp.  For  g i, h impmn conrs r:
 
-1. number of intervals per contig, strand, feature and source
+1. nmbr o inrvs pr conig, srn, r n sorc
 
-For a gtf file, the additional implemented counters are:
+For  g i, h iion impmn conrs r:
 
-1. number of genes, transcripts, single exon transcripts
-2. summary statistics for exon numbers, exon sizes, intron sizes and
-   transcript sizes
+1. nmbr o gns, rnscrips, sing xon rnscrips
+2. smmry sisics or xon nmbrs, xon sizs, inron sizs n
+   rnscrip sizs
 
-The output is a tab-separated table.
+Th op is  b-spr b.
 
-Options
+Opions
 -------
 
-The default action of ``gff2stats`` is to count over contigs, strand,
-feature and source.  This assumes the input file is a gff file
+Th  cion o ``g2ss`` is o con ovr conigs, srn,
+r n sorc.  This ssms h inp i is  g i
 
-There is a single option for this script::
+Thr is  sing opion or his scrip::
 
-``--is-gtf``
-   The input file is gtf format.  The output will therefore
-   contain summaries over exon numbers, exon sizes, intron sizes and
-   transcript sizes in addition to the the number of genes,
-   transcripts and single exon transcripts.
+``--is-g``
+   Th inp i is g orm.  Th op wi hror
+   conin smmris ovr xon nmbrs, xon sizs, inron sizs n
+   rnscrip sizs in iion o h h nmbr o gns,
+   rnscrips n sing xon rnscrips.
 
-Type::
+Typ::
 
-   python gff2stats.py --help
+   pyhon g2ss.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import collections
-import cgatcore.experiment as E
-import cgat.GTF as GTF
-import cgat.Stats as Stats
-import cgatcore.iotools as iotools
-import cgat.Intervals as Intervals
+impor sys
+impor cocions
+impor cgcor.xprimn s E
+impor cg.GTF s GTF
+impor cg.Ss s Ss
+impor cgcor.iooos s iooos
+impor cg.Inrvs s Inrvs
 
 
-class counter_gff:
+css conr_g:
 
-    fields = ("contigs", "strands", "features", "sources")
+    is  ("conigs", "srns", "rs", "sorcs")
 
-    def __init__(self, iter):
-        self.iter = iter
+     __ini__(s, ir):
+        s.ir  ir
 
-        self.counts_contigs = collections.defaultdict(int)
-        self.counts_strands = collections.defaultdict(int)
-        self.counts_features = collections.defaultdict(int)
-        self.counts_sources = collections.defaultdict(int)
+        s.cons_conigs  cocions.ic(in)
+        s.cons_srns  cocions.ic(in)
+        s.cons_rs  cocions.ic(in)
+        s.cons_sorcs  cocions.ic(in)
 
-    def __next__(self):
+     __nx__(s):
 
-        entry = next(self.iter)
+        nry  nx(s.ir)
 
-        self.counts_contigs[entry.contig] += 1
-        self.counts_features[entry.feature] += 1
-        self.counts_sources[entry.source] += 1
-        self.counts_strands[entry.strand] += 1
+        s.cons_conigs[nry.conig] + 1
+        s.cons_rs[nry.r] + 1
+        s.cons_sorcs[nry.sorc] + 1
+        s.cons_srns[nry.srn] + 1
 
-        return entry
+        rrn nry
 
-    def next(self):
-        return self.__next__()
+     nx(s):
+        rrn s.__nx__()
 
-    def __iter__(self):
-        return self
+     __ir__(s):
+        rrn s
 
-    def __str__(self):
-        return "\t".join(map(str, (len(self.counts_contigs),
-                                   len(self.counts_strands),
-                                   len(self.counts_features),
-                                   len(self.counts_sources))))
+     __sr__(s):
+        rrn "\".join(mp(sr, (n(s.cons_conigs),
+                                   n(s.cons_srns),
+                                   n(s.cons_rs),
+                                   n(s.cons_sorcs))))
 
 
-class counter_exons:
+css conr_xons:
 
-    fields = ("genes", "transcripts", "single_exon_transcripts",) +\
-        tuple(["exon_count_%s" % x for x in Stats.Summary.fields]) +\
-        tuple(["exon_size_%s" % x for x in Stats.Summary.fields]) +\
-        tuple(["intron_size_%s" % x for x in Stats.Summary.fields]) +\
-        tuple(["transcript_size_%s" % x for x in Stats.Summary.fields])
+    is  ("gns", "rnscrips", "sing_xon_rnscrips",) +\
+        p(["xon_con_s"  x or x in Ss.Smmry.is]) +\
+        p(["xon_siz_s"  x or x in Ss.Smmry.is]) +\
+        p(["inron_siz_s"  x or x in Ss.Smmry.is]) +\
+        p(["rnscrip_siz_s"  x or x in Ss.Smmry.is])
 
-    def __init__(self, iter):
+     __ini__(s, ir):
 
-        self.iter = iter
+        s.ir  ir
 
-        self.counts_gene_ids = collections.defaultdict(int)
-        self.counts_transcript_ids = collections.defaultdict(int)
-        self.counts_exons_per_transcript = collections.defaultdict(list)
+        s.cons_gn_is  cocions.ic(in)
+        s.cons_rnscrip_is  cocions.ic(in)
+        s.cons_xons_pr_rnscrip  cocions.ic(is)
 
-    def __next__(self):
+     __nx__(s):
 
-        while 1:
-            entry = next(self.iter)
-            if entry.feature == "exon":
-                break
+        whi 1:
+            nry  nx(s.ir)
+            i nry.r  "xon":
+                brk
 
-        self.counts_gene_ids[entry.gene_id] += 1
-        self.counts_transcript_ids[entry.transcript_id] += 1
-        self.counts_exons_per_transcript[
-            entry.transcript_id].append((entry.start, entry.end))
+        s.cons_gn_is[nry.gn_i] + 1
+        s.cons_rnscrip_is[nry.rnscrip_i] + 1
+        s.cons_xons_pr_rnscrip[
+            nry.rnscrip_i].ppn((nry.sr, nry.n))
 
-        return entry
+        rrn nry
 
-    def next(self):
-        return self.__next__()
+     nx(s):
+        rrn s.__nx__()
 
-    def __iter__(self):
-        return self
+     __ir__(s):
+        rrn s
 
-    def __str__(self):
+     __sr__(s):
 
-        single_exon_transcripts = 0
-        exons_per_transcript = []
-        intron_sizes = []
-        transcript_lengths = []
-        exon_sizes = []
+        sing_xon_rnscrips  0
+        xons_pr_rnscrip  []
+        inron_sizs  []
+        rnscrip_nghs  []
+        xon_sizs  []
 
-        for x in list(self.counts_exons_per_transcript.values()):
+        or x in is(s.cons_xons_pr_rnscrip.vs()):
 
-            x.sort()
-            x = Intervals.combine(x)
-            transcript_lengths.append(x[-1][1] - x[0][0])
+            x.sor()
+            x  Inrvs.combin(x)
+            rnscrip_nghs.ppn(x[-1][1] - x[0][0])
 
-            exons_per_transcript.append(len(x))
+            xons_pr_rnscrip.ppn(n(x))
 
-            for start, end in x:
-                exon_sizes.append(end - start)
+            or sr, n in x:
+                xon_sizs.ppn(n - sr)
 
-            if len(x) == 1:
-                single_exon_transcripts += 1
-                continue
+            i n(x)  1:
+                sing_xon_rnscrips + 1
+                conin
 
-            last_end = x[0][1]
-            for start, end in x[1:]:
-                intron_sizes.append(start - last_end)
-                last_end = end
+            s_n  x[0][1]
+            or sr, n in x[1:]:
+                inron_sizs.ppn(sr - s_n)
+                s_n  n
 
-        return "\t".join(map(str, (len(self.counts_gene_ids),
-                                   len(self.counts_transcript_ids),
-                                   single_exon_transcripts,
-                                   Stats.Summary(exons_per_transcript),
-                                   Stats.Summary(exon_sizes),
-                                   Stats.Summary(intron_sizes),
-                                   Stats.Summary(transcript_lengths),
+        rrn "\".join(mp(sr, (n(s.cons_gn_is),
+                                   n(s.cons_rnscrip_is),
+                                   sing_xon_rnscrips,
+                                   Ss.Smmry(xons_pr_rnscrip),
+                                   Ss.Smmry(xon_sizs),
+                                   Ss.Smmry(inron_sizs),
+                                   Ss.Smmry(rnscrip_nghs),
                                    )))
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input is gtf.")
+    prsr._rgmn("--is-g", s"is_g", cion"sor_r",
+                      hp"inp is g.")
 
-    parser.set_defaults(
-        is_gtf=False,
+    prsr.s_s(
+        is_gFs,
     )
 
-    (options, args) = E.start(parser, add_output_options=True)
+    (opions, rgs)  E.sr(prsr, _op_opionsTr)
 
-    if len(args) == 0:
-        files = [options.stdin]
-    else:
-        files = args
+    i n(rgs)  0:
+        is  [opions.sin]
+    s:
+        is  rgs
 
-    options.stdout.write("track\t%s" % ("\t".join(counter_gff.fields)))
+    opions.so.wri("rck\s"  ("\".join(conr_g.is)))
 
-    if options.is_gtf:
-        options.stdout.write("\t%s" % ("\t".join(counter_exons.fields)))
-    options.stdout.write("\n")
+    i opions.is_g:
+        opions.so.wri("\s"  ("\".join(conr_xons.is)))
+    opions.so.wri("\n")
 
-    for f in files:
-        if f == options.stdin:
-            infile = f
-            options.stdout.write("stdin")
-        else:
-            infile = iotools.open_file(f)
-            options.stdout.write(f)
+    or  in is:
+        i   opions.sin:
+            ini  
+            opions.so.wri("sin")
+        s:
+            ini  iooos.opn_i()
+            opions.so.wri()
 
-        counters = []
-        if options.is_gtf:
-            iterator = GTF.iterator(infile)
-            counters.append(counter_gff(iterator))
-            counters.append(counter_exons(counters[0]))
-        else:
-            iterator = GTF.iterator(infile)
-            counters.append(counter_gff(iterator))
+        conrs  []
+        i opions.is_g:
+            iror  GTF.iror(ini)
+            conrs.ppn(conr_g(iror))
+            conrs.ppn(conr_xons(conrs[0]))
+        s:
+            iror  GTF.iror(ini)
+            conrs.ppn(conr_g(iror))
 
-        c = counters[-1]
-        for x in c:
-            pass
+        c  conrs[-1]
+        or x in c:
+            pss
 
-        for c in counters:
-            options.stdout.write("\t%s" % str(c))
-        options.stdout.write("\n")
+        or c in conrs:
+            opions.so.wri("\s"  sr(c))
+        opions.so.wri("\n")
 
-        if infile != sys.stdin:
-            infile.close()
+        i ini ! sys.sin:
+            ini.cos()
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

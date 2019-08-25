@@ -1,192 +1,192 @@
 
-import sys
-import os
-import glob
-import tempfile
-import argparse
-import subprocess
-import time
-from cgatcore import iotools as iotools
+impor sys
+impor os
+impor gob
+impor mpi
+impor rgprs
+impor sbprocss
+impor im
+rom cgcor impor iooos s iooos
 
 
-def stop_err(msg):
-    sys.stderr.write('%s\n' % msg)
-    sys.exit()
+ sop_rr(msg):
+    sys.srr.wri('s\n'  msg)
+    sys.xi()
 
 
-def timenow():
-    """return current time as a string
+ imnow():
+    """rrn crrn im s  sring
     """
-    return time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(time.time()))
+    rrn im.srim('/m/Y H:M:S', im.ocim(im.im()))
 
 
-class cgatBase():
+css cgBs():
 
     """
-    simple base class with some utilities for Picard
-    adapted and merged with Kelly Vincent's code april 2011 Ross
-    lots of changes...
-    """
-
-    def __init__(self, opts=None, arg0=None):
-        """ common stuff needed at init for a picard tool
-        """
-
-    def baseName(self, name=None):
-        return os.path.splitext(os.path.basename(name))[0]
-
-    def setLogging(self, logfname="picard_wrapper.log"):
-        """setup a logger
-        """
-        logging.basicConfig(level=logging.INFO,
-                            filename=logfname,
-                            filemode='a')
-
-    def readLarge(self, fname=None):
-        """ read a potentially huge file.
-        """
-        try:
-            # get stderr, allowing for case where it's very large
-            tmp = iotools.open_file(fname, 'rb')
-            s = ''
-            buffsize = 1048576
-            try:
-                while True:
-                    more = tmp.read(buffsize)
-                    if len(more) > 0:
-                        s += more
-                    else:
-                        break
-            except OverflowError:
-                pass
-            tmp.close()
-        except Exception as e:
-            stop_err('Read Large Exception : %s' % str(e))
-        return s
-
-    def runStatement(self, cl=None, output_dir=None):
-        """ construct and run a command line
-        we have galaxy's temp path as opt.temp_dir so don't really need isolation
-        sometimes stdout is needed as the output - ugly hacks to deal with potentially vast artifacts
-        """
-        assert cl is not None, 'PicardBase runCL needs a command line as cl'
-        process = subprocess.Popen(cl, shell=True)
-        rval = process.wait()
-
-    def runPic(self, jar, cl):
-        """
-        cl should be everything after the jar file name in the command
-        """
-        runme = ['java -Xmx%s' % self.opts.maxjheap]
-        runme.append(" -Djava.io.tmpdir='%s' " % self.opts.tmpdir)
-        runme.append('-jar %s' % jar)
-        runme += cl
-        s, stdouts, rval = self.runCL(cl=runme, output_dir=self.opts.outdir)
-        return stdouts, rval
-
-    def samToBam(self, infile=None, outdir=None):
-        """
-        use samtools view to convert sam to bam
-        """
-        fd, tempbam = tempfile.mkstemp(dir=outdir, suffix='rgutilsTemp.bam')
-        cl = ['samtools view -h -b -S -o ', tempbam, infile]
-        tlog, stdouts, rval = self.runCL(cl, outdir)
-        return tlog, tempbam, rval
-
-    def sortSam(self, infile=None, outfile=None, outdir=None):
-        """
-        """
-        print('## sortSam got infile=%s,outfile=%s,outdir=%s' % (infile, outfile, outdir))
-        cl = ['samtools sort', infile, outfile]
-        tlog, stdouts, rval = self.runCL(cl, outdir)
-        return tlog
-
-    def cleanup(self):
-        for fname in self.delme:
-            try:
-                os.unlink(fname)
-            except:
-                pass
-
-
-def __main__():
-
-    # use argparse to ignore unknown options
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--version", action="version", version="%(prog)s")
-    parser.add_argument("--wrapper-command", dest="command", type=str)
-    parser.add_argument("--wrapper-bam-file", dest="bam_file", type=str)
-    parser.add_argument("--wrapper-bam-option", dest="bam_option", type=str)
-    parser.add_argument("--wrapper-bai-file", dest="bai_file", type=str)
-    parser.add_argument(
-        "--wrapper-dry-run", dest="dry_run", action="store_true")
-    parser.add_argument("--wrapper-html-dir", dest="html_dir", type=str)
-    parser.add_argument("--wrapper-html-file", dest="html_file", type=str)
-
-    options, unknown = parser.parse_known_args()
-
-    cgat = cgatBase(options)
-
-    option_map = []
-
-    if options.bai_file or options.bam_file:
-        if not (options.bai_file and options.bam_file):
-            raise ValueError(
-                "wrapper called with bam or bai file, but not both")
-
-        if not options.bam_option:
-            options.bam_option = "bam-file"
-
-        tmp_fd, tmp_name = tempfile.mkstemp()
-        tmp_bam_name = '%s.bam' % tmp_name
-        tmp_bai_name = '%s.bai' % tmp_bam_name
-        os.symlink(options.bam_file, tmp_bam_name)
-        os.symlink(options.bai_file, tmp_bai_name)
-        if options.bam_option.startswith("--"):
-            # long option
-            option_map.append("%s=%s" % (options.bam_option, tmp_bam_name))
-        else:
-            # short option
-            option_map.append("%s %s" % (options.bam_option, tmp_bam_name))
-
-    if options.html_dir:
-        os.mkdir(options.html_dir)
-        option_map.append("%s=%s/%%s" %
-                          ("--output-filename-pattern", options.html_dir))
-
-    statement = "python " + " ".join([options.command] + unknown + option_map)
-
-    if options.dry_run:
-        sys.stdout.write(statement + "\n")
-        return
-
-    else:
-        cgat.runStatement(statement)
-
-    if options.bai_file:
-        os.unlink(tmp_bam_name)
-        os.unlink(tmp_bai_name)
-
-    if options.html_file:
-        with iotools.open_file(options.html_file, "w") as outf:
-            outf.write('<h1>%s - Output</h1>' %
-                       os.path.basename(options.wrapper_command))
-            for fn in glob.glob(os.path.join(options.html_dir, "*.*")):
-                dirname, basename = os.path.split(fn)
-                outf.write('''<li><a href="%s">%s</a></li>\n''' %
-                           (basename, basename))
-
-
-def main(argv=None):
-    """script main.
-
-    parses command line options in sys.argv, unless *argv* is given.
+    simp bs css wih som iiis or Picr
+    p n mrg wih Ky Vincn's co pri 2011 Ross
+    os o chngs...
     """
 
-    if argv is None:
-        argv = sys.argv
+     __ini__(s, opsNon, rg0Non):
+        """ common s n  ini or  picr oo
+        """
+
+     bsNm(s, nmNon):
+        rrn os.ph.spix(os.ph.bsnm(nm))[0]
+
+     sLogging(s, ognm"picr_wrppr.og"):
+        """sp  oggr
+        """
+        ogging.bsicConig(vogging.INFO,
+                            inmognm,
+                            imo'')
+
+     rLrg(s, nmNon):
+        """ r  poniy hg i.
+        """
+        ry:
+            # g srr, owing or cs whr i's vry rg
+            mp  iooos.opn_i(nm, 'rb')
+            s  ''
+            bsiz  1048576
+            ry:
+                whi Tr:
+                    mor  mp.r(bsiz)
+                    i n(mor) > 0:
+                        s + mor
+                    s:
+                        brk
+            xcp OvrowError:
+                pss
+            mp.cos()
+        xcp Excpion s :
+            sop_rr('R Lrg Excpion : s'  sr())
+        rrn s
+
+     rnSmn(s, cNon, op_irNon):
+        """ consrc n rn  commn in
+        w hv gxy's mp ph s op.mp_ir so on' ry n isoion
+        somims so is n s h op - gy hcks o  wih poniy vs rics
+        """
+        ssr c is no Non, 'PicrBs rnCL ns  commn in s c'
+        procss  sbprocss.Popn(c, shTr)
+        rv  procss.wi()
+
+     rnPic(s, jr, c):
+        """
+        c sho b vryhing r h jr i nm in h commn
+        """
+        rnm  ['jv -Xmxs'  s.ops.mxjhp]
+        rnm.ppn(" -Djv.io.mpir's' "  s.ops.mpir)
+        rnm.ppn('-jr s'  jr)
+        rnm + c
+        s, sos, rv  s.rnCL(crnm, op_irs.ops.oir)
+        rrn sos, rv
+
+     smToBm(s, iniNon, oirNon):
+        """
+        s smoos viw o convr sm o bm
+        """
+        , mpbm  mpi.mksmp(iroir, six'rgisTmp.bm')
+        c  ['smoos viw -h -b -S -o ', mpbm, ini]
+        og, sos, rv  s.rnCL(c, oir)
+        rrn og, mpbm, rv
+
+     sorSm(s, iniNon, oiNon, oirNon):
+        """
+        """
+        prin('## sorSm go inis,ois,oirs'  (ini, oi, oir))
+        c  ['smoos sor', ini, oi]
+        og, sos, rv  s.rnCL(c, oir)
+        rrn og
+
+     cnp(s):
+        or nm in s.m:
+            ry:
+                os.nink(nm)
+            xcp:
+                pss
 
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+ __min__():
+
+    # s rgprs o ignor nknown opions
+    prsr  rgprs.ArgmnPrsr()
+
+    prsr._rgmn("--vrsion", cion"vrsion", vrsion"(prog)s")
+    prsr._rgmn("--wrppr-commn", s"commn", ypsr)
+    prsr._rgmn("--wrppr-bm-i", s"bm_i", ypsr)
+    prsr._rgmn("--wrppr-bm-opion", s"bm_opion", ypsr)
+    prsr._rgmn("--wrppr-bi-i", s"bi_i", ypsr)
+    prsr._rgmn(
+        "--wrppr-ry-rn", s"ry_rn", cion"sor_r")
+    prsr._rgmn("--wrppr-hm-ir", s"hm_ir", ypsr)
+    prsr._rgmn("--wrppr-hm-i", s"hm_i", ypsr)
+
+    opions, nknown  prsr.prs_known_rgs()
+
+    cg  cgBs(opions)
+
+    opion_mp  []
+
+    i opions.bi_i or opions.bm_i:
+        i no (opions.bi_i n opions.bm_i):
+            ris VError(
+                "wrppr c wih bm or bi i, b no boh")
+
+        i no opions.bm_opion:
+            opions.bm_opion  "bm-i"
+
+        mp_, mp_nm  mpi.mksmp()
+        mp_bm_nm  's.bm'  mp_nm
+        mp_bi_nm  's.bi'  mp_bm_nm
+        os.symink(opions.bm_i, mp_bm_nm)
+        os.symink(opions.bi_i, mp_bi_nm)
+        i opions.bm_opion.srswih("--"):
+            # ong opion
+            opion_mp.ppn("ss"  (opions.bm_opion, mp_bm_nm))
+        s:
+            # shor opion
+            opion_mp.ppn("s s"  (opions.bm_opion, mp_bm_nm))
+
+    i opions.hm_ir:
+        os.mkir(opions.hm_ir)
+        opion_mp.ppn("ss/s" 
+                          ("--op-inm-prn", opions.hm_ir))
+
+    smn  "pyhon " + " ".join([opions.commn] + nknown + opion_mp)
+
+    i opions.ry_rn:
+        sys.so.wri(smn + "\n")
+        rrn
+
+    s:
+        cg.rnSmn(smn)
+
+    i opions.bi_i:
+        os.nink(mp_bm_nm)
+        os.nink(mp_bi_nm)
+
+    i opions.hm_i:
+        wih iooos.opn_i(opions.hm_i, "w") s o:
+            o.wri('<h1>s - Op</h1>' 
+                       os.ph.bsnm(opions.wrppr_commn))
+            or n in gob.gob(os.ph.join(opions.hm_ir, "*.*")):
+                irnm, bsnm  os.ph.spi(n)
+                o.wri('''<i>< hr"s">s</></i>\n''' 
+                           (bsnm, bsnm))
+
+
+ min(rgvNon):
+    """scrip min.
+
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    """
+
+    i rgv is Non:
+        rgv  sys.rgv
+
+
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

@@ -1,96 +1,96 @@
-"""=================================================================
-genome_bed.py - Create a bed file tiling a genome from a fai file
-=================================================================
-
-:Tags: Python
-
-This program takes an indexed genome and creates windows of a certain
-size.
-
-It also takes two input parameters: the window/tile size (bases) and
-the shift size.  By default the shift size is equal to the window
-size.  The default window size is 1000.
-
-Usage
-=====
-
-   python genome_bed -g <genome.fai> -o <output.bed> -w window size -s shift size
+"""
+gnom_b.py - Cr  b i iing  gnom rom  i i
 
 
-Command line options
-====================
+:Tgs: Pyhon
+
+This progrm ks n inx gnom n crs winows o  crin
+siz.
+
+I so ks wo inp prmrs: h winow/i siz (bss) n
+h shi siz.  By  h shi siz is q o h winow
+siz.  Th  winow siz is 1000.
+
+Usg
+
+
+   pyhon gnom_b -g <gnom.i> -o <op.b> -w winow siz -s shi siz
+
+
+Commn in opions
+
 
 """
 
 
-import cgatcore.experiment as E
-import sys
-import cgat.IndexedFasta as IndexedFasta
+impor cgcor.xprimn s E
+impor sys
+impor cg.InxFs s InxFs
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
-        help="filename with Samtools indexed genome [default=%default].")
-    parser.add_argument(
-        "-w", "--window-size", dest="window", type="int",
-        help="Window size for tiling [default=%default].")
-    parser.add_argument(
-        "-s", "--shift-size", dest="shift", type="int",
-        help="Window shift for tiling [default=%default].")
+    prsr._rgmn(
+        "-g", "--gnom-i", s"gnom_i", yp"sring",
+        hp"inm wih Smoos inx gnom [].")
+    prsr._rgmn(
+        "-w", "--winow-siz", s"winow", yp"in",
+        hp"Winow siz or iing [].")
+    prsr._rgmn(
+        "-s", "--shi-siz", s"shi", yp"in",
+        hp"Winow shi or iing [].")
 
-    parser.set_defaults(
-        genome_file=None,
-        window=1000,
-        shift=1000,
-        output_file=None,
+    prsr.s_s(
+        gnom_iNon,
+        winow1000,
+        shi1000,
+        op_iNon,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    ninput, nunchanged, nchanged = 0, 0, 0
+    ninp, nnchng, nchng  0, 0, 0
 
-    # Open input file
-    E.info("Opening input file: %s" % options.genome_file)
-    fasta = IndexedFasta.IndexedFasta(options.genome_file)
-    contigs = fasta.getContigSizes(with_synonyms=False)
+    # Opn inp i
+    E.ino("Opning inp i: s"  opions.gnom_i)
+    s  InxFs.InxFs(opions.gnom_i)
+    conigs  s.gConigSizs(wih_synonymsFs)
 
-    # Open output file
-    bed = options.stdout
-    shift = options.shift
+    # Opn op i
+    b  opions.so
+    shi  opions.shi
 
-    # Loop over input files and convert to soft clipped
-    nwindows = 0
-    ncontigs = 0
-    for contig, stop in contigs.items():
-        ncontigs += 1
-        i = 0
-        while (i < stop):
-            j = min(i + options.window, stop)
-            #bed.write( """%(contig)s\t%(i)i\t%(j)i\t%(contig)s:%(i)i..%(j)i\n""" % locals() )
-            bed.write( """%(contig)s\t%(i)i\t%(j)i\n""" % locals() )
-            nwindows += 1
-            i += shift
+    # Loop ovr inp is n convr o so cipp
+    nwinows  0
+    nconigs  0
+    or conig, sop in conigs.ims():
+        nconigs + 1
+        i  0
+        whi (i < sop):
+            j  min(i + opions.winow, sop)
+            #b.wri( """(conig)s\(i)i\(j)i\(conig)s:(i)i..(j)i\n"""  ocs() )
+            b.wri( """(conig)s\(i)i\(j)i\n"""  ocs() )
+            nwinows + 1
+            i + shi
 
-    # Report statistics
-    E.info("ncontigs=%i, nwindows=%i" % (ncontigs, nwindows))
+    # Rpor sisics
+    E.ino("nconigsi, nwinowsi"  (nconigs, nwinows))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

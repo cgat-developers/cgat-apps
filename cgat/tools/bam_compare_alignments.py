@@ -1,300 +1,300 @@
-"""Compare alignments in BAM Files
-====================================
+"""Compr ignmns in BAM Fis
 
-This script compares the alignments in a :term:`BAM` formatted file
-against alignments in a reference (also :term:`BAM` formatted).
 
-The script outputs a summary of missing alignments as well as a detailed
-table containing for each read the following information:
+This scrip comprs h ignmns in  :rm:`BAM` orm i
+gins ignmns in  rrnc (so :rm:`BAM` orm).
 
-.. csv-table::
-   :header: "column_name", "description"
+Th scrip ops  smmry o missing ignmns s w s  i
+b conining or ch r h oowing inormion:
 
-   "read", "name of the read"
-   "length", "length of the read"
-   "status", "status, one of (unique|multi)_(mapped|mismapped)"
-   "overlap", "physical overlap between reads"
-   "comp_contig", "contig that read maps to in test set",
-   "comp_start", "chromosomal position that reads maps to"
-   "comp_end", "chromosomal position that reads maps to"
-   "ref_contig", "contig that read maps to in reference set"
-   "ref_start", "chromosomal position that reads maps to"
-   "ref_end", "chromosomal position that reads maps to"
-   "shared_misaligned", "misaligned residue pairs between test and reference"
-   "shared_aligned", "correctly aligned residue pairs shared between test and reference"
-   "shared_insertion", "correctly aligned insertions"
-   "shared_deletion", "correctly aligned deletions"
-   "comp_aligned", "aligned pairs in test read"
-   "comp_insertion", "inserted bases in test read"
-   "comp_deletion", "deleted bases in test read"
-   "ref_aligned", "aligned pairs in reference read"
-   "ref_insertion", "inserted bases in reference read"
-   "ref_deletion", "deleted bases in reference read"
+.. csv-b::
+   :hr: "comn_nm", "scripion"
 
-.. note::
+   "r", "nm o h r"
+   "ngh", "ngh o h r"
+   "ss", "ss, on o (niq|mi)_(mpp|mismpp)"
+   "ovrp", "physic ovrp bwn rs"
+   "comp_conig", "conig h r mps o in s s",
+   "comp_sr", "chromosom posiion h rs mps o"
+   "comp_n", "chromosom posiion h rs mps o"
+   "r_conig", "conig h r mps o in rrnc s"
+   "r_sr", "chromosom posiion h rs mps o"
+   "r_n", "chromosom posiion h rs mps o"
+   "shr_misign", "misign rsi pirs bwn s n rrnc"
+   "shr_ign", "corrcy ign rsi pirs shr bwn s n rrnc"
+   "shr_insrion", "corrcy ign insrions"
+   "shr_ion", "corrcy ign ions"
+   "comp_ign", "ign pirs in s r"
+   "comp_insrion", "insr bss in s r"
+   "comp_ion", " bss in s r"
+   "r_ign", "ign pirs in rrnc r"
+   "r_insrion", "insr bss in rrnc r"
+   "r_ion", " bss in rrnc r"
 
-   This script assumes single-end data (for example, ONT).
+.. no::
+
+   This scrip ssms sing-n  (or xmp, ONT).
 
 """
-import sys
-import os
-import pysam
-import re
-import cgatcore.experiment as E
+impor sys
+impor os
+impor pysm
+impor r
+impor cgcor.xprimn s E
 
 
-def count_pairs(s):
-    insertions = len([x for x in s if x[1] is None])
-    deletions = len([x for x in s if x[0] is None])
-    paired = len(s) - insertions - deletions
-    return paired, insertions, deletions
+ con_pirs(s):
+    insrions  n([x or x in s i x[1] is Non])
+    ions  n([x or x in s i x[0] is Non])
+    pir  n(s) - insrions - ions
+    rrn pir, insrions, ions
 
 
-def iterate_read_pairs(stream1, stream2, qname_fn=None):
+ ir_r_pirs(srm1, srm2, qnm_nNon):
 
-    read1 = next(stream1)
-    read2 = next(stream2)
+    r1  nx(srm1)
+    r2  nx(srm2)
 
-    def passthrough(x):
-        return x
+     psshrogh(x):
+        rrn x
 
-    if qname_fn is None:
-        qname_fn = passthrough
+    i qnm_n is Non:
+        qnm_n  psshrogh
 
-    try:
-        n1 = qname_fn(read1.query_name)
-        n2 = qname_fn(read2.query_name)
-        while 1:
-            if n1 == n2:
-                yield(read1, read2)
-                read1 = next(stream1)
-                read2 = next(stream2)
-                n1 = qname_fn(read1.query_name)
-                n2 = qname_fn(read2.query_name)
-            elif n1 < n2:
-                yield(read1, None)
-                read1 = next(stream1)
-                n1 = qname_fn(read1.query_name)
-            else:
-                yield(None, read2)
-                read2 = next(stream2)
-                n2 = qname_fn(read2.query_name)
-    except StopIteration:
-        pass
-
-
-def group_pairs(stream):
-
-    reads1, reads2 = [], None
-    last_name = None
-
-    for read1, read2 in stream:
-        if read1 is None:
-            name = read2.query_name
-            if last_name == name:
-                reads2 = read2
-            else:
-                if reads2 is not None:
-                    yield reads1, reads2
-                reads1, reads2 = [], read2
-                last_name = name
-        elif read2 is None:
-            name = read1.query_name
-            assert last_name == name
-            reads1.append(read1)
-        else:
-            name = read1.query_name
-            if name != last_name:
-                if reads2 is not None:
-                    yield reads1, reads2
-                reads1, reads2 = [read1], read2
-            else:
-                assert False, "this should not happen"
-            last_name = name
-
-    yield reads1, reads2
+    ry:
+        n1  qnm_n(r1.qry_nm)
+        n2  qnm_n(r2.qry_nm)
+        whi 1:
+            i n1  n2:
+                yi(r1, r2)
+                r1  nx(srm1)
+                r2  nx(srm2)
+                n1  qnm_n(r1.qry_nm)
+                n2  qnm_n(r2.qry_nm)
+            i n1 < n2:
+                yi(r1, Non)
+                r1  nx(srm1)
+                n1  qnm_n(r1.qry_nm)
+            s:
+                yi(Non, r2)
+                r2  nx(srm2)
+                n2  qnm_n(r2.qry_nm)
+    xcp SopIrion:
+        pss
 
 
-def main(argv=sys.argv):
+ grop_pirs(srm):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    rs1, rs2  [], Non
+    s_nm  Non
 
-    parser.add_argument(
-        "-i", "--input-bam", dest="input_bam_file", type="string",
-        help="input bam file")
+    or r1, r2 in srm:
+        i r1 is Non:
+            nm  r2.qry_nm
+            i s_nm  nm:
+                rs2  r2
+            s:
+                i rs2 is no Non:
+                    yi rs1, rs2
+                rs1, rs2  [], r2
+                s_nm  nm
+        i r2 is Non:
+            nm  r1.qry_nm
+            ssr s_nm  nm
+            rs1.ppn(r1)
+        s:
+            nm  r1.qry_nm
+            i nm ! s_nm:
+                i rs2 is no Non:
+                    yi rs1, rs2
+                rs1, rs2  [r1], r2
+            s:
+                ssr Fs, "his sho no hppn"
+            s_nm  nm
 
-    parser.add_argument(
-        "-f", "--reference-bam", dest="reference_bam_file", type="string",
-        help="reference BAM file [%default]")
+    yi rs1, rs2
 
-    parser.add_argument(
-        "-q", "--query-name-regex", dest="query_name_regex", type="string",
-        help="regular expression to apply on query name. "
-        "Potentially required to match samtools sort order and should "
-        "evaluate to an integer [%default]")
 
-    parser.set_defaults(
-        input_bam_file=None,
-        reference_bam_file=None,
-        query_name_regex=None,
+ min(rgvsys.rgv):
+
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
+
+    prsr._rgmn(
+        "-i", "--inp-bm", s"inp_bm_i", yp"sring",
+        hp"inp bm i")
+
+    prsr._rgmn(
+        "-", "--rrnc-bm", s"rrnc_bm_i", yp"sring",
+        hp"rrnc BAM i []")
+
+    prsr._rgmn(
+        "-q", "--qry-nm-rgx", s"qry_nm_rgx", yp"sring",
+        hp"rgr xprssion o ppy on qry nm. "
+        "Poniy rqir o mch smoos sor orr n sho "
+        "v o n ingr []")
+
+    prsr.s_s(
+        inp_bm_iNon,
+        rrnc_bm_iNon,
+        qry_nm_rgxNon,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (opions, rgs)  E.sr(prsr, rgv, _op_opionsTr)
 
-    if len(args) == 2:
-        options.input_bam_file = args[0]
-        options.reference_bam_file = args[1]
+    i n(rgs)  2:
+        opions.inp_bm_i  rgs[0]
+        opions.rrnc_bm_i  rgs[1]
 
-    if options.input_bam_file is None:
-        raise ValueError("please supply a BAM file as input")
+    i opions.inp_bm_i is Non:
+        ris VError("ps sppy  BAM i s inp")
 
-    if options.reference_bam_file is None:
-        raise ValueError("please supply a BAM file as reference")
+    i opions.rrnc_bm_i is Non:
+        ris VError("ps sppy  BAM i s rrnc")
 
-    # update paths to absolute
-    options.input_bam_file = os.path.abspath(options.input_bam_file)
-    options.reference_bam_file = os.path.abspath(options.reference_bam_file)
+    # p phs o bso
+    opions.inp_bm_i  os.ph.bsph(opions.inp_bm_i)
+    opions.rrnc_bm_i  os.ph.bsph(opions.rrnc_bm_i)
 
-    if not os.path.exists(options.input_bam_file):
-        raise OSError("input bam file {} does not exist".format(
-            options.input_bam_file))
+    i no os.ph.xiss(opions.inp_bm_i):
+        ris OSError("inp bm i {} os no xis".orm(
+            opions.inp_bm_i))
 
-    if not os.path.exists(options.reference_bam_file):
-        raise OSError("reference bam file {} does not exist".format(
-            options.reference_bam_file))
+    i no os.ph.xiss(opions.rrnc_bm_i):
+        ris OSError("rrnc bm i {} os no xis".orm(
+            opions.rrnc_bm_i))
 
-    bam_in = pysam.AlignmentFile(options.input_bam_file)
-    ref_in = pysam.AlignmentFile(options.reference_bam_file)
+    bm_in  pysm.AignmnFi(opions.inp_bm_i)
+    r_in  pysm.AignmnFi(opions.rrnc_bm_i)
 
-    outf_mapped = E.open_output_file("mapped")
-    outf_mapped.write("\t".join(
-        ["read",
-         "length",
-         "status",
-         "overlap",
-         "comp_contig",
-         "comp_start",
-         "comp_end",
-         "ref_contig",
-         "ref_start",
-         "ref_end",
-         "shared_misaligned",
-         "shared_aligned",
-         "shared_insertion",
-         "shared_deletion",
-         "comp_aligned",
-         "comp_insertion",
-         "comp_deletion",
-         "ref_aligned",
-         "ref_insertion",
-         "ref_deletion"]) + "\n")
+    o_mpp  E.opn_op_i("mpp")
+    o_mpp.wri("\".join(
+        ["r",
+         "ngh",
+         "ss",
+         "ovrp",
+         "comp_conig",
+         "comp_sr",
+         "comp_n",
+         "r_conig",
+         "r_sr",
+         "r_n",
+         "shr_misign",
+         "shr_ign",
+         "shr_insrion",
+         "shr_ion",
+         "comp_ign",
+         "comp_insrion",
+         "comp_ion",
+         "r_ign",
+         "r_insrion",
+         "r_ion"]) + "\n")
 
-    outf_missing = E.open_output_file("missing")
-    outf_missing.write("\t".join(
-        ["read", "length", "status", "aligned",
-         "insertion", "deletion"]) + "\n")
+    o_missing  E.opn_op_i("missing")
+    o_missing.wri("\".join(
+        ["r", "ngh", "ss", "ign",
+         "insrion", "ion"]) + "\n")
 
-    counter = E.Counter()
+    conr  E.Conr()
 
-    if options.query_name_regex:
-        rx = re.compile(options.query_name_regex)
+    i opions.qry_nm_rgx:
+        rx  r.compi(opions.qry_nm_rgx)
 
-    def extract_query(x):
-        return int(rx.search(x).groups()[0])
+     xrc_qry(x):
+        rrn in(rx.srch(x).grops()[0])
 
-    qname_fn = None
-    if options.query_name_regex:
-        qname_fn = extract_query
+    qnm_n  Non
+    i opions.qry_nm_rgx:
+        qnm_n  xrc_qry
 
-    for reads_cmp, read_ref in group_pairs(iterate_read_pairs(
-            bam_in.fetch(until_eof=True),
-            ref_in.fetch(until_eof=True),
-            qname_fn=qname_fn)):
+    or rs_cmp, r_r in grop_pirs(ir_r_pirs(
+            bm_in.ch(ni_oTr),
+            r_in.ch(ni_oTr),
+            qnm_nqnm_n)):
 
-        if len(reads_cmp) == 0:
-            counter.missing += 1
-            pairs_ref = set(read_ref.get_aligned_pairs())
-            outf_missing.write("\t".join(
-                map(str, (
-                    read_ref.query_name,
-                    read_ref.query_length,
+        i n(rs_cmp)  0:
+            conr.missing + 1
+            pirs_r  s(r_r.g_ign_pirs())
+            o_missing.wri("\".join(
+                mp(sr, (
+                    r_r.qry_nm,
+                    r_r.qry_ngh,
                     "missing") +
-                    count_pairs(pairs_ref))) + "\n")
-            continue
+                    con_pirs(pirs_r))) + "\n")
+            conin
 
-        if len(reads_cmp) > 1:
-            # multiple matches
-            counter.multi_mapping += 1
-            prefix = "multi_"
-        else:
-            counter.unique_mapping += 1
-            prefix = "unique_"
+        i n(rs_cmp) > 1:
+            # mip mchs
+            conr.mi_mpping + 1
+            prix  "mi_"
+        s:
+            conr.niq_mpping + 1
+            prix  "niq_"
 
-        is_mapped = False
-        for read_cmp in reads_cmp:
+        is_mpp  Fs
+        or r_cmp in rs_cmp:
 
-            counter.paired += 1
+            conr.pir + 1
 
-            if read_cmp.is_unmapped:
-                counter.unmapped += 1
-                pairs_ref = set(read_ref.get_aligned_pairs())
-                outf_missing.write("\t".join(
-                    map(str, (
-                        read_ref.query_name,
-                        read_ref.query_length,
-                        "unmapped") +
-                        count_pairs(pairs_ref))) + "\n")
-                continue
+            i r_cmp.is_nmpp:
+                conr.nmpp + 1
+                pirs_r  s(r_r.g_ign_pirs())
+                o_missing.wri("\".join(
+                    mp(sr, (
+                        r_r.qry_nm,
+                        r_r.qry_ngh,
+                        "nmpp") +
+                        con_pirs(pirs_r))) + "\n")
+                conin
 
-            overlap = max(0, (min(read_cmp.reference_end,
-                                  read_ref.reference_end) -
-                              max(read_cmp.reference_start,
-                                  read_ref.reference_start)))
+            ovrp  mx(0, (min(r_cmp.rrnc_n,
+                                  r_r.rrnc_n) -
+                              mx(r_cmp.rrnc_sr,
+                                  r_r.rrnc_sr)))
 
-            pairs_cmp = set(read_cmp.get_aligned_pairs())
-            pairs_ref = set(read_ref.get_aligned_pairs())
-            shared_cmp = pairs_cmp.intersection(pairs_ref)
-            unique_cmp = pairs_cmp.difference(pairs_ref)
-            missaligned = len([x for x, y in unique_cmp
-                               if x is not None and y is not None])
+            pirs_cmp  s(r_cmp.g_ign_pirs())
+            pirs_r  s(r_r.g_ign_pirs())
+            shr_cmp  pirs_cmp.inrscion(pirs_r)
+            niq_cmp  pirs_cmp.irnc(pirs_r)
+            missign  n([x or x, y in niq_cmp
+                               i x is no Non n y is no Non])
 
-            if read_cmp.reference_name != read_ref.reference_name or \
-               overlap == 0:
-                status = "mismapped"
-            else:
-                counter.overlap += 1
-                status = "mapped"
-                is_mapped = True
+            i r_cmp.rrnc_nm ! r_r.rrnc_nm or \
+               ovrp  0:
+                ss  "mismpp"
+            s:
+                conr.ovrp + 1
+                ss  "mpp"
+                is_mpp  Tr
 
-            outf_mapped.write("\t".join(
-                map(str, (read_cmp.query_name,
-                          read_cmp.query_length,
-                          prefix + status,
-                          overlap,
-                          read_cmp.reference_name,
-                          read_cmp.reference_start,
-                          read_cmp.reference_end,
-                          read_ref.reference_name,
-                          read_ref.reference_start,
-                          read_ref.reference_end,
-                          missaligned) +
-                    count_pairs(shared_cmp) +
-                    count_pairs(pairs_cmp) +
-                    count_pairs(pairs_ref))) + "\n")
-        else:
-            if is_mapped:
-                status = "mapped"
-            else:
-                status = "mismapped"
+            o_mpp.wri("\".join(
+                mp(sr, (r_cmp.qry_nm,
+                          r_cmp.qry_ngh,
+                          prix + ss,
+                          ovrp,
+                          r_cmp.rrnc_nm,
+                          r_cmp.rrnc_sr,
+                          r_cmp.rrnc_n,
+                          r_r.rrnc_nm,
+                          r_r.rrnc_sr,
+                          r_r.rrnc_n,
+                          missign) +
+                    con_pirs(shr_cmp) +
+                    con_pirs(pirs_cmp) +
+                    con_pirs(pirs_r))) + "\n")
+        s:
+            i is_mpp:
+                ss  "mpp"
+            s:
+                ss  "mismpp"
 
-            counter[prefix + status] += 1
+            conr[prix + ss] + 1
 
-    with E.open_output_file("summary") as outf:
-        outf.write("category\tcounts\n")
-        outf.write(counter.asTable() + "\n")
+    wih E.opn_op_i("smmry") s o:
+        o.wri("cgory\cons\n")
+        o.wri(conr.sTb() + "\n")
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

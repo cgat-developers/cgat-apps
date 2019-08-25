@@ -1,471 +1,471 @@
-"""bam2wiggle.py - convert bam to wig/bigwig file
-==============================================
+"""bm2wigg.py - convr bm o wig/bigwig i
 
-:Tags: Genomics NGS Intervals Conversion BAM WIGGLE BIGWIG BEDGRAPH
 
-Purpose
+:Tgs: Gnomics NGS Inrvs Convrsion BAM WIGGLE BIGWIG BEDGRAPH
+
+Prpos
 -------
 
-convert a bam file to a bigwig or bedgraph file.
+convr  bm i o  bigwig or bgrph i.
 
-Depending on options chosen, this script either computes the densities
-itself or makes use of faster solutions if possible. The script
-requires the executables :file:`wigToBigWig` and :file:`bedToBigBed`
-to be in the user's PATH.
+Dpning on opions chosn, his scrip ihr comps h nsiis
+is or mks s o sr soions i possib. Th scrip
+rqirs h xcbs :i:`wigToBigWig` n :i:`bToBigB`
+o b in h sr's PATH.
 
-If no --shift-size or --extend option are given, the coverage is computed
-directly on reads.  Counting can be performed at a certain resolution.
+I no --shi-siz or --xn opion r givn, h covrg is comp
+ircy on rs.  Coning cn b prorm   crin rsoion.
 
-The counting currently is not aware of spliced reads, i.e., an
-inserted intron will be included in the coverage.
+Th coning crrny is no wr o spic rs, i.., n
+insr inron wi b inc in h covrg.
 
-If --shift-size or --extend are given, the coverage is computed by shifting
-read alignment positions upstream for positive strand reads or
-downstream for negative strand reads and extend them by a fixed
-amount.
+I --shi-siz or --xn r givn, h covrg is comp by shiing
+r ignmn posiions psrm or posiiv srn rs or
+ownsrm or ngiv srn rs n xn hm by  ix
+mon.
 
-For RNASEQ data it might be best to run genomeCoverageBed directly on
-the bam file.
+For RNASEQ  i migh b bs o rn gnomCovrgB ircy on
+h bm i.
 
-Usage
+Usg
 -----
 
-Type::
+Typ::
 
-   cgat bam2wiggle \
-          --output-format=bigwig \
-          --output-filename-pattern=out.bigwig in.bam
+   cg bm2wigg \
+          --op-ormbigwig \
+          --op-inm-prno.bigwig in.bm
 
-to convert the :term:`bam` file file:`in.bam` to :term:`bigwig` format
-and save the result in :file:`out.bigwig`.
+o convr h :rm:`bm` i i:`in.bm` o :rm:`bigwig` orm
+n sv h rs in :i:`o.bigwig`.
 
-Command line options
+Commn in opions
 --------------------
 
 """
 
-import os
-import sys
-import tempfile
-import shutil
-import subprocess
-import cgatcore.experiment as E
-import pysam
-import cgatcore.iotools as iotools
-from cgat.BamTools.bamtools import merge_pairs
+impor os
+impor sys
+impor mpi
+impor shi
+impor sbprocss
+impor cgcor.xprimn s E
+impor pysm
+impor cgcor.iooos s iooos
+rom cg.BmToos.bmoos impor mrg_pirs
 
 
-class SpanWriter(object):
+css SpnWrir(objc):
 
-    '''output values within spans.
-    values are collected according to a span and an average is
-    output.
+    '''op vs wihin spns.
+    vs r coc ccoring o  spn n n vrg is
+    op.
     '''
 
-    def __init__(self, span):
-        self.span = span
-        self.laststart = 0
-        self.lastend = None
-        self.val = 0
-        self.lastout = None
+     __ini__(s, spn):
+        s.spn  spn
+        s.ssr  0
+        s.sn  Non
+        s.v  0
+        s.so  Non
 
-    def __call__(self, outfile, contig, start, end, val):
+     __c__(s, oi, conig, sr, n, v):
 
-        # deal with previous window
-        if self.lastend:
-            last_window_start = self.lastend - self.lastend % self.span
-            last_window_end = last_window_start + self.span
-        else:
-            last_window_start = start - start % self.span
-            last_window_end = start + self.span
+        #  wih prvios winow
+        i s.sn:
+            s_winow_sr  s.sn - s.sn  s.spn
+            s_winow_n  s_winow_sr + s.spn
+        s:
+            s_winow_sr  sr - sr  s.spn
+            s_winow_n  sr + s.spn
 
-        # print start, end, val, last_window_start, last_window_end
+        # prin sr, n, v, s_winow_sr, s_winow_n
 
-        if self.lastend and start > last_window_end:
-            # no overlap, output previous span
-            assert self.lastout != last_window_start, \
-                ("start=%i, end=%i, laststart=%i, "
-                 "lastend=%i, last_window_start=%i") % \
-                (start, end, self.laststart,
-                 self.lastend, last_window_start)
-            self.lastout = last_window_start
-            v = self.val / float(self.span)
-            outfile.write("%i\t%f\n" % (last_window_start, v))
-            self.val = 0
+        i s.sn n sr > s_winow_n:
+            # no ovrp, op prvios spn
+            ssr s.so ! s_winow_sr, \
+                ("sri, ni, ssri, "
+                 "sni, s_winow_sri")  \
+                (sr, n, s.ssr,
+                 s.sn, s_winow_sr)
+            s.so  s_winow_sr
+            v  s.v / o(s.spn)
+            oi.wri("i\\n"  (s_winow_sr, v))
+            s.v  0
 
-            last_window_start = start - start % self.span
-            last_window_end = start + self.span
+            s_winow_sr  sr - sr  s.spn
+            s_winow_n  sr + s.spn
 
-        if end < last_window_end:
-            # window too small to output, simply add values
-            self.val += val * (end - start)
-            self.lastend = max(end, self.lastend)
-        else:
-            # output first window
-            v = self.val + val * \
-                (self.span - start % self.span) / float(self.span)
+        i n < s_winow_n:
+            # winow oo sm o op, simpy  vs
+            s.v + v * (n - sr)
+            s.sn  mx(n, s.sn)
+        s:
+            # op irs winow
+            v  s.v + v * \
+                (s.spn - sr  s.spn) / o(s.spn)
 
-            s = last_window_start
-            assert self.lastout != s, \
-                "start=%i, end=%i, laststart=%i, lastend=%i, s=%i" % \
-                (start, end, self.laststart, self.lastend, s)
-            outfile.write("%i\t%f\n" % (s, v))
-            self.lastout = s
-            self.val = 0
+            s  s_winow_sr
+            ssr s.so ! s, \
+                "sri, ni, ssri, sni, si"  \
+                (sr, n, s.ssr, s.sn, s)
+            oi.wri("i\\n"  (s, v))
+            s.so  s
+            s.v  0
 
-            # Output middle windows
-            for x in range(start + self.span - start % self.span,
-                           end - self.span, self.span):
-                assert self.lastout != x
-                outfile.write("%i\t%f\n" % (x, val))
-                self.lastout = x
+            # Op mi winows
+            or x in rng(sr + s.spn - sr  s.spn,
+                           n - s.spn, s.spn):
+                ssr s.so ! x
+                oi.wri("i\\n"  (x, v))
+                s.so  x
 
-            if end % self.span:
-                # save rest
-                self.lastend = end
-                self.val = val * end % self.span
-            elif end - self.span != last_window_start:
-                # special case, end ends on window
-                assert self.lastout != end - self.span, \
-                    "start=%i, end=%i, laststart=%i, lastend=%i" % \
-                    (start, end, self.laststart, self.lastend)
-                self.lastout = end - self.span
-                outfile.write("%i\t%f\n" % (end - self.span, val))
-                self.lastend = None
-            else:
-                # special case, end ends on window and only single
-                # window - already output as start
-                self.lastend = None
+            i n  s.spn:
+                # sv rs
+                s.sn  n
+                s.v  v * n  s.spn
+            i n - s.spn ! s_winow_sr:
+                # spci cs, n ns on winow
+                ssr s.so ! n - s.spn, \
+                    "sri, ni, ssri, sni"  \
+                    (sr, n, s.ssr, s.sn)
+                s.so  n - s.spn
+                oi.wri("i\\n"  (n - s.spn, v))
+                s.sn  Non
+            s:
+                # spci cs, n ns on winow n ony sing
+                # winow - ry op s sr
+                s.sn  Non
 
-    def flush(self, outfile):
-        if self.lastend:
-            outfile.write("%i\t%f\n" % (
-                self.lastend - self.lastend % self.span,
-                self.val / (self.lastend % self.span)))
+     sh(s, oi):
+        i s.sn:
+            oi.wri("i\\n"  (
+                s.sn - s.sn  s.spn,
+                s.v / (s.sn  s.spn)))
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument("-o", "--output-format", dest="output_format",
-                      type="choice",
-                      choices=(
-                          "bedgraph", "wiggle", "bigbed",
-                          "bigwig", "bed"),
-                      help="output format [default=%default]")
+    prsr._rgmn("-o", "--op-orm", s"op_orm",
+                      yp"choic",
+                      choics(
+                          "bgrph", "wigg", "bigb",
+                          "bigwig", "b"),
+                      hp"op orm []")
 
-    parser.add_argument("-s", "--shift-size", dest="shift", type="int",
-                      help="shift reads by a certain amount (ChIP-Seq) "
-                      "[%default]")
+    prsr._rgmn("-s", "--shi-siz", s"shi", yp"in",
+                      hp"shi rs by  crin mon (ChIP-Sq) "
+                      "[]")
 
-    parser.add_argument("-e", "--extend", dest="extend", type="int",
-                      help="extend reads by a certain amount "
-                      "(ChIP-Seq) [%default]")
+    prsr._rgmn("-", "--xn", s"xn", yp"in",
+                      hp"xn rs by  crin mon "
+                      "(ChIP-Sq) []")
 
-    parser.add_argument("-p", "--wiggle-span", dest="span", type="int",
-                      help="span of a window in wiggle tracks "
-                      "[%default]")
+    prsr._rgmn("-p", "--wigg-spn", s"spn", yp"in",
+                      hp"spn o  winow in wigg rcks "
+                      "[]")
 
-    parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
-                      action="store_true",
-                      help="merge paired-ended reads into a single "
-                      "bed interval [default=%default].")
+    prsr._rgmn("-m", "--mrg-pirs", s"mrg_pirs",
+                      cion"sor_r",
+                      hp"mrg pir-n rs ino  sing "
+                      "b inrv [].")
 
-    parser.add_argument("--scale-base", dest="scale_base", type="float",
-                      help="number of reads/pairs to scale bigwig file to. "
-                      "The default is to scale to 1M reads "
-                      "[default=%default]")
+    prsr._rgmn("--sc-bs", s"sc_bs", yp"o",
+                      hp"nmbr o rs/pirs o sc bigwig i o. "
+                      "Th  is o sc o 1M rs "
+                      "[]")
 
-    parser.add_argument("--scale-method", dest="scale_method", type="choice",
-                      choices=("none", "reads",),
-                      help="scale bigwig output. 'reads' will normalize by "
-                      "the total number reads in the bam file that are used "
-                      "to construct the bigwig file. If --merge-pairs is used "
-                      "the number of pairs output will be used for "
-                      "normalization. 'none' will not scale the bigwig file"
-                      "[default=%default]")
+    prsr._rgmn("--sc-mho", s"sc_mho", yp"choic",
+                      choics("non", "rs",),
+                      hp"sc bigwig op. 'rs' wi normiz by "
+                      "h o nmbr rs in h bm i h r s "
+                      "o consrc h bigwig i. I --mrg-pirs is s "
+                      "h nmbr o pirs op wi b s or "
+                      "normizion. 'non' wi no sc h bigwig i"
+                      "[]")
 
-    parser.add_argument("--max-insert-size", dest="max_insert_size",
-                      type="int",
-                      help="only merge if insert size less that "
-                      "# bases. 0 turns of this filter "
-                      "[default=%default].")
+    prsr._rgmn("--mx-insr-siz", s"mx_insr_siz",
+                      yp"in",
+                      hp"ony mrg i insr siz ss h "
+                      "# bss. 0 rns o his ir "
+                      "[].")
 
-    parser.add_argument("--min-insert-size", dest="min_insert_size",
-                      type="int",
-                      help="only merge paired-end reads if they are "
-                      "at least # bases apart. "
-                      "0 turns of this filter. [default=%default]")
+    prsr._rgmn("--min-insr-siz", s"min_insr_siz",
+                      yp"in",
+                      hp"ony mrg pir-n rs i hy r "
+                      " s # bss pr. "
+                      "0 rns o his ir. []")
 
-    parser.set_defaults(
-        samfile=None,
-        output_format="wiggle",
-        shift=0,
-        extend=0,
-        span=1,
-        merge_pairs=None,
-        min_insert_size=0,
-        max_insert_size=0,
-        scale_method='none',
-        scale_base=1000000,
+    prsr.s_s(
+        smiNon,
+        op_orm"wigg",
+        shi0,
+        xn0,
+        spn1,
+        mrg_pirsNon,
+        min_insr_siz0,
+        mx_insr_siz0,
+        sc_mho'non',
+        sc_bs1000000,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    if len(args) >= 1:
-        options.samfile = args[0]
-    if len(args) == 2:
-        options.output_filename_pattern = args[1]
-    if not options.samfile:
-        raise ValueError("please provide a bam file")
+    i n(rgs) > 1:
+        opions.smi  rgs[0]
+    i n(rgs)  2:
+        opions.op_inm_prn  rgs[1]
+    i no opions.smi:
+        ris VError("ps provi  bm i")
 
-    # Read BAM file using Pysam
-    samfile = pysam.AlignmentFile(options.samfile, "rb")
+    # R BAM i sing Pysm
+    smi  pysm.AignmnFi(opions.smi, "rb")
 
-    # Create temporary files / folders
-    tmpdir = tempfile.mkdtemp()
-    E.debug("temporary files are in %s" % tmpdir)
-    tmpfile_wig = os.path.join(tmpdir, "wig")
-    tmpfile_sizes = os.path.join(tmpdir, "sizes")
+    # Cr mporry is / ors
+    mpir  mpi.mkmp()
+    E.bg("mporry is r in s"  mpir)
+    mpi_wig  os.ph.join(mpir, "wig")
+    mpi_sizs  os.ph.join(mpir, "sizs")
 
-    # Create dictionary of contig sizes
-    contig_sizes = dict(list(zip(samfile.references, samfile.lengths)))
-    # write contig sizes
-    outfile_size = iotools.open_file(tmpfile_sizes, "w")
-    for contig, size in sorted(contig_sizes.items()):
-        outfile_size.write("%s\t%s\n" % (contig, size))
-    outfile_size.close()
+    # Cr icionry o conig sizs
+    conig_sizs  ic(is(zip(smi.rrncs, smi.nghs)))
+    # wri conig sizs
+    oi_siz  iooos.opn_i(mpi_sizs, "w")
+    or conig, siz in sor(conig_sizs.ims()):
+        oi_siz.wri("s\s\n"  (conig, siz))
+    oi_siz.cos()
 
-    # Shift and extend only available for bigwig format
-    if options.shift or options.extend:
-        if options.output_format != "bigwig":
-            raise ValueError(
-                "shift and extend only available for bigwig output")
+    # Shi n xn ony vib or bigwig orm
+    i opions.shi or opions.xn:
+        i opions.op_orm ! "bigwig":
+            ris VError(
+                "shi n xn ony vib or bigwig op")
 
-    # Output filename required for bigwig / bigbed computation
-    if options.output_format == "bigwig":
-        if not options.output_filename_pattern:
-            raise ValueError(
-                "please specify an output file for bigwig computation.")
+    # Op inm rqir or bigwig / bigb compion
+    i opions.op_orm  "bigwig":
+        i no opions.op_inm_prn:
+            ris VError(
+                "ps spciy n op i or bigwig compion.")
 
-        # Define executable to use for binary conversion
-        if options.output_format == "bigwig":
-            executable_name = "wigToBigWig"
-        else:
-            raise ValueError("unknown output format `%s`" %
-                             options.output_format)
+        # Din xcb o s or binry convrsion
+        i opions.op_orm  "bigwig":
+            xcb_nm  "wigToBigWig"
+        s:
+            ris VError("nknown op orm `s`" 
+                             opions.op_orm)
 
-        # check required executable file is in the path
-        executable = iotools.which(executable_name)
-        if not executable:
-            raise OSError("could not find %s in path." % executable_name)
+        # chck rqir xcb i is in h ph
+        xcb  iooos.which(xcb_nm)
+        i no xcb:
+            ris OSError("co no in s in ph."  xcb_nm)
 
-        # Open outout file
-        outfile = iotools.open_file(tmpfile_wig, "w")
-        E.info("starting output to %s" % tmpfile_wig)
-    else:
-        outfile = iotools.open_file(tmpfile_wig, "w")
-        E.info("starting output to stdout")
+        # Opn oo i
+        oi  iooos.opn_i(mpi_wig, "w")
+        E.ino("sring op o s"  mpi_wig)
+    s:
+        oi  iooos.opn_i(mpi_wig, "w")
+        E.ino("sring op o so")
 
-    # Set up output write functions
-    if options.output_format in ("wiggle", "bigwig"):
-        # wiggle is one-based, so add 1, also step-size is 1, so need
-        # to output all bases
-        if options.span == 1:
-            outf = lambda outfile, contig, start, end, val: \
-                outfile.write(
-                    "".join(["%i\t%i\n" % (x, val)
-                             for x in range(start + 1, end + 1)]))
-        else:
-            outf = SpanWriter(options.span)
-    elif options.output_format == "bedgraph":
-        # bed is 0-based, open-closed
-        outf = lambda outfile, contig, start, end, val: \
-            outfile.write("%s\t%i\t%i\t%i\n" % (contig, start, end, val))
+    # S p op wri ncions
+    i opions.op_orm in ("wigg", "bigwig"):
+        # wigg is on-bs, so  1, so sp-siz is 1, so n
+        # o op  bss
+        i opions.spn  1:
+            o  mb oi, conig, sr, n, v: \
+                oi.wri(
+                    "".join(["i\i\n"  (x, v)
+                             or x in rng(sr + 1, n + 1)]))
+        s:
+            o  SpnWrir(opions.spn)
+    i opions.op_orm  "bgrph":
+        # b is 0-bs, opn-cos
+        o  mb oi, conig, sr, n, v: \
+            oi.wri("s\i\i\i\n"  (conig, sr, n, v))
 
-    # initialise counters
-    ninput, nskipped, ncontigs = 0, 0, 0
+    # iniiis conrs
+    ninp, nskipp, nconigs  0, 0, 0
 
-    # set output file name
-    output_filename_pattern = options.output_filename_pattern
-    if output_filename_pattern:
-        output_filename = os.path.abspath(output_filename_pattern)
+    # s op i nm
+    op_inm_prn  opions.op_inm_prn
+    i op_inm_prn:
+        op_inm  os.ph.bsph(op_inm_prn)
 
-    # shift and extend or merge pairs. Output temporay bed file
-    if options.shift > 0 or options.extend > 0 or options.merge_pairs:
-        # Workflow 1: convert to bed intervals and use bedtools
-        # genomecov to build a coverage file.
-        # Convert to bigwig with UCSC tools bedGraph2BigWig
+    # shi n xn or mrg pirs. Op mpory b i
+    i opions.shi > 0 or opions.xn > 0 or opions.mrg_pirs:
+        # Workow 1: convr o b inrvs n s boos
+        # gnomcov o bi  covrg i.
+        # Convr o bigwig wih UCSC oos bGrph2BigWig
 
-        if options.merge_pairs:
-            # merge pairs using bam2bed
-            E.info("merging pairs to temporary file")
-            counter = merge_pairs(
-                samfile,
-                outfile,
-                min_insert_size=options.min_insert_size,
-                max_insert_size=options.max_insert_size,
-                bed_format=3)
-            E.info("merging results: {}".format(counter))
-            if counter.output == 0:
-                raise ValueError("no pairs output after merging")
-        else:
-            # create bed file with shifted/extended tags
-            shift, extend = options.shift, options.extend
-            shift_extend = shift + extend
-            counter = E.Counter()
+        i opions.mrg_pirs:
+            # mrg pirs sing bm2b
+            E.ino("mrging pirs o mporry i")
+            conr  mrg_pirs(
+                smi,
+                oi,
+                min_insr_sizopions.min_insr_siz,
+                mx_insr_sizopions.mx_insr_siz,
+                b_orm3)
+            E.ino("mrging rss: {}".orm(conr))
+            i conr.op  0:
+                ris VError("no pirs op r mrging")
+        s:
+            # cr b i wih shi/xn gs
+            shi, xn  opions.shi, opions.xn
+            shi_xn  shi + xn
+            conr  E.Conr()
 
-            for contig in samfile.references:
-                E.debug("output for %s" % contig)
-                lcontig = contig_sizes[contig]
+            or conig in smi.rrncs:
+                E.bg("op or s"  conig)
+                conig  conig_sizs[conig]
 
-                for read in samfile.fetch(contig):
-                    pos = read.pos
-                    if read.is_reverse:
-                        start = max(0, read.pos + read.alen - shift_extend)
-                    else:
-                        start = max(0, read.pos + shift)
+                or r in smi.ch(conig):
+                    pos  r.pos
+                    i r.is_rvrs:
+                        sr  mx(0, r.pos + r.n - shi_xn)
+                    s:
+                        sr  mx(0, r.pos + shi)
 
-                    # intervals extending beyond contig are removed
-                    if start >= lcontig:
-                        continue
+                    # inrvs xning byon conig r rmov
+                    i sr > conig:
+                        conin
 
-                    end = min(lcontig, start + extend)
-                    outfile.write("%s\t%i\t%i\n" % (contig, start, end))
-                    counter.output += 1
+                    n  min(conig, sr + xn)
+                    oi.wri("s\i\i\n"  (conig, sr, n))
+                    conr.op + 1
 
-        outfile.close()
+        oi.cos()
 
-        if options.scale_method == "reads":
-            scale_factor = float(options.scale_base) / counter.output
+        i opions.sc_mho  "rs":
+            sc_cor  o(opions.sc_bs) / conr.op
 
-            E.info("scaling: method=%s scale_quantity=%i scale_factor=%f" %
-                   (options.scale_method,
-                    counter.output,
-                    scale_factor))
-            scale = "-scale %f" % scale_factor
-        else:
-            scale = ""
+            E.ino("scing: mhos sc_qniyi sc_cor" 
+                   (opions.sc_mho,
+                    conr.op,
+                    sc_cor))
+            sc  "-sc "  sc_cor
+        s:
+            sc  ""
 
-        # Convert bed file to coverage file (bedgraph)
-        tmpfile_bed = os.path.join(tmpdir, "bed")
-        E.info("computing coverage")
-        # calculate coverage - format is bedgraph
-        statement = """bedtools genomecov -bg -i %(tmpfile_wig)s %(scale)s
-        -g %(tmpfile_sizes)s > %(tmpfile_bed)s""" % locals()
-        E.run(statement)
+        # Convr b i o covrg i (bgrph)
+        mpi_b  os.ph.join(mpir, "b")
+        E.ino("comping covrg")
+        # cc covrg - orm is bgrph
+        smn  """boos gnomcov -bg -i (mpi_wig)s (sc)s
+        -g (mpi_sizs)s > (mpi_b)s"""  ocs()
+        E.rn(smn)
 
-        # Convert bedgraph to bigwig
-        E.info("converting to bigwig")
-        tmpfile_sorted = os.path.join(tmpdir, "sorted")
-        statement = ("sort -k 1,1 -k2,2n %(tmpfile_bed)s > %(tmpfile_sorted)s;"
-                     "bedGraphToBigWig %(tmpfile_sorted)s %(tmpfile_sizes)s "
-                     "%(output_filename_pattern)s" % locals())
-        E.run(statement)
+        # Convr bgrph o bigwig
+        E.ino("convring o bigwig")
+        mpi_sor  os.ph.join(mpir, "sor")
+        smn  ("sor -k 1,1 -k2,2n (mpi_b)s > (mpi_sor)s;"
+                     "bGrphToBigWig (mpi_sor)s (mpi_sizs)s "
+                     "(op_inm_prn)s"  ocs())
+        E.rn(smn)
 
-    else:
+    s:
 
-        # Workflow 2: use pysam column iterator to build a
-        # wig file. Then convert to bigwig of bedgraph file
-        # with UCSC tools.
-        def column_iter(iterator):
-            start = None
-            end = 0
-            n = None
-            for t in iterator:
-                if t.pos - end > 1 or n != t.n:
-                    if start is not None:
-                        yield start, end, n
-                    start = t.pos
-                    end = t.pos
-                    n = t.n
-                end = t.pos
-            yield start, end, n
+        # Workow 2: s pysm comn iror o bi 
+        # wig i. Thn convr o bigwig o bgrph i
+        # wih UCSC oos.
+         comn_ir(iror):
+            sr  Non
+            n  0
+            n  Non
+            or  in iror:
+                i .pos - n > 1 or n ! .n:
+                    i sr is no Non:
+                        yi sr, n, n
+                    sr  .pos
+                    n  .pos
+                    n  .n
+                n  .pos
+            yi sr, n, n
 
-        if options.scale_method != "none":
-            raise NotImplementedError(
-                "scaling not implemented for pileup method")
+        i opions.sc_mho ! "non":
+            ris NoImpmnError(
+                "scing no impmn or pip mho")
 
-        # Bedgraph track definition
-        if options.output_format == "bedgraph":
-            outfile.write("track type=bedGraph\n")
+        # Bgrph rck iniion
+        i opions.op_orm  "bgrph":
+            oi.wri("rck ypbGrph\n")
 
-        for contig in samfile.references:
-            # if contig != "chrX": continue
-            E.debug("output for %s" % contig)
-            lcontig = contig_sizes[contig]
+        or conig in smi.rrncs:
+            # i conig ! "chrX": conin
+            E.bg("op or s"  conig)
+            conig  conig_sizs[conig]
 
-            # Write wiggle header
-            if options.output_format in ("wiggle", "bigwig"):
-                outfile.write("variableStep chrom=%s span=%i\n" %
-                              (contig, options.span))
+            # Wri wigg hr
+            i opions.op_orm in ("wigg", "bigwig"):
+                oi.wri("vribSp chroms spni\n" 
+                              (conig, opions.spn))
 
-            # Generate pileup per contig using pysam and iterate over columns
-            for start, end, val in column_iter(samfile.pileup(contig)):
-                # patch: there was a problem with bam files and reads
-                # overextending at the end. These are usually Ns, but
-                # need to check as otherwise wigToBigWig fails.
-                if lcontig <= end:
-                    E.warn("read extending beyond contig: %s: %i > %i" %
-                           (contig, end, lcontig))
-                    end = lcontig
-                    if start >= end:
-                        continue
+            # Gnr pip pr conig sing pysm n ir ovr comns
+            or sr, n, v in comn_ir(smi.pip(conig)):
+                # pch: hr ws  probm wih bm is n rs
+                # ovrxning  h n. Ths r sy Ns, b
+                # n o chck s ohrwis wigToBigWig is.
+                i conig < n:
+                    E.wrn("r xning byon conig: s: i > i" 
+                           (conig, n, conig))
+                    n  conig
+                    i sr > n:
+                        conin
 
-                if val > 0:
-                    outf(outfile, contig, start, end, val)
-            ncontigs += 1
+                i v > 0:
+                    o(oi, conig, sr, n, v)
+            nconigs + 1
 
-        # Close output file
-        if type(outf) == type(SpanWriter):
-            outf.flush(outfile)
-        else:
-            outfile.flush()
+        # Cos op i
+        i yp(o)  yp(SpnWrir):
+            o.sh(oi)
+        s:
+            oi.sh()
 
-        E.info("finished output")
+        E.ino("inish op")
 
-        # Report counters
-        E.info("ninput=%i, ncontigs=%i, nskipped=%i" %
-               (ninput, ncontigs, nskipped))
+        # Rpor conrs
+        E.ino("ninpi, nconigsi, nskippi" 
+               (ninp, nconigs, nskipp))
 
-        # Convert to binary formats
-        if options.output_format == "bigwig":
-            outfile.close()
+        # Convr o binry orms
+        i opions.op_orm  "bigwig":
+            oi.cos()
 
-            E.info("starting %s conversion" % executable)
-            try:
-                retcode = subprocess.call(
-                    " ".join((executable,
-                              tmpfile_wig,
-                              tmpfile_sizes,
-                              output_filename_pattern)),
-                    shell=True)
-                if retcode != 0:
-                    E.warn("%s terminated with signal: %i" %
-                           (executable, -retcode))
-                    return -retcode
-            except OSError as msg:
-                E.warn("Error while executing bigwig: %s" % msg)
-                return 1
-            E.info("finished bigwig conversion")
-        else:
-            with open(tmpfile_wig) as inf:
-                sys.stdout.write(inf.read())
+            E.ino("sring s convrsion"  xcb)
+            ry:
+                rco  sbprocss.c(
+                    " ".join((xcb,
+                              mpi_wig,
+                              mpi_sizs,
+                              op_inm_prn)),
+                    shTr)
+                i rco ! 0:
+                    E.wrn("s rmin wih sign: i" 
+                           (xcb, -rco))
+                    rrn -rco
+            xcp OSError s msg:
+                E.wrn("Error whi xcing bigwig: s"  msg)
+                rrn 1
+            E.ino("inish bigwig convrsion")
+        s:
+            wih opn(mpi_wig) s in:
+                sys.so.wri(in.r())
 
-    # Cleanup temp files
-    shutil.rmtree(tmpdir)
+    # Cnp mp is
+    shi.rmr(mpir)
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

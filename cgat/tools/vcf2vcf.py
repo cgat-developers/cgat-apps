@@ -1,449 +1,449 @@
-'''vcf2vcf.py - manipulate vcf files
-=================================
+'''vc2vc.py - mnip vc is
 
-Purpose
+
+Prpos
 -------
 
-Manipulate vcf-formatted files.
+Mnip vc-orm is.
 
 
-Usage
+Usg
 -----
 
-Type::
+Typ::
 
-   python vcf2vcf.py --help
+   pyhon vc2vc.py --hp
 
-for command line usage.
+or commn in sg.
 
-Methods
+Mhos
 -------
 
-This script provides the following methods:
+This scrip provis h oowing mhos:
 
-re-order
-   reorder sample columns in vcf formatted file according to a given sort order
+r-orr
+   rorr smp comns in vc orm i ccoring o  givn sor orr
 
-Documentation
+Docmnion
 -------------
 
-This is a tool for manipulating vcf-formatted files.  The following
-options are available:
+This is  oo or mniping vc-orm is.  Th oowing
+opions r vib:
 
 +-----------+-------------------------+
 +-----------+-------------------------+
 
-lift-over
+i-ovr
 ^^^^^^^^^
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import random
-import collections
-import numpy
-import re
-import pysam
-import quicksect
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor os
+impor sys
+impor rnom
+impor cocions
+impor nmpy
+impor r
+impor pysm
+impor qicksc
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
 
-def read_liftover_chain(infile):
+ r_iovr_chin(ini):
 
-    E.debug("started reading mapping information")
+    E.bg("sr ring mpping inormion")
 
-    map_id2chromosome = ["", ]
-    map_chromosome2id = {}
-    n = 0
+    mp_i2chromosom  ["", ]
+    mp_chromosom2i  {}
+    n  0
 
-    Chain = collections.namedtuple(
-        "Chain",
-        ["score",
-         "target_name", "target_size", "target_strand",
-         "target_start", "target_end",
-         "query_name", "query_size", "query_strand",
-         "query_start", "query_end", "chainid"])
+    Chin  cocions.nmp(
+        "Chin",
+        ["scor",
+         "rg_nm", "rg_siz", "rg_srn",
+         "rg_sr", "rg_n",
+         "qry_nm", "qry_siz", "qry_srn",
+         "qry_sr", "qry_n", "chini"])
 
-    def blocks(infile):
+     bocks(ini):
 
-        keep = False
-        for line in infile:
-            if line.startswith("chain"):
-                chain_data = Chain._make(line[:-1].split(" ")[1:])
+        kp  Fs
+        or in in ini:
+            i in.srswih("chin"):
+                chin_  Chin._mk(in[:-1].spi(" ")[1:])
 
-                if chain_data.target_strand == "-":
-                    raise NotImplementedError("target strand is negative")
-                alignment_data = []
-            elif line.strip() == "":
-                yield chain_data, alignment_data
-            else:
-                alignment_data.append(list(map(int, line.split(("\t")))))
+                i chin_.rg_srn  "-":
+                    ris NoImpmnError("rg srn is ngiv")
+                ignmn_  []
+            i in.srip()  "":
+                yi chin_, ignmn_
+            s:
+                ignmn_.ppn(is(mp(in, in.spi(("\")))))
 
-    map_chromosomes = collections.defaultdict(
-        quicksect.IntervalTree)
-    map_contig2length = collections.defaultdict(int)
+    mp_chromosoms  cocions.ic(
+        qicksc.InrvTr)
+    mp_conig2ngh  cocions.ic(in)
 
-    for chain_data, alignment_data in blocks(infile):
+    or chin_, ignmn_ in bocks(ini):
 
-        map_contig2length[chain_data.query_name] = int(chain_data.query_size)
+        mp_conig2ngh[chin_.qry_nm]  in(chin_.qry_siz)
 
-        # target maps to query
-        # coordinates are zero-based, half-open When
-        # the strand value is "-", position coordinates are listed in
-        # terms of the reverse-complemented sequence
-        x = int(chain_data.target_start)
-        y = int(chain_data.query_start)
-        # revert coordinates for negative strands (it seems that
-        # the mapping file uses reverse coordinates, while liftover
-        # output doesn't)
-        invert = chain_data.query_strand == "-"
-        mm = map_chromosomes[chain_data.target_name]
+        # rg mps o qry
+        # coorins r zro-bs, h-opn Whn
+        # h srn v is "-", posiion coorins r is in
+        # rms o h rvrs-compmn sqnc
+        x  in(chin_.rg_sr)
+        y  in(chin_.qry_sr)
+        # rvr coorins or ngiv srns (i sms h
+        # h mpping i ss rvrs coorins, whi iovr
+        # op osn')
+        invr  chin_.qry_srn  "-"
+        mm  mp_chromosoms[chin_.rg_nm]
 
-        for d in alignment_data:
-            if len(d) == 3:
-                size, increment_x, increment_y = d
-            else:
-                size, increment_x, increment_y = d[0], 0, 0
+        or  in ignmn_:
+            i n()  3:
+                siz, incrmn_x, incrmn_y  
+            s:
+                siz, incrmn_x, incrmn_y  [0], 0, 0
 
-            mm.add(x, x + size,
-                   (chain_data.query_name,
+            mm.(x, x + siz,
+                   (chin_.qry_nm,
                     y,
-                    y + size,
-                    invert))
+                    y + siz,
+                    invr))
 
-            x += increment_x + size
-            y += increment_y + size
+            x + incrmn_x + siz
+            y + incrmn_y + siz
 
-            if y < 0:
-                raise ValueError(
-                    "illegal mapping in chain {}".format(chain_data))
+            i y < 0:
+                ris VError(
+                    "ig mpping in chin {}".orm(chin_))
 
-    return map_chromosomes, map_contig2length
+    rrn mp_chromosoms, mp_conig2ngh
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
-        help="filename with reference sequence in fasta format [%default]")
+    prsr._rgmn(
+        "--inp-inm-s", s"inp_inm_s", yp"sring",
+        hp"inm wih rrnc sqnc in s orm []")
 
-    parser.add_argument(
-        "--input-filename-bam", dest="input_filename_bam", type="string",
-        help="filename with aligned reads [%default]")
+    prsr._rgmn(
+        "--inp-inm-bm", s"inp_inm_bm", yp"sring",
+        hp"inm wih ign rs []")
 
-    parser.add_argument(
-        "--method", dest="methods", type="choice", action="append",
-        choices=["add-strelka-genotype",
-                 "lift-over"],
-        help="methods to apply [%default]")
+    prsr._rgmn(
+        "--mho", s"mhos", yp"choic", cion"ppn",
+        choics["-srk-gnoyp",
+                 "i-ovr"],
+        hp"mhos o ppy []")
 
-    parser.add_argument(
-        "--input-filename-chain", dest="input_filename_chain", type="string",
-        help="filename with alignment chain for lift-over [%default]")
+    prsr._rgmn(
+        "--inp-inm-chin", s"inp_inm_chin", yp"sring",
+        hp"inm wih ignmn chin or i-ovr []")
 
-    parser.add_argument(
-        "--normal-sample-regex", dest="normal_sample_regex", type="string",
-        help="regular expression to apply to header to identify normal "
-        "sample id [%default]")
+    prsr._rgmn(
+        "--norm-smp-rgx", s"norm_smp_rgx", yp"sring",
+        hp"rgr xprssion o ppy o hr o iniy norm "
+        "smp i []")
 
-    parser.add_argument(
-        "--output-filename-unmapped", dest="output_filename_unmapped", type="string",
-        help="filename with variants that could not be lifted over [%default]")
+    prsr._rgmn(
+        "--op-inm-nmpp", s"op_inm_nmpp", yp"sring",
+        hp"inm wih vrins h co no b i ovr []")
 
-    parser.set_defaults(
-        input_filename_fasta=None,
-        input_filename_bam=None,
-        input_filename_vcf="-",
-        sample_size=0.001,
-        region_size=20,
-        methods=[],
-        normal_sample_regex=None,
-        input_filename_chain=None,
-        output_filename_unmapped=None,
+    prsr.s_s(
+        inp_inm_sNon,
+        inp_inm_bmNon,
+        inp_inm_vc"-",
+        smp_siz0.001,
+        rgion_siz20,
+        mhos[],
+        norm_smp_rgxNon,
+        inp_inm_chinNon,
+        op_inm_nmppNon,
     )
 
-    (options, args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+    (opions, rgs)  E.sr(prsr,
+                              rgvrgv,
+                              _op_opionsTr)
 
-    if len(args) > 0:
-        options.input_filename_vcf = args[0]
+    i n(rgs) > 0:
+        opions.inp_inm_vc  rgs[0]
 
-    vcf_in = pysam.VariantFile(options.input_filename_vcf)
+    vc_in  pysm.VrinFi(opions.inp_inm_vc)
 
-    if "lift-over" in options.methods:
-        if options.input_filename_chain is None:
-            raise ValueError("--method=lift-over requires --input-filename-chain")
-        if not os.path.exists(options.input_filename_chain):
-            raise OSError("file {} with chain data does not exist".format(
-                options.input_filename_chain))
-        E.info("reading chain from {}".format(options.input_filename_chain))
-        with iotools.open_file(options.input_filename_chain) as inf:
-            map_chain, map_contig2length = read_liftover_chain(inf)
+    i "i-ovr" in opions.mhos:
+        i opions.inp_inm_chin is Non:
+            ris VError("--mhoi-ovr rqirs --inp-inm-chin")
+        i no os.ph.xiss(opions.inp_inm_chin):
+            ris OSError("i {} wih chin  os no xis".orm(
+                opions.inp_inm_chin))
+        E.ino("ring chin rom {}".orm(opions.inp_inm_chin))
+        wih iooos.opn_i(opions.inp_inm_chin) s in:
+            mp_chin, mp_conig2ngh  r_iovr_chin(in)
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
-    else:
-        fasta = None
+    i opions.inp_inm_s:
+        s  pysm.FsFi(opions.inp_inm_s)
+    s:
+        s  Non
 
-    if options.input_filename_bam:
-        bam = pysam.AlignmentFile(options.input_filename_bam)
-    else:
-        bam = None
+    i opions.inp_inm_bm:
+        bm  pysm.AignmnFi(opions.inp_inm_bm)
+    s:
+        bm  Non
 
-    outf = options.stdout
+    o  opions.so
 
-    c = E.Counter()
+    c  E.Conr()
 
-    if "add-strelka-genotype" in options.methods:
-        map_nt2gt = {"ref": "0/0",
-                     "het": "0/1",
+    i "-srk-gnoyp" in opions.mhos:
+        mp_n2g  {"r": "0/0",
+                     "h": "0/1",
                      "hom": "1/1",
-                     "conflict": "."}
+                     "conic": "."}
 
-        map_tumour2gt = {"ref": "0/0",
-                         "het": "0/1",
+        mp_mor2g  {"r": "0/0",
+                         "h": "0/1",
                          "hom": "1/1"}
 
-        header = str(vcf_in.header).splitlines()
+        hr  sr(vc_in.hr).spiins()
 
-        header.insert(
-            len(header) - 1,
-            '##FORMAT=<ID=GT,Number=1,Type=String,Description='
-            '"Genotypes of reference and alternative alleles, '
-            'added by cgatcore vcf2vcf.">')
+        hr.insr(
+            n(hr) - 1,
+            '##FORMAT<IDGT,Nmbr1,TypSring,Dscripion'
+            '"Gnoyps o rrnc n rniv s, '
+            ' by cgcor vc2vc.">')
 
-        header = "\n".join(header)
-        if options.normal_sample_regex:
-            normal_sample = re.search(" -bam-file \S+/([^/]+)_S\d+.bam", header).groups()[0]
-        else:
-            normal_sample = "NORMAL"
+        hr  "\n".join(hr)
+        i opions.norm_smp_rgx:
+            norm_smp  r.srch(" -bm-i \S+/([^/]+)_S\+.bm", hr).grops()[0]
+        s:
+            norm_smp  "NORMAL"
 
-        is_first = True
+        is_irs  Tr
 
-        for record in vcf_in:
-            c.input += 1
+        or rcor in vc_in:
+            c.inp + 1
 
-            if "GT" in record.format:
-                if is_first:
-                    outf.write(header + "\n")
-                    is_first = False
-                outf.write(str(record))
-                c.has_gt += 1
-                continue
+            i "GT" in rcor.orm:
+                i is_irs:
+                    o.wri(hr + "\n")
+                    is_irs  Fs
+                o.wri(sr(rcor))
+                c.hs_g + 1
+                conin
 
-            gt_normal = map_nt2gt[record.info["NT"]]
-            gt_tumour = record.info["SGT"]
-            norm, tumour = gt_tumour.split("->")
-            if gt_tumour[0] in "ACGT":
-                alts = record.alts
-                if alts is None:
-                    c.no_alt += 1
-                    continue
+            g_norm  mp_n2g[rcor.ino["NT"]]
+            g_mor  rcor.ino["SGT"]
+            norm, mor  g_mor.spi("->")
+            i g_mor[0] in "ACGT":
+                s  rcor.s
+                i s is Non:
+                    c.no_ + 1
+                    conin
 
-                if len(record.alts) > 1:
-                    c.multi_allelic += 1
-                    continue
+                i n(rcor.s) > 1:
+                    c.mi_ic + 1
+                    conin
 
-                _map_tumour2gt = {
-                    record.alts[0]: "1",
-                    record.ref: "0"}
-                try:
-                    gt_tumour = "/".join(
-                        sorted([_map_tumour2gt[x] for x in tumour]))
-                except KeyError:
-                    gt_tumour = "."
-                    c.ambigous_genotype += 1
-            else:
-                gt_tumour = map_tumour2gt[tumour]
+                _mp_mor2g  {
+                    rcor.s[0]: "1",
+                    rcor.r: "0"}
+                ry:
+                    g_mor  "/".join(
+                        sor([_mp_mor2g[x] or x in mor]))
+                xcp KyError:
+                    g_mor  "."
+                    c.mbigos_gnoyp + 1
+            s:
+                g_mor  mp_mor2g[mor]
 
-            fields = str(record)[:-1].split("\t")
+            is  sr(rcor)[:-1].spi("\")
             # FORMAT
-            fields[8] = ":".join(("GT", fields[8]))
+            is[8]  ":".join(("GT", is[8]))
             # SAMPLES
-            # makes a few assumptions, fix!
-            header_insert_normal = False
-            if len(fields) == 11:
-                fields[9] = ":".join((gt_normal, fields[9]))
-                fields[10] = ":".join((gt_tumour, fields[10]))
-            elif len(fields) == 10:
-                header_insert_normal = True
-                values = fields[9].split(":")
-                fields.append(":".join((gt_tumour, fields[9])))
-                fields[9] = ":".join([gt_normal] + ["."] * len(values))
-            else:
-                raise NotImplementedError()
+            # mks  w ssmpions, ix!
+            hr_insr_norm  Fs
+            i n(is)  11:
+                is[9]  ":".join((g_norm, is[9]))
+                is[10]  ":".join((g_mor, is[10]))
+            i n(is)  10:
+                hr_insr_norm  Tr
+                vs  is[9].spi(":")
+                is.ppn(":".join((g_mor, is[9])))
+                is[9]  ":".join([g_norm] + ["."] * n(vs))
+            s:
+                ris NoImpmnError()
 
-            if is_first:
-                if not header_insert_normal:
-                    outf.write(header + "\n")
-                else:
-                    header = re.sub(r"\tFORMAT\t",
-                                    "\tFORMAT\t%s\t" % normal_sample, header)
-                    outf.write(header + "\n")
-                is_first = False
-            outf.write("\t".join(fields) + "\n")
-            c.output += 1
+            i is_irs:
+                i no hr_insr_norm:
+                    o.wri(hr + "\n")
+                s:
+                    hr  r.sb(r"\FORMAT\",
+                                    "\FORMAT\s\"  norm_smp, hr)
+                    o.wri(hr + "\n")
+                is_irs  Fs
+            o.wri("\".join(is) + "\n")
+            c.op + 1
 
-    elif "lift-over" in options.methods:
-        header = str(vcf_in.header).splitlines()
+    i "i-ovr" in opions.mhos:
+        hr  sr(vc_in.hr).spiins()
 
-        if fasta:
-            # validate contig size
-            expected_lengths = dict(list(zip(fasta.references, fasta.lengths)))
-        else:
-            expected_lengths = map_contig2length
+        i s:
+            # vi conig siz
+            xpc_nghs  ic(is(zip(s.rrncs, s.nghs)))
+        s:
+            xpc_nghs  mp_conig2ngh
 
-        # update contig names and sizes in VCF header
-        header = [x for x in header if not x.startswith("##contig")]
-        header[-1:-1] = ["##contig=<ID={},length={}>".format(
-            contig, length) for contig, length in sorted(expected_lengths.items())]
+        # p conig nms n sizs in VCF hr
+        hr  [x or x in hr i no x.srswih("##conig")]
+        hr[-1:-1]  ["##conig<ID{},ngh{}>".orm(
+            conig, ngh) or conig, ngh in sor(xpc_nghs.ims())]
 
-        header.insert(
-            len(header) - 1,
-            '##liftover=<CHAIN={},REFERENCE={}>'.format(
-                options.input_filename_chain,
-                options.input_filename_fasta))
-        outf.write("\n".join(header) + "\n")
+        hr.insr(
+            n(hr) - 1,
+            '##iovr<CHAIN{},REFERENCE{}>'.orm(
+                opions.inp_inm_chin,
+                opions.inp_inm_s))
+        o.wri("\n".join(hr) + "\n")
 
-        unmapped_contigs = set()
-        unknown_contigs = set()
+        nmpp_conigs  s()
+        nknown_conigs  s()
 
-        trans_genotypes = str.maketrans("01", "10")
+        rns_gnoyps  sr.mkrns("01", "10")
 
-        if fasta:
-            # validate contig size
-            expected_lengths = dict(list(zip(fasta.references, fasta.lengths)))
-            for contig, length in list(map_contig2length.items()):
-                if contig in expected_lengths:
-                    if length != expected_lengths[contig]:
-                        raise ValueError(
-                            "contig lengths mismatch. For contig {} chain files "
-                            "says {}, but fasta files says {}".format(
-                                contig, length, expected_lengths[contig]))
-            E.info("contig sizes in chain file and fasta files correspond.")
+        i s:
+            # vi conig siz
+            xpc_nghs  ic(is(zip(s.rrncs, s.nghs)))
+            or conig, ngh in is(mp_conig2ngh.ims()):
+                i conig in xpc_nghs:
+                    i ngh ! xpc_nghs[conig]:
+                        ris VError(
+                            "conig nghs mismch. For conig {} chin is "
+                            "sys {}, b s is sys {}".orm(
+                                conig, ngh, xpc_nghs[conig]))
+            E.ino("conig sizs in chin i n s is corrspon.")
 
-        if options.output_filename_unmapped:
-            outfile_unmapped = iotools.open_file(options.output_filename_unmapped, "w")
-            outfile_unmapped.write("\n".join(header) + "\n")
-        else:
-            outfile_unmapped = None
+        i opions.op_inm_nmpp:
+            oi_nmpp  iooos.opn_i(opions.op_inm_nmpp, "w")
+            oi_nmpp.wri("\n".join(hr) + "\n")
+        s:
+            oi_nmpp  Non
 
-        for record in vcf_in:
-            c.input += 1
+        or rcor in vc_in:
+            c.inp + 1
 
-            try:
-                mm = map_chain[record.contig]
-            except KeyError:
-                c.skipped_unmapped_contig += 1
-                unmapped_contigs.add(record.contig)
-                if outfile_unmapped:
-                    outfile_unmapped.write("skipped_unmapped_contig\t{}".format(str(record)))
-                continue
+            ry:
+                mm  mp_chin[rcor.conig]
+            xcp KyError:
+                c.skipp_nmpp_conig + 1
+                nmpp_conigs.(rcor.conig)
+                i oi_nmpp:
+                    oi_nmpp.wri("skipp_nmpp_conig\{}".orm(sr(rcor)))
+                conin
 
-            try:
-                m = mm.search(record.start, record.stop)
-            except AttributeError:
-                c.skipped_mapping_error += 1
-                if outfile_unmapped:
-                    outfile_unmapped.write("skipped_mapping_error\t{}".format(str(record)))
-                continue
+            ry:
+                m  mm.srch(rcor.sr, rcor.sop)
+            xcp AribError:
+                c.skipp_mpping_rror + 1
+                i oi_nmpp:
+                    oi_nmpp.wri("skipp_mpping_rror\{}".orm(sr(rcor)))
+                conin
 
-            if len(m) == 0:
-                c.skipped_unmapped_position += 1
-                if outfile_unmapped:
-                    outfile_unmapped.write("skipped_unmapped_position\t{}".format(str(record)))
-                continue
-            elif len(m) > 1:
-                c.skipped_multimapping_position += 1
-                if outfile_unmapped:
-                    outfile_unmapped.write("skipped_multimapping_position\t{}".format(str(record)))
-                continue
+            i n(m)  0:
+                c.skipp_nmpp_posiion + 1
+                i oi_nmpp:
+                    oi_nmpp.wri("skipp_nmpp_posiion\{}".orm(sr(rcor)))
+                conin
+            i n(m) > 1:
+                c.skipp_mimpping_posiion + 1
+                i oi_nmpp:
+                    oi_nmpp.wri("skipp_mimpping_posiion\{}".orm(sr(rcor)))
+                conin
 
-            m = m[0]
-            y_contig, y_start, y_end, y_invert = m.data
+            m  m[0]
+            y_conig, y_sr, y_n, y_invr  m.
 
-            if y_invert:
-                y_pos = y_end - (record.start - m.start)
-            else:
-                y_pos = (record.start - m.start) + y_start
+            i y_invr:
+                y_pos  y_n - (rcor.sr - m.sr)
+            s:
+                y_pos  (rcor.sr - m.sr) + y_sr
 
-            if fasta:
-                try:
-                    ref_base = fasta.fetch(y_contig, y_pos, y_pos + len(record.ref)).upper()
-                except KeyError:
-                    c.skipped_unknown_contig += 1
-                    unknown_contigs.add(y_contig)
-                    ref_base = None
-                    continue
+            i s:
+                ry:
+                    r_bs  s.ch(y_conig, y_pos, y_pos + n(rcor.r)).ppr()
+                xcp KyError:
+                    c.skipp_nknown_conig + 1
+                    nknown_conigs.(y_conig)
+                    r_bs  Non
+                    conin
 
-            swap_alleles = False
-            if ref_base:
-                error = False
-                if ref_base == record.ref:
-                    c.matches += 1
-                else:
-                    if len(record.alts) == 1:
-                        alt_base = record.alts[0]
-                        if ref_base == alt_base:
-                            swap_alleles = True
-                            c.allele_swap_variant += 1
-                        else:
-                            c.error_mismatch_variant += 1
-                            error = "mismatch"
-                    else:
-                        error = "multi-mismatch"
-                        c.error_multi_mismatch_variant += 1
+            swp_s  Fs
+            i r_bs:
+                rror  Fs
+                i r_bs  rcor.r:
+                    c.mchs + 1
+                s:
+                    i n(rcor.s)  1:
+                        _bs  rcor.s[0]
+                        i r_bs  _bs:
+                            swp_s  Tr
+                            c._swp_vrin + 1
+                        s:
+                            c.rror_mismch_vrin + 1
+                            rror  "mismch"
+                    s:
+                        rror  "mi-mismch"
+                        c.rror_mi_mismch_vrin + 1
 
-                if error:
-                    if outfile_unmapped:
-                        outfile_unmapped.write("{}\t{}".format(error, str(record)))
-                    c.skipped_error_variant += 1
-                    continue
+                i rror:
+                    i oi_nmpp:
+                        oi_nmpp.wri("{}\{}".orm(rror, sr(rcor)))
+                    c.skipp_rror_vrin + 1
+                    conin
 
-            fields = str(record)[:-1].split("\t")
-            fields[0] = y_contig
-            fields[1] = str(y_pos)
+            is  sr(rcor)[:-1].spi("\")
+            is[0]  y_conig
+            is[1]  sr(y_pos)
 
-            if swap_alleles:
-                fields[4] = alt_base
-                fields[5] = ref_base
-                # update genotype fields
-                keep = False
-                for idx in range(9, len(fields)):
-                    gt, rest = fields[idx].split(":", 1)
-                    keep = keep or "0" in gt
-                    fields[idx] = ":".join((gt.translate(trans_genotypes), rest))
+            i swp_s:
+                is[4]  _bs
+                is[5]  r_bs
+                # p gnoyp is
+                kp  Fs
+                or ix in rng(9, n(is)):
+                    g, rs  is[ix].spi(":", 1)
+                    kp  kp or "0" in g
+                    is[ix]  ":".join((g.rns(rns_gnoyps), rs))
 
-                # remove reference only calls
-                if not keep:
-                    if outfile_unmapped:
-                        outfile_unmapped.write("reference_call\t{}".format(str(record)))
-                    c.skipped_allele_swap_reference += 1
-                continue
+                # rmov rrnc ony cs
+                i no kp:
+                    i oi_nmpp:
+                        oi_nmpp.wri("rrnc_c\{}".orm(sr(rcor)))
+                    c.skipp__swp_rrnc + 1
+                conin
 
-            c.output += 1
-            outf.write("\t".join(fields) + "\n")
+            c.op + 1
+            o.wri("\".join(is) + "\n")
 
-        c.unmapped_contigs = len(unmapped_contigs)
-        c.unknown_contigs = len(unknown_contigs)
+        c.nmpp_conigs  n(nmpp_conigs)
+        c.nknown_conigs  n(nknown_conigs)
 
-        E.info(c.asTable())
-        if unknown_contigs:
-            E.info("unknown contigs: {}".format(",".join(sorted(unknown_contigs))))
-        if unmapped_contigs:
-            E.info("unmapped contigs: {}".format(",".join(sorted(unmapped_contigs))))
+        E.ino(c.sTb())
+        i nknown_conigs:
+            E.ino("nknown conigs: {}".orm(",".join(sor(nknown_conigs))))
+        i nmpp_conigs:
+            E.ino("nmpp conigs: {}".orm(",".join(sor(nmpp_conigs))))
 
-    E.stop()
+    E.sop()
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

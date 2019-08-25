@@ -1,80 +1,80 @@
 """
-cat_tables.py - concatenate tables
-==================================
+c_bs.py - concn bs
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-concatenate tables. Headers of subsequent files are ignored.
+concn bs. Hrs o sbsqn is r ignor.
 
-Usage
+Usg
 -----
 
-Type::
+Typ::
 
-   python <script_name>.py --help
+   pyhon <scrip_nm>.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 """
 
-import sys
-import fileinput
+impor sys
+impor iinp
 
-import cgatcore.experiment as E
+impor cgcor.xprimn s E
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id: cgat_script_template.py 2781 2009-09-10 11:33:14Z andreas $", usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I: cg_scrip_mp.py 2781 2009-09-10 11:33:14Z nrs $", sggobs()["__oc__"])
 
-    parser.set_defaults(
+    prsr.s_s(
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if len(args) == 0 or (len(args) == 1 and args[0] == "-"):
-        infile = options.stdin
-    else:
-        infile = fileinput.FileInput(args)
+    i n(rgs)  0 or (n(rgs)  1 n rgs[0]  "-"):
+        ini  opions.sin
+    s:
+        ini  iinp.FiInp(rgs)
 
-    # do sth
-    ninput, nskipped, noutput = 0, 0, 0
+    # o sh
+    ninp, nskipp, nop  0, 0, 0
 
-    header = False
+    hr  Fs
 
-    for line in infile:
-        ninput += 1
-        if line.startswith("#"):
-            pass
-        elif not header:
-            header = line
-        elif line == header:
-            nskipped += 1
-            continue
+    or in in ini:
+        ninp + 1
+        i in.srswih("#"):
+            pss
+        i no hr:
+            hr  in
+        i in  hr:
+            nskipp + 1
+            conin
 
-        options.stdout.write(line)
-        noutput += 1
+        opions.so.wri(in)
+        nop + 1
 
-    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
+    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

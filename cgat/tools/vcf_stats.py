@@ -1,226 +1,226 @@
-"""Compute statistics from a VCF file.
+"""Comp sisics rom  VCF i.
 
-Implemeted methods
-==================
+Impm mhos
 
-mutation-profile
+
+mion-proi
 ----------------
 
-Compute a mutation profile for each sample in the VCF file. For each
-central base in a tri-nucleotide, the following equivalence classes
-are used::
+Comp  mion proi or ch smp in h VCF i. For ch
+cnr bs in  ri-ncoi, h oowing qivnc csss
+r s::
 
-    R    A   R    A   Code     Forward strand substitutions
+    R    A   R    A   Co     Forwr srn sbsiions
     ---------------
-    C -> A   G    T   C>A    = C->A, G->T
+    C -> A   G    T   C>A     C->A, G->T
     G    T   C -> A
 
-    C -> G   C    G   C>G    = C->G, G->C
+    C -> G   C    G   C>G     C->G, G->C
     G    C   G -> C
 
-    C -> T   G    A   C>T    = C->T, G->A
+    C -> T   G    A   C>T     C->T, G->A
     G    A   C -> T
 
-    T -> A   T    A   T>A    = T->A, A->T
+    T -> A   T    A   T>A     T->A, A->T
     A    T   A -> T
 
-    T -> C   A    G   T>C    = T->C, A->G
+    T -> C   A    G   T>C     T->C, A->G
     A    G   T -> C
 
-    T -> G   A    C   T>G    = T->G, A->C
+    T -> G   A    C   T>G     T->G, A->C
     A    C   T -> G
 
 kinship
 -------
 
-Compute kinship coefficient for all pairs of samples in VCF.
-The kinship coefficient is estimated using the robust estimator
-by Manichaikul et al (2010).
+Comp kinship coicin or  pirs o smps in VCF.
+Th kinship coicin is sim sing h robs simor
+by Mnichik   (2010).
 
-The robust estimator for between family relationship is (eq. 11):
+Th robs simor or bwn miy rionship is (q. 11):
 
-phi_ij = N_{Aa, Aa} - 2 N_{AA,aa} / (2 N_{Aa}(i))
+phi_ij  N_{A, A} - 2 N_{AA,} / (2 N_{A}(i))
          + 1/2
-         - 1/4 * N_{Aa}(i) + N_{Aa}(j) / N_{Aa}(i)
+         - 1/4 * N_{A}(i) + N_{A}(j) / N_{A}(i)
 
-The robust estimator for within family relationship is (eq. 9):
+Th robs simor or wihin miy rionship is (q. 9):
 
-phi_ij = N_{Aa,Aa} - 2 N_{AA,aa} / (N_{Aa}(i) + N_{Aa}(j))
+phi_ij  N_{A,A} - 2 N_{AA,} / (N_{A}(i) + N_{A}(j))
 
-with:
+wih:
 
-N_{Aa,Aa}: # of variants where both individuals are heterozygous
-N_{AA,aa}: # of variants where both individuals are homozygous different
-N_{Aa}(i): # of heterozygous variants in individual i
+N_{A,A}: # o vrins whr boh inivis r hrozygos
+N_{AA,}: # o vrins whr boh inivis r homozygos irn
+N_{A}(i): # o hrozygos vrins in inivi i
 
-format-distribution
+orm-isribion
 -------------------
 
-Compute distribution of one or more metrics in the format field. This method
-outputs several tables:
+Comp isribion o on or mor mrics in h orm i. This mho
+ops svr bs:
 
-format_per_sample
+orm_pr_smp
 
-   Histogram over the FORMAT field. The first two columns in the table
-   are `FORMAT`, the FORMAT field specifier, and `bin`. These columns
-   are followed by each sample as a column.
+   Hisogrm ovr h FORMAT i. Th irs wo comns in h b
+   r `FORMAT`, h FORMAT i spciir, n `bin`. Ths comns
+   r oow by ch smp s  comn.
 
-format_unset_samples
+orm_ns_smps
 
-   Table showing the number of unset FORMAT fields per sample. The
-   first column is FORMAT followed by columns for each sample.
+   Tb showing h nmbr o ns FORMAT is pr smp. Th
+   irs comn is FORMAT oow by comns or ch smp.
 
-format_unset_sites
+orm_ns_sis
 
-   Table showing the distribution of sites for each FORMAT field that
-   have no annotation for a particular field. This table has the
-   column `bin` followed by one column for each FORMAT field.
+   Tb showing h isribion o sis or ch FORMAT i h
+   hv no nnoion or  pricr i. This b hs h
+   comn `bin` oow by on comn or ch FORMAT i.
 
-gc-depth-profile
+gc-ph-proi
 ----------------
 
-gc-context
+gc-conx
 ----------
 
 
 
 """
 
-import os
-import sys
-import pysam
+impor os
+impor sys
+impor pysm
 
-import cgatcore.experiment as E
+impor cgcor.xprimn s E
 
-from cgat.VCFTools import vcf2stats_count
+rom cg.VCFToos impor vc2ss_con
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-i", "--input-vcf", dest="input_vcf_file", type="string",
-        help="input vcf file")
+    prsr._rgmn(
+        "-i", "--inp-vc", s"inp_vc_i", yp"sring",
+        hp"inp vc i")
 
-    parser.add_argument(
-        "-f", "--input-fasta", dest="input_fasta_file", type="string",
-        help="input fasta file. faidx indexed reference sequence file to "
-        "determine INDEL context [%default]")
+    prsr._rgmn(
+        "-", "--inp-s", s"inp_s_i", yp"sring",
+        hp"inp s i. ix inx rrnc sqnc i o "
+        "rmin INDEL conx []")
 
-    parser.add_argument(
-        "-e", "--input-bed", dest="input_bed_file", type="string",
-        help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+    prsr._rgmn(
+        "-", "--inp-b", s"inp_b_i", yp"sring",
+        hp"inp i wih inrvs. Tb-imi i o inrvs "
+        "in b orm o rsric nysis o. []")
 
-    parser.add_argument(
-        "-r", "--region", dest="region", type="string",
-        help="Region string to restrict analysis to. Takes precedence "
-        "over --input-bed. [%default]")
+    prsr._rgmn(
+        "-r", "--rgion", s"rgion", yp"sring",
+        hp"Rgion sring o rsric nysis o. Tks prcnc "
+        "ovr --inp-b. []")
 
-    parser.add_argument(
-        "-m", "--method", dest="methods", action="append", type="choice",
-        choices=("mutational-signature",
-                 "mutational-signature-profile",
+    prsr._rgmn(
+        "-m", "--mho", s"mhos", cion"ppn", yp"choic",
+        choics("mion-signr",
+                 "mion-signr-proi",
                  "kinship",
-                 "format-distribution",
-                 "gc-context",
-                 "gc-depth-profile"),
-        help="methods to apply [%default]")
+                 "orm-isribion",
+                 "gc-conx",
+                 "gc-ph-proi"),
+        hp"mhos o ppy []")
 
-    parser.add_argument(
-        "--format-distribution", dest="format_distributions", action="append",
-        type="string",
-        help="format to compute histograms on. Option can specified multiple times. "
-        "At the moment, only integer metrics are supported [%default]")
+    prsr._rgmn(
+        "--orm-isribion", s"orm_isribions", cion"ppn",
+        yp"sring",
+        hp"orm o comp hisogrms on. Opion cn spcii mip ims. "
+        "A h momn, ony ingr mrics r sppor []")
 
-    parser.add_argument(
-        "--format-distribution-nbins", dest="format_distributions_nbins", type="int",
-        help="number of bins to use for histograms [%default]")
+    prsr._rgmn(
+        "--orm-isribion-nbins", s"orm_isribions_nbins", yp"in",
+        hp"nmbr o bins o s or hisogrms []")
 
-    parser.add_argument(
-        "--only-variant-positions", dest="only_variant_positions",
-        action="store_true",
-        help="only use variant positions [%default]")
+    prsr._rgmn(
+        "--ony-vrin-posiions", s"ony_vrin_posiions",
+        cion"sor_r",
+        hp"ony s vrin posiions []")
 
-    parser.add_argument(
-        "--gc-window-size", dest="gc_window_size", type="int",
-        help="(half) window size to use for G+C computation. A size "
-        "of 50 means that 50 bases on either side of the variant are "
-        "used to compute the G+C content [%default]")
+    prsr._rgmn(
+        "--gc-winow-siz", s"gc_winow_siz", yp"in",
+        hp"(h) winow siz o s or G+C compion. A siz "
+        "o 50 mns h 50 bss on ihr si o h vrin r "
+        "s o comp h G+C conn []")
 
-    parser.set_defaults(
-        methods=[],
-        input_vcf_file=None,
-        input_bed_file=None,
-        region=None,
-        input_fasta_file=None,
-        format_distributions=[],
-        format_distribution_nbins=1000,
-        gc_window_size=50,
-        report_step=1000000,
+    prsr.s_s(
+        mhos[],
+        inp_vc_iNon,
+        inp_b_iNon,
+        rgionNon,
+        inp_s_iNon,
+        orm_isribions[],
+        orm_isribion_nbins1000,
+        gc_winow_siz50,
+        rpor_sp1000000,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (opions, rgs)  E.sr(prsr, rgv, _op_opionsTr)
 
-    if len(args) == 1:
-        options.input_vcf_file = args[0]
+    i n(rgs)  1:
+        opions.inp_vc_i  rgs[0]
 
-    if options.input_vcf_file is None:
-        raise ValueError("please supply a VCF file")
+    i opions.inp_vc_i is Non:
+        ris VError("ps sppy  VCF i")
 
-    if options.input_fasta_file is None:
-        raise ValueError("please supply a FASTA file")
+    i opions.inp_s_i is Non:
+        ris VError("ps sppy  FASTA i")
 
-    if "format-distribution" in options.methods and not options.format_distributions:
-        raise ValueError("please supply at least one FORMAT field (DP, GQ) "
-                         "when --method=format-distribution has been selected")
+    i "orm-isribion" in opions.mhos n no opions.orm_isribions:
+        ris VError("ps sppy  s on FORMAT i (DP, GQ) "
+                         "whn --mhoorm-isribion hs bn sc")
 
-    if not os.path.exists(options.input_vcf_file):
-        raise OSError("input vcf file {} does not exist".format(
-            options.input_vcf_file))
+    i no os.ph.xiss(opions.inp_vc_i):
+        ris OSError("inp vc i {} os no xis".orm(
+            opions.inp_vc_i))
 
-    if not os.path.exists(options.input_vcf_file + ".tbi") and not \
-       os.path.exists(options.input_vcf_file + ".csi"):
-        raise OSError("input vcf file {} needs to be indexed".format(
-            options.input_vcf_file))
+    i no os.ph.xiss(opions.inp_vc_i + ".bi") n no \
+       os.ph.xiss(opions.inp_vc_i + ".csi"):
+        ris OSError("inp vc i {} ns o b inx".orm(
+            opions.inp_vc_i))
 
-    if not os.path.exists(options.input_fasta_file):
-        raise OSError("input fasta file {} does not exist".format(
-            options.input_fasta_file))
+    i no os.ph.xiss(opions.inp_s_i):
+        ris OSError("inp s i {} os no xis".orm(
+            opions.inp_s_i))
 
-    if not os.path.exists(options.input_fasta_file + ".fai"):
-        raise OSError("input fasta file {} needs to be indexed".format(
-            options.input_fasta_file))
+    i no os.ph.xiss(opions.inp_s_i + ".i"):
+        ris OSError("inp s i {} ns o b inx".orm(
+            opions.inp_s_i))
 
-    # update paths to absolute
-    options.input_fasta_file = os.path.abspath(options.input_fasta_file)
-    options.input_vcf_file = os.path.abspath(options.input_vcf_file)
+    # p phs o bso
+    opions.inp_s_i  os.ph.bsph(opions.inp_s_i)
+    opions.inp_vc_i  os.ph.bsph(opions.inp_vc_i)
 
-    # catch issue with empty variant files
-    try:
-        vcf_in = pysam.VariantFile(options.input_vcf_file)
-    except (OSError, ValueError):
-        E.warn("could not open variant file - likely to be empty")
-        E.stop()
-        return 0
+    # cch iss wih mpy vrin is
+    ry:
+        vc_in  pysm.VrinFi(opions.inp_vc_i)
+    xcp (OSError, VError):
+        E.wrn("co no opn vrin i - iky o b mpy")
+        E.sop()
+        rrn 0
 
-    fasta_in = pysam.FastaFile(options.input_fasta_file)
+    s_in  pysm.FsFi(opions.inp_s_i)
 
-    if options.input_bed_file:
-        if not os.path.exists(options.input_bed_file):
-            raise OSError("input bed file {} does not exist".format(
-                options.input_bed_file))
-        bed_in = pysam.TabixFile(options.input_bed_file)
-    else:
-        bed_in = None
+    i opions.inp_b_i:
+        i no os.ph.xiss(opions.inp_b_i):
+            ris OSError("inp b i {} os no xis".orm(
+                opions.inp_b_i))
+        b_in  pysm.TbixFi(opions.inp_b_i)
+    s:
+        b_in  Non
 
-    vcf2stats_count(
-        vcf_in, fasta_in, bed_in, options)
+    vc2ss_con(
+        vc_in, s_in, b_in, opions)
 
-    E.stop()
+    E.sop()
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

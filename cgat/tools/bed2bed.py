@@ -1,686 +1,686 @@
 '''
-bed2bed - manipulate bed files
-=================================
+b2b - mnip b is
 
-Purpose
+
+Prpos
 -------
 
-This script provides various methods for merging (by position, by name
-or by score), filtering and moving bed formatted intervals and
-outputting the results as a bed file
+This scrip provis vrios mhos or mrging (by posiion, by nm
+or by scor), iring n moving b orm inrvs n
+oping h rss s  b i
 
-Methods
+Mhos
 -------
 
-This script provides several methods, each with a set of options
-to control behavoir:
+This scrip provis svr mhos, ch wih  s o opions
+o conro bhvoir:
 
-merge
+mrg
 +++++
 
-Merge together overlapping or adjacent intervals. The basic
-functionality is similar to bedtools merge, but with some additions:
+Mrg oghr ovrpping or jcn inrvs. Th bsic
+ncioniy is simir o boos mrg, b wih som iions:
 
-* Merging by name: specifying the --merge-by-name option will mean
-  that only overlaping (or adjacent intervals) with the same value in
-  the 4th column of the bed will be merged
+* Mrging by nm: spciying h --mrg-by-nm opion wi mn
+  h ony ovrping (or jcn inrvs) wih h sm v in
+  h 4h comn o h b wi b mrg
 
-* Removing overlapping intervals with inconsistent names: set the
-   ``--remove-inconsistent-names`` option.
+* Rmoving ovrpping inrvs wih inconsisn nms: s h
+   ``--rmov-inconsisn-nms`` opion.
 
-.. caution::
-   Intervals of the same name will only be merged if they
-   are consecutive in the bed file.
+.. cion::
+   Inrvs o h sm nm wi ony b mrg i hy
+   r consciv in h b i.
 
-* Only output merged intervals: By specifiying the --merge-min-intervals=n
-  options, only those intervals that were created by merging at least n
-  intervals together will be output
+* Ony op mrg inrvs: By spciiying h --mrg-min-inrvsn
+  opions, ony hos inrvs h wr cr by mrging  s n
+  inrvs oghr wi b op
 
-Intervals that are close but not overlapping can be merged by setting
---merge-distance to a non-zero value
+Inrvs h r cos b no ovrpping cn b mrg by sing
+--mrg-isnc o  non-zro v
 
 bins
 ++++
 
-Merges together overlapping or adjecent intervals only if they have
-"similar" scores. Score similarity is assessed by creating a number of
-score bins and assigning each interval to a bin. If two adjacent
-intervals are in the same bin, the intervals are merged. Note that in
-contrast to merge-by-name above, two intervals do not need to be
-overlapping or within a certain distance to be merged.
+Mrgs oghr ovrpping or jcn inrvs ony i hy hv
+"simir" scors. Scor simiriy is ssss by cring  nmbr o
+scor bins n ssigning ch inrv o  bin. I wo jcn
+inrvs r in h sm bin, h inrvs r mrg. No h in
+conrs o mrg-by-nm bov, wo inrvs o no n o b
+ovrpping or wihin  crin isnc o b mrg.
 
-There are several methods to create the bins:
+Thr r svr mhos o cr h bins:
 
-* equal-bases: Bins are created to that they contain the same number of bases.
-  Specified by passing "equal-bases" to --binning-method. This is the default.
+* q-bss: Bins r cr o h hy conin h sm nmbr o bss.
+  Spcii by pssing "q-bss" o --binning-mho. This is h .
 
-* equal-intervals: Score bins are create so that each bin contains the
-  same number of intervals. Specified by passing "equal-intervals" to
-  --binning-method.
+* q-inrvs: Scor bins r cr so h ch bin conins h
+  sm nmbr o inrvs. Spcii by pssing "q-inrvs" o
+  --binning-mho.
 
-* equal-range: Score bins are created so that
-  each bin covers the same fraction of the total range of
-  scores. Specified by passing "equal-range" to --binning-method.
+* q-rng: Scor bins r cr so h
+  ch bin covrs h sm rcion o h o rng o
+  scors. Spcii by pssing "q-rng" o --binning-mho.
 
-* bin-edges: Score binds can be specified by manually passing a comma
-  seperated list of bin edges to --bin-edges.
+* bin-gs: Scor bins cn b spcii by mny pssing  comm
+  spr is o bin gs o --bin-gs.
 
-The number of bins is specified by the --num-bins options, and the
-default is 5.
+Th nmbr o bins is spcii by h --nm-bins opions, n h
+ is 5.
 
-block
+bock
 +++++
 
-Creates blocked bed12 outputs from a bed6, where intervals with the
-same name are merged together to create a single bed12 entry.
+Crs bock b12 ops rom  b6, whr inrvs wih h
+sm nm r mrg oghr o cr  sing b12 nry.
 
-.. Caution:: Input must be sorted so that entries of the same
-name are together.
+.. Cion:: Inp ms b sor so h nris o h sm
+nm r oghr.
 
-filter-genome
+ir-gnom
 +++++++++++++
 
-Removes intervals that are on unknown contigs or extend off the 3' or
-5' end of the contig.  Requires a tab seperated input file to -g which
-lists the contigs in the genome, plus their lengths.
+Rmovs inrvs h r on nknown conigs or xn o h 3' or
+5' n o h conig.  Rqirs  b spr inp i o -g which
+iss h conigs in h gnom, ps hir nghs.
 
-sanitize-genome
+sniiz-gnom
 +++++++++++++++
 
-As above, but instead of removing intervals overlapping the ends of
-contigs, truncates them.  Also removes empty intervals.
+As bov, b ins o rmoving inrvs ovrpping h ns o
+conigs, rncs hm.  Aso rmovs mpy inrvs.
 
-filter-names
+ir-nms
 ++++++++++++
 
-Output intervals whose names are in list of desired names. Names are
-supplied as a file with one name on each line.
+Op inrvs whos nms r in is o sir nms. Nms r
+sppi s  i wih on nm on ch in.
 
-shift
+shi
 +++++
 
-Moves intervals by the specified amount, but will not allow them to be
-shifted off the end of contigs. Thus if a shift will shift the start
-of end of the contig, the interval is only moved as much as is
-possible without doing this.
+Movs inrvs by h spcii mon, b wi no ow hm o b
+shi o h n o conigs. Ths i  shi wi shi h sr
+o n o h conig, h inrv is ony mov s mch s is
+possib wiho oing his.
 
-rename-chr
+rnm-chr
 ++++++++++
 
-Renames chromosome names. Source and target names are supplied as a file
-with two columns. Examples are available at:
-https://github.com/dpryan79/ChromosomeMappings
-Note that unmapped chromosomes are dropped from the output file.
+Rnms chromosom nms. Sorc n rg nms r sppi s  i
+wih wo comns. Exmps r vib :
+hps://gihb.com/pryn79/ChromosomMppings
+No h nmpp chromosoms r ropp rom h op i.
 
-Other options
+Ohr opions
 +++++++++++++
 
--g/--genome-file, -b/--bam-file:
-   the filter-genome, sanitize-genome and shift methods require a genome in
-   order to ensure they are not placing intervals outside the limits of
-   contigs. This genome can be supplied either as a samtools or cgat indexed
-   genome, or extracted from the header of a bam file.
+-g/--gnom-i, -b/--bm-i:
+   h ir-gnom, sniiz-gnom n shi mhos rqir  gnom in
+   orr o nsr hy r no pcing inrvs osi h imis o
+   conigs. This gnom cn b sppi ihr s  smoos or cg inx
+   gnom, or xrc rom h hr o  bm i.
 
-Examples
+Exmps
 --------
 
-Merge overlapping or adjectent peaks from a CHiP-seq experiment where the
-intervals have the same name:
+Mrg ovrpping or jcn pks rom  CHiP-sq xprimn whr h
+inrvs hv h sm nm:
 
-    cat chip-peaks.bed | cgat bed2bed --method=merge --merge-by-name > chip-peaks-merged.bed
+    c chip-pks.b | cg b2b --mhomrg --mrg-by-nm > chip-pks-mrg.b
 
-Merge adjected ChIP-seq peaks if their scores are in the same quartile of
-all scores:
+Mrg jc ChIP-sq pks i hir scors r in h sm qri o
+ scors:
 
-    cat chip-peaks.bed | cgat bed2bed --method=bins --binning-method=equal-intervals --num-bins=4
+    c chip-pks.b | cg b2b --mhobins --binning-mhoq-inrvs --nm-bins4
 
-Remove intervals that overlap the ends of a contig and those that are on a
-non-standard contig. Take the input intervals from a file rather than stdin.
-Note that hg19.fasta has been indexed with `index_genome`:
+Rmov inrvs h ovrp h ns o  conig n hos h r on 
+non-snr conig. Tk h inp inrvs rom  i rhr hn sin.
+No h hg19.s hs bn inx wih `inx_gnom`:
 
-    cgat bed2bed --method=filter-genome --genome-file=hg19.fasta -I chip-peaks.bed -O chip-peaks-sanitized.bed
+    cg b2b --mhoir-gnom --gnom-ihg19.s -I chip-pks.b -O chip-pks-sniiz.b
 
-Convert a bed file contain gene structures with one line per exon to a bed12
-with linked block representing the gene structure. Note the transparent use
-of compressed input and output files:
+Convr  b i conin gn srcrs wih on in pr xon o  b12
+wih ink bock rprsning h gn srcr. No h rnsprn s
+o comprss inp n op is:
 
-    cgat bed2bed --method=block -I transcripts.bed.gz -O transcripts.blocked.bed.gz
+    cg b2b --mhobock -I rnscrips.b.gz -O rnscrips.bock.b.gz
 
-Rename UCSC chromosomes to ENSEMBL.
+Rnm UCSC chromosoms o ENSEMBL.
 
-    cat ucsc.bed | cgat bed2bed --method=rename-chr --rename-chr-file=ucsc2ensembl.txt > ensembl.bed
+    c csc.b | cg b2b --mhornm-chr --rnm-chr-icsc2nsmb.x > nsmb.b
 
-Usage
+Usg
 -----
 
-   cgat bed2bed --method=[METHOD] [OPTIONS]
+   cg b2b --mho[METHOD] [OPTIONS]
 
-Will read bed file from stdin and apply the specified method
+Wi r b i rom sin n ppy h spcii mho
 
-Command line options
+Commn in opions
 --------------------
 '''
 
-import sys
-import cgatcore.experiment as E
-import cgat.IndexedFasta as IndexedFasta
-import cgat.Bed as Bed
-import cgat.Intervals as Intervals
-from collections import defaultdict as defaultdict
-import pysam
-import csv
+impor sys
+impor cgcor.xprimn s E
+impor cg.InxFs s InxFs
+impor cg.B s B
+impor cg.Inrvs s Inrvs
+rom cocions impor ic s ic
+impor pysm
+impor csv
 
 
-def filterNames(iterator, names):
-    """ Select only those intervals whose name is in names """
+ irNms(iror, nms):
+    """ Sc ony hos inrvs whos nm is in nms """
 
-    for bed in iterator:
-        if bed.name in names:
-            yield bed
+    or b in iror:
+        i b.nm in nms:
+            yi b
 
 
-def merge(iterator,
-          max_distance=0,
-          by_name=False,
-          min_intervals=1,
-          remove_inconsistent=False,
-          resolve_blocks=False,
-          stranded=False):
-    """iterator for merging adjacent bed entries.
+ mrg(iror,
+          mx_isnc0,
+          by_nmFs,
+          min_inrvs1,
+          rmov_inconsisnFs,
+          rsov_bocksFs,
+          srnFs):
+    """iror or mrging jcn b nris.
 
-    *max_distance* > 0 permits merging of intervals that are
-    not directly adjacent.
+    *mx_isnc* > 0 prmis mrging o inrvs h r
+    no ircy jcn.
 
-    If *by_name = True*, only entries with the same name are merged.
+    I *by_nm  Tr*, ony nris wih h sm nm r mrg.
 
-    If *remove_inconsistent*, overlapping intervals where the names
-    are inconsistent will be removed.
+    I *rmov_inconsisn*, ovrpping inrvs whr h nms
+    r inconsisn wi b rmov.
 
-    The score gives the number of intervals that have been merged.
+    Th scor givs h nmbr o inrvs h hv bn mrg.
     """
 
-    if remove_inconsistent and by_name:
-        assert ValueError(
-            "using both remove_inconsistent and by_name makes no sense")
+    i rmov_inconsisn n by_nm:
+        ssr VError(
+            "sing boh rmov_inconsisn n by_nm mks no sns")
 
-    def iterate_chunks(iterator):
-        max_end = defaultdict(int)
-        to_join = defaultdict(list)
-        last_name = defaultdict(str)
+     ir_chnks(iror):
+        mx_n  ic(in)
+        o_join  ic(is)
+        s_nm  ic(sr)
 
-        last = next(iterator)
+        s  nx(iror)
 
-        if not stranded:
-            strand = "."
-        else:
-            strand = last.strand
+        i no srn:
+            srn  "."
+        s:
+            srn  s.srn
 
-        max_end[strand] = last.end
-        to_join[strand] = [last]
+        mx_n[srn]  s.n
+        o_join[srn]  [s]
 
-        for bed in iterator:
+        or b in iror:
 
-            if not stranded:
-                strand = "."
-            else:
-                strand = bed.strand
+            i no srn:
+                srn  "."
+            s:
+                srn  b.srn
 
-            d = bed.start - max_end[strand]
+              b.sr - mx_n[srn]
 
-            if bed.contig == last.contig:
-                assert bed.start >= last.start, \
-                    "input file should be sorted by contig and position: d=%i:\n%s\n%s\n" \
-                    % (d, last, bed)
+            i b.conig  s.conig:
+                ssr b.sr > s.sr, \
+                    "inp i sho b sor by conig n posiion: i:\ns\ns\n" \
+                     (, s, b)
 
-            if bed.contig != last.contig:
+            i b.conig ! s.conig:
 
-                for s in to_join:
-                    if to_join[s]:
-                        yield to_join[s]
-                    to_join[s] = []
-                    max_end[s] = 0
+                or s in o_join:
+                    i o_join[s]:
+                        yi o_join[s]
+                    o_join[s]  []
+                    mx_n[s]  0
 
-            elif (d > max_distance or
-                  (by_name and last_name[strand] and last_name[strand] != bed.name)):
+            i ( > mx_isnc or
+                  (by_nm n s_nm[srn] n s_nm[srn] ! b.nm)):
 
-                if to_join[strand]:
-                    yield to_join[strand]
+                i o_join[srn]:
+                    yi o_join[srn]
 
-                to_join[strand] = list()
+                o_join[srn]  is()
 
-            last = bed
-            last_name[strand] = last.name
-            max_end[strand] = max(bed.end, max_end[strand])
-            to_join[strand].append(bed)
+            s  b
+            s_nm[srn]  s.nm
+            mx_n[srn]  mx(b.n, mx_n[srn])
+            o_join[srn].ppn(b)
 
-        for strand in sorted(to_join):
-            if to_join[strand]:
-                yield to_join[strand]
-        raise StopIteration
+        or srn in sor(o_join):
+            i o_join[srn]:
+                yi o_join[srn]
+        ris SopIrion
 
-    c = E.Counter()
+    c  E.Conr()
 
-    for to_join in iterate_chunks(iterator):
+    or o_join in ir_chnks(iror):
 
-        c.input += 1
+        c.inp + 1
 
-        if remove_inconsistent:
-            names = set([x.name for x in to_join])
-            if len(names) > 1:
-                c.skipped_inconsistent_intervals += 1
-                continue
+        i rmov_inconsisn:
+            nms  s([x.nm or x in o_join])
+            i n(nms) > 1:
+                c.skipp_inconsisn_inrvs + 1
+                conin
 
-        if resolve_blocks:
-            # keep track of number of intervals in each entry
-            for bed in to_join:
-                bed["score"] = 1
-            merged = True
-            while merged:
-                joined = []
-                not_joined = []
-                merged = False
+        i rsov_bocks:
+            # kp rck o nmbr o inrvs in ch nry
+            or b in o_join:
+                b["scor"]  1
+            mrg  Tr
+            whi mrg:
+                join  []
+                no_join  []
+                mrg  Fs
 
-                while len(to_join) > 0:
-                    bed1, to_join = to_join[0], to_join[1:]
-                    intervals1 = bed1.toIntervals()
-                    for bed2 in to_join:
-                        intervals2 = bed2.toIntervals()
-                        if Intervals.calculateOverlap(intervals1, intervals2) > 0:
-                            intervals = Intervals.combine(intervals1 +
-                                                          intervals2)
-                            bed1.fromIntervals(intervals)
-                            bed1["score"] += bed2["score"]
-                            merged = True
-                        else:
-                            not_joined.append(bed2)
+                whi n(o_join) > 0:
+                    b1, o_join  o_join[0], o_join[1:]
+                    inrvs1  b1.oInrvs()
+                    or b2 in o_join:
+                        inrvs2  b2.oInrvs()
+                        i Inrvs.ccOvrp(inrvs1, inrvs2) > 0:
+                            inrvs  Inrvs.combin(inrvs1 +
+                                                          inrvs2)
+                            b1.romInrvs(inrvs)
+                            b1["scor"] + b2["scor"]
+                            mrg  Tr
+                        s:
+                            no_join.ppn(b2)
 
-                    joined.append(bed1)
-                    to_join = not_joined
-                    not_joined = []
+                    join.ppn(b1)
+                    o_join  no_join
+                    no_join  []
 
-                to_join = joined
-                joined = []
+                o_join  join
+                join  []
 
-            to_join = sorted(to_join, key=lambda x: int(x.start))
+            o_join  sor(o_join, kymb x: in(x.sr))
 
-            # keep only those with the created from the merge of the minimum
-            # number of intervals
+            # kp ony hos wih h cr rom h mrg o h minimm
+            # nmbr o inrvs
 
-            for bed in to_join:
+            or b in o_join:
 
-                if bed["score"] < min_intervals:
-                    c.skipped_min_intervals += 1
-                    continue
+                i b["scor"] < min_inrvs:
+                    c.skipp_min_inrvs + 1
+                    conin
 
-                yield bed
-                c.output += 1
-        else:
+                yi b
+                c.op + 1
+        s:
 
-            if len(to_join) < min_intervals:
-                c.skipped_min_intervals += 1
-                continue
+            i n(o_join) < min_inrvs:
+                c.skipp_min_inrvs + 1
+                conin
 
-            a = to_join[0]
-            a.end = max([entry.end for entry in to_join])
-            a.score = len(to_join)
-            yield a
-            c.output += 1
+              o_join[0]
+            .n  mx([nry.n or nry in o_join])
+            .scor  n(o_join)
+            yi 
+            c.op + 1
 
-    E.info(str(c))
-
-
-def filterGenome(iterator, contigs):
-    """remove bed intervals that are outside of contigs.
-
-    contigs is a dictionary of contig sizes."""
-
-    ninput, noutput = 0, 0
-    nskipped_contig, nskipped_range, nskipped_endzero = 0, 0, 0
-
-    for bed in iterator:
-        ninput += 1
-        if bed.contig not in contigs:
-            nskipped_contig += 1
-            continue
-        # IMS: add filtering for filtering <0 co-ordinates
-        if bed.start < 0 or bed.end < 0:
-            nskipped_range += 1
-            continue
-        # should this not be just >, as co-ordinates are half-closed, so
-        # if end = contigs[bed.contig], then interval ends on last base?
-        if bed.end > contigs[bed.contig]:
-            nskipped_range += 1
-            continue
-        if bed.end == 0:
-            nskipped_endzero += 1
-            continue
-        noutput += 1
-        yield bed
-
-    E.info("ninput=%i, noutput=%i, nskipped_contig=%i, nskipped_range=%i, nskipped_endzero=%i" %
-           (ninput, noutput, nskipped_contig, nskipped_range, nskipped_endzero))
+    E.ino(sr(c))
 
 
-def sanitizeGenome(iterator, contigs):
-    """truncate bed intervals that extend beyond contigs.
+ irGnom(iror, conigs):
+    """rmov b inrvs h r osi o conigs.
 
-    removes empty intervals (start == end).
+    conigs is  icionry o conig sizs."""
 
-    throws an error if start > end.
+    ninp, nop  0, 0
+    nskipp_conig, nskipp_rng, nskipp_nzro  0, 0, 0
+
+    or b in iror:
+        ninp + 1
+        i b.conig no in conigs:
+            nskipp_conig + 1
+            conin
+        # IMS:  iring or iring <0 co-orins
+        i b.sr < 0 or b.n < 0:
+            nskipp_rng + 1
+            conin
+        # sho his no b js >, s co-orins r h-cos, so
+        # i n  conigs[b.conig], hn inrv ns on s bs?
+        i b.n > conigs[b.conig]:
+            nskipp_rng + 1
+            conin
+        i b.n  0:
+            nskipp_nzro + 1
+            conin
+        nop + 1
+        yi b
+
+    E.ino("ninpi, nopi, nskipp_conigi, nskipp_rngi, nskipp_nzroi" 
+           (ninp, nop, nskipp_conig, nskipp_rng, nskipp_nzro))
+
+
+ sniizGnom(iror, conigs):
+    """rnc b inrvs h xn byon conigs.
+
+    rmovs mpy inrvs (sr  n).
+
+    hrows n rror i sr > n.
     """
 
-    ninput, noutput = 0, 0
-    ntruncated_contig, nskipped_contig, nskipped_empty = 0, 0, 0
+    ninp, nop  0, 0
+    nrnc_conig, nskipp_conig, nskipp_mpy  0, 0, 0
 
-    for bed in iterator:
-        ninput += 1
-        if bed.contig not in contigs:
-            nskipped_contig += 1
-            continue
-        # IMS: changing >= to > in if statement: next line sets bed.end = contigs[bed.contig]
-        # this shouldn't count as a truncation.
-        if bed.end > contigs[bed.contig]:
-            bed.end = contigs[bed.contig]
-            ntruncated_contig += 1
-        if bed.start < 0:
-            bed.start = 0
-            ntruncated_contig += 1
-        if bed.start == bed.end:
-            nskipped_empty += 1
-            continue
-        elif bed.start > bed.end:
-            raise ValueError("invalid interval: start > end for %s" % str(bed))
+    or b in iror:
+        ninp + 1
+        i b.conig no in conigs:
+            nskipp_conig + 1
+            conin
+        # IMS: chnging > o > in i smn: nx in ss b.n  conigs[b.conig]
+        # his shon' con s  rncion.
+        i b.n > conigs[b.conig]:
+            b.n  conigs[b.conig]
+            nrnc_conig + 1
+        i b.sr < 0:
+            b.sr  0
+            nrnc_conig + 1
+        i b.sr  b.n:
+            nskipp_mpy + 1
+            conin
+        i b.sr > b.n:
+            ris VError("invi inrv: sr > n or s"  sr(b))
 
-        noutput += 1
-        yield bed
+        nop + 1
+        yi b
 
-    E.info("ninput=%i, noutput=%i, nskipped_contig=%i, ntruncated=%i, nskipped_empty=%i" %
-           (ninput, noutput, nskipped_contig, ntruncated_contig, nskipped_empty))
-
-
-def shiftIntervals(iterator, contigs, offset):
-    """shift intervals by a certain offset and ensure size is maintaned even id contig end reached.
-
-    contigs is a dictionary of contig sizes."""
-
-    ninput, noutput = 0, 0
-    nskipped_contig, nskipped_range = 0, 0
-
-    for bed in iterator:
-        ninput += 1
-        if bed.contig not in contigs:
-            nskipped_contig += 1
-            continue
-        # IMS: if we skip intervals off the end of the contig we should skipp ones
-        # off the start as well
-        if bed.start < 0 or bed.end < 0:
-            nskipped_range += 1
-            continue
-        # IMS: changing >= to > as bed is half-open
-        if bed.end > contigs[bed.contig]:
-            nskipped_range += 1
-            continue
-        noutput += 1
-
-        # add offset to each start and end, and adjust for contig length
-        l = bed.end - bed.start
-        newstart = bed.start + offset
-        newend = bed.end + offset
-        if newstart < 0:
-            newstart = 0
-            newend = l
-        if newend > contigs[bed.contig]:
-            newstart = contigs[bed.contig] - l
-            newend = contigs[bed.contig]
-
-        bed.start = newstart
-        bed.end = newend
-
-        yield bed
-
-    E.info("ninput=%i, noutput=%i, nskipped_contig=%i, nskipped_range=%i" %
-           (ninput, noutput, nskipped_contig, nskipped_range))
+    E.ino("ninpi, nopi, nskipp_conigi, nrnci, nskipp_mpyi" 
+           (ninp, nop, nskipp_conig, nrnc_conig, nskipp_mpy))
 
 
-def extendInterval(iterator, contigs, distance):
+ shiInrvs(iror, conigs, os):
+    """shi inrvs by  crin os n nsr siz is minn vn i conig n rch.
 
-    ninput, noutput, nskipped = 0, 0, 0
-    for bed in iterator:
-        ninput += 1
+    conigs is  icionry o conig sizs."""
 
-        if bed.contig not in contigs:
-            nskipped += 1
-            continue
-        if bed.start < 0 or bed.end < 0:
-            nskipped += 1
-            continue
-        if bed.end > contigs[bed.contig]:
-            nskipped += 1
-            continue
+    ninp, nop  0, 0
+    nskipp_conig, nskipp_rng  0, 0
 
-        newstart = bed.start - distance
-        newend = bed.end + distance
+    or b in iror:
+        ninp + 1
+        i b.conig no in conigs:
+            nskipp_conig + 1
+            conin
+        # IMS: i w skip inrvs o h n o h conig w sho skipp ons
+        # o h sr s w
+        i b.sr < 0 or b.n < 0:
+            nskipp_rng + 1
+            conin
+        # IMS: chnging > o > s b is h-opn
+        i b.n > conigs[b.conig]:
+            nskipp_rng + 1
+            conin
+        nop + 1
 
-        if newstart < 0:
-            newstart = 0
+        #  os o ch sr n n, n js or conig ngh
+          b.n - b.sr
+        nwsr  b.sr + os
+        nwn  b.n + os
+        i nwsr < 0:
+            nwsr  0
+            nwn  
+        i nwn > conigs[b.conig]:
+            nwsr  conigs[b.conig] - 
+            nwn  conigs[b.conig]
 
-        if newend > contigs[bed.contig]:
-            newend = contigs[bed.contig]
+        b.sr  nwsr
+        b.n  nwn
 
-        bed.start = newstart
-        bed.end = newend
+        yi b
 
-        noutput += 1
-        yield bed
-
-    E.info("ninput = %i, noutput=%i, nskipped=%i" %
-           (ninput, noutput, nskipped))
-
-
-def renameChromosomes(iterator, chr_map):
-
-    ninput, noutput, nskipped = 0, 0, 0
-
-    for bed in iterator:
-        ninput += 1
-
-        if bed.contig in chr_map.keys():
-            bed.contig = chr_map[bed.contig]
-        else:
-            nskipped += 1
-            continue
-
-        noutput += 1
-        yield bed
-
-    E.info("ninput = %i, noutput=%i, nskipped=%i" %
-           (ninput, noutput, nskipped))
+    E.ino("ninpi, nopi, nskipp_conigi, nskipp_rngi" 
+           (ninp, nop, nskipp_conig, nskipp_rng))
 
 
-def main(argv=sys.argv):
+ xnInrv(iror, conigs, isnc):
 
-    parser = E.OptionParser(version="%prog version: $Id: bed2bed.py 2861 2010-02-23 17:36:32Z andreas $",
-                            usage=globals()["__doc__"])
+    ninp, nop, nskipp  0, 0, 0
+    or b in iror:
+        ninp + 1
 
-    # IMS: new method: extend intervals by set amount
-    parser.add_argument("-m", "--method", dest="methods", type="choice",
-                      action="append",
-                      choices=("merge", "filter-genome", "bins",
-                               "block", "sanitize-genome", "shift", "extend",
-                               "filter-names", "rename-chr"),
-                      help="method to apply [default=%default]")
+        i b.conig no in conigs:
+            nskipp + 1
+            conin
+        i b.sr < 0 or b.n < 0:
+            nskipp + 1
+            conin
+        i b.n > conigs[b.conig]:
+            nskipp + 1
+            conin
 
-    parser.add_argument("--num-bins", dest="num_bins", type="int",
-                      help="number of bins into which to merge (used for "
-                      "method `bins) [default=%default]")
+        nwsr  b.sr - isnc
+        nwn  b.n + isnc
 
-    parser.add_argument("--bin-edges", dest="bin_edges", type="string",
-                      help="bin_edges for binning method [default=%default]")
+        i nwsr < 0:
+            nwsr  0
 
-    parser.add_argument(
-        "--binning-method", dest="binning_method", type="choice",
-        choices=(
-            "equal-bases", "equal-intervals", "equal-range"),
-        help="method used for binning (used for method `bins` if no "
-        "bin_edges is given) [default=%default]")
+        i nwn > conigs[b.conig]:
+            nwn  conigs[b.conig]
 
-    parser.add_argument(
-        "--merge-distance", dest="merge_distance", type="int",
-        help="distance in bases over which to merge that are not "
-        "directly adjacent [default=%default]")
+        b.sr  nwsr
+        b.n  nwn
 
-    parser.add_argument(
-        "--merge-min-intervals", dest="merge_min_intervals", type="int",
-        help="only output merged intervals that are build from at least "
-        "x intervals [default=%default]")
+        nop + 1
+        yi b
 
-    parser.add_argument(
-        "--merge-by-name", dest="merge_by_name",
-        action="store_true",
-        help="only merge intervals with the same name [default=%default]")
+    E.ino("ninp  i, nopi, nskippi" 
+           (ninp, nop, nskipp))
 
-    parser.add_argument(
-        "--merge-and-resolve-blocks", dest="resolve_blocks",
-        action="store_true",
-        help="When merging bed12 entrys, should blocks be resolved?")
 
-    parser.add_argument(
-        "--merge-stranded", dest="stranded",
-        action="store_true",
-        help="Only merge intervals on the same strand")
+ rnmChromosoms(iror, chr_mp):
 
-    parser.add_argument(
-        "--remove-inconsistent-names", dest="remove_inconsistent_names",
-        action="store_true",
-        help="when merging, do not output intervals where the names of "
-        "overlapping intervals do not match [default=%default]")
+    ninp, nop, nskipp  0, 0, 0
 
-    parser.add_argument(
-        "--offset", dest="offset",  type="int",
-        help="offset for shifting intervals [default=%default]")
+    or b in iror:
+        ninp + 1
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome.")
+        i b.conig in chr_mp.kys():
+            b.conig  chr_mp[b.conig]
+        s:
+            nskipp + 1
+            conin
 
-    parser.add_argument("-b", "--bam-file", dest="bam_file", type="string",
-                      help="bam-formatted filename with genome.")
+        nop + 1
+        yi b
 
-    parser.add_argument("--filter-names-file", dest="names", type="string",
-                      help="list of names to keep. One per line")
+    E.ino("ninp  i, nopi, nskippi" 
+           (ninp, nop, nskipp))
 
-    parser.add_argument("--rename-chr-file", dest="rename_chr_file", type="string",
-                      help="mapping table between old and new chromosome names."
-                      "TAB separated 2-column file.")
 
-    parser.set_defaults(methods=[],
-                        merge_distance=0,
-                        binning_method="equal-bases",
-                        merge_by_name=False,
-                        genome_file=None,
-                        rename_chr_file=None,
-                        bam_file=None,
-                        num_bins=5,
-                        merge_min_intervals=1,
-                        bin_edges=None,
-                        offset=10000,
-                        test=None,
-                        extend_distance=1000,
-                        remove_inconsistent_names=False,
-                        resolve_blocks=False)
+ min(rgvsys.rgv):
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: b2b.py 2861 2010-02-23 17:36:32Z nrs $",
+                            sggobs()["__oc__"])
 
-    contigs = None
-    chr_map = None
+    # IMS: nw mho: xn inrvs by s mon
+    prsr._rgmn("-m", "--mho", s"mhos", yp"choic",
+                      cion"ppn",
+                      choics("mrg", "ir-gnom", "bins",
+                               "bock", "sniiz-gnom", "shi", "xn",
+                               "ir-nms", "rnm-chr"),
+                      hp"mho o ppy []")
 
-    # Why provide full indexed genome, when a tsv of contig sizes would do?
-    if options.genome_file:
-        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
-        contigs = genome_fasta.getContigSizes()
+    prsr._rgmn("--nm-bins", s"nm_bins", yp"in",
+                      hp"nmbr o bins ino which o mrg (s or "
+                      "mho `bins) []")
 
-    if options.bam_file:
-        samfile = pysam.AlignmentFile(options.bam_file)
-        contigs = dict(list(zip(samfile.references, samfile.lengths)))
+    prsr._rgmn("--bin-gs", s"bin_gs", yp"sring",
+                      hp"bin_gs or binning mho []")
 
-    if options.rename_chr_file:
-        chr_map = {}
-        with open(options.rename_chr_file, 'r') as filein:
-            reader = csv.reader(filein, delimiter='\t')
-            for row in reader:
-                if len(row) != 2:
-                    raise ValueError("Mapping table must have exactly two columns")
-                chr_map[row[0]] = row[1]
-        if not len(chr_map.keys()) > 0:
-            raise ValueError("Empty mapping dictionnary")
+    prsr._rgmn(
+        "--binning-mho", s"binning_mho", yp"choic",
+        choics(
+            "q-bss", "q-inrvs", "q-rng"),
+        hp"mho s or binning (s or mho `bins` i no "
+        "bin_gs is givn) []")
 
-    processor = Bed.iterator(options.stdin)
+    prsr._rgmn(
+        "--mrg-isnc", s"mrg_isnc", yp"in",
+        hp"isnc in bss ovr which o mrg h r no "
+        "ircy jcn []")
 
-    for method in options.methods:
-        if method == "filter-genome":
-            if not contigs:
-                raise ValueError("please supply contig sizes")
-            processor = filterGenome(processor, contigs)
-        elif method == "sanitize-genome":
-            if not contigs:
-                raise ValueError("please supply contig sizes")
-            processor = sanitizeGenome(processor, contigs)
-        elif method == "merge":
-            processor = merge(
-                processor,
-                options.merge_distance,
-                by_name=options.merge_by_name,
-                min_intervals=options.merge_min_intervals,
-                remove_inconsistent=options.remove_inconsistent_names,
-                resolve_blocks=options.resolve_blocks,
-                stranded=options.stranded)
-        elif method == "bins":
-            if options.bin_edges:
-                bin_edges = list(map(float, options.bin_edges.split(",")))
-                # IMS: check bin edges are valid
-                if not(len(bin_edges) == options.num_bins + 1):
-                    raise ValueError(
-                        "Number of bin edge must be one more than "
-                        "number of bins")
-            else:
-                bin_edges = None
-            processor, bin_edges = Bed.binIntervals(
-                processor,
-                num_bins=options.num_bins,
-                method=options.binning_method,
-                bin_edges=bin_edges)
-            E.info("# split bed: bin_edges=%s" % (str(bin_edges)))
+    prsr._rgmn(
+        "--mrg-min-inrvs", s"mrg_min_inrvs", yp"in",
+        hp"ony op mrg inrvs h r bi rom  s "
+        "x inrvs []")
 
-        elif method == "block":
-            processor = Bed.blocked_iterator(processor)
-        elif method == "shift":
-            # IMS: test that contig sizes are availible
-            if not contigs:
-                raise ValueError("please supply genome file")
-            processor = shiftIntervals(
-                processor, contigs, offset=options.offset)
-        # IMS: new method: extend intervals by set amount
-        elif method == "extend":
-            if not contigs:
-                raise ValueError("please supply genome file")
-            processor = extendInterval(processor, contigs, options.offset)
-        elif method == "filter-names":
-            if not options.names:
-                raise ValueError("please supply list of names to filter")
-            names = [name.strip() for name in open(options.names)]
-            processor = filterNames(processor, names)
-        elif method == "rename-chr":
-            if not chr_map:
-                raise ValueError("please supply mapping file")
-            processor = renameChromosomes(processor, chr_map)
+    prsr._rgmn(
+        "--mrg-by-nm", s"mrg_by_nm",
+        cion"sor_r",
+        hp"ony mrg inrvs wih h sm nm []")
 
-    noutput = 0
-    for bed in processor:
-        options.stdout.write(str(bed) + "\n")
-        noutput += 1
+    prsr._rgmn(
+        "--mrg-n-rsov-bocks", s"rsov_bocks",
+        cion"sor_r",
+        hp"Whn mrging b12 nrys, sho bocks b rsov?")
 
-    E.info("noutput=%i" % (noutput))
+    prsr._rgmn(
+        "--mrg-srn", s"srn",
+        cion"sor_r",
+        hp"Ony mrg inrvs on h sm srn")
 
-    E.stop()
+    prsr._rgmn(
+        "--rmov-inconsisn-nms", s"rmov_inconsisn_nms",
+        cion"sor_r",
+        hp"whn mrging, o no op inrvs whr h nms o "
+        "ovrpping inrvs o no mch []")
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    prsr._rgmn(
+        "--os", s"os",  yp"in",
+        hp"os or shiing inrvs []")
+
+    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
+                      hp"inm wih gnom.")
+
+    prsr._rgmn("-b", "--bm-i", s"bm_i", yp"sring",
+                      hp"bm-orm inm wih gnom.")
+
+    prsr._rgmn("--ir-nms-i", s"nms", yp"sring",
+                      hp"is o nms o kp. On pr in")
+
+    prsr._rgmn("--rnm-chr-i", s"rnm_chr_i", yp"sring",
+                      hp"mpping b bwn o n nw chromosom nms."
+                      "TAB spr 2-comn i.")
+
+    prsr.s_s(mhos[],
+                        mrg_isnc0,
+                        binning_mho"q-bss",
+                        mrg_by_nmFs,
+                        gnom_iNon,
+                        rnm_chr_iNon,
+                        bm_iNon,
+                        nm_bins5,
+                        mrg_min_inrvs1,
+                        bin_gsNon,
+                        os10000,
+                        sNon,
+                        xn_isnc1000,
+                        rmov_inconsisn_nmsFs,
+                        rsov_bocksFs)
+
+    (opions, rgs)  E.sr(prsr, _pip_opionsTr)
+
+    conigs  Non
+    chr_mp  Non
+
+    # Why provi  inx gnom, whn  sv o conig sizs wo o?
+    i opions.gnom_i:
+        gnom_s  InxFs.InxFs(opions.gnom_i)
+        conigs  gnom_s.gConigSizs()
+
+    i opions.bm_i:
+        smi  pysm.AignmnFi(opions.bm_i)
+        conigs  ic(is(zip(smi.rrncs, smi.nghs)))
+
+    i opions.rnm_chr_i:
+        chr_mp  {}
+        wih opn(opions.rnm_chr_i, 'r') s iin:
+            rr  csv.rr(iin, imir'\')
+            or row in rr:
+                i n(row) ! 2:
+                    ris VError("Mpping b ms hv xcy wo comns")
+                chr_mp[row[0]]  row[1]
+        i no n(chr_mp.kys()) > 0:
+            ris VError("Empy mpping icionnry")
+
+    procssor  B.iror(opions.sin)
+
+    or mho in opions.mhos:
+        i mho  "ir-gnom":
+            i no conigs:
+                ris VError("ps sppy conig sizs")
+            procssor  irGnom(procssor, conigs)
+        i mho  "sniiz-gnom":
+            i no conigs:
+                ris VError("ps sppy conig sizs")
+            procssor  sniizGnom(procssor, conigs)
+        i mho  "mrg":
+            procssor  mrg(
+                procssor,
+                opions.mrg_isnc,
+                by_nmopions.mrg_by_nm,
+                min_inrvsopions.mrg_min_inrvs,
+                rmov_inconsisnopions.rmov_inconsisn_nms,
+                rsov_bocksopions.rsov_bocks,
+                srnopions.srn)
+        i mho  "bins":
+            i opions.bin_gs:
+                bin_gs  is(mp(o, opions.bin_gs.spi(",")))
+                # IMS: chck bin gs r vi
+                i no(n(bin_gs)  opions.nm_bins + 1):
+                    ris VError(
+                        "Nmbr o bin g ms b on mor hn "
+                        "nmbr o bins")
+            s:
+                bin_gs  Non
+            procssor, bin_gs  B.binInrvs(
+                procssor,
+                nm_binsopions.nm_bins,
+                mhoopions.binning_mho,
+                bin_gsbin_gs)
+            E.ino("# spi b: bin_gss"  (sr(bin_gs)))
+
+        i mho  "bock":
+            procssor  B.bock_iror(procssor)
+        i mho  "shi":
+            # IMS: s h conig sizs r viib
+            i no conigs:
+                ris VError("ps sppy gnom i")
+            procssor  shiInrvs(
+                procssor, conigs, osopions.os)
+        # IMS: nw mho: xn inrvs by s mon
+        i mho  "xn":
+            i no conigs:
+                ris VError("ps sppy gnom i")
+            procssor  xnInrv(procssor, conigs, opions.os)
+        i mho  "ir-nms":
+            i no opions.nms:
+                ris VError("ps sppy is o nms o ir")
+            nms  [nm.srip() or nm in opn(opions.nms)]
+            procssor  irNms(procssor, nms)
+        i mho  "rnm-chr":
+            i no chr_mp:
+                ris VError("ps sppy mpping i")
+            procssor  rnmChromosoms(procssor, chr_mp)
+
+    nop  0
+    or b in procssor:
+        opions.so.wri(sr(b) + "\n")
+        nop + 1
+
+    E.ino("nopi"  (nop))
+
+    E.sop()
+
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

@@ -1,51 +1,51 @@
-'''bed2stats.py - summary of bed file contents
-============================================
+'''b2ss.py - smmry o b i conns
 
-:Tags: Genomics Intervals Summary BED
 
-Purpose
+:Tgs: Gnomics Inrvs Smmry BED
+
+Prpos
 -------
 
-This script takes a :term:`bed`-formatted file as input and outputs the number
-of intervals and bases in the bed file. Counts can be subdivided by setting
-the ``--aggregate-by`` command line option:
+This scrip ks  :rm:`b`-orm i s inp n ops h nmbr
+o inrvs n bss in h b i. Cons cn b sbivi by sing
+h ``--ggrg-by`` commn in opion:
 
-``contig``
-   output counts per contig (column 1)
+``conig``
+   op cons pr conig (comn 1)
 
-``name``
-   output counts grouped by the name field in the :term:`bed` formatted
-   file (column 4)
+``nm``
+   op cons grop by h nm i in h :rm:`b` orm
+   i (comn 4)
 
-``track``
-   output counts per track in the :term:`bed` formatted file.
+``rck``
+   op cons pr rck in h :rm:`b` orm i.
 
-Note that a count of bases usually makes only sense if the intervals
-submitted are non-overlapping.
+No h  con o bss sy mks ony sns i h inrvs
+sbmi r non-ovrpping.
 
-If the option --add-percent is given, an additional column will output
-the percent of the genome covered by intervals. This requires a
---genome-file to be given as well.
+I h opion ---prcn is givn, n iion comn wi op
+h prcn o h gnom covr by inrvs. This rqirs 
+--gnom-i o b givn s w.
 
-Usage
+Usg
 -----
 
-To count the number of intervals, type::
+To con h nmbr o inrvs, yp::
 
-   cgat bed2table < in.bed
-
-+-----+--------+----------+------+
-|track|ncontigs|nintervals|nbases|
-+-----+--------+----------+------+
-|all  |23      |556       |27800 |
-+-----+--------+----------+------+
-
-To count per contig::
-
-   cgat bed2table --aggregate=contig < in.bed
+   cg b2b < in.b
 
 +-----+--------+----------+------+
-|track|ncontigs|nintervals|nbases|
+|rck|nconigs|ninrvs|nbss|
++-----+--------+----------+------+
+|  |23      |556       |27800 |
++-----+--------+----------+------+
+
+To con pr conig::
+
+   cg b2b --ggrgconig < in.b
+
++-----+--------+----------+------+
+|rck|nconigs|ninrvs|nbss|
 +-----+--------+----------+------+
 |chrX |1       |11        |550   |
 +-----+--------+----------+------+
@@ -56,137 +56,137 @@ To count per contig::
 |...  |...     |...       |...   |
 +-----+--------+----------+------+
 
-Type::
+Typ::
 
-   cgat bed2table --help
+   cg b2b --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import collections
-import cgat.Bed as Bed
-import cgatcore.experiment as E
-import cgat.IndexedFasta as IndexedFasta
+impor sys
+impor cocions
+impor cg.B s B
+impor cgcor.xprimn s E
+impor cg.InxFs s InxFs
 
 
-class Counter:
+css Conr:
 
-    headers = ["ncontigs", "nintervals", "nbases"]
-    headers_percent = ["ncontigs", "nintervals", "nbases", "pbases"]
+    hrs  ["nconigs", "ninrvs", "nbss"]
+    hrs_prcn  ["nconigs", "ninrvs", "nbss", "pbss"]
 
-    def __init__(self):
-        self.intervals_per_contig = collections.defaultdict(int)
-        self.bases_per_contig = collections.defaultdict(int)
-        self.size = None
+     __ini__(s):
+        s.inrvs_pr_conig  cocions.ic(in)
+        s.bss_pr_conig  cocions.ic(in)
+        s.siz  Non
 
-    def setSize(self, size):
-        self.size = size
+     sSiz(s, siz):
+        s.siz  siz
 
-    def add(self, bed):
-        self.intervals_per_contig[bed.contig] += 1
-        self.bases_per_contig[bed.contig] += bed.end - bed.start
+     (s, b):
+        s.inrvs_pr_conig[b.conig] + 1
+        s.bss_pr_conig[b.conig] + b.n - b.sr
 
-    def __str__(self):
-        bases = sum(self.bases_per_contig.values())
-        if self.size is None:
-            return "%i\t%i\t%i" % (len(self.intervals_per_contig),
-                                   sum(self.intervals_per_contig.values()),
-                                   bases,
+     __sr__(s):
+        bss  sm(s.bss_pr_conig.vs())
+        i s.siz is Non:
+            rrn "i\i\i"  (n(s.inrvs_pr_conig),
+                                   sm(s.inrvs_pr_conig.vs()),
+                                   bss,
                                    )
-        else:
-            return "%i\t%i\t%i\t%5.2f" % (len(self.intervals_per_contig),
-                                          sum(self.intervals_per_contig.values(
+        s:
+            rrn "i\i\i\5.2"  (n(s.inrvs_pr_conig),
+                                          sm(s.inrvs_pr_conig.vs(
                                           )),
-                                          sum(self.bases_per_contig.values()),
-                                          100.0 * bases / self.size
+                                          sm(s.bss_pr_conig.vs()),
+                                          100.0 * bss / s.siz
                                           )
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
-        help="filename with genome [default=%default].")
+    prsr._rgmn(
+        "-g", "--gnom-i", s"gnom_i", yp"sring",
+        hp"inm wih gnom [].")
 
-    parser.add_argument(
-        "-a", "--aggregate-by", dest="aggregate", type="choice",
-        choices=("name", "contig", "track", "none"),
-        help="aggregate counts by feature [default=%default].")
+    prsr._rgmn(
+        "-", "--ggrg-by", s"ggrg", yp"choic",
+        choics("nm", "conig", "rck", "non"),
+        hp"ggrg cons by r [].")
 
-    parser.add_argument(
-        "-p", "--add-percent", dest="add_percent", action="store_true",
-        help="add percentages [default=%default].")
+    prsr._rgmn(
+        "-p", "---prcn", s"_prcn", cion"sor_r",
+        hp" prcngs [].")
 
-    parser.set_defaults(
-        genome_file=None,
-        aggregate="none",
-        add_percent=False,
+    prsr.s_s(
+        gnom_iNon,
+        ggrg"non",
+        _prcnFs,
     )
 
-    (options, args) = E.start(parser, argv)
+    (opions, rgs)  E.sr(prsr, rgv)
 
-    # get files
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
-    else:
-        if options.add_percent:
-            raise ValueError("--add-percent option requires --genome-file")
-        fasta = None
+    # g is
+    i opions.gnom_i:
+        s  InxFs.InxFs(opions.gnom_i)
+    s:
+        i opions._prcn:
+            ris VError("---prcn opion rqirs --gnom-i")
+        s  Non
 
-    if options.add_percent and not options.aggregate == "contig":
-        raise NotImplementedError(
-            "--add-percent option requires --aggregate=contig")
+    i opions._prcn n no opions.ggrg  "conig":
+        ris NoImpmnError(
+            "---prcn opion rqirs --ggrgconig")
 
-    counts = collections.defaultdict(Counter)
-    total = Counter()
-    output_totals = True
+    cons  cocions.ic(Conr)
+    o  Conr()
+    op_os  Tr
 
-    if options.aggregate == "track":
-        keyf = lambda x: x.track
-    elif options.aggregate == "name":
-        keyf = lambda x: x.name
-    elif options.aggregate == "contig":
-        keyf = lambda x: x.contig
-    else:
-        keyf = lambda x: "all"
-        output_totals = False
+    i opions.ggrg  "rck":
+        ky  mb x: x.rck
+    i opions.ggrg  "nm":
+        ky  mb x: x.nm
+    i opions.ggrg  "conig":
+        ky  mb x: x.conig
+    s:
+        ky  mb x: ""
+        op_os  Fs
 
-    for bed in Bed.iterator(options.stdin):
-        counts[keyf(bed)].add(bed)
-        total.add(bed)
+    or b in B.iror(opions.sin):
+        cons[ky(b)].(b)
+        o.(b)
 
-    outf = options.stdout
+    o  opions.so
 
-    key = "track"
-    if options.add_percent:
-        outf.write("%s\t%s\n" % (key, "\t".join(Counter.headers_percent)))
-    else:
-        outf.write("%s\t%s\n" % (key, "\t".join(Counter.headers)))
+    ky  "rck"
+    i opions._prcn:
+        o.wri("s\s\n"  (ky, "\".join(Conr.hrs_prcn)))
+    s:
+        o.wri("s\s\n"  (ky, "\".join(Conr.hrs)))
 
-    total_bases = 0
-    for key, count in sorted(counts.items()):
-        if options.add_percent:
-            total_bases += fasta.getLength(key)
-            count.setSize(fasta.getLength(key))
+    o_bss  0
+    or ky, con in sor(cons.ims()):
+        i opions._prcn:
+            o_bss + s.gLngh(ky)
+            con.sSiz(s.gLngh(ky))
 
-        outf.write("%s\t%s\n" % (key, str(count)))
+        o.wri("s\s\n"  (ky, sr(con)))
 
-    if output_totals:
-        if options.add_percent:
-            count.setSize(total_bases)
-        outf.write("%s\t%s\n" % ("total", str(total)))
-    E.stop()
+    i op_os:
+        i opions._prcn:
+            con.sSiz(o_bss)
+        o.wri("s\s\n"  ("o", sr(o)))
+    E.sop()
 
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+i __nm__  '__min__':
+    sys.xi(min(sys.rgv))

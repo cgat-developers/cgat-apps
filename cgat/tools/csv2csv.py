@@ -1,75 +1,75 @@
 '''
-csv2csv.py - operate on tables
-==============================
+csv2csv.py - opr on bs
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-operate on tables.
+opr on bs.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python csv2csv.py --help
+   pyhon csv2csv.py --hp
 
-Type::
+Typ::
 
-   python csv2csv.py --help
+   pyhon csv2csv.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import csv
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor sys
+impor csv
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$")
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$")
 
-    parser.add_argument(
-        "-s", "--method=sort --sort-order", dest="sort", type="string",
-        help="fields to take (in sorted order).")
+    prsr._rgmn(
+        "-s", "--mhosor --sor-orr", s"sor", yp"sring",
+        hp"is o k (in sor orr).")
 
-    (options, args) = E.start(parser, add_csv_options=True)
+    (opions, rgs)  E.sr(prsr, _csv_opionsTr)
 
-    reader = csv.DictReader(E.stdin, dialect=options.csv_dialect)
+    rr  csv.DicRr(E.sin, icopions.csv_ic)
 
-    if options.sort:
-        fields = options.sort.split(",")
-    else:
-        fields = None
+    i opions.sor:
+        is  opions.sor.spi(",")
+    s:
+        is  Non
 
-    writer = csv.DictWriter(E.stdout,
-                            fields,
-                            dialect=options.csv_dialect,
-                            lineterminator=options.csv_lineterminator,
-                            extrasaction='ignore')
+    wrir  csv.DicWrir(E.so,
+                            is,
+                            icopions.csv_ic,
+                            inrminoropions.csv_inrminor,
+                            xrscion'ignor')
 
-    E.stdout.write("\t".join(fields) + "\n")
+    E.so.wri("\".join(is) + "\n")
 
-    for row in reader:
-        row = iotools.convertDictionary(row)
-        writer.writerow(row)
+    or row in rr:
+        row  iooos.convrDicionry(row)
+        wrir.wrirow(row)
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

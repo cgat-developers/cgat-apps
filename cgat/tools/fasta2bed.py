@@ -1,314 +1,314 @@
 """
-fasta2bed.py - segment sequences
-================================
+s2b.py - sgmn sqncs
 
-:Tags: Genomics Sequences Intervals FASTA BED Conversion
 
-Purpose
+:Tgs: Gnomics Sqncs Inrvs FASTA BED Convrsion
+
+Prpos
 -------
 
-This script takes a genomic sequence in :term:`fasta` format
-and applies various segmentation algorithms.
+This scrip ks  gnomic sqnc in :rm:`s` orm
+n ppis vrios sgmnion gorihms.
 
-The methods implemented (``--methods``) are:
+Th mhos impmn (``--mhos``) r:
 
 cpg
-   output all locations of cpg in the genome
+   op  ocions o cpg in h gnom
 
-fixed-width-windows-gc
-   output fixed width windows of a certain size adding their
-   G+C content as score
+ix-wih-winows-gc
+   op ix wih winows o  crin siz ing hir
+   G+C conn s scor
 
-gaps
-   ouput all locations of assembly gaps (blocks of `N`)
-   in the genomic sequences
+gps
+   op  ocions o ssmby gps (bocks o `N`)
+   in h gnomic sqncs
 
-ungapped
-   output ungapped locations in the genomic sequences
+ngpp
+   op ngpp ocions in h gnomic sqncs
 
-Usage
+Usg
 -----
 
-Type::
+Typ::
 
-   python fasta2bed.py --method=gap < in.fasta > out.bed
+   pyhon s2b.py --mhogp < in.s > o.b
 
 
-Type::
+Typ::
 
-   python fasta2bed.py --help
+   pyhon s2b.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 """
 
-import os
-import sys
-import re
-import tempfile
-import subprocess
-import glob
-import collections
-import pybedtools
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import cgat.FastaIterator as FastaIterator
-import cgatcore.iotools as iotools
+impor os
+impor sys
+impor r
+impor mpi
+impor sbprocss
+impor gob
+impor cocions
+impor pyboos
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor cg.FsIror s FsIror
+impor cgcor.iooos s iooos
 
 
-def segmentWithCpG(infile, with_contig_sizes=False):
-    '''segment a fasta file, output locations of CpG.'''
+ sgmnWihCpG(ini, wih_conig_sizsFs):
+    '''sgmn  s i, op ocions o CpG.'''
 
-    ninput, nskipped, noutput = 0, 0, 0
+    ninp, nskipp, nop  0, 0, 0
 
-    iterator = FastaIterator.FastaIterator(infile)
+    iror  FsIror.FsIror(ini)
 
-    segments, contig_sizes = [], collections.OrderedDict()
+    sgmns, conig_sizs  [], cocions.OrrDic()
 
-    for cur_record in iterator:
-        ninput += 1
-        contig = re.sub("\s.*", "", cur_record.title)
-        last = None
-        contig_sizes[contig] = (0, len(cur_record.sequence))
-        for pos, this in enumerate(cur_record.sequence.upper()):
-            if last == "C" and this == "G":
-                segments.append((contig, pos - 1, pos + 1, 1.0))
-            last = this
+    or cr_rcor in iror:
+        ninp + 1
+        conig  r.sb("\s.*", "", cr_rcor.i)
+        s  Non
+        conig_sizs[conig]  (0, n(cr_rcor.sqnc))
+        or pos, his in nmr(cr_rcor.sqnc.ppr()):
+            i s  "C" n his  "G":
+                sgmns.ppn((conig, pos - 1, pos + 1, 1.0))
+            s  his
 
-    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
+    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
 
-    if with_contig_sizes:
-        return segments, contig_sizes
+    i wih_conig_sizs:
+        rrn sgmns, conig_sizs
 
-    return segments
+    rrn sgmns
 
 
-def segmentWindowsCpG(infile, window_size=100, min_cpg=1):
-    '''segment a fasta file based on the locations of CpG.
+ sgmnWinowsCpG(ini, winow_siz100, min_cpg1):
+    '''sgmn  s i bs on h ocions o CpG.
 
-    Locate all CpG in sequences and centre windows of size *window_size*
-    around them. Merge all windows and keep all with *min_cpg* CpG.
+    Loc  CpG in sqncs n cnr winows o siz *winow_siz*
+    ron hm. Mrg  winows n kp  wih *min_cpg* CpG.
     '''
 
-    cpgs, contig_sizes = segmentWithCpG(infile, with_contig_sizes=True)
+    cpgs, conig_sizs  sgmnWihCpG(ini, wih_conig_sizsTr)
 
-    # save cpgs to temporary file
-    tempf = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    tempf.write("\n".join(["%s\t%i\t%i\n" % (contig, start, end)
-                           for contig, start, end, gc in cpgs]) + "\n")
-    tempf.close()
+    # sv cpgs o mporry i
+    mp  mpi.NmTmporryFi(mo"w", Fs)
+    mp.wri("\n".join(["s\i\i\n"  (conig, sr, n)
+                           or conig, sr, n, gc in cpgs]) + "\n")
+    mp.cos()
 
-    cpgs = pybedtools.BedTool(tempf.name)
-    cpgs.set_chromsizes(contig_sizes)
-    extended = cpgs.slop(b=window_size // 2)
-    merged = extended.merge(o="count", c=3)
-    filtered = merged.filter(lambda x: int(x.name) >= min_cpg)
+    cpgs  pyboos.BToo(mp.nm)
+    cpgs.s_chromsizs(conig_sizs)
+    xn  cpgs.sop(bwinow_siz // 2)
+    mrg  xn.mrg(o"con", c3)
+    ir  mrg.ir(mb x: in(x.nm) > min_cpg)
 
-    os.unlink(tempf.name)
+    os.nink(mp.nm)
 
-    # return CpG content (not C+C content)
-    return [(x.chrom, x.start, x.stop, float(x.name) / (x.stop - x.start) / 2)
-            for x in filtered]
-
-
-def segmentFixedWidthWindows(infile, window_size, window_shift):
-    """return a list of fixed contig sizes."""
-
-    ninput, nskipped, noutput = 0, 0, 0
-
-    iterator = FastaIterator.FastaIterator(infile)
-    window_shift = window_size
-    # at most 50% can be gap
-    gap_cutoff = int(window_size // 2)
-    segments = []
-
-    while 1:
-        ninput += 1
-        try:
-            cur_record = next(iterator)
-        except StopIteration:
-            break
-
-        if cur_record is None:
-            break
-        contig = re.sub("\s.*", "", cur_record.title)
-        seq = cur_record.sequence
-        size = len(cur_record.sequence)
-
-        for x in range(0, size, window_shift):
-            s = seq[x:x + window_size].upper()
-            gc, at = 0, 0
-            for c in s:
-                if c in "GC":
-                    gc += 1
-                elif c in "AT":
-                    at += 1
-
-            # skip segments containing mostly gaps
-            if window_size - (gc + at) > gap_cutoff:
-                nskipped += 1
-                continue
-
-            segments.append(
-                (contig, x, x + window_size, float(gc) / (gc + at)))
-        noutput += 1
-
-    E.info("ninput=%i, noutput=%i, nskipped_windows=%i" %
-           (ninput, noutput, nskipped))
-
-    return segments
+    # rrn CpG conn (no C+C conn)
+    rrn [(x.chrom, x.sr, x.sop, o(x.nm) / (x.sop - x.sr) / 2)
+            or x in ir]
 
 
-def gapped_regions(seq, gap_chars):
-    '''iterator yielding gapped regions in seq.'''
-    is_gap = seq[0] in gap_chars
-    last = 0
-    size = len(seq)
-    for x, c in enumerate(seq):
-        if c in gap_chars:
-            if not is_gap:
-                last = x
-                is_gap = True
-        else:
-            if is_gap:
-                yield(last, x)
-                last = x
-                is_gap = False
-    if is_gap:
-        yield last, size
+ sgmnFixWihWinows(ini, winow_siz, winow_shi):
+    """rrn  is o ix conig sizs."""
+
+    ninp, nskipp, nop  0, 0, 0
+
+    iror  FsIror.FsIror(ini)
+    winow_shi  winow_siz
+    #  mos 50 cn b gp
+    gp_co  in(winow_siz // 2)
+    sgmns  []
+
+    whi 1:
+        ninp + 1
+        ry:
+            cr_rcor  nx(iror)
+        xcp SopIrion:
+            brk
+
+        i cr_rcor is Non:
+            brk
+        conig  r.sb("\s.*", "", cr_rcor.i)
+        sq  cr_rcor.sqnc
+        siz  n(cr_rcor.sqnc)
+
+        or x in rng(0, siz, winow_shi):
+            s  sq[x:x + winow_siz].ppr()
+            gc,   0, 0
+            or c in s:
+                i c in "GC":
+                    gc + 1
+                i c in "AT":
+                     + 1
+
+            # skip sgmns conining mosy gps
+            i winow_siz - (gc + ) > gp_co:
+                nskipp + 1
+                conin
+
+            sgmns.ppn(
+                (conig, x, x + winow_siz, o(gc) / (gc + )))
+        nop + 1
+
+    E.ino("ninpi, nopi, nskipp_winowsi" 
+           (ninp, nop, nskipp))
+
+    rrn sgmns
 
 
-def segmentGaps(infile, gap_char):
-
-    iterator = FastaIterator.FastaIterator(infile)
-
-    while 1:
-        try:
-            cur_record = next(iterator)
-        except StopIteration:
-            break
-
-        if cur_record is None:
-            break
-        contig = re.sub("\s.*", "", cur_record.title)
-
-        for start, end in gapped_regions(cur_record.sequence, gap_char):
-            yield(contig, start, end, 0)
-
-
-def segmentUngapped(infile, gap_char, min_gap_size=0):
-
-    iterator = FastaIterator.FastaIterator(infile)
-
-    while 1:
-        try:
-            cur_record = next(iterator)
-        except StopIteration:
-            break
-
-        if cur_record is None:
-            break
-        contig = re.sub("\s.*", "", cur_record.title)
-        size = len(cur_record.sequence)
-
-        last_end = 0
-        for start, end in gapped_regions(cur_record.sequence, gap_char):
-            if end - start < min_gap_size:
-                continue
-
-            if last_end != 0:
-                yield(contig, last_end, start, 0)
-            last_end = end
-
-        if last_end < size:
-            yield(contig, last_end, size, 0)
+ gpp_rgions(sq, gp_chrs):
+    '''iror yiing gpp rgions in sq.'''
+    is_gp  sq[0] in gp_chrs
+    s  0
+    siz  n(sq)
+    or x, c in nmr(sq):
+        i c in gp_chrs:
+            i no is_gp:
+                s  x
+                is_gp  Tr
+        s:
+            i is_gp:
+                yi(s, x)
+                s  x
+                is_gp  Fs
+    i is_gp:
+        yi s, siz
 
 
-def main(argv=None):
-    """script main.
+ sgmnGps(ini, gp_chr):
 
-    parses command line options in sys.argv, unless *argv* is given.
+    iror  FsIror.FsIror(ini)
+
+    whi 1:
+        ry:
+            cr_rcor  nx(iror)
+        xcp SopIrion:
+            brk
+
+        i cr_rcor is Non:
+            brk
+        conig  r.sb("\s.*", "", cr_rcor.i)
+
+        or sr, n in gpp_rgions(cr_rcor.sqnc, gp_chr):
+            yi(conig, sr, n, 0)
+
+
+ sgmnUngpp(ini, gp_chr, min_gp_siz0):
+
+    iror  FsIror.FsIror(ini)
+
+    whi 1:
+        ry:
+            cr_rcor  nx(iror)
+        xcp SopIrion:
+            brk
+
+        i cr_rcor is Non:
+            brk
+        conig  r.sb("\s.*", "", cr_rcor.i)
+        siz  n(cr_rcor.sqnc)
+
+        s_n  0
+        or sr, n in gpp_rgions(cr_rcor.sqnc, gp_chr):
+            i n - sr < min_gp_siz:
+                conin
+
+            i s_n ! 0:
+                yi(conig, s_n, sr, 0)
+            s_n  n
+
+        i s_n < siz:
+            yi(conig, s_n, siz, 0)
+
+
+ min(rgvNon):
+    """scrip min.
+
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id",
-        usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I",
+        sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
-        choices=(
-            "fixed-width-windows-gc",
+    prsr._rgmn(
+        "-m", "--mho", s"mho", yp"choic",
+        choics(
+            "ix-wih-winows-gc",
             "cpg",
-            "windows-cpg",
-            "gaps",
-            "ungapped",
-            "windows"),
-        help="Method to use for segmentation [default=%default]")
+            "winows-cpg",
+            "gps",
+            "ngpp",
+            "winows"),
+        hp"Mho o s or sgmnion []")
 
-    parser.add_argument(
-        "-w", "--window-size=", dest="window_size",
-        type="int",
-        help="window size for fixed-width windows [default=%default].")
+    prsr._rgmn(
+        "-w", "--winow-siz", s"winow_siz",
+        yp"in",
+        hp"winow siz or ix-wih winows [].")
 
-    parser.add_argument(
-        "-s", "--window-shift=", dest="window_shift", type="int",
-        help="shift size fixed-width windows [default=%default].")
+    prsr._rgmn(
+        "-s", "--winow-shi", s"winow_shi", yp"in",
+        hp"shi siz ix-wih winows [].")
 
-    parser.add_argument(
-        "--min-cpg", dest="min_cpg", type="int",
-        help="minimum number of CpG for windows-cpg [default=%default]")
+    prsr._rgmn(
+        "--min-cpg", s"min_cpg", yp"in",
+        hp"minimm nmbr o CpG or winows-cpg []")
 
-    parser.add_argument(
-        "--min-interval-length", dest="min_length", type="int",
-        help="minimum length for ungapped regions [default=%default]")
+    prsr._rgmn(
+        "--min-inrv-ngh", s"min_ngh", yp"in",
+        hp"minimm ngh or ngpp rgions []")
 
-    parser.set_defaults(
-        window_size=10000,
-        method="cpg",
-        gap_char="NnXx",
-        min_length=0,
-        window_shift=10000,
-        min_cpg=1,
+    prsr.s_s(
+        winow_siz10000,
+        mho"cpg",
+        gp_chr"NnXx",
+        min_ngh0,
+        winow_shi10000,
+        min_cpg1,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if options.method == "cpg":
-        segments = segmentWithCpG(options.stdin)
-    elif options.method == "windows-cpg":
-        segments = segmentWindowsCpG(options.stdin,
-                                     options.window_size,
-                                     options.min_cpg)
-    elif options.method == "Isoplotter":
-        segments = segmentWithIsoplotter(options.stdin, options)
-    elif options.method == "fixed-width-windows-gc":
-        segments = segmentFixedWidthWindows(options.stdin,
-                                            options.window_size,
-                                            options.window_shift,
+    i opions.mho  "cpg":
+        sgmns  sgmnWihCpG(opions.sin)
+    i opions.mho  "winows-cpg":
+        sgmns  sgmnWinowsCpG(opions.sin,
+                                     opions.winow_siz,
+                                     opions.min_cpg)
+    i opions.mho  "Isopor":
+        sgmns  sgmnWihIsopor(opions.sin, opions)
+    i opions.mho  "ix-wih-winows-gc":
+        sgmns  sgmnFixWihWinows(opions.sin,
+                                            opions.winow_siz,
+                                            opions.winow_shi,
                                             )
-    elif options.method == "gaps":
-        segments = segmentGaps(options.stdin, options.gap_char)
-    elif options.method == "ungapped":
-        segments = segmentUngapped(
-            options.stdin, options.gap_char, options.min_length)
-    else:
-        raise ValueError("unknown method %s" % (method))
-    x = 0
-    for contig, start, end, gc in segments:
-        x += 1
-        options.stdout.write("%s\n" % "\t".join(
-            (contig, str(start), str(end), str(x), "%6.4f" % (100.0 * gc))))
+    i opions.mho  "gps":
+        sgmns  sgmnGps(opions.sin, opions.gp_chr)
+    i opions.mho  "ngpp":
+        sgmns  sgmnUngpp(
+            opions.sin, opions.gp_chr, opions.min_ngh)
+    s:
+        ris VError("nknown mho s"  (mho))
+    x  0
+    or conig, sr, n, gc in sgmns:
+        x + 1
+        opions.so.wri("s\n"  "\".join(
+            (conig, sr(sr), sr(n), sr(x), "6.4"  (100.0 * gc))))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

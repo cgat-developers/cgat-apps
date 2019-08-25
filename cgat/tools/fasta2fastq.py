@@ -1,451 +1,451 @@
-'''fasta2fastq.py - simulate reads from fasta
-=====================================
+'''s2sq.py - sim rs rom s
 
-:Tags: Sequences
 
-Purpose
+:Tgs: Sqncs
+
+Prpos
 -------
 
-Simulate illumina sequence reads from a fasta file. The number of
-reads per entry is randomly selected from the range given. The primary
-use case is expected to be the generation of simulation RNA-Seq reads
+Sim imin sqnc rs rom  s i. Th nmbr o
+rs pr nry is rnomy sc rom h rng givn. Th primry
+s cs is xpc o b h gnrion o simion RNA-Sq rs
 
-For RNA-Seq simulations, the premrna-fraction option allows the user to specify
-what fraction of the transcripts originate from pre-mRNA. The user must also
-supply a second fasta in the same order for the pre-mRNA
-(--infile-premrna-fasta). The simulation assumes all pre-mRNA are full length
-which is not likely to be the case for real RNA-Seq.
-Note: This may lead to many more reads which align to the mRNA than the
-apparent ground truth count. It is therefore best to keep the pre-mRNA fraction
-low (recommend 0.01).
+For RNA-Sq simions, h prmrn-rcion opion ows h sr o spciy
+wh rcion o h rnscrips origin rom pr-mRNA. Th sr ms so
+sppy  scon s in h sm orr or h pr-mRNA
+(--ini-prmrn-s). Th simion ssms  pr-mRNA r  ngh
+which is no iky o b h cs or r RNA-Sq.
+No: This my  o mny mor rs which ign o h mRNA hn h
+pprn gron rh con. I is hror bs o kp h pr-mRNA rcion
+ow (rcommn 0.01).
 
---counts-method determine whether the --min-counts and --max--counts methods
-relate to the number of reads or copies per entry. If copies, then the number
-of reads/read pairs per transcript will be determined by the copy number, the
-length of the transcript and the fragment length. E.g for copy number = 2,
-transcript length = 1000 bp, read length = 100 bp, paired end, 300bp insert
-size, the number of reads will be 2 * (1000 / (( 2 * 100) + 300)) = 4
+--cons-mho rmin whhr h --min-cons n --mx--cons mhos
+r o h nmbr o rs or copis pr nry. I copis, hn h nmbr
+o rs/r pirs pr rnscrip wi b rmin by h copy nmbr, h
+ngh o h rnscrip n h rgmn ngh. E.g or copy nmbr  2,
+rnscrip ngh  1000 bp, r ngh  100 bp, pir n, 300bp insr
+siz, h nmbr o rs wi b 2 * (1000 / (( 2 * 100) + 300))  4
 
-Options
+Opions
 -------
 
---output-paired-end
-   generate paired-end reads (defaults to single end)
+--op-pir-n
+   gnr pir-n rs (s o sing n)
 
---counts-method
-  simulate a ground truth number of reads or copies per transcript
-  if reads, then min and max specify the number of reads per entry
-  if copies, then min and specify the sequencing depth per entry
+--cons-mho
+  sim  gron rh nmbr o rs or copis pr rnscrip
+  i rs, hn min n mx spciy h nmbr o rs pr nry
+  i copis, hn min n spciy h sqncing ph pr nry
 
---counts-min
-   the minimum number of reads to simulate for each fasta entry
+--cons-min
+   h minimm nmbr o rs o sim or ch s nry
 
---counts-max
-   the maximum number of reads to simulate for each fasta entry
+--cons-mx
+   h mximm nmbr o rs o sim or ch s nry
 
---sequence-error-phred
-   the sequencing error rate (phred scale)
+--sqnc-rror-phr
+   h sqncing rror r (phr sc)
 
---output-read-length
-   the length of the outputted reads
+--op-r-ngh
+   h ngh o h op rs
 
---output-counts
-   filename for counts per fasta entry
+--op-cons
+   inm or cons pr s nry
 
---output-quality-format
-   the format of the sequence qualities (+33 = Sanger)
+--op-qiy-orm
+   h orm o h sqnc qiis (+33  Sngr)
 
---insert-length-mean
-   the mean insert length
+--insr-ngh-mn
+   h mn insr ngh
 
---insert-length-sd
-   the standard deviation for the insert length
+--insr-ngh-s
+   h snr viion or h insr ngh
 
---premrna-fraction
-   the fraction of reads to simulate from pre-mRNA. Default is 0.
-   If set, must provide a pre-mRNA fasta file with:
-      --infile-premrna-fasta
+--prmrn-rcion
+   h rcion o rs o sim rom pr-mRNA. D is 0.
+   I s, ms provi  pr-mRNA s i wih:
+      --ini-prmrn-s
 
-If generating paired end reads, the second outfile must be specified with:
+I gnring pir n rs, h scon oi ms b spcii wih:
 
---output-fastq2
+--op-sq2
 
 
-Usage
+Usg
 -----
 
-Recommend sending logging to separate outfile to keep fastq outfile
-clean of comments (see example below)
+Rcommn sning ogging o spr oi o kp sq oi
+cn o commns (s xmp bow)
 
-Example::
+Exmp::
 
-   cat transcripts.fa | python fasta2fastq.py
-   --output-counts=simulation_counts.tsv -L simulation.log
-   > simulation_reads.fastq
+   c rnscrips. | pyhon s2sq.py
+   --op-conssimion_cons.sv -L simion.og
+   > simion_rs.sq
 
-Type::
+Typ::
 
-   python fasta2fastq.py --help
+   pyhon s2sq.py --hp
 
-for command line help.
+or commn in hp.
 
 
-Important note for generating reads for simulations
+Imporn no or gnring rs or simions
 ---------------------------------------------------
-Currently, the output is non-random, e.g it's in the order of the
-fasta input. If you want the fastq to be random pipe the output to
-sort -R like so:
+Crrny, h op is non-rnom, .g i's in h orr o h
+s inp. I yo wn h sq o b rnom pip h op o
+sor -R ik so:
 
-   cat transcripts.fa | python fasta2fastq.py
-   --output-counts=simulation_counts.tsv -L simulation.log |
-   paste - - - - |sort -R | sed 's/\t/\n/g' > simulation_reads_random.fastq
+   c rnscrips. | pyhon s2sq.py
+   --op-conssimion_cons.sv -L simion.og |
+   ps - - - - |sor -R | s 's/\/\n/g' > simion_rs_rnom.sq
 
-If you're outputting paired end fastqs, you can use the following
-command to randomise the order by keep the fastq entris paired:
+I yo'r oping pir n sqs, yo cn s h oowing
+commn o rnomis h orr by kp h sq nris pir:
 
-    paste <(zcat %(fastq1_ordered)s) <(zcat %(fastq2_ordered)s) |
-    paste - - - - | sort -R | awk -F'\t' '{OFS="\n"; print $1,$3,$5,$7 >
-    "%(fastq1_random)s"; print $2,$4,$6,$8 > "%(fastq2_random)s"}'
+    ps <(zc (sq1_orr)s) <(zc (sq2_orr)s) |
+    ps - - - - | sor -R | wk -F'\' '{OFS"\n"; prin $1,$3,$5,$7 >
+    "(sq1_rnom)s"; prin $2,$4,$6,$8 > "(sq2_rnom)s"}'
 
 '''
-import sys
-import random
-import numpy as np
-import collections
+impor sys
+impor rnom
+impor nmpy s np
+impor cocions
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
-import cgat.FastaIterator as FastaIterator
+impor cg.FsIror s FsIror
 
 
-def addSeqErrors(read=None, error_rate=10):
-    ''' add sequencing errors to a read.
-    Error rates are Phred scaled, so 30 = 1/1000'''
+ SqErrors(rNon, rror_r10):
+    '''  sqncing rrors o  r.
+    Error rs r Phr sc, so 30  1/1000'''
 
-    error_rate = 10**(error_rate/-10.0)
+    rror_r  10**(rror_r/-10.0)
 
-    errors_dict = {"G": ["C", "T", "A"],
+    rrors_ic  {"G": ["C", "T", "A"],
                    "C": ["G", "T", "A"],
                    "T": ["C", "G", "A"],
                    "A": ["C", "T", "G"],
                    "N": ["C", "T", "G", "A"]}
 
-    probs = np.random.rand(len(read))
-    return "".join([base if prob > error_rate and base != "N"
-                    else random.choice(errors_dict[base])
-                    for prob, base in zip(probs, read)])
+    probs  np.rnom.rn(n(r))
+    rrn "".join([bs i prob > rror_r n bs ! "N"
+                    s rnom.choic(rrors_ic[bs])
+                    or prob, bs in zip(probs, r)])
 
 
-def reverseComp(seq):
-    ''' return the reverse complement sequence '''
+ rvrsComp(sq):
+    ''' rrn h rvrs compmn sqnc '''
 
-    comp = {"G": "C",
+    comp  {"G": "C",
             "C": "G",
             "A": "T",
             "T": "A",
             "N": "N"}
 
-    return "".join([comp[base] for base in seq[::-1]])
+    rrn "".join([comp[bs] or bs in sq[::-1]])
 
 
-def generateRead(entry, read_length=50, error_rate=40, paired=False,
-                 insert_mean=0, insert_sd=1):
-    ''' generate a read (or read pair) at random from a fasta entry for
-    the given read length with sequencing errors according to error
-    rate'''
+ gnrR(nry, r_ngh50, rror_r40, pirFs,
+                 insr_mn0, insr_s1):
+    ''' gnr  r (or r pir)  rnom rom  s nry or
+    h givn r ngh wih sqncing rrors ccoring o rror
+    r'''
 
-    if paired:
+    i pir:
 
-        position = "not_OK"
+        posiion  "no_OK"
 
-        while position != "OK":
+        whi posiion ! "OK":
 
-            r1_start = random.randint(0, len(entry)-read_length)
-            r2_start = (r1_start + read_length +
-                        int(np.random.normal(insert_mean, insert_sd)))
+            r1_sr  rnom.rnin(0, n(nry)-r_ngh)
+            r2_sr  (r1_sr + r_ngh +
+                        in(np.rnom.norm(insr_mn, insr_s)))
 
-            if (r2_start <= (len(entry) - read_length) and r2_start >= r1_start):
+            i (r2_sr < (n(nry) - r_ngh) n r2_sr > r1_sr):
 
-                position = "OK"
+                posiion  "OK"
 
-                read1 = entry[r1_start: r1_start+read_length]
-                read2 = reverseComp(
-                    entry[r2_start: r2_start+read_length])
+                r1  nry[r1_sr: r1_sr+r_ngh]
+                r2  rvrsComp(
+                    nry[r2_sr: r2_sr+r_ngh])
 
-                final_read1 = addSeqErrors(read1, error_rate)
-                final_read2 = addSeqErrors(read2, error_rate)
+                in_r1  SqErrors(r1, rror_r)
+                in_r2  SqErrors(r2, rror_r)
 
-                return final_read1, final_read2
+                rrn in_r1, in_r2
 
-    else:
-        start = random.randint(0, len(entry)-read_length)
-        read = entry[start:start+read_length]
+    s:
+        sr  rnom.rnin(0, n(nry)-r_ngh)
+        r  nry[sr:sr+r_ngh]
 
-        final_read = addSeqErrors(read, error_rate)
+        in_r  SqErrors(r, rror_r)
 
-        return final_read
-
-
-def getTitle(entry):
-    ''' return the title for an entry'''
-    return entry.title.split()[0]
+        rrn in_r
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
+ gTi(nry):
+    ''' rrn h i or n nry'''
+    rrn nry.i.spi()[0]
 
-    parser = E.OptionParser(version="%prog version",
-                            usage=globals()["__doc__"])
 
-    parser.add_argument(
-        "--output-quality-format", dest="q_format", type="int",
-        help="sequence quality format, e.g 33 = +33/Sanger"
-        "[default=%default].")
+ min(rgvNon):
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser.add_argument(
-        "--output-paired-end", dest="paired", action="store_true",
-        help="generate paired end reads [default = %default].")
+    prsr  E.OpionPrsr(vrsion"prog vrsion",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--insert-length-mean", dest="insert_mean", type="float",
-        help="mean insert length [default = %default].")
+    prsr._rgmn(
+        "--op-qiy-orm", s"q_orm", yp"in",
+        hp"sqnc qiy orm, .g 33  +33/Sngr"
+        "[].")
 
-    parser.add_argument(
-        "--insert-length-sd", dest="insert_sd", type="float",
-        help="insert length standard deviation [default = %default].")
+    prsr._rgmn(
+        "--op-pir-n", s"pir", cion"sor_r",
+        hp"gnr pir n rs [  ].")
 
-    parser.add_argument(
-        "--counts-method", dest="counts_method", type="choice",
-        choices=("reads", "copies"),
-        help="simulate a ground truth number of reads per entry or"
-        "copies per entry [default = %default].")
+    prsr._rgmn(
+        "--insr-ngh-mn", s"insr_mn", yp"o",
+        hp"mn insr ngh [  ].")
 
-    parser.add_argument(
-        "--counts-min", dest="counts_min", type="float",
-        help="minimum number of reads/read pairs per fasta entry"
-        "or copies per entry [default = %default].")
+    prsr._rgmn(
+        "--insr-ngh-s", s"insr_s", yp"o",
+        hp"insr ngh snr viion [  ].")
 
-    parser.add_argument(
-        "--counts-max", dest="counts_max", type="float",
-        help="maximum number of reads/read pairs per fasta entry "
-        "or copies per entry [default = %default].")
+    prsr._rgmn(
+        "--cons-mho", s"cons_mho", yp"choic",
+        choics("rs", "copis"),
+        hp"sim  gron rh nmbr o rs pr nry or"
+        "copis pr nry [  ].")
 
-    parser.add_argument(
-        "--output-read-length", dest="read_length", type="int",
-        help="read length [default = %default].")
+    prsr._rgmn(
+        "--cons-min", s"cons_min", yp"o",
+        hp"minimm nmbr o rs/r pirs pr s nry"
+        "or copis pr nry [  ].")
 
-    parser.add_argument(
-        "--sequence-error-phred", dest="phred", type="int",
-        help="phred quality score [default = %default].")
+    prsr._rgmn(
+        "--cons-mx", s"cons_mx", yp"o",
+        hp"mximm nmbr o rs/r pirs pr s nry "
+        "or copis pr nry [  ].")
 
-    parser.add_argument(
-        "--output-counts", dest="output_counts", type="string",
-        help="name for counts outfile [default=%default].")
+    prsr._rgmn(
+        "--op-r-ngh", s"r_ngh", yp"in",
+        hp"r ngh [  ].")
 
-    parser.add_argument(
-        "--output-fastq2", dest="fastq2_out", type="string",
-        help="filename for second fastq outfile [default=%default].")
+    prsr._rgmn(
+        "--sqnc-rror-phr", s"phr", yp"in",
+        hp"phr qiy scor [  ].")
 
-    parser.add_argument(
-        "--premrna-fraction", dest="premrna_fraction", type="float",
-        help="the fraction of reads to simulate from pre-mRNA"
-        "[default= % default].")
+    prsr._rgmn(
+        "--op-cons", s"op_cons", yp"sring",
+        hp"nm or cons oi [].")
 
-    parser.add_argument(
-        "--infile-premrna-fasta", dest="premrna_fasta", type="string",
-        help="filename for pre-mRNA fasta[default=%default].")
+    prsr._rgmn(
+        "--op-sq2", s"sq2_o", yp"sring",
+        hp"inm or scon sq oi [].")
 
-    parser.set_defaults(
-        q_format=33,
-        paired=False,
-        insert_mean=0,
-        insert_sd=1,
-        counts_method="reads",
-        counts_min=1,
-        counts_max=1,
-        read_length=50,
-        fastq2_out=None,
-        output_counts=None,
-        phred=30,
-        premrna_fraction=0,
-        premrna_fasta=None
+    prsr._rgmn(
+        "--prmrn-rcion", s"prmrn_rcion", yp"o",
+        hp"h rcion o rs o sim rom pr-mRNA"
+        "[  ].")
+
+    prsr._rgmn(
+        "--ini-prmrn-s", s"prmrn_s", yp"sring",
+        hp"inm or pr-mRNA s[].")
+
+    prsr.s_s(
+        q_orm33,
+        pirFs,
+        insr_mn0,
+        insr_s1,
+        cons_mho"rs",
+        cons_min1,
+        cons_mx1,
+        r_ngh50,
+        sq2_oNon,
+        op_consNon,
+        phr30,
+        prmrn_rcion0,
+        prmrn_sNon
     )
 
-    (options, args) = E.start(parser)
+    (opions, rgs)  E.sr(prsr)
 
-    if options.paired:
-        assert options.fastq2_out, ("must specify a second fastq outfile for "
-                                    "paired end (--output-fastq2)")
-        outf2 = iotools.open_file(options.fastq2_out, "w")
+    i opions.pir:
+        ssr opions.sq2_o, ("ms spciy  scon sq oi or "
+                                    "pir n (--op-sq2)")
+        o2  iooos.opn_i(opions.sq2_o, "w")
 
-    if options.premrna_fraction:
-        assert options.premrna_fasta, ("must specfify the location of the"
-                                       "fasta file for the pre-mRNA")
+    i opions.prmrn_rcion:
+        ssr opions.prmrn_s, ("ms spciy h ocion o h"
+                                       "s i or h pr-mRNA")
 
-    # the sequence quality string will always be the same so define here
-    sequence_quality = chr(options.q_format + options.phred)
-    qual = "".join([sequence_quality] * options.read_length)
+    # h sqnc qiy sring wi wys b h sm so in hr
+    sqnc_qiy  chr(opions.q_orm + opions.phr)
+    q  "".join([sqnc_qiy] * opions.r_ngh)
 
-    if options.premrna_fraction:
-        iterator = FastaIterator.iterate_together(
-            options.stdin, iotools.open_file(options.premrna_fasta))
-    else:
-        iterator = FastaIterator.FastaIterator(options.stdin)
+    i opions.prmrn_rcion:
+        iror  FsIror.ir_oghr(
+            opions.sin, iooos.opn_i(opions.prmrn_s))
+    s:
+        iror  FsIror.FsIror(opions.sin)
 
-    # set a cut off of twice the read/pair length for short entries
-    if options.paired:
-        minimum_entry_length = (
-            2 * ((options.read_length * 2) + options.insert_mean))
-    else:
-        minimum_entry_length = 2 * options.read_length
+    # s  c o o wic h r/pir ngh or shor nris
+    i opions.pir:
+        minimm_nry_ngh  (
+            2 * ((opions.r_ngh * 2) + opions.insr_mn))
+    s:
+        minimm_nry_ngh  2 * opions.r_ngh
 
-    c = collections.Counter()
-    counts = collections.Counter()
-    copies = collections.Counter()
+    c  cocions.Conr()
+    cons  cocions.Conr()
+    copis  cocions.Conr()
 
-    for f_entry in iterator:
+    or _nry in iror:
 
-        if options.premrna_fraction:
+        i opions.prmrn_rcion:
 
-            assert getTitle(f_entry[0]) == getTitle(f_entry[1]), (
-                "entry ids do not match: %s != %s" % (
-                    f_entry[0].title, f_entry[1].title))
-            entry = f_entry[0]
-            pre_entry = f_entry[1]
+            ssr gTi(_nry[0])  gTi(_nry[1]), (
+                "nry is o no mch: s ! s"  (
+                    _nry[0].i, _nry[1].i))
+            nry  _nry[0]
+            pr_nry  _nry[1]
 
-        else:
-            entry = f_entry
+        s:
+            nry  _nry
 
-        # reject short fasta entries
-        if len(entry.sequence) < minimum_entry_length:
-            E.info("skipping short transcript: %s length=%i"
-                   % (entry.title, len(entry.sequence)))
-            c['skipped'] += 1
-            continue
+        # rjc shor s nris
+        i n(nry.sqnc) < minimm_nry_ngh:
+            E.ino("skipping shor rnscrip: s nghi"
+                    (nry.i, n(nry.sqnc)))
+            c['skipp'] + 1
+            conin
 
-        else:
-            c['not_skipped'] += 1
+        s:
+            c['no_skipp'] + 1
 
-        if options.paired:
-            fragment_length = (
-                (2 * options.read_length) + options.insert_mean)
-        else:
-            fragment_length = options.read_length
+        i opions.pir:
+            rgmn_ngh  (
+                (2 * opions.r_ngh) + opions.insr_mn)
+        s:
+            rgmn_ngh  opions.r_ngh
 
-        reads_per_entry = float(len(entry.sequence)) / fragment_length
+        rs_pr_nry  o(n(nry.sqnc)) / rgmn_ngh
 
-        if options.counts_method == "reads":
-            n_reads = random.randint(options.counts_min,
-                                     options.counts_max + 1)
+        i opions.cons_mho  "rs":
+            n_rs  rnom.rnin(opions.cons_min,
+                                     opions.cons_mx + 1)
 
-            n_copies = float(n_reads) / reads_per_entry
+            n_copis  o(n_rs) / rs_pr_nry
 
-            if options.premrna_fraction:
-                n_reads_pre = int(round(n_reads * options.premrna_fraction))
+            i opions.prmrn_rcion:
+                n_rs_pr  in(ron(n_rs * opions.prmrn_rcion))
 
-        elif options.counts_method == "copies":
+        i opions.cons_mho  "copis":
 
-            # random float [0-1]
-            rand = np.random.random_sample()
-            n_copies = (options.counts_min +
-                        (rand * (options.counts_max - options.counts_min)))
+            # rnom o [0-1]
+            rn  np.rnom.rnom_smp()
+            n_copis  (opions.cons_min +
+                        (rn * (opions.cons_mx - opions.cons_min)))
 
-            n_reads = int(round(n_copies * reads_per_entry, 0))
+            n_rs  in(ron(n_copis * rs_pr_nry, 0))
 
-            # as n_reads must be rounded to int, need to redefine n_copies
-            n_copies = float(n_reads) / reads_per_entry
+            # s n_rs ms b ron o in, n o rin n_copis
+            n_copis  o(n_rs) / rs_pr_nry
 
-            if options.premrna_fraction:
-                reads_per_pre_entry = (float(len(pre_entry.sequence)) /
-                                       fragment_length)
-                n_copies_pre = n_copies * options.premrna_fraction
-                n_reads_pre = int(round(n_copies_pre * reads_per_pre_entry, 0))
-                # as n_reads_pre must be rounded to int, need to
-                # redefine n_copies_pre
-                n_copies_pre = float(n_reads_pre) / reads_per_pre_entry
+            i opions.prmrn_rcion:
+                rs_pr_pr_nry  (o(n(pr_nry.sqnc)) /
+                                       rgmn_ngh)
+                n_copis_pr  n_copis * opions.prmrn_rcion
+                n_rs_pr  in(ron(n_copis_pr * rs_pr_pr_nry, 0))
+                # s n_rs_pr ms b ron o in, n o
+                # rin n_copis_pr
+                n_copis_pr  o(n_rs_pr) / rs_pr_pr_nry
 
-        entry_id = getTitle(entry)
+        nry_i  gTi(nry)
 
-        counts[entry_id] = n_reads
-        copies[entry_id] = n_copies
+        cons[nry_i]  n_rs
+        copis[nry_i]  n_copis
 
-        if "N" in entry.sequence.upper():
-            E.warn("fasta entry %s contains unknown bases ('N')" % entry_id)
+        i "N" in nry.sqnc.ppr():
+            E.wrn("s nry s conins nknown bss ('N')"  nry_i)
 
-        for i in range(0, n_reads):
+        or i in rng(0, n_rs):
 
-            read = generateRead(entry=entry.sequence.upper(),
-                                read_length=options.read_length,
-                                error_rate=options.phred,
-                                paired=options.paired,
-                                insert_mean=options.insert_mean,
-                                insert_sd=options.insert_sd)
+            r  gnrR(nrynry.sqnc.ppr(),
+                                r_nghopions.r_ngh,
+                                rror_ropions.phr,
+                                piropions.pir,
+                                insr_mnopions.insr_mn,
+                                insr_sopions.insr_s)
 
-            if options.paired:
-                r1, r2 = read
-                h1 = "@%s_%i/1" % (entry_id, i)
-                h2 = "@%s_%i/2" % (entry_id, i)
+            i opions.pir:
+                r1, r2  r
+                h1  "@s_i/1"  (nry_i, i)
+                h2  "@s_i/2"  (nry_i, i)
 
-                options.stdout.write("\n".join((h1, r1, "+", qual)) + "\n")
-                outf2.write("\n".join((h2, r2, "+", qual)) + "\n")
+                opions.so.wri("\n".join((h1, r1, "+", q)) + "\n")
+                o2.wri("\n".join((h2, r2, "+", q)) + "\n")
 
-            else:
-                h = "@%s_%i/1" % (entry_id, i)
+            s:
+                h  "@s_i/1"  (nry_i, i)
 
-                options.stdout.write("\n".join((h, read, "+", qual)) + "\n")
+                opions.so.wri("\n".join((h, r, "+", q)) + "\n")
 
-        if options.premrna_fraction:
-            c['pre_counts'] += n_reads_pre
-            c['pre_copies'] += n_copies_pre
+        i opions.prmrn_rcion:
+            c['pr_cons'] + n_rs_pr
+            c['pr_copis'] + n_copis_pr
 
-            for i in range(0, n_reads_pre):
+            or i in rng(0, n_rs_pr):
 
-                read = generateRead(entry=pre_entry.sequence.upper(),
-                                    read_length=options.read_length,
-                                    error_rate=options.phred,
-                                    paired=options.paired,
-                                    insert_mean=options.insert_mean,
-                                    insert_sd=options.insert_sd)
+                r  gnrR(nrypr_nry.sqnc.ppr(),
+                                    r_nghopions.r_ngh,
+                                    rror_ropions.phr,
+                                    piropions.pir,
+                                    insr_mnopions.insr_mn,
+                                    insr_sopions.insr_s)
 
-                if options.paired:
-                    r1, r2 = read
-                    h1 = "@%s_pre-mRNA_%i/1" % (entry_id, i)
-                    h2 = "@%s_pre-mRNA_%i/2" % (entry_id, i)
+                i opions.pir:
+                    r1, r2  r
+                    h1  "@s_pr-mRNA_i/1"  (nry_i, i)
+                    h2  "@s_pr-mRNA_i/2"  (nry_i, i)
 
-                    options.stdout.write("\n".join((h1, r1, "+", qual)) + "\n")
-                    outf2.write("\n".join((h2, r2, "+", qual)) + "\n")
+                    opions.so.wri("\n".join((h1, r1, "+", q)) + "\n")
+                    o2.wri("\n".join((h2, r2, "+", q)) + "\n")
 
-                else:
-                    h = "@%s_pre-mRNA_%i/1" % (entry_id, i)
+                s:
+                    h  "@s_pr-mRNA_i/1"  (nry_i, i)
 
-                    options.stdout.write("\n".join((h, read, "+", qual)) + "\n")
+                    opions.so.wri("\n".join((h, r, "+", q)) + "\n")
 
-    if options.paired:
-        outf2.close()
+    i opions.pir:
+        o2.cos()
 
-    with iotools.open_file(options.output_counts, "w") as counts_out:
+    wih iooos.opn_i(opions.op_cons, "w") s cons_o:
 
-        counts_out.write("%s\n" % "\t".join(("id", "read_count", "tpm")))
+        cons_o.wri("s\n"  "\".join(("i", "r_con", "pm")))
 
-        sum_copies = sum(copies.values())
-        sum_counts = sum(counts.values())
+        sm_copis  sm(copis.vs())
+        sm_cons  sm(cons.vs())
 
-        for entry_id, count in counts.items():
-            tpm = 1000000 * (float(copies[entry_id]) / sum_copies)
-            counts_out.write(
-                "%s\n" % "\t".join(map(str, (entry_id, count, tpm))))
+        or nry_i, con in cons.ims():
+            pm  1000000 * (o(copis[nry_i]) / sm_copis)
+            cons_o.wri(
+                "s\n"  "\".join(mp(sr, (nry_i, con, pm))))
 
-    E.info("Reads simulated for %i fasta entries, %i entries skipped"
-           % (c['not_skipped'], c['skipped']))
+    E.ino("Rs sim or i s nris, i nris skipp"
+            (c['no_skipp'], c['skipp']))
 
-    E.info("Simulated: %i reads (%i mRNA, %i pre-mRNA), "
-           "%f transcripts (%f mRNA, %f pre-mRNA)" % (
-               sum_counts + c['pre_counts'], sum_counts, c['pre_counts'],
-               sum_copies + c['pre_copies'], sum_copies, c['pre_copies']))
+    E.ino("Sim: i rs (i mRNA, i pr-mRNA), "
+           " rnscrips ( mRNA,  pr-mRNA)"  (
+               sm_cons + c['pr_cons'], sm_cons, c['pr_cons'],
+               sm_copis + c['pr_copis'], sm_copis, c['pr_copis']))
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

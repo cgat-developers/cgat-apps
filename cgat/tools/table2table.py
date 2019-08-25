@@ -1,109 +1,109 @@
-'''table2table.py - operate on tables
-==================================
+'''b2b.py - opr on bs
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-This script implements a few methods for manipulating tables.
+This scrip impmns  w mhos or mniping bs.
 
-Methods working on all tables:
+Mhos working on  bs:
 ++++++++++++++++++++++++++++++
 
-transpose
-   transpose a table
+rnspos
+   rnspos  b
 
-split-fields
-   Split muliple-value fields in each row at ``--separator``. Output
-   multiple rows with all combinations.
+spi-is
+   Spi mip-v is in ch row  ``--spror``. Op
+   mip rows wih  combinions.
 
-group
-   Group values by column
+grop
+   Grop vs by comn
 
-join-column
-   Join rows in a table by columns
+join-comn
+   Join rows in  b by comns
 
-expand-table
-   If a field in a row contains multiple values,
-   the row is expanded into multiple rows such
-   that all values have space.
+xpn-b
+   I  i in  row conins mip vs,
+   h row is xpn ino mip rows sch
+   h  vs hv spc.
 
-flatten-table
-   Output a table as row/column/value tuples.
+n-b
+   Op  b s row/comn/v ps.
 
-as-column
-   Output table as a single column. Colums in the original table are
-   appended and output.
+s-comn
+   Op b s  sing comn. Coms in h origin b r
+   ppn n op.
 
-collapse-table
-   Collapse a table of two columns with row names in the first
-   column. Outputs a table with multiple columns for each row name.
+cops-b
+   Cops  b o wo comns wih row nms in h irs
+   comn. Ops  b wih mip comns or ch row nm.
 
-Methods for numerical columns
+Mhos or nmric comns
 +++++++++++++++++++++++++++++
 
-Some methods make only sense for columns containing numerical values.
-If a table contains both numerical and non-numerical data, the
-numerical columns can be specified by the ``--columns`` option.
+Som mhos mk ony sns or comns conining nmric vs.
+I  b conins boh nmric n non-nmric , h
+nmric comns cn b spcii by h ``--comns`` opion.
 
-normalize-by-value
-   divide all cells in a table by a value
+normiz-by-v
+   ivi  cs in  b by  v
 
-multiply-by-value
-   multiply all cells in a table by a value
+mipy-by-v
+   mipy  cs in  b by  v
 
-lower-bound
-   replace all cells with a value of less than lower bound with the lower
-   bound.
+owr-bon
+   rpc  cs wih  v o ss hn owr bon wih h owr
+   bon.
 
-upper-bound
-   replace all cells with a value of more than upper bound with the upper
-   bound.
+ppr-bon
+   rpc  cs wih  v o mor hn ppr bon wih h ppr
+   bon.
 
-normalize-by-table
-   divide each cell in a table with the corresponding entry in a secondary
-   table.
+normiz-by-b
+   ivi ch c in  b wih h corrsponing nry in  sconry
+   b.
 
-normalize-by-max
-   divide table columns by maximum per column
+normiz-by-mx
+   ivi b comns by mximm pr comn
 
-kullback-leibler
-   compute kullback-leibler divergence between two columns. Compute
-   both D(a||b), D(b||a) and (D(a||b) + D(b||a)) / 2
+kbck-ibr
+   comp kbck-ibr ivrgnc bwn wo comns. Comp
+   boh D(||b), D(b||) n (D(||b) + D(b||)) / 2
 
-rank
-   substitute cells with their ranks in a column
+rnk
+   sbsi cs wih hir rnks in  comn
 
-fdr
-   compute an FDR over selected columns. Replaces the columns
-   with the qvalues.
+r
+   comp n FDR ovr sc comns. Rpcs h comns
+   wih h qvs.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python table2table.py --help
+   pyhon b2b.py --hp
 
-Type::
+Typ::
 
-   python table2table.py --help
+   pyhon b2b.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import cgatcore.table
-from cgatcore.table import main
-from cgat import Stats
+impor sys
+impor cgcor.b
+rom cgcor.b impor min
+rom cg impor Ss
 
-# monkeypatch: import Stats in cgatcore.Table's namespace.
-cgatcore.table.Stats = Stats
+# monkypch: impor Ss in cgcor.Tb's nmspc.
+cgcor.b.Ss  Ss
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

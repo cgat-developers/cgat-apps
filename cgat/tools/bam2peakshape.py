@@ -1,657 +1,657 @@
-'''bam2peakshape.py - compute peak shape features from a bam-file
-==============================================================
+'''bm2pkshp.py - comp pk shp rs rom  bm-i
 
-:Tags: Genomics NGS Intervals BAM BED Summary
 
-Purpose
+:Tgs: Gnomics NGS Inrvs BAM BED Smmry
+
+Prpos
 -------
 
-This script takes a :term:`bed` formatted file with regions of
-interest, for example binding intervals from a ChIP-Seq
-experiment. Using a collection of aligned reads is a :term:`bam`
-formatted file or :term:`bigwig` formatted file, the script outputs a
-collection of features describing the peak shape.
+This scrip ks  :rm:`b` orm i wih rgions o
+inrs, or xmp bining inrvs rom  ChIP-Sq
+xprimn. Using  cocion o ign rs is  :rm:`bm`
+orm i or :rm:`bigwig` orm i, h scrip ops 
+cocion o rs scribing h pk shp.
 
-This script is designed with a slight emphasis on ChIP-Seq datasets.
-The main reason that this script is better suited for ChIP-Seq is
-that(1) it is able to center the counting window at the summit of
-every individual peak; (2) it is also able to use the control ChIP-Seq
-library to enable side-by-side comparison of treatment vs control;(3)
-it can randomly shift the set of input regions to generate a
-artificial set of regions, in the absence of real ChIP-Seq control
-library, the random regions can provide a peaks profile that can be
-used as the control.
+This scrip is sign wih  sigh mphsis on ChIP-Sq ss.
+Th min rson h his scrip is br si or ChIP-Sq is
+h(1) i is b o cnr h coning winow  h smmi o
+vry inivi pk; (2) i is so b o s h conro ChIP-Sq
+ibrry o nb si-by-si comprison o rmn vs conro;(3)
+i cn rnomy shi h s o inp rgions o gnr 
+riici s o rgions, in h bsnc o r ChIP-Sq conro
+ibrry, h rnom rgions cn provi  pks proi h cn b
+s s h conro.
 
-For example, given the peaks regions defined by analyzing some
-ChIP-Seq dataset (e.g. by using MACS), and without the need to use any
-additional genomic annotations (e.g. ENSEMBL, refseq), we can
-visualise the binding profiles of transcriptionfactors ChIP-Seq data
-relative to the center of each peak regions.
+For xmp, givn h pks rgions in by nyzing som
+ChIP-Sq s (.g. by sing MACS), n wiho h n o s ny
+iion gnomic nnoions (.g. ENSEMBL, rsq), w cn
+visis h bining prois o rnscripioncors ChIP-Sq 
+riv o h cnr o ch pk rgions.
 
-The script outputs a tab-separated table on stdout containing features
-for each interval. A peak is defined as the location of the highest
-density in an interval. The width of the peak (peak_width) is defined
-as the region around the peak in which the density does not drop below
-a threshold of peak_heigt * 90%.
+Th scrip ops  b-spr b on so conining rs
+or ch inrv. A pk is in s h ocion o h highs
+nsiy in n inrv. Th wih o h pk (pk_wih) is in
+s h rgion ron h pk in which h nsiy os no rop bow
+ hrsho o pk_hig * 90.
 
-Usage
+Usg
 -----
 
-Detailed usage example
+Di sg xmp
 ++++++++++++++++++++++
 
-The following command will generate the peak shape plot for the peak
-regions defined in :file:`onepeak.bed`, using the reads stored in
-:file:`small.bam`.  The command will also create a profile for the
-control library.  The control library in this example is re-using the
-same reads file :file:`small.bam`, however, in your actual experiment,
-it should be a different library (the input library for this ChIP-Seq
-experiment).::
+Th oowing commn wi gnr h pk shp po or h pk
+rgions in in :i:`onpk.b`, sing h rs sor in
+:i:`sm.bm`.  Th commn wi so cr  proi or h
+conro ibrry.  Th conro ibrry in his xmp is r-sing h
+sm rs i :i:`sm.bm`, howvr, in yor c xprimn,
+i sho b  irn ibrry (h inp ibrry or his ChIP-Sq
+xprimn).::
 
-    python ./scripts/bam2peakshape.py \
-        ./tests/bam2peakshape.py/small.bam \
-        ./tests/bam2peakshape.py/onepeak.bed \
-        --control-bam-file=./tests/bam2peakshape.py/small.bam \
-        --use-interval \
-        --normalize-transcript
+    pyhon ./scrips/bm2pkshp.py \
+        ./ss/bm2pkshp.py/sm.bm \
+        ./ss/bm2pkshp.py/onpk.b \
+        --conro-bm-i./ss/bm2pkshp.py/sm.bm \
+        --s-inrv \
+        --normiz-rnscrip
 
 
-Output files
+Op is
 ++++++++++++
 
-Among the features output are:
+Among h rs op r:
 
 +-------------------+---------------------------------------------------------+
-|*Column*           |*Content*                                                |
+|*Comn*           |*Conn*                                                |
 +-------------------+---------------------------------------------------------+
-|peak_height        |number of reads at peak                                  |
+|pk_high        |nmbr o rs  pk                                  |
 +-------------------+---------------------------------------------------------+
-|peak_median        |median coverage compared to peak height                  |
+|pk_min        |min covrg compr o pk high                  |
 +-------------------+---------------------------------------------------------+
-|interval_width     |width of interval                                        |
+|inrv_wih     |wih o inrv                                        |
 +-------------------+---------------------------------------------------------+
-|peak_width         |width of peak                                            |
+|pk_wih         |wih o pk                                            |
 +-------------------+---------------------------------------------------------+
-|bins               |bins for a histogram of densities within the interval.   |
+|bins               |bins or  hisogrm o nsiis wihin h inrv.   |
 +-------------------+---------------------------------------------------------+
-|npeaks             |number of density peaks in interval.                     |
+|npks             |nmbr o nsiy pks in inrv.                     |
 +-------------------+---------------------------------------------------------+
-|peak_center        |point of highest density in interval                     |
+|pk_cnr        |poin o highs nsiy in inrv                     |
 +-------------------+---------------------------------------------------------+
-|peak_relative_pos  |point of highest density in interval coordinates         |
+|pk_riv_pos  |poin o highs nsiy in inrv coorins         |
 +-------------------+---------------------------------------------------------+
-|counts             |counts for a histogram of densities within the interval  |
+|cons             |cons or  hisogrm o nsiis wihin h inrv  |
 +-------------------+---------------------------------------------------------+
-|furthest_half_heigh|Distance of peak center to furthest half-height position |
+|rhs_h_high|Disnc o pk cnr o rhs h-high posiion |
 +-------------------+---------------------------------------------------------+
-|closest_half_height|Distance of peak center to closest half-height position  |
+|coss_h_high|Disnc o pk cnr o coss h-high posiion  |
 +-------------------+---------------------------------------------------------+
 
 
-Additionally, the script outputs a set of matrixes with densities over
-intervals that can be used for plotting. The default filenames are
-``(matrix|control)_<sortorder>.tsv.gz``, The names can be controlled
-with the ``--output-filename-pattern`` option.
+Aiiony, h scrip ops  s o mrixs wih nsiis ovr
+inrvs h cn b s or poing. Th  inms r
+``(mrix|conro)_<sororr>.sv.gz``, Th nms cn b conro
+wih h ``--op-inm-prn`` opion.
 
 
-Type::
+Typ::
 
-   python bam2peakshape.py --help
+   pyhon bm2pkshp.py --hp
 
-for command line help.
+or commn in hp.
 
 
-Options
+Opions
 -------
 
-Option: Shift
+Opion: Shi
 +++++++++++++
 
-shift the each read by a certain distance, because in a ChIP-Seq
-experment, the read is always at the edge of an sonicated fragment,
-the actual binding site is usually L/2 distance away from the read,
-where L is the length of sonicated fragment (determined either
-experimentally or computationally).
+shi h ch r by  crin isnc, bcs in  ChIP-Sq
+xprmn, h r is wys  h g o n sonic rgmn,
+h c bining si is sy L/2 isnc wy rom h r,
+whr L is h ngh o sonic rgmn (rmin ihr
+xprimny or compiony).
 
-This option is used only if the input reads are in :term:`bam` formatted file.
-If input reads are :term:`bigwig` formatted file, this option is ignored.
+This opion is s ony i h inp rs r in :rm:`bm` orm i.
+I inp rs r :rm:`bigwig` orm i, his opion is ignor.
 
-Option: Random shift
+Opion: Rnom shi
 ++++++++++++++++++++
 
-randomly shift the set of input regions to generate a artificial set
-of regions. In the absence of real ChIP-Seq control library, the
-random regions can provide a peaks profile that can be used as the
-control.
+rnomy shi h s o inp rgions o gnr  riici s
+o rgions. In h bsnc o r ChIP-Sq conro ibrry, h
+rnom rgions cn provi  pks proi h cn b s s h
+conro.
 
-Option: Centring method
+Opion: Cnring mho
 +++++++++++++++++++++++
 
-"reads" will output in the way that the summit of the peaks are
-aligned. "middle" will output in the way that the middle of the input
-bed intervals are aligned.
+"rs" wi op in h wy h h smmi o h pks r
+ign. "mi" wi op in h wy h h mi o h inp
+b inrvs r ign.
 
-Option: Only interval
+Opion: Ony inrv
 +++++++++++++++++++++
 
-Only count reads that are in the interval as defined by the input bed file.
+Ony con rs h r in h inrv s in by h inp b i.
 
-Option: normalization=sum
+Opion: normizionsm
 +++++++++++++++++++++++++
 
-normalize counts such that the sum of all counts in all features are
-exactly 1000000.
+normiz cons sch h h sm o  cons in  rs r
+xcy 1000000.
 
-The detail normalization algorithm as follows: norm = sum(all counts
-in all features)/1000000.0 normalized count = normalized count / norm
+Th i normizion gorihm s oows: norm  sm( cons
+in  rs)/1000000.0 normiz con  normiz con / norm
 
-.. todo::
+.. oo::
 
-   paired-endedness is not fully implemented.
+   pir-nnss is no y impmn.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import os
-import re
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import pysam
-import cgat.Bed as Bed
-import numpy
-import collections
-import pyBigWig
+impor sys
+impor os
+impor r
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor pysm
+impor cg.B s B
+impor nmpy
+impor cocions
+impor pyBigWig
 
-import cgat.BamTools.peakshape as bam2peakshape
+impor cg.BmToos.pkshp s bm2pkshp
 
 
-def buildOptionParser(argv):
+ biOpionPrsr(rgv):
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-f", "--format", dest="format", type="choice",
-                      choices=("bam", "bigwig"),
-                      help="format of genomic input files for densities "
-                      "[%default]")
+    prsr._rgmn("-", "--orm", s"orm", yp"choic",
+                      choics("bm", "bigwig"),
+                      hp"orm o gnomic inp is or nsiis "
+                      "[]")
 
-    parser.add_argument(
-        "-o", "--use-interval", dest="use_interval", action="store_true",
-        help="only count tags that are in interval given "
-        "in bed file. Otherwise, use a fixed width window (see --window-size) "
-        "around peak [%default]")
+    prsr._rgmn(
+        "-o", "--s-inrv", s"s_inrv", cion"sor_r",
+        hp"ony con gs h r in inrv givn "
+        "in b i. Ohrwis, s  ix wih winow (s --winow-siz) "
+        "ron pk []")
 
-    parser.add_argument(
-        "-w", "--window-size", dest="window_size", type="int",
-        help="window size in bp on either side of a peak used for getting "
-        "read densities. If ``--window-size`` is 1000, the actual window size"
-        "will be 2kb, 1kb on either side of the peak in an interval"
-        "[%default]")
+    prsr._rgmn(
+        "-w", "--winow-siz", s"winow_siz", yp"in",
+        hp"winow siz in bp on ihr si o  pk s or ging "
+        "r nsiis. I ``--winow-siz`` is 1000, h c winow siz"
+        "wi b 2kb, 1kb on ihr si o h pk in n inrv"
+        "[]")
 
-    parser.add_argument(
-        "-b", "--bin-size", dest="bin_size", type="int",
-        help="bin-size in bp for computing read densities. "
-        "If ``--window-size`` is set to 1000 and ``--bin-size`` to 10, "
-        "there will be 100 bins on either side of a peak. "
-        "[%default]")
+    prsr._rgmn(
+        "-b", "--bin-siz", s"bin_siz", yp"in",
+        hp"bin-siz in bp or comping r nsiis. "
+        "I ``--winow-siz`` is s o 1000 n ``--bin-siz`` o 10, "
+        "hr wi b 100 bins on ihr si o  pk. "
+        "[]")
 
-    parser.add_argument(
-        "--smooth-method", dest="smooth_method", type="choice",
-        choices=("none", "sum", "sg"),
-        help="smooting method to apply to density data before sampling "
-        "according to ``bin-size``. sg=SavitzkyGolay, sum=sum density in bin, "
-        "none=no smoothing "
-        "[%default]")
+    prsr._rgmn(
+        "--smooh-mho", s"smooh_mho", yp"choic",
+        choics("non", "sm", "sg"),
+        hp"smooing mho o ppy o nsiy  bor smping "
+        "ccoring o ``bin-siz``. sgSvizkyGoy, smsm nsiy in bin, "
+        "nonno smoohing "
+        "[]")
 
-    parser.add_argument("-s", "--sort-order", dest="sort_orders",
-                      type="choice",
-                      action="append",
-                      choices=("peak-height", "peak-width", "unsorted",
-                               "interval-width", "interval-score"),
-                      help="output sort order for matrices. "
-                      "[%default]")
+    prsr._rgmn("-s", "--sor-orr", s"sor_orrs",
+                      yp"choic",
+                      cion"ppn",
+                      choics("pk-high", "pk-wih", "nsor",
+                               "inrv-wih", "inrv-scor"),
+                      hp"op sor orr or mrics. "
+                      "[]")
 
-    parser.add_argument(
-        "-c", "--control-bam-file", "--control-bigwig-file",
-        action="append",
-        dest="control_files",
-        type="string",
-        help="control file. If given, two peakshapes are computed, "
-        "one for the primary data and one for the control data. "
-        "The control file is centered around the same "
-        "base as the primary file and output in the same "
-        "sort order as the primary profile to all side-by-side. "
-        "comparisons. Multiple control files can be given. The "
-        "control files should have the same format as the "
-        "principal input file "
-        "[%default]")
+    prsr._rgmn(
+        "-c", "--conro-bm-i", "--conro-bigwig-i",
+        cion"ppn",
+        s"conro_is",
+        yp"sring",
+        hp"conro i. I givn, wo pkshps r comp, "
+        "on or h primry  n on or h conro . "
+        "Th conro i is cnr ron h sm "
+        "bs s h primry i n op in h sm "
+        "sor orr s h primry proi o  si-by-si. "
+        "comprisons. Mip conro is cn b givn. Th "
+        "conro is sho hv h sm orm s h "
+        "princip inp i "
+        "[]")
 
-    parser.add_argument(
-        "-r", "--random-shift", dest="random_shift", action="store_true",
-        help="shift intervals in random direction up/downstream of interval "
-        "[%default]")
+    prsr._rgmn(
+        "-r", "--rnom-shi", s"rnom_shi", cion"sor_r",
+        hp"shi inrvs in rnom ircion p/ownsrm o inrv "
+        "[]")
 
-    parser.add_argument(
-        "-e", "--centring-method", dest="centring_method", type="choice",
-        choices=("reads", "middle"),
-        help="centring method. Available are: "
-        "reads=use density to determine peak, "
-        "middle=use middle of interval "
-        "[%default]")
+    prsr._rgmn(
+        "-", "--cnring-mho", s"cnring_mho", yp"choic",
+        choics("rs", "mi"),
+        hp"cnring mho. Avib r: "
+        "rss nsiy o rmin pk, "
+        "mis mi o inrv "
+        "[]")
 
-    parser.add_argument(
-        "-n", "--normalize-matrix", dest="normalization", type="choice",
-        choices=("none", "sum"),
-        help="matrix normalisation to perform. "
-        "[%default]")
+    prsr._rgmn(
+        "-n", "--normiz-mrix", s"normizion", yp"choic",
+        choics("non", "sm"),
+        hp"mrix normision o prorm. "
+        "[]")
 
-    parser.add_argument(
-        "--use-strand", dest="strand_specific", action="store_true",
-        help="use strand information in intervals. Intervals on the "
-        "negative strand are flipped "
-        "[%default]")
+    prsr._rgmn(
+        "--s-srn", s"srn_spciic", cion"sor_r",
+        hp"s srn inormion in inrvs. Inrvs on h "
+        "ngiv srn r ipp "
+        "[]")
 
-    parser.add_argument(
-        "-i", "--shift-size", dest="shift", type="int",
-        help="shift for reads. When processing bam files, "
-        "reads will be shifted upstream/downstream by this amount. "
-        "[%default]")
+    prsr._rgmn(
+        "-i", "--shi-siz", s"shi", yp"in",
+        hp"shi or rs. Whn procssing bm is, "
+        "rs wi b shi psrm/ownsrm by his mon. "
+        "[]")
 
-    parser.set_defaults(
-        bin_size=10,
-        shift=0,
-        window_size=1000,
-        sort_orders=[],
-        centring_method="reads",
-        control_files=[],
-        random_shift=False,
-        strand_specific=False,
-        format="bam",
-        report_step=100,
-        use_interval=False,
-        smooth_method=None,
+    prsr.s_s(
+        bin_siz10,
+        shi0,
+        winow_siz1000,
+        sor_orrs[],
+        cnring_mho"rs",
+        conro_is[],
+        rnom_shiFs,
+        srn_spciicFs,
+        orm"bm",
+        rpor_sp100,
+        s_inrvFs,
+        smooh_mhoNon,
     )
 
-    return parser
+    rrn prsr
 
 
-IntervalData = collections.namedtuple(
-    "IntervalData",
-    "foreground interval controls shifted")
+InrvD  cocions.nmp(
+    "InrvD",
+    "orgron inrv conros shi")
 
 
-def outputFeatureTable(outfile, features_per_interval, bins):
-    '''ouput results from density profiles.'''
+ opFrTb(oi, rs_pr_inrv, bins):
+    '''op rss rom nsiy prois.'''
 
-    outfile.write("\t".join(
-        ("contig",
-         "start",
-         "end",
-         "name",
-         "\t".join(bam2peakshape.PeakShapeResult._fields))) + "\n")
+    oi.wri("\".join(
+        ("conig",
+         "sr",
+         "n",
+         "nm",
+         "\".join(bm2pkshp.PkShpRs._is))) + "\n")
 
-    # output principal table
-    n = 0
-    for foreground, bed, controls, shifted in features_per_interval:
-        n += 1
-        if "name" in bed:
-            name = bed.name
-        else:
-            name = str(n)
-        outfile.write("%s\t%i\t%i\t%s\t" %
-                      (bed.contig, bed.start, bed.end, name))
+    # op princip b
+    n  0
+    or orgron, b, conros, shi in rs_pr_inrv:
+        n + 1
+        i "nm" in b:
+            nm  b.nm
+        s:
+            nm  sr(n)
+        oi.wri("s\i\i\s\" 
+                      (b.conig, b.sr, b.n, nm))
 
-        outfile.write("\t".join(map(str, foreground[:-2])))
-        bins, counts = foreground[-2], foreground[-1]
-        outfile.write("\t%s" % ",".join(map(str, bins)))
-        outfile.write("\t%s" % ",".join(map(str, counts)))
-        outfile.write("\n")
+        oi.wri("\".join(mp(sr, orgron[:-2])))
+        bins, cons  orgron[-2], orgron[-1]
+        oi.wri("\s"  ",".join(mp(sr, bins)))
+        oi.wri("\s"  ",".join(mp(sr, cons)))
+        oi.wri("\n")
 
 
-def writeMatricesForSortOrder(features_per_interval,
+ wriMricsForSorOrr(rs_pr_inrv,
                               bins,
-                              foreground_track,
-                              control_tracks,
-                              shifted,
-                              sort_order):
-    '''output one or more matrices for each sort sorder.
+                              orgron_rck,
+                              conro_rcks,
+                              shi,
+                              sor_orr):
+    '''op on or mor mrics or ch sor sorr.
 
-    For each sort order output the forerground. If there
-    are additional controls and shifted section, output
-    these as well
+    For ch sor orr op h orrgron. I hr
+    r iion conros n shi scion, op
+    hs s w
 
-    The files will named:
-    matrix_<track>_<sortorder>
+    Th is wi nm:
+    mrix_<rck>_<sororr>
 
     '''
-    if "name" in features_per_interval[0].interval:
-        names = [x.interval.name for x in features_per_interval]
-    else:
-        names = list(map(str, list(range(1, len(features_per_interval) + 1))))
+    i "nm" in rs_pr_inrv[0].inrv:
+        nms  [x.inrv.nm or x in rs_pr_inrv]
+    s:
+        nms  is(mp(sr, is(rng(1, n(rs_pr_inrv) + 1))))
 
-    bins = ["%i" % x for x in bins]
-    sort_order = re.sub("-", "_", sort_order)
+    bins  ["i"  x or x in bins]
+    sor_orr  r.sb("-", "_", sor_orr)
 
-    # write foreground
-    iotools.write_matrix(
-        E.open_output_file("matrix_%s_%s.gz" % (foreground_track, sort_order)),
-        [x.foreground.counts for x in features_per_interval],
-        row_headers=names,
-        col_headers=bins,
-        row_header="name")
+    # wri orgron
+    iooos.wri_mrix(
+        E.opn_op_i("mrix_s_s.gz"  (orgron_rck, sor_orr)),
+        [x.orgron.cons or x in rs_pr_inrv],
+        row_hrsnms,
+        co_hrsbins,
+        row_hr"nm")
 
-    # write controls
-    for idx, track in enumerate(control_tracks):
-        iotools.write_matrix(
-            E.open_output_file("matrix_%s_%s.gz" % (track, sort_order)),
-            [x.controls[idx].counts for x in features_per_interval],
-            row_headers=names,
-            col_headers=bins,
-            row_header="name")
+    # wri conros
+    or ix, rck in nmr(conro_rcks):
+        iooos.wri_mrix(
+            E.opn_op_i("mrix_s_s.gz"  (rck, sor_orr)),
+            [x.conros[ix].cons or x in rs_pr_inrv],
+            row_hrsnms,
+            co_hrsbins,
+            row_hr"nm")
 
-    # write shifted matrix
-    if shifted:
-        iotools.write_matrix(
-            E.open_output_file("matrix_shift_%s.gz" % (sort_order)),
-            [x.shifted.counts for x in features_per_interval],
-            row_headers=names,
-            col_headers=bins,
-            row_header="name")
+    # wri shi mrix
+    i shi:
+        iooos.wri_mrix(
+            E.opn_op_i("mrix_shi_s.gz"  (sor_orr)),
+            [x.shi.cons or x in rs_pr_inrv],
+            row_hrsnms,
+            co_hrsbins,
+            row_hr"nm")
 
-    # output a combined matrix
-    if len(control_tracks) > 0 or shifted:
-        rows = []
-        for row in features_per_interval:
-            l = [row.foreground.counts]
-            l.extend([row.controls[x].counts for x in
-                      range(len(control_tracks))])
-            if shifted:
-                l.append(row.shifted.counts)
-            rows.append(numpy.concatenate(l))
+    # op  combin mrix
+    i n(conro_rcks) > 0 or shi:
+        rows  []
+        or row in rs_pr_inrv:
+              [row.orgron.cons]
+            .xn([row.conros[x].cons or x in
+                      rng(n(conro_rcks))])
+            i shi:
+                .ppn(row.shi.cons)
+            rows.ppn(nmpy.concn())
 
-        n = 1 + len(control_tracks)
-        if shifted:
-            n += 1
+        n  1 + n(conro_rcks)
+        i shi:
+            n + 1
 
-        # make column names unique and make sure they can be sorted
-        # lexicographically
-        all_bins = []
-        for x in range(n):
-            all_bins.extend(["%i:%s" % (x, b) for b in bins])
+        # mk comn nms niq n mk sr hy cn b sor
+        # xicogrphicy
+        _bins  []
+        or x in rng(n):
+            _bins.xn(["i:s"  (x, b) or b in bins])
 
-        iotools.write_matrix(
-            E.open_output_file("matrix_sidebyside_%s.gz" % (sort_order)),
+        iooos.wri_mrix(
+            E.opn_op_i("mrix_sibysi_s.gz"  (sor_orr)),
             rows,
-            row_headers=names,
-            col_headers=all_bins,
-            row_header="name")
+            row_hrsnms,
+            co_hrs_bins,
+            row_hr"nm")
 
 
-def outputMatrices(features_per_interval,
+ opMrics(rs_pr_inrv,
                    bins,
-                   foreground_track,
-                   control_tracks=None,
-                   shifted=False,
-                   sort_orders=None):
-    '''ouput matrices from density profiles
-    in one or more sort_orders.
+                   orgron_rck,
+                   conro_rcksNon,
+                   shiFs,
+                   sor_orrsNon):
+    '''op mrics rom nsiy prois
+    in on or mor sor_orrs.
     '''
 
-    # output sorted matrices
-    if not sort_orders:
-        writeMatricesForSortOrder(features_per_interval,
+    # op sor mrics
+    i no sor_orrs:
+        wriMricsForSorOrr(rs_pr_inrv,
                                   bins,
-                                  foreground_track,
-                                  control_tracks,
-                                  shifted,
-                                  "unsorted")
+                                  orgron_rck,
+                                  conro_rcks,
+                                  shi,
+                                  "nsor")
 
-    for sort_order in sort_orders:
+    or sor_orr in sor_orrs:
 
-        if sort_order == "peak-height":
-            features_per_interval.sort(
-                key=lambda x: x.foreground.peak_height)
+        i sor_orr  "pk-high":
+            rs_pr_inrv.sor(
+                kymb x: x.orgron.pk_high)
 
-        elif sort_order == "peak-width":
-            features_per_interval.sort(
-                key=lambda x: x.foreground.peak_width)
+        i sor_orr  "pk-wih":
+            rs_pr_inrv.sor(
+                kymb x: x.orgron.pk_wih)
 
-        elif sort_order == "interval-width":
-            features_per_interval.sort(
-                key=lambda x: x.interval.end - x.interval.start)
+        i sor_orr  "inrv-wih":
+            rs_pr_inrv.sor(
+                kymb x: x.inrv.n - x.inrv.sr)
 
-        elif sort_order == "interval-score":
-            try:
-                features_per_interval.sort(
-                    key=lambda x: float(x.interval.score))
-            except IndexError:
-                E.warn("score field not present - no output")
-                continue
-            except TypeError:
-                E.warn("score field not a valid number - no output")
-                continue
+        i sor_orr  "inrv-scor":
+            ry:
+                rs_pr_inrv.sor(
+                    kymb x: o(x.inrv.scor))
+            xcp InxError:
+                E.wrn("scor i no prsn - no op")
+                conin
+            xcp TypError:
+                E.wrn("scor i no  vi nmbr - no op")
+                conin
 
-        writeMatricesForSortOrder(features_per_interval,
+        wriMricsForSorOrr(rs_pr_inrv,
                                   bins,
-                                  foreground_track,
-                                  control_tracks,
-                                  shifted,
-                                  sort_order)
+                                  orgron_rck,
+                                  conro_rcks,
+                                  shi,
+                                  sor_orr)
 
 
-def buildDensityMatrices(bedfile,
-                         fg_file,
-                         control_files,
-                         counter,
-                         window_size=1000,
-                         bin_size=10,
-                         strand_specific=False,
-                         centring_method="reads",
-                         use_interval=False,
-                         random_shift=False,
-                         smooth_method="none",
-                         report_step=1000):
-    '''compute densities and peakshape parameters
-    in intervals given by *bedfile* using reads in *fg_file*.
+ biDnsiyMrics(bi,
+                         g_i,
+                         conro_is,
+                         conr,
+                         winow_siz1000,
+                         bin_siz10,
+                         srn_spciicFs,
+                         cnring_mho"rs",
+                         s_inrvFs,
+                         rnom_shiFs,
+                         smooh_mho"non",
+                         rpor_sp1000):
+    '''comp nsiis n pkshp prmrs
+    in inrvs givn by *bi* sing rs in *g_i*.
 
-    If *control_files* are given, densities are produced for
-    these as well.
+    I *conro_is* r givn, nsiis r proc or
+    hs s w.
 
-    Returns a list of results for each interval in *bedfile* of
-    type IntervalData and an array of bin-values.
+    Rrns  is o rss or ch inrv in *bi* o
+    yp InrvD n n rry o bin-vs.
     '''
 
-    if window_size:
-        # bins are centered at peak-center and then stretching outwards.
-        bins = numpy.arange(-window_size + bin_size // 2,
-                            +window_size,
-                            bin_size)
+    i winow_siz:
+        # bins r cnr  pk-cnr n hn srching owrs.
+        bins  nmpy.rng(-winow_siz + bin_siz // 2,
+                            +winow_siz,
+                            bin_siz)
 
-    result = []
-    c = E.Counter()
-    c.input = 0
+    rs  []
+    c  E.Conr()
+    c.inp  0
 
-    for bed in bedfile:
-        c.input += 1
+    or b in bi:
+        c.inp + 1
 
-        # if bed.contig not in contigs:
-        #    c.skipped += 1
-        #    continue
+        # i b.conig no in conigs:
+        #    c.skipp + 1
+        #    conin
 
-        if c.input % report_step == 0:
-            E.info("iteration: %i" % c.input)
+        i c.inp  rpor_sp  0:
+            E.ino("irion: i"  c.inp)
 
-        features = counter.countInInterval(
-            fg_file,
-            bed.contig, bed.start, bed.end,
-            window_size=window_size,
-            bins=bins,
-            use_interval=use_interval,
-            centring_method=centring_method)
+        rs  conr.conInInrv(
+            g_i,
+            b.conig, b.sr, b.n,
+            winow_sizwinow_siz,
+            binsbins,
+            s_inrvs_inrv,
+            cnring_mhocnring_mho)
 
-        if features is None:
-            c.skipped += 1
-            continue
+        i rs is Non:
+            c.skipp + 1
+            conin
 
-        if control_files:
-            control = []
-            for control_file in control_files:
-                control.append(counter.countAroundPos(
-                    control_file,
-                    bed.contig,
-                    features.peak_center,
-                    bins=features.bins))
+        i conro_is:
+            conro  []
+            or conro_i in conro_is:
+                conro.ppn(conr.conAronPos(
+                    conro_i,
+                    b.conig,
+                    rs.pk_cnr,
+                    binsrs.bins))
 
-        else:
-            control = None
+        s:
+            conro  Non
 
-        if random_shift:
-            direction = numpy.random.randint(0, 2)
-            if direction:
-                pos = features.peak_center + 2 * bins[0]
-            else:
-                pos = features.peak_center + 2 * bins[-1]
-            shifted = counter.countAroundPos(fg_file,
-                                             bed.contig,
+        i rnom_shi:
+            ircion  nmpy.rnom.rnin(0, 2)
+            i ircion:
+                pos  rs.pk_cnr + 2 * bins[0]
+            s:
+                pos  rs.pk_cnr + 2 * bins[-1]
+            shi  conr.conAronPos(g_i,
+                                             b.conig,
                                              pos,
-                                             bins=features.bins)
-        else:
-            shifted = None
+                                             binsrs.bins)
+        s:
+            shi  Non
 
-        if strand_specific and bed.strand == "-":
-            features._replace(hist=features.hist[::-1])
-            if control:
-                for c in control:
-                    c._replace(hist=c.hist[::-1])
-            if shifted:
-                shifted._replace(hist=shifted.hist[::-1])
+        i srn_spciic n b.srn  "-":
+            rs._rpc(hisrs.his[::-1])
+            i conro:
+                or c in conro:
+                    c._rpc(hisc.his[::-1])
+            i shi:
+                shi._rpc(hisshi.his[::-1])
 
-        result.append(IntervalData._make((features, bed, control, shifted)))
-        c.added += 1
+        rs.ppn(InrvD._mk((rs, b, conro, shi)))
+        c. + 1
 
-    E.info("interval processing: %s" % c)
+    E.ino("inrv procssing: s"  c)
 
-    return result, bins
+    rrn rs, bins
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    parser = buildOptionParser(argv)
+    prsr  biOpionPrsr(rgv)
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    if len(args) != 2:
-        raise ValueError(
-            "please specify one bam- or wig-file and one bed file")
+    i n(rgs) ! 2:
+        ris VError(
+            "ps spciy on bm- or wig-i n on b i")
 
-    if options.control_files:
-        E.info("using control files: %s" % ",".join(options.control_files))
+    i opions.conro_is:
+        E.ino("sing conro is: s"  ",".join(opions.conro_is))
 
-    infile, bedfile = args
-    control_files = []
+    ini, bi  rgs
+    conro_is  []
 
-    if options.format == "bigwig":
-        fg_file = pyBigWig.open(infile)
-        for control_file in options.control_files:
-            control_files.append(pyBigWig.open(control_file))
-        counter = bam2peakshape.CounterBigwig(
-            smooth_method=options.smooth_method)
+    i opions.orm  "bigwig":
+        g_i  pyBigWig.opn(ini)
+        or conro_i in opions.conro_is:
+            conro_is.ppn(pyBigWig.opn(conro_i))
+        conr  bm2pkshp.ConrBigwig(
+            smooh_mhoopions.smooh_mho)
 
-    elif options.format == "bam":
-        fg_file = pysam.AlignmentFile(infile, "rb")
-        for control_file in options.control_files:
-            control_files.append(pysam.AlignmentFile(control_file, "rb"))
-        counter = bam2peakshape.CounterBam(
-            shift=options.shift,
-            smooth_method=options.smooth_method)
+    i opions.orm  "bm":
+        g_i  pysm.AignmnFi(ini, "rb")
+        or conro_i in opions.conro_is:
+            conro_is.ppn(pysm.AignmnFi(conro_i, "rb"))
+        conr  bm2pkshp.ConrBm(
+            shiopions.shi,
+            smooh_mhoopions.smooh_mho)
 
-    features_per_interval, bins = buildDensityMatrices(
-        Bed.iterator(iotools.open_file(bedfile)),
-        fg_file,
-        control_files,
-        counter,
-        window_size=options.window_size,
-        bin_size=options.bin_size,
-        strand_specific=options.strand_specific,
-        centring_method=options.centring_method,
-        use_interval=options.use_interval,
-        random_shift=options.random_shift,
-        smooth_method=options.smooth_method,
-        report_step=options.report_step)
+    rs_pr_inrv, bins  biDnsiyMrics(
+        B.iror(iooos.opn_i(bi)),
+        g_i,
+        conro_is,
+        conr,
+        winow_sizopions.winow_siz,
+        bin_sizopions.bin_siz,
+        srn_spciicopions.srn_spciic,
+        cnring_mhoopions.cnring_mho,
+        s_inrvopions.s_inrv,
+        rnom_shiopions.rnom_shi,
+        smooh_mhoopions.smooh_mho,
+        rpor_spopions.rpor_sp)
 
-    if len(features_per_interval) == 0:
-        E.warn("no data - no output")
-        E.stop()
-        return
+    i n(rs_pr_inrv)  0:
+        E.wrn("no  - no op")
+        E.sop()
+        rrn
 
-    outputFeatureTable(options.stdout, features_per_interval, bins)
+    opFrTb(opions.so, rs_pr_inrv, bins)
 
-    # apply normalization
-    # Note: does not normalize control?
-    # Needs reworking, currently it does not normalize across
-    # all samples nor does the work "sum" reflect the per million
-    # normalization.
-    if options.normalization == "sum":
-        E.info("starting sum normalization")
-        # get total counts across all intervals
-        norm = 0.0
-        for foreground, bed, controls, shifted in features_per_interval:
-            norm += sum(foreground.counts)
-        # per million
-        norm /= float(1000000)
-        E.info("sum/million normalization with %f" % norm)
+    # ppy normizion
+    # No: os no normiz conro?
+    # Ns rworking, crrny i os no normiz cross
+    #  smps nor os h work "sm" rc h pr miion
+    # normizion.
+    i opions.normizion  "sm":
+        E.ino("sring sm normizion")
+        # g o cons cross  inrvs
+        norm  0.0
+        or orgron, b, conros, shi in rs_pr_inrv:
+            norm + sm(orgron.cons)
+        # pr miion
+        norm / o(1000000)
+        E.ino("sm/miion normizion wih "  norm)
 
-        # normalise
-        new_data = []
-        for foreground, bed, controls, shifted in features_per_interval:
-            foreground = foreground._replace(
-                counts=numpy.array(foreground.counts,
-                                   dtype=numpy.float) / norm)
-            new_controls = []
-            for control in controls:
-                new_controls.append(
-                    control._replace(
-                        counts=numpy.array(control.counts,
-                                           dtype=numpy.float) / norm))
-            if shifted:
-                shifted = shifted._replace(
-                    counts=numpy.array(shifted.counts,
-                                       dtype=numpy.float) / norm)
-            new_data.append(IntervalData._make((
-                foreground, bed, new_controls, shifted)))
-        features_per_interval = new_data
-    else:
-        E.info("no normalization performed")
+        # normis
+        nw_  []
+        or orgron, b, conros, shi in rs_pr_inrv:
+            orgron  orgron._rpc(
+                consnmpy.rry(orgron.cons,
+                                   ypnmpy.o) / norm)
+            nw_conros  []
+            or conro in conros:
+                nw_conros.ppn(
+                    conro._rpc(
+                        consnmpy.rry(conro.cons,
+                                           ypnmpy.o) / norm))
+            i shi:
+                shi  shi._rpc(
+                    consnmpy.rry(shi.cons,
+                                       ypnmpy.o) / norm)
+            nw_.ppn(InrvD._mk((
+                orgron, b, nw_conros, shi)))
+        rs_pr_inrv  nw_
+    s:
+        E.ino("no normizion prorm")
 
-    # center bins
-    out_bins = bins[:-1] + options.bin_size
+    # cnr bins
+    o_bins  bins[:-1] + opions.bin_siz
 
-    # build tracks
-    def _toTrack(filename):
-        return os.path.splitext(os.path.basename(filename))[0]
+    # bi rcks
+     _oTrck(inm):
+        rrn os.ph.spix(os.ph.bsnm(inm))[0]
 
-    outputMatrices(features_per_interval,
-                   out_bins,
-                   foreground_track=_toTrack(infile),
-                   control_tracks=[_toTrack(x) for x in options.control_files],
-                   shifted=options.random_shift,
-                   sort_orders=options.sort_orders)
+    opMrics(rs_pr_inrv,
+                   o_bins,
+                   orgron_rck_oTrck(ini),
+                   conro_rcks[_oTrck(x) or x in opions.conro_is],
+                   shiopions.rnom_shi,
+                   sor_orrsopions.sor_orrs)
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

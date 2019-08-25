@@ -1,59 +1,59 @@
 '''
-cgat_script_template.py - template for cgat scripts
-====================================================
+cg_scrip_mp.py - mp or cg scrips
 
-:Author:
-:Tags: Python
 
-Purpose
+:Ahor:
+:Tgs: Pyhon
+
+Prpos
 -------
 
-.. Overall purpose and function of the script>
+.. Ovr prpos n ncion o h scrip>
 
-Usage
+Usg
 -----
 
-.. Example use case
+.. Exmp s cs
 
-Example::
+Exmp::
 
-   python cgat_script_template.py
+   pyhon cg_scrip_mp.py
 
-Type::
+Typ::
 
-   python cgat_script_template.py --help
+   pyhon cg_scrip_mp.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import cgatcore.experiment as E
+impor sys
+impor cgcor.xprimn s E
 
 
-def main(argv=None):
-    """script main.
-    parses command line options in sys.argv, unless *argv* is given.
+ min(rgvNon):
+    """scrip min.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-t", "--test", dest="test", type="string",
-                      help="supply help")
+    prsr._rgmn("-", "--s", s"s", yp"sring",
+                      hp"sppy hp")
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

@@ -1,844 +1,844 @@
-'''GO.py - compute GO enrichment from gene lists
-=============================================
+'''GO.py - comp GO nrichmn rom gn iss
 
-:Tags: Python
 
-Usage
+:Tgs: Pyhon
+
+Usg
 -----
 
-The script ``GO.py`` will test for enrichment or depletion of GO
-categories within a gene list.
+Th scrip ``GO.py`` wi s or nrichmn or pion o GO
+cgoris wihin  gn is.
 
-The script uses a hypergeometric test to check if a particular GO
-category is enriched in a foreground set with respect to a background
-set. Multiple testing is controlled by computing a empirical false
-discovery rate using a sampling procedure.
+Th scrip ss  hyprgomric s o chck i  pricr GO
+cgory is nrich in  orgron s wih rspc o  bckgron
+s. Mip sing is conro by comping  mpiric s
+iscovry r sing  smping procr.
 
-A GO analysis proceeds in three steps:
+A GO nysis procs in hr sps:
 
-   1. building gene to GO assignments
-   2. create one or more gene lists with foreground and background
-   3. run one or more GO analyses for each of the foreground gene lists
+   1. biing gn o GO ssignmns
+   2. cr on or mor gn iss wih orgron n bckgron
+   3. rn on or mor GO nyss or ch o h orgron gn iss
 
-This script analyses multiple gene lists in parallel when a matrix of
-gene lists is provided. If multiple gene lists are provided, the FDR
-is controlled per gene list and not overall. However, my intuition is
-that if the number of tests is large the results should be comparable
-as if the FDR was controlled globally, though I have no proof for
-this.
+This scrip nyss mip gn iss in pr whn  mrix o
+gn iss is provi. I mip gn iss r provi, h FDR
+is conro pr gn is n no ovr. Howvr, my iniion is
+h i h nmbr o ss is rg h rss sho b comprb
+s i h FDR ws conro goby, hogh I hv no proo or
+his.
 
-Building gene to GO assignments
+Biing gn o GO ssignmns
 +++++++++++++++++++++++++++++++
 
-The easiest way to obtain a map from gene identifiers to GO assignments
-is to down download GO assignments from the ENSEMBL database. The command
-below will download go assignments for the human gene set
-and save it in the file :file:`gene2go.data`::
+Th sis wy o obin  mp rom gn iniirs o GO ssignmns
+is o own owno GO ssignmns rom h ENSEMBL bs. Th commn
+bow wi owno go ssignmns or h hmn gn s
+n sv i in h i :i:`gn2go.`::
 
-   python runGO.py
-      --filename-dump=gene2go.data
-      --database-host=ensembldb.ensembl.org
-      --database-user=anonymous
-      --database-name=homo_sapiens_core_54_36p
-      --database-port=5306
-   > gene2go.log
+   pyhon rnGO.py
+      --inm-mpgn2go.
+      --bs-hosnsmbb.nsmb.org
+      --bs-srnonymos
+      --bs-nmhomo_spins_cor_54_36p
+      --bs-por5306
+   > gn2go.og
 
-In order to use GOslim categories, an additional mapping step needs to
-be performed.  The sequence of commands is::
+In orr o s GOsim cgoris, n iion mpping sp ns o
+b prorm.  Th sqnc o commns is::
 
-    wget http://www.geneontology.org/GO_slims/goslim_goa.obo
-    wget http://www.geneontology.org/ontology/gene_ontology.obo
-    map2slim -outmap go2goslim.map goslim_goa.obo gene_ontology.obo
-    python runGO.py
-                --go2goslim
-                --filename-ontology=gene_ontology.obo
-                --slims=go2goslim.map
-                --log=goslim.log
-        < gene2go.data > gene2goslim.data
+    wg hp://www.gnonoogy.org/GO_sims/gosim_go.obo
+    wg hp://www.gnonoogy.org/onoogy/gn_onoogy.obo
+    mp2sim -omp go2gosim.mp gosim_go.obo gn_onoogy.obo
+    pyhon rnGO.py
+                --go2gosim
+                --inm-onoogygn_onoogy.obo
+                --simsgo2gosim.mp
+                --oggosim.og
+        < gn2go. > gn2gosim.
 
-The first two commands obtain GOslim information.  `map2slim
-<http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_ is part
-of Chris Mungall's `go-perl
-<http://search.cpan.org/~cmungall/go-perl/>`_ module and the last
-command converts the gene-to-GO assignment into gene-to-GOSlim
-assignments.
+Th irs wo commns obin GOsim inormion.  `mp2sim
+<hp://srch.cpn.org/~cmng/go-pr/scrips/mp2sim>`_ is pr
+o Chris Mng's `go-pr
+<hp://srch.cpn.org/~cmng/go-pr/>`_ mo n h s
+commn convrs h gn-o-GO ssignmn ino gn-o-GOSim
+ssignmns.
 
-The gene-to-GO mapping can be constructed any other way. It is simply
-a table of tab-separated values::
+Th gn-o-GO mpping cn b consrc ny ohr wy. I is simpy
+ b o b-spr vs::
 
-   go_type gene_id go_id   description     evidence
-   biol_process    ENSG00000151729 GO:0000002      mitochondrial genome maintenance        NA
-   biol_process    ENSG00000025708 GO:0000002      mitochondrial genome maintenance        NA
-   biol_process    ENSG00000115204 GO:0000002      mitochondrial genome maintenance        NA
+   go_yp gn_i go_i   scripion     vinc
+   bio_procss    ENSG00000151729 GO:0000002      miochonri gnom minnnc        NA
+   bio_procss    ENSG00000025708 GO:0000002      miochonri gnom minnnc        NA
+   bio_procss    ENSG00000115204 GO:0000002      miochonri gnom minnnc        NA
    ...
 
-Building gene lists
+Biing gn iss
 +++++++++++++++++++
 
-GO requires a list of genes to test for enrichment. This list is simply
-a table with one column of gene identifiers. For example::
+GO rqirs  is o gns o s or nrichmn. This is is simpy
+ b wih on comn o gn iniirs. For xmp::
 
-   gene_id
+   gn_i
    ENSG00000116586
    ENSG00000065809
    ENSG00000164048
    ENSG00000115137
    ENSG00000121210
 
-Alternatively, the gene list can be a multi-column table such as::
+Arnivy, h gn is cn b  mi-comn b sch s::
 
-   gene_id             dataset1    dataset2
+   gn_i             s1    s2
    ENSG00000116586     1           0
    ENSG00000065809     0           0
    ENSG00000164048     1           0
    ENSG00000115137     1           1
    ENSG00000121210     0           1
 
-In this case, enrichment is computed for multiple datasets at once. Make sure
-to add the ``%(set)s`` place holder to ``--filename-output-pattern``.
+In his cs, nrichmn is comp or mip ss  onc. Mk sr
+o  h ``(s)s`` pc hor o ``--inm-op-prn``.
 
-If no background is given, all genes that have GO assignments will constitute
-the background.
+I no bckgron is givn,  gns h hv GO ssignmns wi consi
+h bckgron.
 
-Statistics
+Sisics
 ++++++++++
 
-Enrichment is computed using the hypergeometric test.
+Enrichmn is comp sing h hyprgomric s.
 
-.. todo::
-    * apply filtering
-    * more stats
-    * more FDR
+.. oo::
+    * ppy iring
+    * mor ss
+    * mor FDR
 
-Running the GO analysis
+Rnning h GO nysis
 +++++++++++++++++++++++
 
-The command below runs a GO analysis, computing an FDR using 10.000 samples::
+Th commn bow rns  GO nysis, comping n FDR sing 10.000 smps::
 
-    python runGO.py
-        --filename-input=gene2go.data
-        --genes-tsv-file=foreground
-        --background-tsv-file=background
-        --method=sample --sample-size=10000
-        --fdr
-        --filename-ontology=gene_ontology.obo
-        --output-filename-pattern='result/%(set)s.%(go)s.%(section)s'
-   > go.log
+    pyhon rnGO.py
+        --inm-inpgn2go.
+        --gns-sv-iorgron
+        --bckgron-sv-ibckgron
+        --mhosmp --smp-siz10000
+        --r
+        --inm-onoogygn_onoogy.obo
+        --op-inm-prn'rs/(s)s.(go)s.(scion)s'
+   > go.og
 
-The output will be stored in the directory :file:`result` and output
-files will be created according to the pattern
-``<set>.<go>.<section>``. ``<set>`` is the gene set that is analysed,
-``<go>`` is one of ``biol_process``, ``mol_function`` and
-``cell_location``.  ``<section>`` denotes the file contents. Files
-output are:
+Th op wi b sor in h ircory :i:`rs` n op
+is wi b cr ccoring o h prn
+``<s>.<go>.<scion>``. ``<s>`` is h gn s h is nys,
+``<go>`` is on o ``bio_procss``, ``mo_ncion`` n
+``c_ocion``.  ``<scion>`` nos h i conns. Fis
+op r:
 
 +------------+----------------------------------------------+
-|``section`` | contents                                     |
+|``scion`` | conns                                     |
 +------------+----------------------------------------------+
-|samples     |sampling statistics                           |
+|smps     |smping sisics                           |
 +------------+----------------------------------------------+
-|overall     |table with full results                       |
+|ovr     |b wih  rss                       |
 +------------+----------------------------------------------+
-|results     |table with only the significant results       |
+|rss     |b wih ony h signiicn rss       |
 +------------+----------------------------------------------+
-|parameters  |input and sampling parameters                 |
+|prmrs  |inp n smping prmrs                 |
 +------------+----------------------------------------------+
-|fg          |assigments for genes in the foreground set    |
+|g          |ssigmns or gns in h orgron s    |
 +------------+----------------------------------------------+
 
-Other options
+Ohr opions
 +++++++++++++
 
-The script can accept other ontologies than just GO ontologies.
+Th scrip cn ccp ohr onoogis hn js GO onoogis.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import collections
-import cgatcore.database as database
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor sys
+impor cocions
+impor cgcor.bs s bs
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
-import cgat.GO as GO
+impor cg.GO s GO
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-s", "--species", dest="species", type="string",
-        help="species to use [default=%default].")
+    prsr._rgmn(
+        "-s", "--spcis", s"spcis", yp"sring",
+        hp"spcis o s [].")
 
-    parser.add_argument(
-        "-i", "--slims", dest="filename_slims", type="string",
-        help="filename with GO SLIM categories "
-        "[default=%default].")
+    prsr._rgmn(
+        "-i", "--sims", s"inm_sims", yp"sring",
+        hp"inm wih GO SLIM cgoris "
+        "[].")
 
-    parser.add_argument(
-        "-g", "--genes-tsv-file", dest="filename_genes", type="string",
-        help="filename with genes to analyse "
-        "[default=%default].")
+    prsr._rgmn(
+        "-g", "--gns-sv-i", s"inm_gns", yp"sring",
+        hp"inm wih gns o nys "
+        "[].")
 
-    parser.add_argument(
-        "-b", "--background-tsv-file", dest="filename_background",
-        type="string",
-        help="filename with background genes to analyse "
-        "[default=%default].")
+    prsr._rgmn(
+        "-b", "--bckgron-sv-i", s"inm_bckgron",
+        yp"sring",
+        hp"inm wih bckgron gns o nys "
+        "[].")
 
-    parser.add_argument(
-        "-m", "--min-counts", dest="minimum_counts",
-        type="int",
-        help="minimum count - ignore all categories that have "
-        "fewer than # number of genes"
-        " [default=%default].")
+    prsr._rgmn(
+        "-m", "--min-cons", s"minimm_cons",
+        yp"in",
+        hp"minimm con - ignor  cgoris h hv "
+        "wr hn # nmbr o gns"
+        " [].")
 
-    parser.add_argument(
-        "-o", "--sort-order", dest="sort_order", type="choice",
-        choices=("fdr", "pvalue", "ratio"),
-        help="output sort order [default=%default].")
+    prsr._rgmn(
+        "-o", "--sor-orr", s"sor_orr", yp"choic",
+        choics("r", "pv", "rio"),
+        hp"op sor orr [].")
 
-    parser.add_argument(
-        "--ontology", dest="ontology", type="string",
-        action="append",
-        help="go ontologies to analyze. Ontologies are tested "
-        "separately [default=%default].")
+    prsr._rgmn(
+        "--onoogy", s"onoogy", yp"sring",
+        cion"ppn",
+        hp"go onoogis o nyz. Onoogis r s "
+        "spry [].")
 
-    parser.add_argument(
-        "-t", "--threshold", dest="threshold", type="float",
-        help="significance threshold [>1.0 = all ]. If --fdr is set, this "
-        "refers to the fdr, otherwise it is a cutoff for p-values.")
+    prsr._rgmn(
+        "-", "--hrsho", s"hrsho", yp"o",
+        hp"signiicnc hrsho [>1.0   ]. I --r is s, his "
+        "rrs o h r, ohrwis i is  co or p-vs.")
 
-    parser.add_argument(
-        "--filename-dump", dest="filename_dump", type="string",
-        help="dump GO category assignments into a flatfile "
-        "[default=%default].")
+    prsr._rgmn(
+        "--inm-mp", s"inm_mp", yp"sring",
+        hp"mp GO cgory ssignmns ino  i "
+        "[].")
 
-    parser.add_argument(
-        "--gene2name-map-tsv-file", dest="filename_gene2name", type="string",
-        help="optional filename mapping gene identifiers to gene names "
-        "[default=%default].")
+    prsr._rgmn(
+        "--gn2nm-mp-sv-i", s"inm_gn2nm", yp"sring",
+        hp"opion inm mpping gn iniirs o gn nms "
+        "[].")
 
-    parser.add_argument(
-        "--filename-ontology", dest="filename_ontology", type="string",
-        help="filename with ontology in OBO format [default=%default].")
+    prsr._rgmn(
+        "--inm-onoogy", s"inm_onoogy", yp"sring",
+        hp"inm wih onoogy in OBO orm [].")
 
-    parser.add_argument(
-        "--filename-input", dest="filename_input", type="string",
-        help="read GO category assignments from a flatfile "
-        "[default=%default].")
+    prsr._rgmn(
+        "--inm-inp", s"inm_inp", yp"sring",
+        hp"r GO cgory ssignmns rom  i "
+        "[].")
 
-    parser.add_argument(
-        "--sample-size", dest="sample", type="int",
-        help="do sampling (with # samples) [default=%default].")
+    prsr._rgmn(
+        "--smp-siz", s"smp", yp"in",
+        hp"o smping (wih # smps) [].")
 
-    parser.add_argument(
-        "--filename-output-pattern", "--output-filename-pattern",
-        dest="output_filename_pattern", type="string",
-        help="pattern with output filename pattern "
-        "(should contain: %(go)s and %(section)s ) [default=%default]")
+    prsr._rgmn(
+        "--inm-op-prn", "--op-inm-prn",
+        s"op_inm_prn", yp"sring",
+        hp"prn wih op inm prn "
+        "(sho conin: (go)s n (scion)s ) []")
 
-    parser.add_argument(
-        "--fdr", dest="fdr", action="store_true",
-        help="calculate and filter by FDR default=%default].")
+    prsr._rgmn(
+        "--r", s"r", cion"sor_r",
+        hp"cc n ir by FDR ].")
 
-    parser.add_argument(
-        "--go2goslim", dest="go2goslim", action="store_true",
-        help="convert go assignments in STDIN to goslim assignments and "
-        "write to STDOUT [default=%default].")
+    prsr._rgmn(
+        "--go2gosim", s"go2gosim", cion"sor_r",
+        hp"convr go ssignmns in STDIN o gosim ssignmns n "
+        "wri o STDOUT [].")
 
-    parser.add_argument(
-        "--gene-pattern", dest="gene_pattern", type="string",
-        help="pattern to transform identifiers to GO gene names "
-        "[default=%default].")
+    prsr._rgmn(
+        "--gn-prn", s"gn_prn", yp"sring",
+        hp"prn o rnsorm iniirs o GO gn nms "
+        "[].")
 
-    parser.add_argument(
-        "--filename-map-slims", dest="filename_map_slims", type="string",
-        help="write mapping between GO categories and GOSlims "
-        "[default=%default].")
+    prsr._rgmn(
+        "--inm-mp-sims", s"inm_mp_sims", yp"sring",
+        hp"wri mpping bwn GO cgoris n GOSims "
+        "[].")
 
-    parser.add_argument(
-        "--get-genes", dest="get_genes", type="string",
-        help="list all genes in the with a certain GOID [default=%default].")
+    prsr._rgmn(
+        "--g-gns", s"g_gns", yp"sring",
+        hp"is  gns in h wih  crin GOID [].")
 
-    parser.add_argument(
-        "--strict", dest="strict", action="store_true",
-        help="require all genes in foreground to be part of background. "
-        "If not set, genes in foreground will be added to the background "
-        "[default=%default].")
+    prsr._rgmn(
+        "--sric", s"sric", cion"sor_r",
+        hp"rqir  gns in orgron o b pr o bckgron. "
+        "I no s, gns in orgron wi b  o h bckgron "
+        "[].")
 
-    parser.add_argument(
-        "-q", "--fdr-method", dest="qvalue_method", type="choice",
-        choices=("empirical", "storey", "BH"),
-        help="method to perform multiple testing correction by controlling "
-        "the fdr [default=%default].")
+    prsr._rgmn(
+        "-q", "--r-mho", s"qv_mho", yp"choic",
+        choics("mpiric", "sory", "BH"),
+        hp"mho o prorm mip sing corrcion by conroing "
+        "h r [].")
 
-    parser.add_argument(
-        "--pairwise", dest="compute_pairwise", action="store_true",
-        help="compute pairwise enrichment for multiple gene lists. "
-        "[default=%default].")
+    prsr._rgmn(
+        "--pirwis", s"comp_pirwis", cion"sor_r",
+        hp"comp pirwis nrichmn or mip gn iss. "
+        "[].")
 
-    # parser.add_argument( "--fdr-lambda", dest="qvalue_lambda", type="float",
-    #                   help="fdr computation: lambda [default=%default]."  )
+    # prsr._rgmn( "--r-mb", s"qv_mb", yp"o",
+    #                   hp"r compion: mb []."  )
 
-    # parser.add_argument( "--qvalue-pi0-method", dest="qvalue_pi0_method", type="choice",
-    #                    choices = ("smoother", "bootstrap" ),
-    # help="fdr computation: method for estimating pi0 [default=%default]."  )
+    # prsr._rgmn( "--qv-pi0-mho", s"qv_pi0_mho", yp"choic",
+    #                    choics  ("smoohr", "boosrp" ),
+    # hp"r compion: mho or siming pi0 []."  )
 
-    parser.set_defaults(species=None,
-                        filename_genes="-",
-                        filename_background=None,
-                        filename_slims=None,
-                        minimum_counts=0,
-                        ontology=[],
-                        filename_dump=None,
-                        sample=0,
-                        fdr=False,
-                        output_filename_pattern=None,
-                        threshold=0.05,
-                        filename_map_slims=None,
-                        gene_pattern=None,
-                        sort_order="ratio",
-                        get_genes=None,
-                        strict=False,
-                        qvalue_method="empirical",
-                        pairs_min_observed_counts=3,
-                        compute_pairwise=False,
-                        filename_gene2name=None
+    prsr.s_s(spcisNon,
+                        inm_gns"-",
+                        inm_bckgronNon,
+                        inm_simsNon,
+                        minimm_cons0,
+                        onoogy[],
+                        inm_mpNon,
+                        smp0,
+                        rFs,
+                        op_inm_prnNon,
+                        hrsho0.05,
+                        inm_mp_simsNon,
+                        gn_prnNon,
+                        sor_orr"rio",
+                        g_gnsNon,
+                        sricFs,
+                        qv_mho"mpiric",
+                        pirs_min_obsrv_cons3,
+                        comp_pirwisFs,
+                        inm_gn2nmNon
                         )
 
-    (options, args) = E.start(parser, add_database_options=True)
+    (opions, rgs)  E.sr(prsr, _bs_opionsTr)
 
-    if options.go2goslim:
-        GO.convertGo2Goslim(options)
-        E.stop()
-        sys.exit(0)
+    i opions.go2gosim:
+        GO.convrGo2Gosim(opions)
+        E.sop()
+        sys.xi(0)
 
-    if options.fdr and options.sample == 0:
-        E.warn("fdr will be computed without sampling")
-
-    #############################################################
-    # dump GO
-    if options.filename_dump:
-        # set default orthologies to GO
-        if not options.ontology:
-            options.ontology = [
-                "biol_process", "mol_function", "cell_location"]
-
-        E.info("dumping GO categories to %s" % (options.filename_dump))
-
-        dbhandle = database.connect(url=options.database_url)
-
-        outfile = iotools.open_file(options.filename_dump, "w", create_dir=True)
-        GO.DumpGOFromDatabase(outfile,
-                              dbhandle,
-                              options)
-        outfile.close()
-        E.stop()
-        sys.exit(0)
+    i opions.r n opions.smp  0:
+        E.wrn("r wi b comp wiho smping")
 
     #############################################################
-    # read GO categories from file
-    if options.filename_input:
-        E.info("reading association of categories and genes from %s" %
-               (options.filename_input))
-        infile = iotools.open_file(options.filename_input)
-        gene2gos, go2infos = GO.ReadGene2GOFromFile(infile)
-        infile.close()
+    # mp GO
+    i opions.inm_mp:
+        # s  orhoogis o GO
+        i no opions.onoogy:
+            opions.onoogy  [
+                "bio_procss", "mo_ncion", "c_ocion"]
 
-    if options.filename_gene2name:
-        E.info("reading gene identifier to gene name mapping from %s" %
-               options.filename_gene2name)
-        infile = iotools.open_file(options.filename_gene2name)
-        gene2name = iotools.read_map(infile, has_header=True)
-        infile.close()
-        E.info("read %i gene names for %i gene identifiers" %
-               (len(set(gene2name.values())),
-                len(gene2name)))
-    else:
-        # use identity mapping
-        gene2name = dict([(x, x) for x in list(gene2gos.keys())])
+        E.ino("mping GO cgoris o s"  (opions.inm_mp))
+
+        bhn  bs.connc(ropions.bs_r)
+
+        oi  iooos.opn_i(opions.inm_mp, "w", cr_irTr)
+        GO.DmpGOFromDbs(oi,
+                              bhn,
+                              opions)
+        oi.cos()
+        E.sop()
+        sys.xi(0)
 
     #############################################################
-    # read GO ontology from file
-    if options.filename_ontology:
-        E.info("reading ontology from %s" % (options.filename_ontology))
+    # r GO cgoris rom i
+    i opions.inm_inp:
+        E.ino("ring ssociion o cgoris n gns rom s" 
+               (opions.inm_inp))
+        ini  iooos.opn_i(opions.inm_inp)
+        gn2gos, go2inos  GO.RGn2GOFromFi(ini)
+        ini.cos()
 
-        infile = iotools.open_file(options.filename_ontology)
-        ontology = GO.readOntology(infile)
-        infile.close()
-
-        def _g():
-            return collections.defaultdict(GO.GOInfo)
-        go2infos = collections.defaultdict(_g)
-
-        # substitute go2infos
-        for go in list(ontology.values()):
-            go2infos[go.mNameSpace][go.mId] = GO.GOInfo(
-                go.mId,
-                go_type=go.mNameSpace,
-                description=go.mName)
-
-    #############################################################
-    # get foreground gene list
-    input_foreground, genelists = GO.ReadGeneLists(
-        options.filename_genes,
-        gene_pattern=options.gene_pattern)
-
-    E.info("read %i genes for forground in %i gene lists" %
-           (len(input_foreground), len(genelists)))
+    i opions.inm_gn2nm:
+        E.ino("ring gn iniir o gn nm mpping rom s" 
+               opions.inm_gn2nm)
+        ini  iooos.opn_i(opions.inm_gn2nm)
+        gn2nm  iooos.r_mp(ini, hs_hrTr)
+        ini.cos()
+        E.ino("r i gn nms or i gn iniirs" 
+               (n(s(gn2nm.vs())),
+                n(gn2nm)))
+    s:
+        # s iniy mpping
+        gn2nm  ic([(x, x) or x in is(gn2gos.kys())])
 
     #############################################################
-    # get background
-    if options.filename_background:
+    # r GO onoogy rom i
+    i opions.inm_onoogy:
+        E.ino("ring onoogy rom s"  (opions.inm_onoogy))
 
-        # nick - bug fix: background is the first tuple element from
-        # ReadGeneLists
-        input_background = GO.ReadGeneLists(
-            options.filename_background,
-            gene_pattern=options.gene_pattern)[0]
-        E.info("read %i genes for background" % len(input_background))
-    else:
-        input_background = None
+        ini  iooos.opn_i(opions.inm_onoogy)
+        onoogy  GO.rOnoogy(ini)
+        ini.cos()
 
-    #############################################################
-    # sort out which ontologies to test
-    if not options.ontology:
-        if options.filename_input:
-            options.ontology = list(gene2gos.keys())
+         _g():
+            rrn cocions.ic(GO.GOIno)
+        go2inos  cocions.ic(_g)
 
-    E.info("found %i ontologies: %s" %
-           (len(options.ontology), options.ontology))
-
-    summary = []
-    summary.append("\t".join((
-        "genelist",
-        "ontology",
-        "significant",
-        "threshold",
-        "ngenes",
-        "ncategories",
-        "nmaps",
-        "nforegound",
-        "nforeground_mapped",
-        "nbackground",
-        "nbackground_mapped",
-        "nsample_counts",
-        "nbackground_counts",
-        "psample_assignments",
-        "pbackground_assignments",
-        "messages")) + "\n")
+        # sbsi go2inos
+        or go in is(onoogy.vs()):
+            go2inos[go.mNmSpc][go.mI]  GO.GOIno(
+                go.mI,
+                go_ypgo.mNmSpc,
+                scripiongo.mNm)
 
     #############################################################
-    # get go categories for genes
-    for test_ontology in sorted(options.ontology):
+    # g orgron gn is
+    inp_orgron, gniss  GO.RGnLiss(
+        opions.inm_gns,
+        gn_prnopions.gn_prn)
 
-        # store results for aggregate output of multiple gene lists
-        all_results = []
-        all_significant_results = []
-        all_genelists_with_results = []
+    E.ino("r i gns or orgron in i gn iss" 
+           (n(inp_orgron), n(gniss)))
 
-        E.info("working on ontology %s" % test_ontology)
+    #############################################################
+    # g bckgron
+    i opions.inm_bckgron:
+
+        # nick - bg ix: bckgron is h irs p mn rom
+        # RGnLiss
+        inp_bckgron  GO.RGnLiss(
+            opions.inm_bckgron,
+            gn_prnopions.gn_prn)[0]
+        E.ino("r i gns or bckgron"  n(inp_bckgron))
+    s:
+        inp_bckgron  Non
+
+    #############################################################
+    # sor o which onoogis o s
+    i no opions.onoogy:
+        i opions.inm_inp:
+            opions.onoogy  is(gn2gos.kys())
+
+    E.ino("on i onoogis: s" 
+           (n(opions.onoogy), opions.onoogy))
+
+    smmry  []
+    smmry.ppn("\".join((
+        "gnis",
+        "onoogy",
+        "signiicn",
+        "hrsho",
+        "ngns",
+        "ncgoris",
+        "nmps",
+        "norgon",
+        "norgron_mpp",
+        "nbckgron",
+        "nbckgron_mpp",
+        "nsmp_cons",
+        "nbckgron_cons",
+        "psmp_ssignmns",
+        "pbckgron_ssignmns",
+        "mssgs")) + "\n")
+
+    #############################################################
+    # g go cgoris or gns
+    or s_onoogy in sor(opions.onoogy):
+
+        # sor rss or ggrg op o mip gn iss
+        _rss  []
+        _signiicn_rss  []
+        _gniss_wih_rss  []
+
+        E.ino("working on onoogy s"  s_onoogy)
         #############################################################
-        # get/read association of GO categories to genes
-        if options.filename_input:
-            gene2go, go2info = gene2gos[test_ontology], go2infos[test_ontology]
-        else:
-            E.info("reading data from database ...")
+        # g/r ssociion o GO cgoris o gns
+        i opions.inm_inp:
+            gn2go, go2ino  gn2gos[s_onoogy], go2inos[s_onoogy]
+        s:
+            E.ino("ring  rom bs ...")
 
-            dbhandle.Connect(options)
-            gene2go, go2info = GO.ReadGene2GOFromDatabase(
-                dbhandle,
-                test_ontology,
-                options.database, options.species)
+            bhn.Connc(opions)
+            gn2go, go2ino  GO.RGn2GOFromDbs(
+                bhn,
+                s_onoogy,
+                opions.bs, opions.spcis)
 
-            E.info("finished")
+            E.ino("inish")
 
-        if len(go2info) == 0:
-            E.warn(
-                "could not find information for terms - "
-                "could be mismatch between ontologies")
+        i n(go2ino)  0:
+            E.wrn(
+                "co no in inormion or rms - "
+                "co b mismch bwn onoogis")
 
-        ngenes, ncategories, nmaps, counts_per_category = GO.CountGO(gene2go)
-        E.info("assignments found: %i genes mapped to %i categories "
-               "(%i maps)" %
-               (ngenes, ncategories, nmaps))
+        ngns, ncgoris, nmps, cons_pr_cgory  GO.ConGO(gn2go)
+        E.ino("ssignmns on: i gns mpp o i cgoris "
+               "(i mps)" 
+               (ngns, ncgoris, nmps))
 
-        if options.minimum_counts > 0:
-            to_remove = set(
-                [x for x, y in counts_per_category.items()
-                 if y < options.minimum_counts])
-            E.info("removing %i categories with less than %i genes" %
-                   (len(to_remove), options.minimum_counts))
-            GO.removeCategories(gene2go, to_remove)
+        i opions.minimm_cons > 0:
+            o_rmov  s(
+                [x or x, y in cons_pr_cgory.ims()
+                 i y < opions.minimm_cons])
+            E.ino("rmoving i cgoris wih ss hn i gns" 
+                   (n(o_rmov), opions.minimm_cons))
+            GO.rmovCgoris(gn2go, o_rmov)
 
-            ngenes, ncategories, nmaps, counts_per_category = \
-                GO.CountGO(gene2go)
-            E.info("assignments after filtering: %i genes mapped "
-                   "to %i categories (%i maps)" % (
-                       ngenes, ncategories, nmaps))
+            ngns, ncgoris, nmps, cons_pr_cgory  \
+                GO.ConGO(gn2go)
+            E.ino("ssignmns r iring: i gns mpp "
+                   "o i cgoris (i mps)"  (
+                       ngns, ncgoris, nmps))
 
-        for genelist_name, foreground in sorted(genelists.items()):
+        or gnis_nm, orgron in sor(gniss.ims()):
 
-            msgs = []
-            E.info("processing %s with %i genes" %
-                   (genelist_name, len(foreground)))
+            msgs  []
+            E.ino("procssing s wih i gns" 
+                   (gnis_nm, n(orgron)))
             ##################################################################
             ##################################################################
             ##################################################################
-            # build background - reconcile with foreground
+            # bi bckgron - rconci wih orgron
             ##################################################################
-            if input_background is None:
-                background = list(gene2go.keys())
-            else:
-                background = list(input_background)
+            i inp_bckgron is Non:
+                bckgron  is(gn2go.kys())
+            s:
+                bckgron  is(inp_bckgron)
 
-            # nick - bug-fix backgorund included the foreground in a tuple.
-            # background is the first tuple element
-            missing = foreground.difference(set(background))
+            # nick - bg-ix bckgorn inc h orgron in  p.
+            # bckgron is h irs p mn
+            missing  orgron.irnc(s(bckgron))
 
-            if options.strict:
-                assert len(missing) == 0, \
-                    "%i genes in foreground but not in background: %s" % (
-                        len(missing), str(missing))
-            else:
-                if len(missing) != 0:
-                    E.warn("%i genes in foreground that are not in "
-                           "background - added to background of %i" %
-                           (len(missing), len(background)))
+            i opions.sric:
+                ssr n(missing)  0, \
+                    "i gns in orgron b no in bckgron: s"  (
+                        n(missing), sr(missing))
+            s:
+                i n(missing) ! 0:
+                    E.wrn("i gns in orgron h r no in "
+                           "bckgron -  o bckgron o i" 
+                           (n(missing), n(bckgron)))
 
-                background.extend(missing)
+                bckgron.xn(missing)
 
-            E.info("(unfiltered) foreground=%i, background=%i" %
-                   (len(foreground), len(background)))
+            E.ino("(nir) orgroni, bckgroni" 
+                   (n(orgron), n(bckgron)))
 
-            # sort foreground and background, important for reproducibility
-            # under random seed
-            foreground = sorted(foreground)
-            background = sorted(background)
-
-            #############################################################
-            # sanity checks:
-            # are all of the foreground genes in the dataset
-            # missing = set(genes).difference( set(gene2go.keys()) )
-            # assert len(missing) == 0, "%i genes in foreground set without GO annotation: %s" % (len(missing), str(missing))
+            # sor orgron n bckgron, imporn or rprocibiiy
+            # nr rnom s
+            orgron  sor(orgron)
+            bckgron  sor(bckgron)
 
             #############################################################
-            # read GO slims and map GO categories to GO slim categories
-            if options.filename_slims:
-                go_slims = GO.GetGOSlims(
-                    iotools.open_file(options.filename_slims, "r"))
-
-                if options.loglevel >= 1:
-                    v = set()
-                    for x in list(go_slims.values()):
-                        for xx in x:
-                            v.add(xx)
-                    options.stdlog.write(
-                        "# read go slims from %s: go=%i, slim=%i\n" %
-                        (options.filename_slims,
-                         len(go_slims),
-                         len(v)))
-
-                if options.filename_map_slims:
-                    if options.filename_map_slims == "-":
-                        outfile = options.stdout
-                    else:
-                        outfile = iotools.open_file(
-                            options.filename_map_slims, "w")
-
-                    outfile.write("GO\tGOSlim\n")
-                    for go, go_slim in sorted(list(go_slims.items())):
-                        outfile.write("%s\t%s\n" % (go, go_slim))
-
-                    if outfile != options.stdout:
-                        outfile.close()
-
-                gene2go = GO.MapGO2Slims(gene2go, go_slims, ontology=ontology)
-
-                if options.loglevel >= 1:
-                    ngenes, ncategories, nmaps, counts_per_category = \
-                        GO.CountGO(gene2go)
-                    options.stdlog.write(
-                        "# after go slim filtering: %i genes mapped to "
-                        "%i categories (%i maps)\n" % (
-                            ngenes, ncategories, nmaps))
+            # sniy chcks:
+            # r  o h orgron gns in h s
+            # missing  s(gns).irnc( s(gn2go.kys()) )
+            # ssr n(missing)  0, "i gns in orgron s wiho GO nnoion: s"  (n(missing), sr(missing))
 
             #############################################################
-            # Just dump out the gene list
-            if options.get_genes:
-                fg, bg, ng = [], [], []
+            # r GO sims n mp GO cgoris o GO sim cgoris
+            i opions.inm_sims:
+                go_sims  GO.GGOSims(
+                    iooos.opn_i(opions.inm_sims, "r"))
 
-                for gene, vv in list(gene2go.items()):
-                    for v in vv:
-                        if v.mGOId == options.get_genes:
-                            if gene in genes:
-                                fg.append(gene)
-                            elif gene in background:
-                                bg.append(gene)
-                            else:
-                                ng.append(gene)
+                i opions.ogv > 1:
+                    v  s()
+                    or x in is(go_sims.vs()):
+                        or xx in x:
+                            v.(xx)
+                    opions.sog.wri(
+                        "# r go sims rom s: goi, simi\n" 
+                        (opions.inm_sims,
+                         n(go_sims),
+                         n(v)))
 
-                # skip to next GO class
-                if not (bg or ng):
-                    continue
+                i opions.inm_mp_sims:
+                    i opions.inm_mp_sims  "-":
+                        oi  opions.so
+                    s:
+                        oi  iooos.opn_i(
+                            opions.inm_mp_sims, "w")
 
-                options.stdout.write(
-                    "# genes in GO category %s\n" % options.get_genes)
-                options.stdout.write("gene\tset\n")
-                for x in sorted(fg):
-                    options.stdout.write("%s\t%s\n" % ("fg", x))
-                for x in sorted(bg):
-                    options.stdout.write("%s\t%s\n" % ("bg", x))
-                for x in sorted(ng):
-                    options.stdout.write("%s\t%s\n" % ("ng", x))
+                    oi.wri("GO\GOSim\n")
+                    or go, go_sim in sor(is(go_sims.ims())):
+                        oi.wri("s\s\n"  (go, go_sim))
 
-                E.info("nfg=%i, nbg=%i, nng=%i" % (len(fg), len(bg), len(ng)))
+                    i oi ! opions.so:
+                        oi.cos()
 
-                E.stop()
-                sys.exit(0)
+                gn2go  GO.MpGO2Sims(gn2go, go_sims, onoogyonoogy)
 
-            #############################################################
-            outfile = GO.getFileName(options,
-                                     go=test_ontology,
-                                     section='foreground',
-                                     set=genelist_name)
-
-            outfile.write("gene_id\n%s\n" % ("\n".join(sorted(foreground))))
-            if options.output_filename_pattern:
-                outfile.close()
-
-            outfile = GO.getFileName(options,
-                                     go=test_ontology,
-                                     section='background',
-                                     set=genelist_name)
-
-            # Jethro bug fix - see section 'build background' for assignment
-            outfile.write("gene_id\n%s\n" % ("\n".join(sorted(background))))
-            if options.output_filename_pattern:
-                outfile.close()
+                i opions.ogv > 1:
+                    ngns, ncgoris, nmps, cons_pr_cgory  \
+                        GO.ConGO(gn2go)
+                    opions.sog.wri(
+                        "# r go sim iring: i gns mpp o "
+                        "i cgoris (i mps)\n"  (
+                            ngns, ncgoris, nmps))
 
             #############################################################
-            # do the analysis
-            go_results = GO.AnalyseGO(gene2go, foreground, background)
+            # Js mp o h gn is
+            i opions.g_gns:
+                g, bg, ng  [], [], []
 
-            if len(go_results.mSampleGenes) == 0:
-                E.warn("%s: no genes with GO categories - analysis aborted" %
-                       genelist_name)
-                continue
+                or gn, vv in is(gn2go.ims()):
+                    or v in vv:
+                        i v.mGOI  opions.g_gns:
+                            i gn in gns:
+                                g.ppn(gn)
+                            i gn in bckgron:
+                                bg.ppn(gn)
+                            s:
+                                ng.ppn(gn)
 
-            pairs = list(go_results.mResults.items())
+                # skip o nx GO css
+                i no (bg or ng):
+                    conin
+
+                opions.so.wri(
+                    "# gns in GO cgory s\n"  opions.g_gns)
+                opions.so.wri("gn\s\n")
+                or x in sor(g):
+                    opions.so.wri("s\s\n"  ("g", x))
+                or x in sor(bg):
+                    opions.so.wri("s\s\n"  ("bg", x))
+                or x in sor(ng):
+                    opions.so.wri("s\s\n"  ("ng", x))
+
+                E.ino("ngi, nbgi, nngi"  (n(g), n(bg), n(ng)))
+
+                E.sop()
+                sys.xi(0)
 
             #############################################################
-            # calculate fdr for each hypothesis
-            if options.fdr:
-                fdrs, samples, method = GO.computeFDRs(go_results,
-                                                       foreground,
-                                                       background,
-                                                       options,
-                                                       test_ontology,
-                                                       gene2go,
-                                                       go2info)
-                for x, v in enumerate(pairs):
-                    v[1].mQValue = fdrs[v[0]][0]
-            else:
-                fdrs, samples, method = {}, {}, None
+            oi  GO.gFiNm(opions,
+                                     gos_onoogy,
+                                     scion'orgron',
+                                     sgnis_nm)
 
-            msgs.append("fdr=%s" % method)
+            oi.wri("gn_i\ns\n"  ("\n".join(sor(orgron))))
+            i opions.op_inm_prn:
+                oi.cos()
 
-            if options.sort_order == "fdr":
-                pairs.sort(key=lambda x: x[1].mQValue)
-            elif options.sort_order == "ratio":
-                pairs.sort(key=lambda x: x[1].mRatio)
-            elif options.sort_order == "pvalue":
-                pairs.sort(key=lambda x: x[1].mPValue)
+            oi  GO.gFiNm(opions,
+                                     gos_onoogy,
+                                     scion'bckgron',
+                                     sgnis_nm)
+
+            # Jhro bg ix - s scion 'bi bckgron' or ssignmn
+            oi.wri("gn_i\ns\n"  ("\n".join(sor(bckgron))))
+            i opions.op_inm_prn:
+                oi.cos()
 
             #############################################################
-            #############################################################
-            #############################################################
-            # output the full result
-            outfile = GO.getFileName(options,
-                                     go=test_ontology,
-                                     section='overall',
-                                     set=genelist_name)
+            # o h nysis
+            go_rss  GO.AnysGO(gn2go, orgron, bckgron)
 
-            GO.outputResults(
-                outfile, pairs, go2info, options, fdrs=fdrs, samples=samples)
+            i n(go_rss.mSmpGns)  0:
+                E.wrn("s: no gns wih GO cgoris - nysis bor" 
+                       gnis_nm)
+                conin
 
-            if options.output_filename_pattern:
-                outfile.close()
+            pirs  is(go_rss.mRss.ims())
+
+            #############################################################
+            # cc r or ch hypohsis
+            i opions.r:
+                rs, smps, mho  GO.compFDRs(go_rss,
+                                                       orgron,
+                                                       bckgron,
+                                                       opions,
+                                                       s_onoogy,
+                                                       gn2go,
+                                                       go2ino)
+                or x, v in nmr(pirs):
+                    v[1].mQV  rs[v[0]][0]
+            s:
+                rs, smps, mho  {}, {}, Non
+
+            msgs.ppn("rs"  mho)
+
+            i opions.sor_orr  "r":
+                pirs.sor(kymb x: x[1].mQV)
+            i opions.sor_orr  "rio":
+                pirs.sor(kymb x: x[1].mRio)
+            i opions.sor_orr  "pv":
+                pirs.sor(kymb x: x[1].mPV)
 
             #############################################################
             #############################################################
             #############################################################
-            # filter significant results and output
-            filtered_pairs = GO.selectSignificantResults(pairs, fdrs, options)
+            # op h  rs
+            oi  GO.gFiNm(opions,
+                                     gos_onoogy,
+                                     scion'ovr',
+                                     sgnis_nm)
 
-            nselected = len(filtered_pairs)
-            nselected_up = len([x for x in filtered_pairs if x[1].mRatio > 1])
-            nselected_down = len(
-                [x for x in filtered_pairs if x[1].mRatio < 1])
+            GO.opRss(
+                oi, pirs, go2ino, opions, rsrs, smpssmps)
 
-            assert nselected_up + nselected_down == nselected
-
-            outfile = GO.getFileName(options,
-                                     go=test_ontology,
-                                     section='results',
-                                     set=genelist_name)
-
-            GO.outputResults(outfile,
-                             filtered_pairs,
-                             go2info,
-                             options,
-                             fdrs=fdrs,
-                             samples=samples)
-
-            if options.output_filename_pattern:
-                outfile.close()
+            i opions.op_inm_prn:
+                oi.cos()
 
             #############################################################
             #############################################################
             #############################################################
-            # save results for multi-gene-list analysis
-            all_results.append(pairs)
-            all_significant_results.append(filtered_pairs)
-            all_genelists_with_results.append(genelist_name)
+            # ir signiicn rss n op
+            ir_pirs  GO.scSigniicnRss(pirs, rs, opions)
+
+            nsc  n(ir_pirs)
+            nsc_p  n([x or x in ir_pirs i x[1].mRio > 1])
+            nsc_own  n(
+                [x or x in ir_pirs i x[1].mRio < 1])
+
+            ssr nsc_p + nsc_own  nsc
+
+            oi  GO.gFiNm(opions,
+                                     gos_onoogy,
+                                     scion'rss',
+                                     sgnis_nm)
+
+            GO.opRss(oi,
+                             ir_pirs,
+                             go2ino,
+                             opions,
+                             rsrs,
+                             smpssmps)
+
+            i opions.op_inm_prn:
+                oi.cos()
 
             #############################################################
             #############################################################
             #############################################################
-            # output parameters
-            ngenes, ncategories, nmaps, counts_per_category = \
-                GO.CountGO(gene2go)
+            # sv rss or mi-gn-is nysis
+            _rss.ppn(pirs)
+            _signiicn_rss.ppn(ir_pirs)
+            _gniss_wih_rss.ppn(gnis_nm)
 
-            outfile = GO.getFileName(options,
-                                     go=test_ontology,
-                                     section='parameters',
-                                     set=genelist_name)
+            #############################################################
+            #############################################################
+            #############################################################
+            # op prmrs
+            ngns, ncgoris, nmps, cons_pr_cgory  \
+                GO.ConGO(gn2go)
 
-            nbackground = len(background)
-            if nbackground == 0:
-                nbackground = len(go_results.mBackgroundGenes)
+            oi  GO.gFiNm(opions,
+                                     gos_onoogy,
+                                     scion'prmrs',
+                                     sgnis_nm)
 
-            outfile.write(
-                "# input go mappings for gene list '%s' and category '%s'\n" %
-                (genelist_name, test_ontology))
-            outfile.write("parameter\tvalue\tdescription\n")
-            outfile.write("mapped_genes\t%i\tmapped genes\n" % ngenes)
-            outfile.write(
-                "mapped_categories\t%i\tmapped categories\n" % ncategories)
-            outfile.write("mappings\t%i\tmappings\n" % nmaps)
-            outfile.write("genes_in_fg\t%i\tgenes in foreground\n" %
-                          len(foreground))
-            outfile.write(
-                "genes_in_fg_with_assignment\t%i\tgenes in foreground with GO assignments\n" %
-                (len(go_results.mSampleGenes)))
-            outfile.write(
-                "genes_in_bg\t%i\tinput background\n" % nbackground)
-            outfile.write(
-                "genes_in_bg_with_assignment\t%i\tgenes in background with GO assignments\n" % (
-                    len(go_results.mBackgroundGenes)))
-            outfile.write(
-                "associations_in_fg\t%i\tassociations in sample\n" %
-                go_results.mSampleCountsTotal)
-            outfile.write(
-                "associations_in_bg\t%i\tassociations in background\n" %
-                go_results.mBackgroundCountsTotal)
-            outfile.write(
-                "percent_genes_in_fg_with_association\t%s\tpercent genes in sample with GO assignments\n" % (
-                    iotools.pretty_percent(len(go_results.mSampleGenes),
-                                           len(foreground), "%5.2f")))
-            outfile.write(
-                "percent_genes_in_bg_with_associations\t%s\tpercent genes background with GO assignments\n" % (
-                    iotools.pretty_percent(len(go_results.mBackgroundGenes),
-                                           nbackground, "%5.2f")))
-            outfile.write(
-                "significant\t%i\tsignificant results reported\n" % nselected)
-            outfile.write(
-                "significant_up\t%i\tsignificant up-regulated results reported\n" % nselected_up)
-            outfile.write(
-                "significant_down\t%i\tsignificant up-regulated results reported\n" % nselected_down)
-            outfile.write(
-                "threshold\t%6.4f\tsignificance threshold\n" % options.threshold)
+            nbckgron  n(bckgron)
+            i nbckgron  0:
+                nbckgron  n(go_rss.mBckgronGns)
 
-            if options.output_filename_pattern:
-                outfile.close()
+            oi.wri(
+                "# inp go mppings or gn is 's' n cgory 's'\n" 
+                (gnis_nm, s_onoogy))
+            oi.wri("prmr\v\scripion\n")
+            oi.wri("mpp_gns\i\mpp gns\n"  ngns)
+            oi.wri(
+                "mpp_cgoris\i\mpp cgoris\n"  ncgoris)
+            oi.wri("mppings\i\mppings\n"  nmps)
+            oi.wri("gns_in_g\i\gns in orgron\n" 
+                          n(orgron))
+            oi.wri(
+                "gns_in_g_wih_ssignmn\i\gns in orgron wih GO ssignmns\n" 
+                (n(go_rss.mSmpGns)))
+            oi.wri(
+                "gns_in_bg\i\inp bckgron\n"  nbckgron)
+            oi.wri(
+                "gns_in_bg_wih_ssignmn\i\gns in bckgron wih GO ssignmns\n"  (
+                    n(go_rss.mBckgronGns)))
+            oi.wri(
+                "ssociions_in_g\i\ssociions in smp\n" 
+                go_rss.mSmpConsTo)
+            oi.wri(
+                "ssociions_in_bg\i\ssociions in bckgron\n" 
+                go_rss.mBckgronConsTo)
+            oi.wri(
+                "prcn_gns_in_g_wih_ssociion\s\prcn gns in smp wih GO ssignmns\n"  (
+                    iooos.pry_prcn(n(go_rss.mSmpGns),
+                                           n(orgron), "5.2")))
+            oi.wri(
+                "prcn_gns_in_bg_wih_ssociions\s\prcn gns bckgron wih GO ssignmns\n"  (
+                    iooos.pry_prcn(n(go_rss.mBckgronGns),
+                                           nbckgron, "5.2")))
+            oi.wri(
+                "signiicn\i\signiicn rss rpor\n"  nsc)
+            oi.wri(
+                "signiicn_p\i\signiicn p-rg rss rpor\n"  nsc_p)
+            oi.wri(
+                "signiicn_own\i\signiicn p-rg rss rpor\n"  nsc_own)
+            oi.wri(
+                "hrsho\6.4\signiicnc hrsho\n"  opions.hrsho)
 
-            summary.append("\t".join(map(str, (
-                genelist_name,
-                test_ontology,
-                nselected,
-                options.threshold,
-                ngenes,
-                ncategories,
-                nmaps,
-                len(foreground),
-                len(go_results.mSampleGenes),
-                nbackground,
-                len(go_results.mBackgroundGenes),
-                go_results.mSampleCountsTotal,
-                go_results.mBackgroundCountsTotal,
-                iotools.pretty_percent(
-                    len(go_results.mSampleGenes), len(foreground), "%5.2f"),
-                iotools.pretty_percent(
-                    len(go_results.mBackgroundGenes), nbackground, "%5.2f"),
+            i opions.op_inm_prn:
+                oi.cos()
+
+            smmry.ppn("\".join(mp(sr, (
+                gnis_nm,
+                s_onoogy,
+                nsc,
+                opions.hrsho,
+                ngns,
+                ncgoris,
+                nmps,
+                n(orgron),
+                n(go_rss.mSmpGns),
+                nbckgron,
+                n(go_rss.mBckgronGns),
+                go_rss.mSmpConsTo,
+                go_rss.mBckgronConsTo,
+                iooos.pry_prcn(
+                    n(go_rss.mSmpGns), n(orgron), "5.2"),
+                iooos.pry_prcn(
+                    n(go_rss.mBckgronGns), nbckgron, "5.2"),
                 ",".join(msgs)))) + "\n")
 
             #############################################################
             #############################################################
             #############################################################
-            # output the fg patterns
-            outfile = GO.getFileName(options,
-                                     go=test_ontology,
-                                     section='withgenes',
-                                     set=genelist_name)
+            # op h g prns
+            oi  GO.gFiNm(opions,
+                                     gos_onoogy,
+                                     scion'wihgns',
+                                     sgnis_nm)
 
-            GO.outputResults(outfile, pairs, go2info, options,
-                             fdrs=fdrs,
-                             samples=samples,
-                             gene2go=gene2go,
-                             foreground=foreground,
-                             gene2name=gene2name)
+            GO.opRss(oi, pirs, go2ino, opions,
+                             rsrs,
+                             smpssmps,
+                             gn2gogn2go,
+                             orgronorgron,
+                             gn2nmgn2nm)
 
-            if options.output_filename_pattern:
-                outfile.close()
+            i opions.op_inm_prn:
+                oi.cos()
 
-        if len(genelists) > 1:
+        i n(gniss) > 1:
 
             ###################################################################
-            # output various summary files
-            # significant results
-            GO.outputMultipleGeneListResults(all_significant_results,
-                                             all_genelists_with_results,
-                                             test_ontology,
-                                             go2info,
-                                             options,
-                                             section='significant')
+            # op vrios smmry is
+            # signiicn rss
+            GO.opMipGnLisRss(_signiicn_rss,
+                                             _gniss_wih_rss,
+                                             s_onoogy,
+                                             go2ino,
+                                             opions,
+                                             scion'signiicn')
 
-            # all results
-            GO.outputMultipleGeneListResults(all_results,
-                                             all_genelists_with_results,
-                                             test_ontology,
-                                             go2info,
-                                             options,
-                                             section='all')
+            #  rss
+            GO.opMipGnLisRss(_rss,
+                                             _gniss_wih_rss,
+                                             s_onoogy,
+                                             go2ino,
+                                             opions,
+                                             scion'')
 
-            if options.compute_pairwise:
-                GO.pairwiseGOEnrichment(all_results,
-                                        all_genelists_with_results,
-                                        test_ontology,
-                                        go2info,
-                                        options)
+            i opions.comp_pirwis:
+                GO.pirwisGOEnrichmn(_rss,
+                                        _gniss_wih_rss,
+                                        s_onoogy,
+                                        go2ino,
+                                        opions)
 
-    outfile_summary = options.stdout
-    outfile_summary.write("".join(summary))
+    oi_smmry  opions.so
+    oi_smmry.wri("".join(smmry))
 
-    E.stop()
+    E.sop()
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

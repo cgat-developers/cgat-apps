@@ -1,257 +1,257 @@
-'''bams2bam.py - merge genomic and transcriptome mapped bamfiles
-====================================================================
+'''bms2bm.py - mrg gnomic n rnscripom mpp bmis
 
-:Tags: Genomics NGS Geneset BAM Manipulation
 
-Purpose
+:Tgs: Gnomics NGS Gns BAM Mnipion
+
+Prpos
 -------
 
-This script takes as input two BAM files from an RNASeq experiment.
-The first bam file (:file:`bamG`) should contain reads mapped against
-the genome using a mapper permitting splicing (e.g. tophat). The
-second bam file (:file:`bamT`) should contain reads mapped against
-known transcripts. This script will write a new bam file that removes
-reads from :term:`bamG` that map to regions that are conflicting with
-those in :term:`bamT`.
+This scrip ks s inp wo BAM is rom n RNASq xprimn.
+Th irs bm i (:i:`bmG`) sho conin rs mpp gins
+h gnom sing  mppr prmiing spicing (.g. oph). Th
+scon bm i (:i:`bmT`) sho conin rs mpp gins
+known rnscrips. This scrip wi wri  nw bm i h rmovs
+rs rom :rm:`bmG` h mp o rgions h r conicing wih
+hos in :rm:`bmT`.
 
-.. note::
-   Note that if junctions are supplied, the resultant bam files will not
-   be sorted by position.
+.. no::
+   No h i jncions r sppi, h rsn bm is wi no
+   b sor by posiion.
 
-.. glossary::
+.. gossry::
 
-   bamG
-      :term:`bam` formatted file with reads mapped against the genome
+   bmG
+      :rm:`bm` orm i wih rs mpp gins h gnom
 
-   bamT
-      :term:`bam` formatted file with reads mapped against transcripts
+   bmT
+      :rm:`bm` orm i wih rs mpp gins rnscrips
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python bams2bam.py bamT.bam bamG.bam
+   pyhon bms2bm.py bmT.bm bmG.bm
 
-Type::
+Typ::
 
-   python bams2bam.py --help
+   pyhon bms2bm.py --hp
 
-for command line help.
+or commn in hp.
 
-Documentation
+Docmnion
 -------------
 
-The script needs to look-up reads via their names. It thus builds an
-index of reads mapping
+Th scrip ns o ook-p rs vi hir nms. I hs bis n
+inx o rs mpping
 
-This script requires the NM attributes to be set. If it is not set,
-you will need to set a policy.
+This scrip rqirs h NM ribs o b s. I i is no s,
+yo wi n o s  poicy.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import pysam
+impor os
+impor sys
+impor pysm
 
-import cgatcore.experiment as E
-import cgat.GTF as GTF
-import cgatcore.iotools as iotools
-import cgat.Bed as Bed
-import cgat.IndexedGenome as IndexedGenome
-from cgat.BamTools.bamtools import bams2bam_filter
+impor cgcor.xprimn s E
+impor cg.GTF s GTF
+impor cgcor.iooos s iooos
+impor cg.B s B
+impor cg.InxGnom s InxGnom
+rom cg.BmToos.bmoos impor bms2bm_ir
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-g", "--gtf-file", dest="filename_gtf", type="string",
-        help="filename with gene models in gtf format [%default]")
+    prsr._rgmn(
+        "-g", "--g-i", s"inm_g", yp"sring",
+        hp"inm wih gn mos in g orm []")
 
-    parser.add_argument(
-        "-m", "--filename-mismapped", dest="filename_mismapped", type="string",
-        help="output bam file for mismapped reads [%default]")
+    prsr._rgmn(
+        "-m", "--inm-mismpp", s"inm_mismpp", yp"sring",
+        hp"op bm i or mismpp rs []")
 
-    parser.add_argument(
-        "-j", "--junctions-bed-file", dest="filename_junctions", type="string",
-        help="bam file with reads mapped across junctions [%default]")
+    prsr._rgmn(
+        "-j", "--jncions-b-i", s"inm_jncions", yp"sring",
+        hp"bm i wih rs mpp cross jncions []")
 
-    parser.add_argument(
-        "-r", "--filename-regions", dest="filename_regions", type="string",
-        help="filename with regions to remove in bed format [%default]")
+    prsr._rgmn(
+        "-r", "--inm-rgions", s"inm_rgions", yp"sring",
+        hp"inm wih rgions o rmov in b orm []")
 
-    parser.add_argument(
-        "-t", "--transcripts-gtf-file", dest="filename_transcriptome",
-        type="string",
-        help="bam file with reads mapped against transcripts [%default]")
+    prsr._rgmn(
+        "-", "--rnscrips-g-i", s"inm_rnscripom",
+        yp"sring",
+        hp"bm i wih rs mpp gins rnscrips []")
 
-    parser.add_argument(
-        "-p", "--map-tsv-file", dest="filename_map", type="string",
-        help="filename mapping transcript numbers (used by "
-        "--filename-transciptome) to transcript names "
-        "(used by --filename-gtf) [%default]")
+    prsr._rgmn(
+        "-p", "--mp-sv-i", s"inm_mp", yp"sring",
+        hp"inm mpping rnscrip nmbrs (s by "
+        "--inm-rnscipom) o rnscrip nms "
+        "(s by --inm-g) []")
 
-    parser.add_argument(
-        "-s", "--filename-stats", dest="filename_stats", type="string",
-        help="filename to output stats to [%default]")
+    prsr._rgmn(
+        "-s", "--inm-ss", s"inm_ss", yp"sring",
+        hp"inm o op ss o []")
 
-    parser.add_argument(
-        "-o", "--colour",
-        dest="colour_mismatches", action="store_true",
-        help="mismatches will use colour differences (CM tag) [%default]")
+    prsr._rgmn(
+        "-o", "--coor",
+        s"coor_mismchs", cion"sor_r",
+        hp"mismchs wi s coor irncs (CM g) []")
 
-    parser.add_argument(
-        "-i", "--ignore-mismatches",
-        dest="ignore_mismatches", action="store_true",
-        help="ignore mismatches [%default]")
+    prsr._rgmn(
+        "-i", "--ignor-mismchs",
+        s"ignor_mismchs", cion"sor_r",
+        hp"ignor mismchs []")
 
-    parser.add_argument(
-        "-c", "--remove-contigs", dest="remove_contigs", type="string",
-        help="','-separated list of contigs to remove [%default]")
+    prsr._rgmn(
+        "-c", "--rmov-conigs", s"rmov_conigs", yp"sring",
+        hp"','-spr is o conigs o rmov []")
 
-    parser.add_argument(
-        "-f", "--force-output", dest="force", action="store_true",
-        help="force overwriting of existing files [%default]")
+    prsr._rgmn(
+        "-", "--orc-op", s"orc", cion"sor_r",
+        hp"orc ovrwriing o xising is []")
 
-    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="remove reads not matching uniquely [%default]")
+    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
+                      hp"rmov rs no mching niqy []")
 
-    parser.add_argument("--output-sam", dest="output_sam", action="store_true",
-                      help="output in sam format [%default]")
+    prsr._rgmn("--op-sm", s"op_sm", cion"sor_r",
+                      hp"op in sm orm []")
 
-    parser.set_defaults(
-        filename_gtf=None,
-        filename_mismapped=None,
-        filename_junctions=None,
-        filename_transcriptome=None,
-        filename_map=None,
-        remove_contigs=None,
-        force=False,
-        unique=False,
-        colour_mismatches=False,
-        ignore_mismatches=False,
-        output_sam=False,
-        filename_table=None,
+    prsr.s_s(
+        inm_gNon,
+        inm_mismppNon,
+        inm_jncionsNon,
+        inm_rnscripomNon,
+        inm_mpNon,
+        rmov_conigsNon,
+        orcFs,
+        niqFs,
+        coor_mismchsFs,
+        ignor_mismchsFs,
+        op_smFs,
+        inm_bNon,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if len(args) != 1:
-        raise ValueError("please supply one bam file")
+    i n(rgs) ! 1:
+        ris VError("ps sppy on bm i")
 
-    bamfile_genome = args[0]
-    genome_samfile = pysam.AlignmentFile(bamfile_genome, "rb")
+    bmi_gnom  rgs[0]
+    gnom_smi  pysm.AignmnFi(bmi_gnom, "rb")
 
-    if options.remove_contigs:
-        options.remove_contigs = options.remove_contigs.split(",")
+    i opions.rmov_conigs:
+        opions.rmov_conigs  opions.rmov_conigs.spi(",")
 
-    if options.filename_map:
-        E.info("reading map")
-        id_map = iotools.read_map(
-            iotools.open_file(options.filename_map), has_header=True)
-        id_map = dict([(y, x) for x, y in id_map.items()])
-    else:
-        id_map = None
+    i opions.inm_mp:
+        E.ino("ring mp")
+        i_mp  iooos.r_mp(
+            iooos.opn_i(opions.inm_mp), hs_hrTr)
+        i_mp  ic([(y, x) or x, y in i_mp.ims()])
+    s:
+        i_mp  Non
 
-    transcripts = {}
-    if options.filename_gtf:
-        E.info("indexing geneset")
-        mapped, missed = 0, 0
-        for gtf in GTF.transcript_iterator(
-                GTF.iterator(iotools.open_file(options.filename_gtf))):
-            gtf.sort(key=lambda x: x.start)
-            transcript_id = gtf[0].transcript_id
-            if id_map:
-                try:
-                    transcript_id = id_map[transcript_id]
-                    mapped += 1
-                except KeyError:
-                    missed += 1
-                    continue
-            transcripts[transcript_id] = gtf
+    rnscrips  {}
+    i opions.inm_g:
+        E.ino("inxing gns")
+        mpp, miss  0, 0
+        or g in GTF.rnscrip_iror(
+                GTF.iror(iooos.opn_i(opions.inm_g))):
+            g.sor(kymb x: x.sr)
+            rnscrip_i  g[0].rnscrip_i
+            i i_mp:
+                ry:
+                    rnscrip_i  i_mp[rnscrip_i]
+                    mpp + 1
+                xcp KyError:
+                    miss + 1
+                    conin
+            rnscrips[rnscrip_i]  g
 
-        E.info("read %i transcripts from geneset (%i mapped, %i missed)" %
-               (len(transcripts), mapped, missed))
+        E.ino("r i rnscrips rom gns (i mpp, i miss)" 
+               (n(rnscrips), mpp, miss))
 
-    regions_to_remove = None
-    if options.filename_regions:
-        E.info("indexing regions")
-        regions_to_remove = IndexedGenome.Simple()
-        for bed in Bed.iterator(iotools.open_file(options.filename_regions)):
-            regions_to_remove.add(bed.contig, bed.start, bed.end)
-        E.info("read %i regions" % len(regions_to_remove))
+    rgions_o_rmov  Non
+    i opions.inm_rgions:
+        E.ino("inxing rgions")
+        rgions_o_rmov  InxGnom.Simp()
+        or b in B.iror(iooos.opn_i(opions.inm_rgions)):
+            rgions_o_rmov.(b.conig, b.sr, b.n)
+        E.ino("r i rgions"  n(rgions_o_rmov))
 
-    if options.filename_transcriptome:
-        transcripts_samfile = pysam.AlignmentFile(options.filename_transcriptome,
+    i opions.inm_rnscripom:
+        rnscrips_smi  pysm.AignmnFi(opions.inm_rnscripom,
                                                   "rb")
-    else:
-        transcripts_samfile = None
+    s:
+        rnscrips_smi  Non
 
-    if options.output_sam:
-        output_samfile = pysam.AlignmentFile("-", "wh", template=genome_samfile)
-    else:
-        output_samfile = pysam.AlignmentFile("-", "wb", template=genome_samfile)
+    i opions.op_sm:
+        op_smi  pysm.AignmnFi("-", "wh", mpgnom_smi)
+    s:
+        op_smi  pysm.AignmnFi("-", "wb", mpgnom_smi)
 
-    if options.filename_mismapped:
-        if not options.force and os.path.exists(options.filename_mismapped):
-            raise IOError("output file %s already exists" %
-                          options.filename_mismapped)
-        output_mismapped = pysam.AlignmentFile(options.filename_mismapped,
+    i opions.inm_mismpp:
+        i no opions.orc n os.ph.xiss(opions.inm_mismpp):
+            ris IOError("op i s ry xiss" 
+                          opions.inm_mismpp)
+        op_mismpp  pysm.AignmnFi(opions.inm_mismpp,
                                                "wb",
-                                               template=genome_samfile)
-    else:
-        output_mismapped = None
+                                               mpgnom_smi)
+    s:
+        op_mismpp  Non
 
-    if options.filename_junctions:
-        junctions_samfile = pysam.AlignmentFile(options.filename_junctions,
+    i opions.inm_jncions:
+        jncions_smi  pysm.AignmnFi(opions.inm_jncions,
                                                 "rb")
-    else:
-        junctions_samfile = None
+    s:
+        jncions_smi  Non
 
-    c = bams2bam_filter(genome_samfile,
-                        output_samfile,
-                        output_mismapped,
-                        transcripts_samfile,
-                        junctions_samfile,
-                        transcripts,
-                        regions=regions_to_remove,
-                        unique=options.unique,
-                        remove_contigs=options.remove_contigs,
-                        colour_mismatches=options.colour_mismatches,
-                        ignore_mismatches=options.ignore_mismatches,
-                        ignore_transcripts=transcripts_samfile is None,
-                        ignore_junctions=junctions_samfile is None)
+    c  bms2bm_ir(gnom_smi,
+                        op_smi,
+                        op_mismpp,
+                        rnscrips_smi,
+                        jncions_smi,
+                        rnscrips,
+                        rgionsrgions_o_rmov,
+                        niqopions.niq,
+                        rmov_conigsopions.rmov_conigs,
+                        coor_mismchsopions.coor_mismchs,
+                        ignor_mismchsopions.ignor_mismchs,
+                        ignor_rnscripsrnscrips_smi is Non,
+                        ignor_jncionsjncions_smi is Non)
 
-    if options.filename_stats:
-        outf = iotools.open_file(options.filename_stats, "w")
-        outf.write("category\tcounts\n%s\n" % c.asTable())
-        outf.close()
+    i opions.inm_ss:
+        o  iooos.opn_i(opions.inm_ss, "w")
+        o.wri("cgory\cons\ns\n"  c.sTb())
+        o.cos()
 
-    if options.filename_transcriptome:
-        transcripts_samfile.close()
+    i opions.inm_rnscripom:
+        rnscrips_smi.cos()
 
-    genome_samfile.close()
-    output_samfile.close()
-    if output_mismapped:
-        output_mismapped.close()
+    gnom_smi.cos()
+    op_smi.cos()
+    i op_mismpp:
+        op_mismpp.cos()
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

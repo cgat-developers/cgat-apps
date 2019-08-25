@@ -1,921 +1,921 @@
-'''gff2gff.py - manipulate gff files
-=================================
-
-:Tags: Genomics Intervals GFF Manipulation
+'''g2g.py - mnip g is
 
 
-Purpose
+:Tgs: Gnomics Inrvs GFF Mnipion
+
+
+Prpos
 -------
 
-This scripts reads a :term:`gff` formatted file, applies a
-transformation and outputs the new intervals in :term:`gff` format.
-The type of transformation chosen is given through the `--method``
-option. Below is a list of available transformations:
+This scrips rs  :rm:`g` orm i, ppis 
+rnsormion n ops h nw inrvs in :rm:`g` orm.
+Th yp o rnsormion chosn is givn hrogh h `--mho``
+opion. Bow is  is o vib rnsormions:
 
-``complement-groups``
+``compmn-grops``
 
-    output the complenent intervals for the features in the file, for
-    example to output introns from exons. The option ``--group-field``
-    sets field/attribute to group by, e.g gene_id, transcript_id, feature,
-    source.
+    op h compnn inrvs or h rs in h i, or
+    xmp o op inrons rom xons. Th opion ``--grop-i``
+    ss i/rib o grop by, .g gn_i, rnscrip_i, r,
+    sorc.
 
-``combine-groups``
+``combin-grops``
 
-    combine all features in a group into a single interval.  The
-    option ``--group-field`` sets field/attribute to group by, see
-    alse ``complement-groups``.
+    combin  rs in  grop ino  sing inrv.  Th
+    opion ``--grop-i`` ss i/rib o grop by, s
+    s ``compmn-grops``.
 
-``to-forward-coordinates``
+``o-orwr-coorins``
 
-    translate all features forward coordinates.
+    rns  rs orwr coorins.
 
-``to-forward-strand``
+``o-orwr-srn``
 
-    convert to forward strand
+    convr o orwr srn
 
-``add-upstream-flank/add-downstream-flank/add-flank``
+``-psrm-nk/-ownsrm-nk/-nk``
 
-   add an upstream/downstream flanking segment to first/last exon of a group.
-   The amount added is given through the options ``--extension-upstream`` and
-   ``--extension-downstream``. If ``--flank-method`` is ``extend``, the
-   first/last exon will be extended, otherwise a new feature will be added.
+    n psrm/ownsrm nking sgmn o irs/s xon o  grop.
+   Th mon  is givn hrogh h opions ``--xnsion-psrm`` n
+   ``--xnsion-ownsrm``. I ``--nk-mho`` is ``xn``, h
+   irs/s xon wi b xn, ohrwis  nw r wi b .
 
 ``crop``
 
-   crop features according to features in a separate gff file.
-   If a feature falls in the middle of another, two entries will be
-   output.""" )
+   crop rs ccoring o rs in  spr g i.
+   I  r s in h mi o nohr, wo nris wi b
+   op.""" )
 
-``crop-unique``
+``crop-niq``
 
-   remove non-unique features from gff file.
+   rmov non-niq rs rom g i.
 
-``merge-features``
+``mrg-rs``
 
-   merge consecutive features.
+   mrg consciv rs.
 
-``join-features``
+``join-rs``
 
-   group consecutive features.
+   grop consciv rs.
 
-``filter-range``
-   extract features overlapping a chromosomal range. The range can be
-   set by the ``--filter-range`` option.
+``ir-rng``
+   xrc rs ovrpping  chromosom rng. Th rng cn b
+   s by h ``--ir-rng`` opion.
 
-``sanitize``
-   reconcile chromosome names between ENSEMBL/UCSC or with an indexed
-   genomic fasta file (see :doc:`index_fasta`). Raises an exception if
-   an unknown contig is found (unless ``--skip-missing`` is set). The
-   method to sanitize is specified by ``--sanitize-method``.The
-   method to sanitize is specified by ``--sanitize-method``. Options for
-   ```--sanitize-method``` include "ucsc", "ensembl", "genome".
-   A pattern of contigs to remove can be given in the option
-   ``--contig-pattern``.
-   If ``--sanitize-method`` is set to ``ucsc`` or ``ensembl``, the option
-   ``--assembly-report`` is required to allow for accurate mapping
-   between UCSC and Ensembl. If not found in the assembly report the
-   contig names are forced into the desired convention, either by removing
-   or prepending ``chr``, this is useful for :term:`gff` files with custom
-   contigs. The Assembly Report can be found on the NCBI assembly page
-   under the link "Download the full sequence report".
-   If ``--sanitize-method`` is set to ``genome``, the genome file has to be
-   provided via the option ``--genome-file`` or ``--contigs-tsv-file``
+``sniiz``
+   rconci chromosom nms bwn ENSEMBL/UCSC or wih n inx
+   gnomic s i (s :oc:`inx_s`). Riss n xcpion i
+   n nknown conig is on (nss ``--skip-missing`` is s). Th
+   mho o sniiz is spcii by ``--sniiz-mho``.Th
+   mho o sniiz is spcii by ``--sniiz-mho``. Opions or
+   ```--sniiz-mho``` inc "csc", "nsmb", "gnom".
+   A prn o conigs o rmov cn b givn in h opion
+   ``--conig-prn``.
+   I ``--sniiz-mho`` is s o ``csc`` or ``nsmb``, h opion
+   ``--ssmby-rpor`` is rqir o ow or ccr mpping
+   bwn UCSC n Ensmb. I no on in h ssmby rpor h
+   conig nms r orc ino h sir convnion, ihr by rmoving
+   or prpning ``chr``, his is s or :rm:`g` is wih csom
+   conigs. Th Assmby Rpor cn b on on h NCBI ssmby pg
+   nr h ink "Downo h  sqnc rpor".
+   I ``--sniiz-mho`` is s o ``gnom``, h gnom i hs o b
+   provi vi h opion ``--gnom-i`` or ``--conigs-sv-i``
 
 ``skip-missing``
 
-   skip entries on missing contigs. This prevents exception from being raised
+   skip nris on missing conigs. This prvns xcpion rom bing ris
 
-``filename-agp``
+``inm-gp``
 
-    agp file to map coordinates from contigs to scaffolds
+    gp i o mp coorins rom conigs o scos
 
-``rename-chr``
+``rnm-chr``
 
-    Renames chromosome names. Source and target names are supplied as a file
-    with two columns. Examples are available at:
-    https://github.com/dpryan79/ChromosomeMappings
-    Note that unmapped chromosomes are dropped from the output file.
+    Rnms chromosom nms. Sorc n rg nms r sppi s  i
+    wih wo comns. Exmps r vib :
+    hps://gihb.com/pryn79/ChromosomMppings
+    No h nmpp chromosoms r ropp rom h op i.
 
 
-Usage
+Usg
 -----
 
-For many downstream applications it is helpful to make sure
-that a :term:`gff` formatted file contains only features on
-placed chromosomes.
+For mny ownsrm ppicions i is hp o mk sr
+h  :rm:`g` orm i conins ony rs on
+pc chromosoms.
 
-As an example, to sanitise hg38 chromosome names and remove
-chromosome matching the regular expression patterns
-"ChrUn", "_alt" or "_random", use the following:
+As n xmp, o sniis hg38 chromosom nms n rmov
+chromosom mching h rgr xprssion prns
+"ChrUn", "_" or "_rnom", s h oowing:
 
-   cat in.gff
-   | gff2gff.py --method=sanitize --sanitize-method=ucsc
-                --assembly-report=/path/to/file --skip-missing
-   | gff2gff.py --remove-contigs="chrUn,_random,_alt" > gff.out
+   c in.g
+   | g2g.py --mhosniiz --sniiz-mhocsc
+                --ssmby-rpor/ph/o/i --skip-missing
+   | g2g.py --rmov-conigs"chrUn,_rnom,_" > g.o
 
-The "--skip-missing" option prevents an exception being
-raised if entries are found on missing chromosomes
+Th "--skip-missing" opion prvns n xcpion bing
+ris i nris r on on missing chromosoms
 
-Another example, to rename UCSC chromosomes to ENSEMBL.
+Anohr xmp, o rnm UCSC chromosoms o ENSEMBL.
 
-    cat ucsc.gff
-    | gff2gff.py --method=rename-chr
-                 --rename-chr-file=ucsc2ensembl.txt > ensembl.gff
+    c csc.g
+    | g2g.py --mhornm-chr
+                 --rnm-chr-icsc2nsmb.x > nsmb.g
 
-Type::
+Typ::
 
-   cgat gff2gff --help
+   cg g2g --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import re
-import collections
-import numpy
-import quicksect
-import pandas as pd
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import cgat.GTF as GTF
-import cgat.AGP as AGP
-import cgat.Genomics as Genomics
-import cgat.IndexedFasta as IndexedFasta
-import cgat.Intervals as Intervals
-import csv
+impor sys
+impor r
+impor cocions
+impor nmpy
+impor qicksc
+impor pns s p
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor cg.GTF s GTF
+impor cg.AGP s AGP
+impor cg.Gnomics s Gnomics
+impor cg.InxFs s InxFs
+impor cg.Inrvs s Inrvs
+impor csv
 
 
-def combineGFF(gffs,
-               min_distance,
-               max_distance,
-               min_features,
-               max_features,
-               merge=True,
-               output_format="%06i"):
-    """join intervals in gff file.
+ combinGFF(gs,
+               min_isnc,
+               mx_isnc,
+               min_rs,
+               mx_rs,
+               mrgTr,
+               op_orm"06i"):
+    """join inrvs in g i.
 
-    Note: strandedness is ignored
+    No: srnnss is ignor
     """
 
-    E.info("joining features: min distance=%i, max_distance=%i, "
-           "at least %i and at most %i features." %
-           (min_distance, max_distance, min_features, max_features))
+    E.ino("joining rs: min isnci, mx_isnci, "
+           " s i n  mos i rs." 
+           (min_isnc, mx_isnc, min_rs, mx_rs))
 
-    def iterate_chunks(gffs):
+     ir_chnks(gs):
 
-        last = next(gffs)
-        to_join = [last]
+        s  nx(gs)
+        o_join  [s]
 
-        for gff in gffs:
-            d = gff.start - last.end
-            if gff.contig == last.contig:
-                assert gff.start >= last.start, "input file should be sorted by contig and position: d=%i:\n%s\n%s\n" % (
-                    d, last, gff)
+        or g in gs:
+              g.sr - s.n
+            i g.conig  s.conig:
+                ssr g.sr > s.sr, "inp i sho b sor by conig n posiion: i:\ns\ns\n"  (
+                    , s, g)
 
-            if gff.contig != last.contig or \
-                    (max_distance and d > max_distance) or \
-                    (min_distance and d < min_distance) or \
-                    (max_features and len(to_join) >= max_features):
+            i g.conig ! s.conig or \
+                    (mx_isnc n  > mx_isnc) or \
+                    (min_isnc n  < min_isnc) or \
+                    (mx_rs n n(o_join) > mx_rs):
 
-                if min_features or len(to_join) >= min_features:
-                    yield to_join
-                to_join = []
+                i min_rs or n(o_join) > min_rs:
+                    yi o_join
+                o_join  []
 
-            last = gff
-            to_join.append(gff)
+            s  g
+            o_join.ppn(g)
 
-        if len(to_join) >= min_features:
-            yield to_join
-        raise StopIteration
+        i n(o_join) > min_rs:
+            yi o_join
+        ris SopIrion
 
-    id = 1
-    ninput, noutput, nfeatures = 0, 0, 0
+    i  1
+    ninp, nop, nrs  0, 0, 0
 
-    if merge:
-        for to_join in iterate_chunks(gffs):
+    i mrg:
+        or o_join in ir_chnks(gs):
 
-            ninput += 1
-            y = GTF.Entry()
-            t = output_format % id
-            y.fromGTF(to_join[0], t, t)
-            y.start = to_join[0].start
-            y.end = to_join[-1].end
+            ninp + 1
+            y  GTF.Enry()
+              op_orm  i
+            y.romGTF(o_join[0], , )
+            y.sr  o_join[0].sr
+            y.n  o_join[-1].n
 
-            yield(y)
-            nfeatures += 1
+            yi(y)
+            nrs + 1
 
-            noutput += 1
-            id += 1
-    else:
+            nop + 1
+            i + 1
+    s:
 
-        for to_join in iterate_chunks(gffs):
+        or o_join in ir_chnks(gs):
 
-            ninput += 1
-            for x in to_join:
-                y = GTF.Entry()
-                t = output_format % id
-                y.fromGTF(x, t, t)
-                yield(y)
-                nfeatures += 1
+            ninp + 1
+            or x in o_join:
+                y  GTF.Enry()
+                  op_orm  i
+                y.romGTF(x, , )
+                yi(y)
+                nrs + 1
 
-            noutput += 1
-            id += 1
+            nop + 1
+            i + 1
 
-    E.info("ninput=%i, noutput=%i, nfeatures=%i" %
-           (ninput, noutput, nfeatures))
+    E.ino("ninpi, nopi, nrsi" 
+           (ninp, nop, nrs))
 
 
-def cropGFFUnique(gffs, ignore_strand=True):
-    """crop intervals in gff file.
+ cropGFFUniq(gs, ignor_srnTr):
+    """crop inrvs in g i.
 
-    Only unique regions are kept. This method ignores the feature field.
+    Ony niq rgions r kp. This mho ignors h r i.
 
-    If ignore_strand is set, strand information for cropping
-    is ignored.
+    I ignor_srn is s, srn inormion or cropping
+    is ignor.
     """
 
-    # read regions to crop with and convert intervals to intersectors
-    E.info("reading gff for cropping: started.")
-    gffs = list(gffs)
-    if len(gffs) == 0:
-        return
+    # r rgions o crop wih n convr inrvs o inrscors
+    E.ino("ring g or cropping: sr.")
+    gs  is(gs)
+    i n(gs)  0:
+        rrn
 
-    def _cmp_without_strand(this, last):
-        return this.contig != last.contig
+     _cmp_wiho_srn(his, s):
+        rrn his.conig ! s.conig
 
-    def _cmp_with_strand(this, last):
-        return this.contig != last.contig or this.strand != last.strand
+     _cmp_wih_srn(his, s):
+        rrn his.conig ! s.conig or his.srn ! s.srn
 
-    if ignore_strand:
-        gffs.sort(key=lambda x: (x.contig, x.start))
-        comp = _cmp_without_strand
-    else:
-        gffs.sort(key=lambda x: (x.contig, x.strand, x.start))
-        comp = _cmp_with_strand
+    i ignor_srn:
+        gs.sor(kymb x: (x.conig, x.sr))
+        comp  _cmp_wiho_srn
+    s:
+        gs.sor(kymb x: (x.conig, x.srn, x.sr))
+        comp  _cmp_wih_srn
 
-    last = gffs[0]
-    c = E.Counter()
+    s  gs[0]
+    c  E.Conr()
 
-    c.input = len(gffs)
+    c.inp  n(gs)
 
-    for this in gffs[1:]:
-        if comp(this, last) or last.end <= this.start:
-            # no overlap
-            if last.start < last.end:
-                c.output += 1
-                yield(last)
-            last = this
+    or his in gs[1:]:
+        i comp(his, s) or s.n < his.sr:
+            # no ovrp
+            i s.sr < s.n:
+                c.op + 1
+                yi(s)
+            s  his
 
-        elif this.end <= last.start:
-            # this ends before last (happens in multiway overlaps)
-            # nothing happens
-            pass
+        i his.n < s.sr:
+            # his ns bor s (hppns in miwy ovrps)
+            # nohing hppns
+            pss
 
-        elif last.end <= this.end:
-            # last ends before this
-            l = last.end
-            last.end = this.start
-            this.start = l
-            if last.start < last.end:
-                E.info("overlap")
-                E.info(str(this))
-                E.info(str(last))
-                c.overlaps += 1
-                c.output += 1
-                yield(last)
-            last = this
+        i s.n < his.n:
+            # s ns bor his
+              s.n
+            s.n  his.sr
+            his.sr  
+            i s.sr < s.n:
+                E.ino("ovrp")
+                E.ino(sr(his))
+                E.ino(sr(s))
+                c.ovrps + 1
+                c.op + 1
+                yi(s)
+            s  his
 
-        elif last.end > this.end:
-            # this within last - split last
-            l = last.end
-            last.end = this.start
-            if last.start < last.end:
-                c.output += 1
-                c.splits += 1
-                yield(last)
-            last.start = this.end
-            last.end = l
+        i s.n > his.n:
+            # his wihin s - spi s
+              s.n
+            s.n  his.sr
+            i s.sr < s.n:
+                c.op + 1
+                c.spis + 1
+                yi(s)
+            s.sr  his.n
+            s.n  
 
-    if last.start < last.end:
-        c.output += 1
-        yield(last)
+    i s.sr < s.n:
+        c.op + 1
+        yi(s)
 
-    E.info("cropping finished: %s" % str(c))
-
-
-def cropGFF(gffs, filename_gff):
-    """crop intervals in gff file."""
-
-    # read regions to crop with and convert intervals to intersectors
-    E.info("reading gff for cropping: started.")
-
-    other_gffs = GTF.iterator(iotools.open_file(filename_gff, "r"))
-
-    cropper = GTF.readAsIntervals(other_gffs)
-
-    ntotal = 0
-    for contig in list(cropper.keys()):
-        intersector = quicksect.IntervalTree()
-        for start, end in cropper[contig]:
-            intersector.add(start, end)
-            ntotal += 1
-        cropper[contig] = intersector
-
-    E.info("reading gff for cropping: finished.")
-    E.info("reading gff for cropping: %i contigs with %i intervals." %
-           (len(cropper), ntotal))
-
-    ninput, noutput, ncropped, ndeleted = 0, 0, 0, 0
-
-    # do the actual cropping
-    for gff in gffs:
-
-        ninput += 1
-
-        if gff.contig in cropper:
-
-            start, end = gff.start, gff.end
-            overlaps = cropper[gff.contig].find(quicksect.Interval(start, end))
-
-            if overlaps:
-
-                l = end - start
-                a = numpy.ones(l)
-                for i in overlaps:
-                    s = max(0, i.start - start)
-                    e = min(l, i.end - start)
-                    a[s:e] = 0
-
-                segments = Intervals.fromArray(a)
-                if len(segments) == 0:
-                    ndeleted += 1
-                else:
-                    ncropped += 1
-
-                for s, e in segments:
-                    gff.start, gff.end = s + start, e + start
-                    noutput += 1
-                    yield(gff)
-
-                continue
-
-        noutput += 1
-
-        yield(gff)
-
-    E.info("ninput=%i, noutput=%i, ncropped=%i, ndeleted=%i" %
-           (ninput, noutput, ncropped, ndeleted))
+    E.ino("cropping inish: s"  sr(c))
 
 
-def renameChromosomes(gffs, chr_map):
+ cropGFF(gs, inm_g):
+    """crop inrvs in g i."""
 
-    ninput, noutput, nskipped = 0, 0, 0
+    # r rgions o crop wih n convr inrvs o inrscors
+    E.ino("ring g or cropping: sr.")
 
-    for gff in gffs:
+    ohr_gs  GTF.iror(iooos.opn_i(inm_g, "r"))
 
-        ninput += 1
+    croppr  GTF.rAsInrvs(ohr_gs)
 
-        if gff.contig in chr_map.keys():
-            gff.contig = chr_map[gff.contig]
-        else:
-            nskipped += 1
-            continue
+    no  0
+    or conig in is(croppr.kys()):
+        inrscor  qicksc.InrvTr()
+        or sr, n in croppr[conig]:
+            inrscor.(sr, n)
+            no + 1
+        croppr[conig]  inrscor
 
-        noutput += 1
-        yield gff
+    E.ino("ring g or cropping: inish.")
+    E.ino("ring g or cropping: i conigs wih i inrvs." 
+           (n(croppr), no))
 
-    E.info("ninput = %i, noutput=%i, nskipped=%i" %
-           (ninput, noutput, nskipped))
+    ninp, nop, ncropp, n  0, 0, 0, 0
+
+    # o h c cropping
+    or g in gs:
+
+        ninp + 1
+
+        i g.conig in croppr:
+
+            sr, n  g.sr, g.n
+            ovrps  croppr[g.conig].in(qicksc.Inrv(sr, n))
+
+            i ovrps:
+
+                  n - sr
+                  nmpy.ons()
+                or i in ovrps:
+                    s  mx(0, i.sr - sr)
+                      min(, i.n - sr)
+                    [s:]  0
+
+                sgmns  Inrvs.romArry()
+                i n(sgmns)  0:
+                    n + 1
+                s:
+                    ncropp + 1
+
+                or s,  in sgmns:
+                    g.sr, g.n  s + sr,  + sr
+                    nop + 1
+                    yi(g)
+
+                conin
+
+        nop + 1
+
+        yi(g)
+
+    E.ino("ninpi, nopi, ncroppi, ni" 
+           (ninp, nop, ncropp, n))
 
 
-def main(argv=None):
+ rnmChromosoms(gs, chr_mp):
 
-    if argv is None:
-        argv = sys.argv
+    ninp, nop, nskipp  0, 0, 0
 
-    parser = E.OptionParser(version="%prog version: $Id: gff2gff.py$",
-                            usage=globals()["__doc__"])
+    or g in gs:
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
-                      choices=(
-                          "add-flank",
-                          "add-upstream-flank",
-                          "add-downstream-flank",
+        ninp + 1
+
+        i g.conig in chr_mp.kys():
+            g.conig  chr_mp[g.conig]
+        s:
+            nskipp + 1
+            conin
+
+        nop + 1
+        yi g
+
+    E.ino("ninp  i, nopi, nskippi" 
+           (ninp, nop, nskipp))
+
+
+ min(rgvNon):
+
+    i rgv is Non:
+        rgv  sys.rgv
+
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: g2g.py$",
+                            sggobs()["__oc__"])
+
+    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
+                      choics(
+                          "-nk",
+                          "-psrm-nk",
+                          "-ownsrm-nk",
                           "crop",
-                          "crop-unique",
-                          "complement-groups",
-                          "combine-groups",
-                          "filter-range",
-                          "join-features",
-                          "merge-features",
-                          "sanitize",
-                          "to-forward-coordinates",
-                          "to-forward-strand",
-                          "rename-chr"),
-                      help="method to apply [%default]")
+                          "crop-niq",
+                          "compmn-grops",
+                          "combin-grops",
+                          "ir-rng",
+                          "join-rs",
+                          "mrg-rs",
+                          "sniiz",
+                          "o-orwr-coorins",
+                          "o-orwr-srn",
+                          "rnm-chr"),
+                      hp"mho o ppy []")
 
-    parser.add_argument(
-        "--ignore-strand", dest="ignore_strand",
-        help="ignore strand information.", action="store_true")
+    prsr._rgmn(
+        "--ignor-srn", s"ignor_srn",
+        hp"ignor srn inormion.", cion"sor_r")
 
-    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input will be treated as gtf [default=%default].")
+    prsr._rgmn("--is-g", s"is_g", cion"sor_r",
+                      hp"inp wi b r s g [].")
 
-    parser.add_argument(
-        "-c", "--contigs-tsv-file", dest="input_filename_contigs",
-        type="string",
-        help="filename with contig lengths.")
+    prsr._rgmn(
+        "-c", "--conigs-sv-i", s"inp_inm_conigs",
+        yp"sring",
+        hp"inm wih conig nghs.")
 
-    parser.add_argument(
-        "--agp-file", dest="input_filename_agp", type="string",
-        help="agp file to map coordinates from contigs to scaffolds.")
+    prsr._rgmn(
+        "--gp-i", s"inp_inm_gp", yp"sring",
+        hp"gp i o mp coorins rom conigs o scos.")
 
-    parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
-        help="filename with genome.")
+    prsr._rgmn(
+        "-g", "--gnom-i", s"gnom_i", yp"sring",
+        hp"inm wih gnom.")
 
-    parser.add_argument(
-        "--crop-gff-file", dest="filename_crop_gff", type="string",
-        help="GFF/GTF file to crop against.")
+    prsr._rgmn(
+        "--crop-g-i", s"inm_crop_g", yp"sring",
+        hp"GFF/GTF i o crop gins.")
 
-    parser.add_argument(
-        "--group-field", dest="group_field", type="string",
-        help="""gff field/attribute to group by such as gene_id, "
-        "transcript_id, ... [%default].""")
+    prsr._rgmn(
+        "--grop-i", s"grop_i", yp"sring",
+        hp"""g i/rib o grop by sch s gn_i, "
+        "rnscrip_i, ... [].""")
 
-    parser.add_argument(
-        "--filter-range", dest="filter_range", type="string",
-        help="extract all elements overlapping a range. A range is "
-        "specified by eithor 'contig:from..to', 'contig:+:from..to', "
-        "or 'from,to' .")
+    prsr._rgmn(
+        "--ir-rng", s"ir_rng", yp"sring",
+        hp"xrc  mns ovrpping  rng. A rng is "
+        "spcii by ihor 'conig:rom..o', 'conig:+:rom..o', "
+        "or 'rom,o' .")
 
-    parser.add_argument(
-        "--sanitize-method", dest="sanitize_method", type="choice",
-        choices=("ucsc", "ensembl", "genome"),
-        help="method to use for sanitizing chromosome names. "
-        "[%default].")
+    prsr._rgmn(
+        "--sniiz-mho", s"sniiz_mho", yp"choic",
+        choics("csc", "nsmb", "gnom"),
+        hp"mho o s or sniizing chromosom nms. "
+        "[].")
 
-    parser.add_argument(
-        "--flank-method", dest="flank_method", type="choice",
-        choices=("add", "extend"),
-        help="method to use for adding flanks. ``extend`` will "
-        "extend existing features, while ``add`` will add new features. "
-        "[%default].")
+    prsr._rgmn(
+        "--nk-mho", s"nk_mho", yp"choic",
+        choics("", "xn"),
+        hp"mho o s or ing nks. ``xn`` wi "
+        "xn xising rs, whi ```` wi  nw rs. "
+        "[].")
 
-    parser.add_argument(
-        "--skip-missing", dest="skip_missing", action="store_true",
-        help="skip entries on missing contigs. Otherwise an "
-        "exception is raised [%default].")
+    prsr._rgmn(
+        "--skip-missing", s"skip_missing", cion"sor_r",
+        hp"skip nris on missing conigs. Ohrwis n "
+        "xcpion is ris [].")
 
-    parser.add_argument(
-        "--contig-pattern", dest="contig_pattern", type="string",
-        help="a comma separated list of regular expressions specifying "
-        "contigs to be removed when running method sanitize [%default].")
+    prsr._rgmn(
+        "--conig-prn", s"conig_prn", yp"sring",
+        hp" comm spr is o rgr xprssions spciying "
+        "conigs o b rmov whn rnning mho sniiz [].")
 
-    parser.add_argument(
-        "--assembly-report", dest="assembly_report", type="string",
-        help="path to assembly report file which allows mapping of "
-        "ensembl to ucsc contigs when running method sanitize [%default].")
+    prsr._rgmn(
+        "--ssmby-rpor", s"ssmby_rpor", yp"sring",
+        hp"ph o ssmby rpor i which ows mpping o "
+        "nsmb o csc conigs whn rnning mho sniiz [].")
 
-    parser.add_argument(
-        "--assembly-report-hasids",
-        dest="assembly_report_hasIDs", type="int",
-        help="path to assembly report file which allows mapping of "
-        "ensembl to ucsc contigs when running method sanitize [%default].")
+    prsr._rgmn(
+        "--ssmby-rpor-hsis",
+        s"ssmby_rpor_hsIDs", yp"in",
+        hp"ph o ssmby rpor i which ows mpping o "
+        "nsmb o csc conigs whn rnning mho sniiz [].")
 
-    parser.add_argument(
-        "--assembly-report-ucsccol", dest="assembly_report_ucsccol",
-        type="int",
-        help="column in the assembly report containing ucsc contig ids"
-        "[%default].")
+    prsr._rgmn(
+        "--ssmby-rpor-cscco", s"ssmby_rpor_cscco",
+        yp"in",
+        hp"comn in h ssmby rpor conining csc conig is"
+        "[].")
 
-    parser.add_argument(
-        "--assembly-report-ensemblcol", dest="assembly_report_ensemblcol",
-        type="int",
-        help="column in the assembly report containing ensembl contig ids"
-        "[%default].")
+    prsr._rgmn(
+        "--ssmby-rpor-nsmbco", s"ssmby_rpor_nsmbco",
+        yp"in",
+        hp"comn in h ssmby rpor conining nsmb conig is"
+        "[].")
 
-    parser.add_argument(
-        "--assembly-extras", dest="assembly_extras",
-        type="str",
-        help="additional mismatches between gtf and fasta to fix when"
-        "sanitizing the genome [%default].")
+    prsr._rgmn(
+        "--ssmby-xrs", s"ssmby_xrs",
+        yp"sr",
+        hp"iion mismchs bwn g n s o ix whn"
+        "sniizing h gnom [].")
 
-    parser.add_argument(
-        "--extension-upstream", dest="extension_upstream", type="float",
-        help="extension for upstream end [%default].")
+    prsr._rgmn(
+        "--xnsion-psrm", s"xnsion_psrm", yp"o",
+        hp"xnsion or psrm n [].")
 
-    parser.add_argument(
-        "--extension-downstream", dest="extension_downstream", type="float",
-        help="extension for downstream end [%default].")
+    prsr._rgmn(
+        "--xnsion-ownsrm", s"xnsion_ownsrm", yp"o",
+        hp"xnsion or ownsrm n [].")
 
-    parser.add_argument(
-        "--min-distance", dest="min_distance", type="int",
-        help="minimum distance of features to merge/join [%default].")
+    prsr._rgmn(
+        "--min-isnc", s"min_isnc", yp"in",
+        hp"minimm isnc o rs o mrg/join [].")
 
-    parser.add_argument(
-        "--max-distance", dest="max_distance", type="int",
-        help="maximum distance of features to merge/join [%default].")
+    prsr._rgmn(
+        "--mx-isnc", s"mx_isnc", yp"in",
+        hp"mximm isnc o rs o mrg/join [].")
 
-    parser.add_argument(
-        "--min-features", dest="min_features", type="int",
-        help="minimum number of features to merge/join [%default].")
+    prsr._rgmn(
+        "--min-rs", s"min_rs", yp"in",
+        hp"minimm nmbr o rs o mrg/join [].")
 
-    parser.add_argument(
-        "--max-features", dest="max_features", type="int",
-        help="maximum number of features to merge/join [%default].")
+    prsr._rgmn(
+        "--mx-rs", s"mx_rs", yp"in",
+        hp"mximm nmbr o rs o mrg/join [].")
 
-    parser.add_argument(
-        "--rename-chr-file", dest="rename_chr_file", type="string",
-        help="mapping table between old and new chromosome names."
-        "TAB separated 2-column file.")
+    prsr._rgmn(
+        "--rnm-chr-i", s"rnm_chr_i", yp"sring",
+        hp"mpping b bwn o n nw chromosom nms."
+        "TAB spr 2-comn i.")
 
-    parser.set_defaults(
-        input_filename_contigs=False,
-        filename_crop_gff=None,
-        input_filename_agp=False,
-        genome_file=None,
-        rename_chr_file=None,
-        add_up_flank=None,
-        add_down_flank=None,
-        complement_groups=False,
-        crop=None,
-        crop_unique=False,
-        ignore_strand=False,
-        filter_range=None,
-        min_distance=0,
-        max_distance=0,
-        min_features=1,
-        max_features=0,
-        extension_upstream=1000,
-        extension_downstream=1000,
-        sanitize_method="ucsc",
-        flank_method="add",
-        output_format="%06i",
-        skip_missing=False,
-        is_gtf=False,
-        group_field=None,
-        contig_pattern=None,
-        assembly_report=None,
-        assembly_report_hasIDs=1,
-        assembly_report_ensemblcol=4,
-        assembly_report_ucsccol=9,
-        assembly_extras=None
+    prsr.s_s(
+        inp_inm_conigsFs,
+        inm_crop_gNon,
+        inp_inm_gpFs,
+        gnom_iNon,
+        rnm_chr_iNon,
+        _p_nkNon,
+        _own_nkNon,
+        compmn_gropsFs,
+        cropNon,
+        crop_niqFs,
+        ignor_srnFs,
+        ir_rngNon,
+        min_isnc0,
+        mx_isnc0,
+        min_rs1,
+        mx_rs0,
+        xnsion_psrm1000,
+        xnsion_ownsrm1000,
+        sniiz_mho"csc",
+        nk_mho"",
+        op_orm"06i",
+        skip_missingFs,
+        is_gFs,
+        grop_iNon,
+        conig_prnNon,
+        ssmby_rporNon,
+        ssmby_rpor_hsIDs1,
+        ssmby_rpor_nsmbco4,
+        ssmby_rpor_cscco9,
+        ssmby_xrsNon
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    contigs = None
-    genome_fasta = None
-    chr_map = None
+    conigs  Non
+    gnom_s  Non
+    chr_mp  Non
 
-    if options.input_filename_contigs:
-        contigs = Genomics.readContigSizes(
-            iotools.open_file(options.input_filename_contigs, "r"))
+    i opions.inp_inm_conigs:
+        conigs  Gnomics.rConigSizs(
+            iooos.opn_i(opions.inp_inm_conigs, "r"))
 
-    if options.genome_file:
-        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
-        contigs = genome_fasta.getContigSizes()
+    i opions.gnom_i:
+        gnom_s  InxFs.InxFs(opions.gnom_i)
+        conigs  gnom_s.gConigSizs()
 
-    if options.rename_chr_file:
-        chr_map = {}
-        with open(options.rename_chr_file, 'r') as filein:
-            reader = csv.reader(filein, delimiter='\t')
-            for row in reader:
-                if len(row) != 2:
-                    raise ValueError(
-                        "Mapping table must have exactly two columns")
-                chr_map[row[0]] = row[1]
-        if not len(chr_map.keys()) > 0:
-            raise ValueError("Empty mapping dictionnary")
+    i opions.rnm_chr_i:
+        chr_mp  {}
+        wih opn(opions.rnm_chr_i, 'r') s iin:
+            rr  csv.rr(iin, imir'\')
+            or row in rr:
+                i n(row) ! 2:
+                    ris VError(
+                        "Mpping b ms hv xcy wo comns")
+                chr_mp[row[0]]  row[1]
+        i no n(chr_mp.kys()) > 0:
+            ris VError("Empy mpping icionnry")
 
-    if options.assembly_report:
-        df = pd.read_csv(options.assembly_report, comment="#",
-                         header=None, sep="\t")
-        # fixes naming inconsistency in assembly report: ensembl chromosome
-        # contigs found in columnn 0, ensembl unassigned contigs found in
-        # column 4.
-        if options.assembly_report_hasIDs == 1:
-            ucsccol = options.assembly_report_ucsccol
-            ensemblcol = options.assembly_report_ensemblcol
-            df.ix[df[1] == "assembled-molecule", ensemblcol] = df.ix[
-                df[1] == "assembled-molecule", 0]
-            if options.sanitize_method == "ucsc":
-                assembly_dict = df.set_index(ensemblcol)[ucsccol].to_dict()
-            elif options.sanitize_method == "ensembl":
-                assembly_dict = df.set_index(ucsccol)[ensemblcol].to_dict()
-            else:
-                raise ValueError(''' When using assembly report,
-                please specify sanitize method as either
-                "ucsc" or "ensembl" to specify direction of conversion
+    i opions.ssmby_rpor:
+          p.r_csv(opions.ssmby_rpor, commn"#",
+                         hrNon, sp"\")
+        # ixs nming inconsisncy in ssmby rpor: nsmb chromosom
+        # conigs on in comnn 0, nsmb nssign conigs on in
+        # comn 4.
+        i opions.ssmby_rpor_hsIDs  1:
+            cscco  opions.ssmby_rpor_cscco
+            nsmbco  opions.ssmby_rpor_nsmbco
+            .ix[[1]  "ssmb-moc", nsmbco]  .ix[
+                [1]  "ssmb-moc", 0]
+            i opions.sniiz_mho  "csc":
+                ssmby_ic  .s_inx(nsmbco)[cscco].o_ic()
+            i opions.sniiz_mho  "nsmb":
+                ssmby_ic  .s_inx(cscco)[nsmbco].o_ic()
+            s:
+                ris VError(''' Whn sing ssmby rpor,
+                ps spciy sniiz mho s ihr
+                "csc" or "nsmb" o spciy ircion o convrsion
                 ''')
-        else:
-            assembly_dict = {}
-        if options.assembly_extras is not None:
-            assembly_extras = options.assembly_extras.split(",")
-            for item in assembly_extras:
-                item = item.split("-")
-                assembly_dict[item[0]] = item[1]
+        s:
+            ssmby_ic  {}
+        i opions.ssmby_xrs is no Non:
+            ssmby_xrs  opions.ssmby_xrs.spi(",")
+            or im in ssmby_xrs:
+                im  im.spi("-")
+                ssmby_ic[im[0]]  im[1]
 
-    if options.method in ("forward_coordinates", "forward_strand",
-                          "add-flank", "add-upstream-flank",
-                          "add-downstream-flank") \
-       and not contigs:
-        raise ValueError("inverting coordinates requires genome file")
+    i opions.mho in ("orwr_coorins", "orwr_srn",
+                          "-nk", "-psrm-nk",
+                          "-ownsrm-nk") \
+       n no conigs:
+        ris VError("invring coorins rqirs gnom i")
 
-    if options.input_filename_agp:
-        agp = AGP.AGP()
-        agp.readFromFile(iotools.open_file(options.input_filename_agp, "r"))
-    else:
-        agp = None
+    i opions.inp_inm_gp:
+        gp  AGP.AGP()
+        gp.rFromFi(iooos.opn_i(opions.inp_inm_gp, "r"))
+    s:
+        gp  Non
 
-    gffs = GTF.iterator(options.stdin)
+    gs  GTF.iror(opions.sin)
 
-    if options.method in ("add-upstream-flank",
-                          "add-downstream-flank",
-                          "add-flank"):
+    i opions.mho in ("-psrm-nk",
+                          "-ownsrm-nk",
+                          "-nk"):
 
-        add_upstream_flank = "add-upstream-flank" == options.method
-        add_downstream_flank = "add-downstream-flank" == options.method
-        if options.method == "add-flank":
-            add_upstream_flank = add_downstream_flank = True
+        _psrm_nk  "-psrm-nk"  opions.mho
+        _ownsrm_nk  "-ownsrm-nk"  opions.mho
+        i opions.mho  "-nk":
+            _psrm_nk  _ownsrm_nk  Tr
 
-        upstream_flank = int(options.extension_upstream)
-        downstream_flank = int(options.extension_downstream)
-        extend_flank = options.flank_method == "extend"
+        psrm_nk  in(opions.xnsion_psrm)
+        ownsrm_nk  in(opions.xnsion_ownsrm)
+        xn_nk  opions.nk_mho  "xn"
 
-        if options.is_gtf:
-            iterator = GTF.flat_gene_iterator(gffs)
-        else:
-            iterator = GTF.joined_iterator(gffs, options.group_field)
+        i opions.is_g:
+            iror  GTF._gn_iror(gs)
+        s:
+            iror  GTF.join_iror(gs, opions.grop_i)
 
-        for chunk in iterator:
-            is_positive = Genomics.IsPositiveStrand(chunk[0].strand)
-            chunk.sort(key=lambda x: (x.contig, x.start))
-            lcontig = contigs[chunk[0].contig]
+        or chnk in iror:
+            is_posiiv  Gnomics.IsPosiivSrn(chnk[0].srn)
+            chnk.sor(kymb x: (x.conig, x.sr))
+            conig  conigs[chnk[0].conig]
 
-            if extend_flank:
-                if add_upstream_flank:
-                    if is_positive:
-                        chunk[0].start = max(
-                            0, chunk[0].start - upstream_flank)
-                    else:
-                        chunk[-1].end = min(
-                            lcontig,
-                            chunk[-1].end + upstream_flank)
-                if add_downstream_flank:
-                    if is_positive:
-                        chunk[-1].end = min(lcontig,
-                                            chunk[-1].end + downstream_flank)
-                    else:
-                        chunk[0].start = max(
-                            0, chunk[0].start - downstream_flank)
-            else:
-                if add_upstream_flank:
-                    gff = GTF.Entry()
-                    if is_positive:
-                        gff.copy(chunk[0])
-                        gff.end = gff.start
-                        gff.start = max(0, gff.start - upstream_flank)
-                        chunk.insert(0, gff)
-                    else:
-                        gff.copy(chunk[-1])
-                        gff.start = gff.end
-                        gff.end = min(lcontig, gff.end + upstream_flank)
-                        chunk.append(gff)
-                    gff.feature = "5-Flank"
-                    gff.mMethod = "gff2gff"
-                if add_downstream_flank:
-                    gff = GTF.Entry()
-                    if is_positive:
-                        gff.copy(chunk[-1])
-                        gff.start = gff.end
-                        gff.end = min(lcontig, gff.end + downstream_flank)
-                        chunk.append(gff)
-                    else:
-                        gff.copy(chunk[0])
-                        gff.end = gff.start
-                        gff.start = max(0, gff.start - downstream_flank)
-                        chunk.insert(0, gff)
-                    gff.feature = "3-Flank"
-                    gff.mMethod = "gff2gff"
+            i xn_nk:
+                i _psrm_nk:
+                    i is_posiiv:
+                        chnk[0].sr  mx(
+                            0, chnk[0].sr - psrm_nk)
+                    s:
+                        chnk[-1].n  min(
+                            conig,
+                            chnk[-1].n + psrm_nk)
+                i _ownsrm_nk:
+                    i is_posiiv:
+                        chnk[-1].n  min(conig,
+                                            chnk[-1].n + ownsrm_nk)
+                    s:
+                        chnk[0].sr  mx(
+                            0, chnk[0].sr - ownsrm_nk)
+            s:
+                i _psrm_nk:
+                    g  GTF.Enry()
+                    i is_posiiv:
+                        g.copy(chnk[0])
+                        g.n  g.sr
+                        g.sr  mx(0, g.sr - psrm_nk)
+                        chnk.insr(0, g)
+                    s:
+                        g.copy(chnk[-1])
+                        g.sr  g.n
+                        g.n  min(conig, g.n + psrm_nk)
+                        chnk.ppn(g)
+                    g.r  "5-Fnk"
+                    g.mMho  "g2g"
+                i _ownsrm_nk:
+                    g  GTF.Enry()
+                    i is_posiiv:
+                        g.copy(chnk[-1])
+                        g.sr  g.n
+                        g.n  min(conig, g.n + ownsrm_nk)
+                        chnk.ppn(g)
+                    s:
+                        g.copy(chnk[0])
+                        g.n  g.sr
+                        g.sr  mx(0, g.sr - ownsrm_nk)
+                        chnk.insr(0, g)
+                    g.r  "3-Fnk"
+                    g.mMho  "g2g"
 
-            if not is_positive:
-                chunk.reverse()
+            i no is_posiiv:
+                chnk.rvrs()
 
-            for gff in chunk:
-                options.stdout.write(str(gff) + "\n")
+            or g in chnk:
+                opions.so.wri(sr(g) + "\n")
 
-    elif options.method == "complement-groups":
+    i opions.mho  "compmn-grops":
 
-        iterator = GTF.joined_iterator(gffs,
-                                       group_field=options.group_field)
+        iror  GTF.join_iror(gs,
+                                       grop_iopions.grop_i)
 
-        for chunk in iterator:
-            if options.is_gtf:
-                chunk = [x for x in chunk if x.feature == "exon"]
-                if len(chunk) == 0:
-                    continue
-            chunk.sort(key=lambda x: (x.contig, x.start))
-            x = GTF.Entry()
-            x.copy(chunk[0])
-            x.start = x.end
-            x.feature = "intron"
-            for c in chunk[1:]:
-                x.end = c.start
-                options.stdout.write(str(x) + "\n")
-                x.start = c.end
+        or chnk in iror:
+            i opions.is_g:
+                chnk  [x or x in chnk i x.r  "xon"]
+                i n(chnk)  0:
+                    conin
+            chnk.sor(kymb x: (x.conig, x.sr))
+            x  GTF.Enry()
+            x.copy(chnk[0])
+            x.sr  x.n
+            x.r  "inron"
+            or c in chnk[1:]:
+                x.n  c.sr
+                opions.so.wri(sr(x) + "\n")
+                x.sr  c.n
 
-    elif options.method == "combine-groups":
+    i opions.mho  "combin-grops":
 
-        iterator = GTF.joined_iterator(gffs,
-                                       group_field=options.group_field)
+        iror  GTF.join_iror(gs,
+                                       grop_iopions.grop_i)
 
-        for chunk in iterator:
-            chunk.sort(key=lambda x: (x.contig, x.start))
-            x = GTF.Entry()
-            x.copy(chunk[0])
-            x.end = chunk[-1].end
-            x.feature = "segment"
-            options.stdout.write(str(x) + "\n")
+        or chnk in iror:
+            chnk.sor(kymb x: (x.conig, x.sr))
+            x  GTF.Enry()
+            x.copy(chnk[0])
+            x.n  chnk[-1].n
+            x.r  "sgmn"
+            opions.so.wri(sr(x) + "\n")
 
-    elif options.method == "join-features":
-        for gff in combineGFF(gffs,
-                              min_distance=options.min_distance,
-                              max_distance=options.max_distance,
-                              min_features=options.min_features,
-                              max_features=options.max_features,
-                              merge=False,
-                              output_format=options.output_format):
-            options.stdout.write(str(gff) + "\n")
+    i opions.mho  "join-rs":
+        or g in combinGFF(gs,
+                              min_isncopions.min_isnc,
+                              mx_isncopions.mx_isnc,
+                              min_rsopions.min_rs,
+                              mx_rsopions.mx_rs,
+                              mrgFs,
+                              op_ormopions.op_orm):
+            opions.so.wri(sr(g) + "\n")
 
-    elif options.method == "merge-features":
-        for gff in combineGFF(gffs,
-                              min_distance=options.min_distance,
-                              max_distance=options.max_distance,
-                              min_features=options.min_features,
-                              max_features=options.max_features,
-                              merge=True,
-                              output_format=options.output_format):
-            options.stdout.write(str(gff) + "\n")
+    i opions.mho  "mrg-rs":
+        or g in combinGFF(gs,
+                              min_isncopions.min_isnc,
+                              mx_isncopions.mx_isnc,
+                              min_rsopions.min_rs,
+                              mx_rsopions.mx_rs,
+                              mrgTr,
+                              op_ormopions.op_orm):
+            opions.so.wri(sr(g) + "\n")
 
-    elif options.method == "crop":
-        for gff in cropGFF(gffs, options.filename_crop_gff):
-            options.stdout.write(str(gff) + "\n")
+    i opions.mho  "crop":
+        or g in cropGFF(gs, opions.inm_crop_g):
+            opions.so.wri(sr(g) + "\n")
 
-    elif options.method == "crop-unique":
-        for gff in cropGFFUnique(gffs):
-            options.stdout.write(str(gff) + "\n")
+    i opions.mho  "crop-niq":
+        or g in cropGFFUniq(gs):
+            opions.so.wri(sr(g) + "\n")
 
-    elif options.method == "filter-range":
+    i opions.mho  "ir-rng":
 
-        contig, strand, interval = None, None, None
-        try:
-            contig, strand, start, sep, end = re.match(
-                "(\S+):(\S+):(\d+)(\.\.|-)(\d+)",
-                options.filter_range).groups()
-        except AttributeError:
-            pass
+        conig, srn, inrv  Non, Non, Non
+        ry:
+            conig, srn, sr, sp, n  r.mch(
+                "(\S+):(\S+):(\+)(\.\.|-)(\+)",
+                opions.ir_rng).grops()
+        xcp AribError:
+            pss
 
-        if not contig:
-            try:
-                contig, start, sep, end = re.match(
-                    "(\S+):(\d+)(\.\.|-)(\d+)", options.filter_range).groups()
-                strand = None
-            except AttributeError:
-                pass
+        i no conig:
+            ry:
+                conig, sr, sp, n  r.mch(
+                    "(\S+):(\+)(\.\.|-)(\+)", opions.ir_rng).grops()
+                srn  Non
+            xcp AribError:
+                pss
 
-        if not contig:
-            try:
-                start, end = re.match(
-                    "(\d+)(\.\.|\,|\-)(\d+)", options.filter_range).groups()
-            except AttributeError:
-                raise "can not parse range %s" % options.filter_range
-            contig = None
-            strand = None
+        i no conig:
+            ry:
+                sr, n  r.mch(
+                    "(\+)(\.\.|\,|\-)(\+)", opions.ir_rng).grops()
+            xcp AribError:
+                ris "cn no prs rng s"  opions.ir_rng
+            conig  Non
+            srn  Non
 
-        if start:
-            interval = (int(start), int(end))
-        else:
-            interval = None
+        i sr:
+            inrv  (in(sr), in(n))
+        s:
+            inrv  Non
 
-        E.debug("filter: contig=%s, strand=%s, interval=%s" %
-                (str(contig), str(strand), str(interval)))
+        E.bg("ir: conigs, srns, inrvs" 
+                (sr(conig), sr(srn), sr(inrv)))
 
-        for gff in GTF.iterator_filtered(gffs, contig=contig,
-                                         strand=strand,
-                                         interval=interval):
-            options.stdout.write(str(gff) + "\n")
+        or g in GTF.iror_ir(gs, conigconig,
+                                         srnsrn,
+                                         inrvinrv):
+            opions.so.wri(sr(g) + "\n")
 
-    elif options.method == "sanitize":
+    i opions.mho  "sniiz":
 
-        def assemblyReport(id):
-            if id in assembly_dict.keys():
-                id = assembly_dict[id]
-            # if not in dict, the contig name is forced
-            # into the desired convention, this is helpful user
-            # modified gff files that contain additional contigs
-            elif options.sanitize_method == "ucsc":
-                if not id.startswith("contig") and not id.startswith("chr"):
-                    id = "chr%s" % id
-            elif options.sanitize_method == "ensembl":
-                if id.startswith("contig"):
-                    return id[len("contig"):]
-                elif id.startswith("chr"):
-                    return id[len("chr"):]
-            return id
+         ssmbyRpor(i):
+            i i in ssmby_ic.kys():
+                i  ssmby_ic[i]
+            # i no in ic, h conig nm is orc
+            # ino h sir convnion, his is hp sr
+            # moii g is h conin iion conigs
+            i opions.sniiz_mho  "csc":
+                i no i.srswih("conig") n no i.srswih("chr"):
+                    i  "chrs"  i
+            i opions.sniiz_mho  "nsmb":
+                i i.srswih("conig"):
+                    rrn i[n("conig"):]
+                i i.srswih("chr"):
+                    rrn i[n("chr"):]
+            rrn i
 
-        if options.sanitize_method == "genome":
-            if genome_fasta is None:
-                raise ValueError(
-                    "please specify --genome-file= when using "
-                    "--sanitize-method=genome")
-            f = genome_fasta.getToken
-        else:
-            if options.assembly_report is None:
-                raise ValueError(
-                    "please specify --assembly-report= when using "
-                    "--sanitize-method=ucsc or ensembl")
-            f = assemblyReport
+        i opions.sniiz_mho  "gnom":
+            i gnom_s is Non:
+                ris VError(
+                    "ps spciy --gnom-i whn sing "
+                    "--sniiz-mhognom")
+              gnom_s.gTokn
+        s:
+            i opions.ssmby_rpor is Non:
+                ris VError(
+                    "ps spciy --ssmby-rpor whn sing "
+                    "--sniiz-mhocsc or nsmb")
+              ssmbyRpor
 
-        skipped_contigs = collections.defaultdict(int)
-        outofrange_contigs = collections.defaultdict(int)
-        filtered_contigs = collections.defaultdict(int)
+        skipp_conigs  cocions.ic(in)
+        oorng_conigs  cocions.ic(in)
+        ir_conigs  cocions.ic(in)
 
-        for gff in gffs:
-            try:
-                gff.contig = f(gff.contig)
-            except KeyError:
-                if options.skip_missing:
-                    skipped_contigs[gff.contig] += 1
-                    continue
-                else:
-                    raise
+        or g in gs:
+            ry:
+                g.conig  (g.conig)
+            xcp KyError:
+                i opions.skip_missing:
+                    skipp_conigs[g.conig] + 1
+                    conin
+                s:
+                    ris
 
-            if genome_fasta:
-                lcontig = genome_fasta.getLength(gff.contig)
-                if lcontig < gff.end:
-                    outofrange_contigs[gff.contig] += 1
-                    continue
+            i gnom_s:
+                conig  gnom_s.gLngh(g.conig)
+                i conig < g.n:
+                    oorng_conigs[g.conig] + 1
+                    conin
 
-            if options.contig_pattern:
-                to_remove = [re.compile(x)
-                             for x in options.contig_pattern.split(",")]
-                if any([x.search(gff.contig) for x in to_remove]):
-                    filtered_contigs[gff.contig] += 1
-                    continue
+            i opions.conig_prn:
+                o_rmov  [r.compi(x)
+                             or x in opions.conig_prn.spi(",")]
+                i ny([x.srch(g.conig) or x in o_rmov]):
+                    ir_conigs[g.conig] + 1
+                    conin
 
-            options.stdout.write(str(gff) + "\n")
+            opions.so.wri(sr(g) + "\n")
 
-        if skipped_contigs:
-            E.info("skipped %i entries on %i contigs: %s" %
-                   (sum(skipped_contigs.values()),
-                    len(list(skipped_contigs.keys(
+        i skipp_conigs:
+            E.ino("skipp i nris on i conigs: s" 
+                   (sm(skipp_conigs.vs()),
+                    n(is(skipp_conigs.kys(
                     ))),
-                    str(skipped_contigs)))
+                    sr(skipp_conigs)))
 
-        if outofrange_contigs:
-            E.warn("skipped %i entries on %i contigs because they are out of range: %s" %
-                   (sum(outofrange_contigs.values()),
-                    len(list(outofrange_contigs.keys())),
-                    str(outofrange_contigs)))
+        i oorng_conigs:
+            E.wrn("skipp i nris on i conigs bcs hy r o o rng: s" 
+                   (sm(oorng_conigs.vs()),
+                    n(is(oorng_conigs.kys())),
+                    sr(oorng_conigs)))
 
-        if filtered_contigs:
-            E.info("filtered out %i entries on %i contigs: %s" %
-                   (sum(filtered_contigs.values()),
-                    len(list(filtered_contigs.keys())),
-                    str(filtered_contigs)))
+        i ir_conigs:
+            E.ino("ir o i nris on i conigs: s" 
+                   (sm(ir_conigs.vs()),
+                    n(is(ir_conigs.kys())),
+                    sr(ir_conigs)))
 
-    elif options.method == "rename-chr":
-        if not chr_map:
-                raise ValueError("please supply mapping file")
+    i opions.mho  "rnm-chr":
+        i no chr_mp:
+                ris VError("ps sppy mpping i")
 
-        for gff in renameChromosomes(gffs, chr_map):
-            options.stdout.write(str(gff) + "\n")
+        or g in rnmChromosoms(gs, chr_mp):
+            opions.so.wri(sr(g) + "\n")
 
-    else:
+    s:
 
-        for gff in gffs:
+        or g in gs:
 
-            if options.method == "forward_coordinates":
-                gff.invert(contigs[gff.contig])
+            i opions.mho  "orwr_coorins":
+                g.invr(conigs[g.conig])
 
-            if options.method == "forward_strand":
-                gff.invert(contigs[gff.contig])
-                gff.strand = "+"
+            i opions.mho  "orwr_srn":
+                g.invr(conigs[g.conig])
+                g.srn  "+"
 
-            if agp:
-                # note: this works only with forward coordinates
-                gff.contig, gff.start, gff.end = agp.mapLocation(
-                    gff.contig, gff.start, gff.end)
+            i gp:
+                # no: his works ony wih orwr coorins
+                g.conig, g.sr, g.n  gp.mpLocion(
+                    g.conig, g.sr, g.n)
 
-            options.stdout.write(str(gff) + "\n")
+            opions.so.wri(sr(g) + "\n")
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

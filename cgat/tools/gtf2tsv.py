@@ -1,61 +1,61 @@
-'''gtf2tsv.py - convert gtf file to a tab-separated table
-======================================================
+'''g2sv.py - convr g i o  b-spr b
 
-:Tags: Genomics Genesets
 
-Purpose
+:Tgs: Gnomics Gnss
+
+Prpos
 -------
 
-convert a gtf formatted file to tab-separated table. The difference to
-a plain :term:`gtf` formatted file is that column headers are added,
-which can be useful when importing the gene models into a database.
+convr  g orm i o b-spr b. Th irnc o
+ pin :rm:`g` orm i is h comn hrs r ,
+which cn b s whn imporing h gn mos ino  bs.
 
-Note that coordinates are converted to 0-based open/closed notation (all on
-the forward strand).
+No h coorins r convr o 0-bs opn/cos noion ( on
+h orwr srn).
 
-By default, the gene_id and transcript_id are extracted from the
-attributes field into separated columns.  If
-``-f/--attributes-as-columns`` is set, all fields in the attributes
-will be split into separate columns.
+By , h gn_i n rnscrip_i r xrc rom h
+ribs i ino spr comns.  I
+``-/--ribs-s-comns`` is s,  is in h ribs
+wi b spi ino spr comns.
 
-The script also implements the reverse operation, converting a tab-separated
-table into a :term:`gtf` formatted file.
+Th scrip so impmns h rvrs oprion, convring  b-spr
+b ino  :rm:`g` orm i.
 
-When using the ``-m, --map`` option, the script will output a table
-mapping gene identifiers to transcripts or peptides.
+Whn sing h ``-m, --mp`` opion, h scrip wi op  b
+mpping gn iniirs o rnscrips or ppis.
 
 USING GFF3 FILE:
-The script also can convert gff3 formatted files to tsv files when
-specifiying the option --is-gff3 and --attributes-as-columns. Currently only
-the full GFF3 to task is implimented. Further improvements to this script can
-be made to only output the attributes only, i.e. --output-only-attributes.
+Th scrip so cn convr g3 orm is o sv is whn
+spciiying h opion --is-g3 n --ribs-s-comns. Crrny ony
+h  GFF3 o sk is impimn. Frhr improvmns o his scrip cn
+b m o ony op h ribs ony, i.. --op-ony-ribs.
 
 
 
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   cgat gtf2tsv < in.gtf
+   cg g2sv < in.g
 
 +------+--------------------------------+-----------+------+------+-----+------+-----+---------------+---------------+-------------------------------------------------------------------------------------------------------------------------------------+
-|contig|source                          |feature    |start |end   |score|strand|frame|gene_id        |transcript_id  |attributes                                                                                                                           |
+|conig|sorc                          |r    |sr |n   |scor|srn|rm|gn_i        |rnscrip_i  |ribs                                                                                                                           |
 +------+--------------------------------+-----------+------+------+-----+------+-----+---------------+---------------+-------------------------------------------------------------------------------------------------------------------------------------+
-|chr19 |processed_transcript            |exon       |66345 |66509 |.    |-     |.    |ENSG00000225373|ENST00000592209|exon_number "1"; gene_name "AC008993.5"; gene_biotype "pseudogene"; transcript_name "AC008993.5-002"; exon_id "ENSE00001701708"      |
+|chr19 |procss_rnscrip            |xon       |66345 |66509 |.    |-     |.    |ENSG00000225373|ENST00000592209|xon_nmbr "1"; gn_nm "AC008993.5"; gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002"; xon_i "ENSE00001701708"      |
 +------+--------------------------------+-----------+------+------+-----+------+-----+---------------+---------------+-------------------------------------------------------------------------------------------------------------------------------------+
-|chr19 |processed_transcript            |exon       |60520 |60747 |.    |-     |.    |ENSG00000225373|ENST00000592209|exon_number "2"; gene_name "AC008993.5"; gene_biotype "pseudogene"; transcript_name "AC008993.5-002"; exon_id "ENSE00002735807"      |
+|chr19 |procss_rnscrip            |xon       |60520 |60747 |.    |-     |.    |ENSG00000225373|ENST00000592209|xon_nmbr "2"; gn_nm "AC008993.5"; gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002"; xon_i "ENSE00002735807"      |
 +------+--------------------------------+-----------+------+------+-----+------+-----+---------------+---------------+-------------------------------------------------------------------------------------------------------------------------------------+
-|chr19 |processed_transcript            |exon       |60104 |60162 |.    |-     |.    |ENSG00000225373|ENST00000592209|exon_number "3"; gene_name "AC008993.5"; gene_biotype "pseudogene"; transcript_name "AC008993.5-002"; exon_id "ENSE00002846866"      |
+|chr19 |procss_rnscrip            |xon       |60104 |60162 |.    |-     |.    |ENSG00000225373|ENST00000592209|xon_nmbr "3"; gn_nm "AC008993.5"; gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002"; xon_i "ENSE00002846866"      |
 +------+--------------------------------+-----------+------+------+-----+------+-----+---------------+---------------+-------------------------------------------------------------------------------------------------------------------------------------+
 
-To build a map between gene and transcrip identiers, type::
+To bi  mp bwn gn n rnscrip inirs, yp::
 
-   cgat gtf2tsv --output-map=transcript2gene < in.gtf
+   cg g2sv --op-mprnscrip2gn < in.g
 
 +---------------+---------------+
-|transcript_id  |gene_id        |
+|rnscrip_i  |gn_i        |
 +---------------+---------------+
 |ENST00000269812|ENSG00000141934|
 +---------------+---------------+
@@ -64,235 +64,235 @@ To build a map between gene and transcrip identiers, type::
 |ENST00000327790|ENSG00000141934|
 +---------------+---------------+
 
-To run the script to convert a gff3 formatted file to tsv, type::
+To rn h scrip o convr  g3 orm i o sv, yp::
 
-   cat file.gff3.gz | cgat gtf3tsv --is-gff3 --attributes-as-columns
-   > outfile.tsv
+   c i.g3.gz | cg g3sv --is-g3 --ribs-s-comns
+   > oi.sv
 
-Type::
+Typ::
 
-   cgat gtf2tsv --help
+   cg g2sv --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 ---------------------
 
 '''
-import sys
-import re
-import cgat.GTF as GTF
-import cgatcore.experiment as E
-import cgat.GFF3 as GFF3
+impor sys
+impor r
+impor cg.GTF s GTF
+impor cgcor.xprimn s E
+impor cg.GFF3 s GFF3
 
 
-def main(argv=None):
+ min(rgvNon):
     '''
-    main function
+    min ncion
     '''
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-o", "--output-only-attributes", dest="only_attributes",
-        action="store_true",
-        help="output only attributes as separate columns "
-        "[default=%default].")
+    prsr._rgmn(
+        "-o", "--op-ony-ribs", s"ony_ribs",
+        cion"sor_r",
+        hp"op ony ribs s spr comns "
+        "[].")
 
-    parser.add_argument(
-        "-f", "--attributes-as-columns", dest="output_full",
-        action="store_true",
-        help="output attributes as separate columns "
-        "[default=%default].")
+    prsr._rgmn(
+        "-", "--ribs-s-comns", s"op_",
+        cion"sor_r",
+        hp"op ribs s spr comns "
+        "[].")
 
-    parser.add_argument("--is-gff3", dest="is_gtf", action="store_false",
-                      help="input file is in gtf format [default=%default] ")
+    prsr._rgmn("--is-g3", s"is_g", cion"sor_s",
+                      hp"inp i is in g orm [] ")
 
-    parser.add_argument(
-        "-i", "--invert", dest="invert", action="store_true",
-        help="convert tab-separated table back to gtf "
-        "[default=%default].")
+    prsr._rgmn(
+        "-i", "--invr", s"invr", cion"sor_r",
+        hp"convr b-spr b bck o g "
+        "[].")
 
-    parser.add_argument(
-        "-m", "--output-map", dest="output_map", type="choice",
-        choices=(
-            "transcript2gene",
-            "peptide2gene",
-            "peptide2transcript"),
-        help="output a map mapping transcripts to genes "
-        "[default=%default].")
+    prsr._rgmn(
+        "-m", "--op-mp", s"op_mp", yp"choic",
+        choics(
+            "rnscrip2gn",
+            "ppi2gn",
+            "ppi2rnscrip"),
+        hp"op  mp mpping rnscrips o gns "
+        "[].")
 
-    parser.set_defaults(
-        only_attributes=False,
-        output_full=False,
-        invert=False,
-        output_map=None,
-        is_gtf=True
+    prsr.s_s(
+        ony_ribsFs,
+        op_Fs,
+        invrFs,
+        op_mpNon,
+        is_gTr
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if options.output_full:
-        # output full table with column for each attribute
+    i opions.op_:
+        # op  b wih comn or ch rib
 
-        attributes = set()
-        data = []
-        if options.is_gtf:
-            for gtf in GTF.iterator(options.stdin):
-                data.append(gtf)
-                attributes = attributes.union(set(gtf.keys()))
+        ribs  s()
+          []
+        i opions.is_g:
+            or g in GTF.iror(opions.sin):
+                .ppn(g)
+                ribs  ribs.nion(s(g.kys()))
 
-        else:
-            for gff in GFF3.iterator_from_gff(options.stdin):
-                data.append(gff)
-                attributes = attributes.union(set(gff.attributes))
+        s:
+            or g in GFF3.iror_rom_g(opions.sin):
+                .ppn(g)
+                ribs  ribs.nion(s(g.ribs))
 
-        # remove gene_id and transcript_id, as they are used
-        # explicitely later
-        attributes.difference_update(["gene_id", "transcript_id"])
+        # rmov gn_i n rnscrip_i, s hy r s
+        # xpiciy r
+        ribs.irnc_p(["gn_i", "rnscrip_i"])
 
-        attributes = sorted(list(attributes))
+        ribs  sor(is(ribs))
 
-        # Select whether gtf of gff for output columns
-        if options.is_gtf:
-            if options.only_attributes:
-                header = ["gene_id", "transcript_id"] + attributes
-            else:
-                header = ["contig", "source", "feature",
-                          "start", "end", "score", "strand",
-                          "frame", "gene_id",
-                          "transcript_id", ] + attributes
-        else:
-            if options.only_attributes:
-                header = attributes
-            else:
-                header = ["contig", "source", "feature",
-                          "start", "end", "score", "strand",
-                          "frame"] + attributes
+        # Sc whhr g o g or op comns
+        i opions.is_g:
+            i opions.ony_ribs:
+                hr  ["gn_i", "rnscrip_i"] + ribs
+            s:
+                hr  ["conig", "sorc", "r",
+                          "sr", "n", "scor", "srn",
+                          "rm", "gn_i",
+                          "rnscrip_i", ] + ribs
+        s:
+            i opions.ony_ribs:
+                hr  ribs
+            s:
+                hr  ["conig", "sorc", "r",
+                          "sr", "n", "scor", "srn",
+                          "rm"] + ribs
 
-        attributes_new = header
+        ribs_nw  hr
 
-        options.stdout.write("\t".join(header) + "\n")
+        opions.so.wri("\".join(hr) + "\n")
 
-        if options.is_gtf:
-            for gtf in data:
-                first = True
-                for a in attributes_new:
-                    try:
-                        val = getattr(gtf, a)
-                    except (AttributeError, KeyError):
-                        val = ""
-                    if first:
-                        options.stdout.write("%s" % val)
-                        first = False
-                    else:
-                        options.stdout.write("\t%s" % val)
-                options.stdout.write("\n")
-        else:
-            for gff in data:
-                options.stdout.write(("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t") % (gff.contig,
-                                                                             gff.source, gff.feature, gff.start, gff.end,
-                                                                             gff.score, gff.strand, gff.frame))
+        i opions.is_g:
+            or g in :
+                irs  Tr
+                or  in ribs_nw:
+                    ry:
+                        v  gr(g, )
+                    xcp (AribError, KyError):
+                        v  ""
+                    i irs:
+                        opions.so.wri("s"  v)
+                        irs  Fs
+                    s:
+                        opions.so.wri("\s"  v)
+                opions.so.wri("\n")
+        s:
+            or g in :
+                opions.so.wri(("s\s\s\s\s\s\s\s\")  (g.conig,
+                                                                             g.sorc, g.r, g.sr, g.n,
+                                                                             g.scor, g.srn, g.rm))
 
-                first = True
-                for a in attributes:
-                    try:
-                        val = (gff.attributes[a])
-                    except (AttributeError, KeyError):
-                        val = ''
-                    if first:
-                        options.stdout.write("%s" % val)
-                        first = False
-                    else:
-                        options.stdout.write("\t%s" % val)
-                options.stdout.write("\n")
+                irs  Tr
+                or  in ribs:
+                    ry:
+                        v  (g.ribs[])
+                    xcp (AribError, KyError):
+                        v  ''
+                    i irs:
+                        opions.so.wri("s"  v)
+                        irs  Fs
+                    s:
+                        opions.so.wri("\s"  v)
+                opions.so.wri("\n")
 
-    elif options.invert:
+    i opions.invr:
 
-        gtf = GTF.Entry()
-        header = None
-        for line in options.stdin:
-            if line.startswith("#"):
-                continue
-            data = line[:-1].split("\t")
-            if not header:
-                header = data
-                map_header2column = dict(
-                    [(y, x) for x, y in enumerate(header)])
-                continue
+        g  GTF.Enry()
+        hr  Non
+        or in in opions.sin:
+            i in.srswih("#"):
+                conin
+              in[:-1].spi("\")
+            i no hr:
+                hr  
+                mp_hr2comn  ic(
+                    [(y, x) or x, y in nmr(hr)])
+                conin
 
-            # fill gtf entry with data
-            try:
-                gtf.contig = data[map_header2column["contig"]]
-                gtf.source = data[map_header2column["source"]]
-                gtf.feature = data[map_header2column["feature"]]
-                # subtract -1 to start for 0-based coordinates
-                gtf.start = int(data[map_header2column["start"]])
-                gtf.end = int(data[map_header2column["end"]])
-                gtf.score = data[map_header2column["score"]]
-                gtf.strand = data[map_header2column["strand"]]
-                gtf.frame = data[map_header2column["frame"]]
-                gtf.gene_id = data[map_header2column["gene_id"]]
-                gtf.transcript_id = data[map_header2column["transcript_id"]]
-                gtf.parseInfo(data[map_header2column["attributes"]], line)
-            except KeyError as msg:
-                raise KeyError("incomplete entry %s: %s: %s" %
-                               (str(data), str(map_header2column), msg))
-            if gtf.frame is None:
-                gtf.frame = "."
-            # output gtf entry in gtf format
-            options.stdout.write("%s\n" % str(gtf))
+            # i g nry wih 
+            ry:
+                g.conig  [mp_hr2comn["conig"]]
+                g.sorc  [mp_hr2comn["sorc"]]
+                g.r  [mp_hr2comn["r"]]
+                # sbrc -1 o sr or 0-bs coorins
+                g.sr  in([mp_hr2comn["sr"]])
+                g.n  in([mp_hr2comn["n"]])
+                g.scor  [mp_hr2comn["scor"]]
+                g.srn  [mp_hr2comn["srn"]]
+                g.rm  [mp_hr2comn["rm"]]
+                g.gn_i  [mp_hr2comn["gn_i"]]
+                g.rnscrip_i  [mp_hr2comn["rnscrip_i"]]
+                g.prsIno([mp_hr2comn["ribs"]], in)
+            xcp KyError s msg:
+                ris KyError("incomp nry s: s: s" 
+                               (sr(), sr(mp_hr2comn), msg))
+            i g.rm is Non:
+                g.rm  "."
+            # op g nry in g orm
+            opions.so.wri("s\n"  sr(g))
 
-    elif options.output_map:
+    i opions.op_mp:
 
-        if options.output_map == "transcript2gene":
-            fr = lambda x: x.transcript_id
-            to = lambda x: x.gene_id
-            options.stdout.write("transcript_id\tgene_id\n")
-        elif options.output_map == "peptide2gene":
-            fr = lambda x: x.protein_id
-            to = lambda x: x.gene_id
-            options.stdout.write("peptide_id\tgene_id\n")
-        elif options.output_map == "peptide2transcript":
-            fr = lambda x: x.protein_id
-            to = lambda x: x.transcript_id
-            options.stdout.write("peptide_id\ttranscript_id\n")
+        i opions.op_mp  "rnscrip2gn":
+            r  mb x: x.rnscrip_i
+            o  mb x: x.gn_i
+            opions.so.wri("rnscrip_i\gn_i\n")
+        i opions.op_mp  "ppi2gn":
+            r  mb x: x.proin_i
+            o  mb x: x.gn_i
+            opions.so.wri("ppi_i\gn_i\n")
+        i opions.op_mp  "ppi2rnscrip":
+            r  mb x: x.proin_i
+            o  mb x: x.rnscrip_i
+            opions.so.wri("ppi_i\rnscrip_i\n")
 
-        map_fr2to = {}
-        for gtf in GTF.iterator(options.stdin):
-            try:
-                map_fr2to[fr(gtf)] = to(gtf)
-            except (AttributeError, KeyError):
-                pass
+        mp_r2o  {}
+        or g in GTF.iror(opions.sin):
+            ry:
+                mp_r2o[r(g)]  o(g)
+            xcp (AribError, KyError):
+                pss
 
-        for x, y in sorted(map_fr2to.items()):
-            options.stdout.write("%s\t%s\n" % (x, y))
-    else:
-        header = ("contig", "source", "feature", "start", "end", "score",
-                  "strand", "frame", "gene_id", "transcript_id", "attributes")
-        options.stdout.write("\t".join(header) + "\n")
+        or x, y in sor(mp_r2o.ims()):
+            opions.so.wri("s\s\n"  (x, y))
+    s:
+        hr  ("conig", "sorc", "r", "sr", "n", "scor",
+                  "srn", "rm", "gn_i", "rnscrip_i", "ribs")
+        opions.so.wri("\".join(hr) + "\n")
 
-        for gtf in GTF.iterator(options.stdin):
-            attributes = []
-            for a in list(gtf.keys()):
-                if a in ("gene_id", "transcript_id"):
-                    continue
-                attributes.append('%s %s' % (a, GTF.quote(gtf[a])))
+        or g in GTF.iror(opions.sin):
+            ribs  []
+            or  in is(g.kys()):
+                i  in ("gn_i", "rnscrip_i"):
+                    conin
+                ribs.ppn('s s'  (, GTF.qo(g[])))
 
-            attributes = "; ".join(attributes)
+            ribs  "; ".join(ribs)
 
-            # Capture if None and set to . format
-            if gtf.frame is None:
-                gtf.frame = "."
+            # Cpr i Non n s o . orm
+            i g.rm is Non:
+                g.rm  "."
 
-            options.stdout.write(str(gtf) + "\n")
+            opions.so.wri(sr(g) + "\n")
 
-    E.stop()
+    E.sop()
 
-if __name__ == '__main__':
-    sys.exit(main())
+i __nm__  '__min__':
+    sys.xi(min())

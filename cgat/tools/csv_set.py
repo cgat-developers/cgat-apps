@@ -1,155 +1,155 @@
 '''
-csv_set.py - set operations on a table
-======================================
+csv_s.py - s oprions on  b
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-.. todo::
+.. oo::
    
-   describe purpose of the script.
+   scrib prpos o h scrip.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python csv_set.py --help
+   pyhon csv_s.py --hp
 
-Type::
+Typ::
 
-   python csv_set.py --help
+   pyhon csv_s.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
+impor sys
 
-import cgatcore.experiment as E
-from cgatcore.csvutils import readTable
-import hashlib
-
-
-class UniqueBuffer:
-    mKeys = {}
-
-    def __init__(self, outfile):
-        self.mOutfile = outfile
-
-    def write(self, out):
-        key = hashlib.md5(out).digest()
-        if key not in self.mKeys:
-            self.mKeys[key] = True
-            self.mOutfile.write(out)
+impor cgcor.xprimn s E
+rom cgcor.csvis impor rTb
+impor hshib
 
 
-def main(argv=None):
-    """script main.
+css UniqBr:
+    mKys  {}
 
-    parses command line options in sys.argv, unless *argv* is given.
+     __ini__(s, oi):
+        s.mOi  oi
+
+     wri(s, o):
+        ky  hshib.m5(o).igs()
+        i ky no in s.mKys:
+            s.mKys[ky]  Tr
+            s.mOi.wri(o)
+
+
+ min(rgvNon):
+    """scrip min.
+
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: csv_set.py 2782 2009-09-10 11:40:29Z andreas $")
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I: csv_s.py 2782 2009-09-10 11:40:29Z nrs $")
 
-    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
+                      hp"op rows r niq.")
 
-    parser.add_argument("-1", "--join-fields1", dest="join_fields1", type="string",
-                      help="join fields in first table.")
-    parser.add_argument("-2", "--join-fields2", dest="join_fields2", type="string",
-                      help="join fields in second table.")
-    parser.add_argument("-m", "--method", dest="method", type="choice",
-                      help="set operation to perform.", choices=("intersection", "rest", "union"))
+    prsr._rgmn("-1", "--join-is1", s"join_is1", yp"sring",
+                      hp"join is in irs b.")
+    prsr._rgmn("-2", "--join-is2", s"join_is2", yp"sring",
+                      hp"join is in scon b.")
+    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
+                      hp"s oprion o prorm.", choics("inrscion", "rs", "nion"))
 
-    parser.set_defaults(
-        remove=False,
-        unique=False,
-        join_fields1=None,
-        join_fields2=None,
-        method="intersection",
+    prsr.s_s(
+        rmovFs,
+        niqFs,
+        join_is1Non,
+        join_is2Non,
+        mho"inrscion",
     )
 
-    (options, args) = E.start(parser, add_csv_options=True)
+    (opions, rgs)  E.sr(prsr, _csv_opionsTr)
 
-    if len(args) != 2:
-        raise ValueError("please specify two files to join")
+    i n(rgs) ! 2:
+        ris VError("ps spciy wo is o join")
 
-    if not options.join_fields1 or not options.join_fields2:
-        raise ValueError("please specify at least one join field per table")
+    i no opions.join_is1 or no opions.join_is2:
+        ris VError("ps spciy  s on join i pr b")
 
-    options.join_fields1 = options.join_fields1.split(",")
-    options.join_fields2 = options.join_fields2.split(",")
+    opions.join_is1  opions.join_is1.spi(",")
+    opions.join_is2  opions.join_is2.spi(",")
 
-    options.filename1, options.filename2 = args
+    opions.inm1, opions.inm2  rgs
 
-    fields1, table1 = readTable(open(options.filename1, "r"))
-    fields2, table2 = readTable(open(options.filename2, "r"))
+    is1, b1  rTb(opn(opions.inm1, "r"))
+    is2, b2  rTb(opn(opions.inm2, "r"))
 
-    if options.unique:
-        outfile = UniqueBuffer(sys.stdout)
-    else:
-        outfile = options.stdout
+    i opions.niq:
+        oi  UniqBr(sys.so)
+    s:
+        oi  opions.so
 
-    nfields1 = []
-    for x in range(len(fields1)):
-        if fields1[x] in options.join_fields1:
-            nfields1.append(x)
-    nfields2 = []
-    for x in range(len(fields2)):
-        if fields2[x] in options.join_fields2:
-            nfields2.append(x)
+    nis1  []
+    or x in rng(n(is1)):
+        i is1[x] in opions.join_is1:
+            nis1.ppn(x)
+    nis2  []
+    or x in rng(n(is2)):
+        i is2[x] in opions.join_is2:
+            nis2.ppn(x)
 
-    # calculate row indices: double keys are not taken care of here
-    keys = {}
-    for row1 in table1:
-        v = [row1[x] for x in nfields1]
-        key = hashlib.md5("".join(v)).digest()
-        keys[key] = row1
+    # cc row inics: ob kys r no kn cr o hr
+    kys  {}
+    or row1 in b1:
+        v  [row1[x] or x in nis1]
+        ky  hshib.m5("".join(v)).igs()
+        kys[ky]  row1
 
-    if options.method == "intersection":
-        # build new field list
-        take = list(range(len(fields1)))
-        c = len(take)
-        for x in fields2:
-            if x not in options.join_fields2:
-                take.append(c)
-            c += 1
+    i opions.mho  "inrscion":
+        # bi nw i is
+        k  is(rng(n(is1)))
+        c  n(k)
+        or x in is2:
+            i x no in opions.join_is2:
+                k.ppn(c)
+            c + 1
 
-        t = fields1 + fields2
+          is1 + is2
 
-        new_fields = [t[x] for x in take]
+        nw_is  [[x] or x in k]
 
-        print("\t".join(new_fields))
+        prin("\".join(nw_is))
 
-        for row2 in table2:
-            v = [row2[x] for x in nfields2]
-            key = hashlib.md5("".join(v)).digest()
-            if key in keys:
-                new_row = keys[key] + row2
-                outfile.write(
-                    "\t".join([new_row[x] for x in take]) + "\n")
+        or row2 in b2:
+            v  [row2[x] or x in nis2]
+            ky  hshib.m5("".join(v)).igs()
+            i ky in kys:
+                nw_row  kys[ky] + row2
+                oi.wri(
+                    "\".join([nw_row[x] or x in k]) + "\n")
 
-    elif options.method == "rest":
+    i opions.mho  "rs":
 
-        new_fields = fields2
-        print("\t".join(new_fields))
+        nw_is  is2
+        prin("\".join(nw_is))
 
-        for row2 in table2:
-            v = [row2[x] for x in nfields2]
-            key = hashlib.md5("".join(v)).digest()
-            if key not in keys:
-                outfile.write("\t".join(row2) + "\n")
+        or row2 in b2:
+            v  [row2[x] or x in nis2]
+            ky  hshib.m5("".join(v)).igs()
+            i ky no in kys:
+                oi.wri("\".join(row2) + "\n")
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

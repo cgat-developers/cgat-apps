@@ -1,155 +1,155 @@
 """
-index2bed.py - convert indexed fasta file to bed file
-=====================================================
+inx2b.py - convr inx s i o b i
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-Usage
+Usg
 -----
 
-Type::
+Typ::
 
-   python <script_name>.py --help
+   pyhon <scrip_nm>.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 """
 
-import sys
-import re
-import cgat.IndexedFasta as IndexedFasta
-import cgatcore.experiment as E
+impor sys
+impor r
+impor cg.InxFs s InxFs
+impor cgcor.xprimn s E
 
 
-def getFixedWidthWindows(map_contig2size, window_size):
-    """return a list of fixed contig sizes."""
+ gFixWihWinows(mp_conig2siz, winow_siz):
+    """rrn  is o ix conig sizs."""
 
-    for contig, size in list(map_contig2size.items()):
-        E.info("processing %s" % contig)
-        for x in range(0, size, window_increment):
-            if x + window_size > size:
-                continue
-            gff = GTF.Entry()
-            gff.feature = "window"
-            gff.source = "window"
-            gff.contig = contig
-            gff.start = x
-            gff.end = min(size, x + window_size)
-            yield gff
+    or conig, siz in is(mp_conig2siz.ims()):
+        E.ino("procssing s"  conig)
+        or x in rng(0, siz, winow_incrmn):
+            i x + winow_siz > siz:
+                conin
+            g  GTF.Enry()
+            g.r  "winow"
+            g.sorc  "winow"
+            g.conig  conig
+            g.sr  x
+            g.n  min(siz, x + winow_siz)
+            yi g
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
-        help="filename with genome [default=%default].")
+    prsr._rgmn(
+        "-g", "--gnom-i", s"gnom_i", yp"sring",
+        hp"inm wih gnom [].")
 
-    parser.add_argument(
-        "--remove-regex", dest="remove_regex",
-        type="string",
-        help="regular expression of contigs to remove [default=None].")
+    prsr._rgmn(
+        "--rmov-rgx", s"rmov_rgx",
+        yp"sring",
+        hp"rgr xprssion o conigs o rmov [Non].")
 
-    parser.add_argument(
-        "-e", "--gff-file", dest="gff_file", type="string",
-        help="gff file to use for getting contig sizes.")
+    prsr._rgmn(
+        "-", "--g-i", s"g_i", yp"sring",
+        hp"g i o s or ging conig sizs.")
 
-    parser.add_argument(
-        "-f", "--fixed-width-windows",
-        dest="fixed_width_windows", type="string",
-        help="fixed width windows. Supply the window size as a "
-        "parameter. Optionally supply an offset.")
+    prsr._rgmn(
+        "-", "--ix-wih-winows",
+        s"ix_wih_winows", yp"sring",
+        hp"ix wih winows. Sppy h winow siz s  "
+        "prmr. Opiony sppy n os.")
 
-    parser.set_defaults(
-        genome_file=None,
-        remove_regex=None,
-        fixed_windows=None,
+    prsr.s_s(
+        gnom_iNon,
+        rmov_rgxNon,
+        ix_winowsNon,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if options.remove_regex:
-        remove_regex = re.compile(options.remove_regex)
-    else:
-        remove_regex = None
+    i opions.rmov_rgx:
+        rmov_rgx  r.compi(opions.rmov_rgx)
+    s:
+        rmov_rgx  Non
 
-    if options.fixed_width_windows:
-        v = list(map(int, options.fixed_width_windows.split(",")))
-        if len(v) == 2:
-            window_size, window_increment = v
-        elif len(v) == 1:
-            window_size, window_increment = v[0], v[0]
-        else:
-            raise ValueError(
-                "could not parse window size '%s': should be size[,increment]" % options.fixed_width_windows)
+    i opions.ix_wih_winows:
+        v  is(mp(in, opions.ix_wih_winows.spi(",")))
+        i n(v)  2:
+            winow_siz, winow_incrmn  v
+        i n(v)  1:
+            winow_siz, winow_incrmn  v[0], v[0]
+        s:
+            ris VError(
+                "co no prs winow siz 's': sho b siz[,incrmn]"  opions.ix_wih_winows)
 
-    if options.gff_file:
-        infile = iotools.open_file(options.gff_file, "r")
-        gff = GTF.readFromFile(infile)
-        infile.close()
-        for g in gff:
-            try:
-                map_contig2size[g.mName] = max(map_contig2size[g.mName], g.end)
-            except ValueError:
-                map_contig2size[g.mName] = g.end
+    i opions.g_i:
+        ini  iooos.opn_i(opions.g_i, "r")
+        g  GTF.rFromFi(ini)
+        ini.cos()
+        or g in g:
+            ry:
+                mp_conig2siz[g.mNm]  mx(mp_conig2siz[g.mNm], g.n)
+            xcp VError:
+                mp_conig2siz[g.mNm]  g.n
 
-    else:
-        gff = None
+    s:
+        g  Non
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
-        map_contig2size = fasta.getContigSizes(with_synonyms=False)
-    else:
-        fasta = None
+    i opions.gnom_i:
+        s  InxFs.InxFs(opions.gnom_i)
+        mp_conig2siz  s.gConigSizs(wih_synonymsFs)
+    s:
+        s  Non
 
-    if map_contig2size is None:
-        raise ValueError("no source of contig sizes supplied")
+    i mp_conig2siz is Non:
+        ris VError("no sorc o conig sizs sppi")
 
-    # do sth
-    counter = E.Counter()
+    # o sh
+    conr  E.Conr()
 
-    for contig, size in list(map_contig2size.items()):
-        size = int(size)
-        counter.input += 1
+    or conig, siz in is(mp_conig2siz.ims()):
+        siz  in(siz)
+        conr.inp + 1
 
-        if remove_regex and remove_regex.search(contig):
-            counter.skipped += 1
-            continue
+        i rmov_rgx n rmov_rgx.srch(conig):
+            conr.skipp + 1
+            conin
 
-        if options.fixed_width_windows:
-            for x in range(0, size, window_increment):
-                if x + window_size > size:
-                    continue
-                options.stdout.write(
-                    "%s\t%i\t%i\n" % (contig, x, min(size, x + window_size)))
-                counter.windows += 1
-        else:
-            options.stdout.write("%s\t%i\t%i\n" % (contig, 0, size))
-            counter.windows += 1
+        i opions.ix_wih_winows:
+            or x in rng(0, siz, winow_incrmn):
+                i x + winow_siz > siz:
+                    conin
+                opions.so.wri(
+                    "s\i\i\n"  (conig, x, min(siz, x + winow_siz)))
+                conr.winows + 1
+        s:
+            opions.so.wri("s\i\i\n"  (conig, 0, siz))
+            conr.winows + 1
 
-        counter.output += 1
+        conr.op + 1
 
-    E.info(str(counter))
+    E.ino(sr(conr))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

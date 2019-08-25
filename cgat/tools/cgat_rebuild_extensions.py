@@ -1,107 +1,107 @@
 '''
-cgat_rebuild_extensions.py - rebuild all cython extensions
-==========================================================
+cg_rbi_xnsions.py - rbi  cyhon xnsions
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-This script rebuilds all cython extensions in the source directory.
+This scrip rbis  cyhon xnsions in h sorc ircory.
 
-Some scripts in the repository make use of ``pyximport`` to compile
-associated cython scripts with embedded C code. Theses scripts are
-automatically re-compiled if the script has changed, but this process
-can fail if:
+Som scrips in h rposiory mk s o ``pyximpor`` o compi
+ssoci cyhon scrips wih mb C co. Thss scrips r
+omicy r-compi i h scrip hs chng, b his procss
+cn i i:
 
-   * the script is executed on a machine without a C-compiler
-   * some underlying libraries have changed.
+   * h scrip is xc on  mchin wiho  C-compir
+   * som nrying ibrris hv chng.
 
-Thus, it is safer to rebuild all scripts on a machine with a C compiler
-before running a script in production on a cluster, where not all nodes
-might be fully configured for compilation.
+Ths, i is sr o rbi  scrips on  mchin wih  C compir
+bor rnning  scrip in procion on  csr, whr no  nos
+migh b y conigr or compiion.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python cgat_rebuild_extensions.py
+   pyhon cg_rbi_xnsions.py
 
-Type::
+Typ::
 
-   python cgat_rebuild_extensions.py --help
+   pyhon cg_rbi_xnsions.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import glob
+impor os
+impor sys
+impor gob
 
-import cgatcore.experiment as E
+impor cgcor.xprimn s E
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: cg_scrip_mp.py 2871 2010-03-03 10:20:44Z nrs $",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-i", "--test-option", dest="test_option", type="string",
-                      help="test option [default=%default].")
+    prsr._rgmn("-i", "--s-opion", s"s_opion", yp"sring",
+                      hp"s opion [].")
 
-    parser.set_defaults(
-        test_option="test"
+    prsr.s_s(
+        s_opion"s"
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    files = glob.glob(os.path.join(os.path.dirname(__file__), "*.pyx"))
+    is  gob.gob(os.ph.join(os.ph.irnm(__i__), "*.pyx"))
 
-    # do sth
-    ninput, nskipped, noutput = 0, 0, 0
+    # o sh
+    ninp, nskipp, nop  0, 0, 0
 
-    for f in files:
-        E.info("rebuilding %s" % f)
-        ninput += 1
-        prefix, suffix = os.path.splitext(f)
-        for ext in (".c", ".pyxbldc"):
-            try:
-                os.remove(prefix + ext)
-            except OSError:
-                pass
+    or  in is:
+        E.ino("rbiing s"  )
+        ninp + 1
+        prix, six  os.ph.spix()
+        or x in (".c", ".pyxbc"):
+            ry:
+                os.rmov(prix + x)
+            xcp OSError:
+                pss
 
-        dirname, basename = os.path.split(prefix)
-        assert basename.startswith("_")
+        irnm, bsnm  os.ph.spi(prix)
+        ssr bsnm.srswih("_")
 
-        scriptname = os.path.join(dirname, basename[1:]) + ".py"
-        if not os.path.exists(scriptname):
-            E.warn("script %s does not exist - skipped" % scriptname)
-            nskipped += 1
-            continue
+        scripnm  os.ph.join(irnm, bsnm[1:]) + ".py"
+        i no os.ph.xiss(scripnm):
+            E.wrn("scrip s os no xis - skipp"  scripnm)
+            nskipp + 1
+            conin
 
-        E.info("compiling %s" % scriptname)
-        os.system("%s %s --help > /dev/null" % (sys.executable, scriptname))
+        E.ino("compiing s"  scripnm)
+        os.sysm("s s --hp > /v/n"  (sys.xcb, scripnm))
 
-        noutput += 1
+        nop + 1
 
-    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
+    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

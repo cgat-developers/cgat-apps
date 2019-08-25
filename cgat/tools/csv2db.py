@@ -1,48 +1,48 @@
-'''csv2db.py - upload table to database
-====================================
+'''csv2b.py - po b o bs
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-create a table from a csv separated file and load data into it.
+cr  b rom  csv spr i n o  ino i.
 
-This module supports backends for postgres and sqlite3. Column types are
-auto-detected.
+This mo sppors bckns or posgrs n sqi3. Comn yps r
+o-c.
 
-Read a table from stdin and create an sqlite3 database. By default,
-the database will reside in a file called csvdb and in a table csv.
+R  b rom sin n cr n sqi3 bs. By ,
+h bs wi rsi in  i c csvb n in  b csv.
 
-.. todo::
+.. oo::
 
-   Use file import where appropriate to speed up loading. Currently, this is
-   not always the case.
+   Us i impor whr ppropri o sp p oing. Crrny, his is
+   no wys h cs.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python csv2db.py -b sqlite < stdin 
+   pyhon csv2b.py -b sqi < sin 
 
-Type::
+Typ::
 
-   python csv2db.py --help
+   pyhon csv2b.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-from cgatcore.csv2db import main
+impor sys
+rom cgcor.csv2b impor min
 
-import csv
-csv.field_size_limit(sys.maxsize)
+impor csv
+csv.i_siz_imi(sys.mxsiz)
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

@@ -1,119 +1,119 @@
-'''output depth statistics for a BAM file.
+'''op ph sisics or  BAM i.
 '''
 
-import collections
-import subprocess
-import re
-import os
-import shlex
+impor cocions
+impor sbprocss
+impor r
+impor os
+impor shx
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
-        help="filename with reference sequence in fasta format [%default]")
+    prsr._rgmn(
+        "--inp-inm-s", s"inp_inm_s", yp"sring",
+        hp"inm wih rrnc sqnc in s orm []")
 
-    parser.add_argument(
-        "--counting-mode", dest="counting_mode", type="choice",
-        choices=("all", "pileup_defaults"),
-        help="counting mode. all=all reads/bases. pileup-defaults= "
-        "use default pileup thresholds. Options will be added to "
-        "--mpileup-options. [%default].")
+    prsr._rgmn(
+        "--coning-mo", s"coning_mo", yp"choic",
+        choics("", "pip_s"),
+        hp"coning mo.  rs/bss. pip-s "
+        "s  pip hrshos. Opions wi b  o "
+        "--mpip-opions. [].")
 
-    parser.add_argument(
-        "--mpileup-options", dest="mpileup_options", type="string",
-        help="pileup options to use [%default]")
+    prsr._rgmn(
+        "--mpip-opions", s"mpip_opions", yp"sring",
+        hp"pip opions o s []")
 
-    parser.set_defaults(
-        mpileup_options="",
-        counting_mode="all",
-        input_filename_fasta=None,
-        report_step=1000000,
+    prsr.s_s(
+        mpip_opions"",
+        coning_mo"",
+        inp_inm_sNon,
+        rpor_sp1000000,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    bamfile = args[0]
+    bmi  rgs[0]
 
-    mpileup_options = options.mpileup_options
+    mpip_opions  opions.mpip_opions
 
-    if options.counting_mode == "all":
-        mpileup_options += " -Q 0 -B -A"
+    i opions.coning_mo  "":
+        mpip_opions + " -Q 0 -B -A"
 
-    read_depth_histogram = collections.defaultdict(int)
-    base_depth_histogram = collections.defaultdict(int)
+    r_ph_hisogrm  cocions.ic(in)
+    bs_ph_hisogrm  cocions.ic(in)
 
-    # deletions are marked by something like -2AA at the first
-    # position and a '*' for subsequent positions
-    rx_deletions = re.compile("([-][0-9]+|[*])")
-    report_step = options.report_step
-    npositions = 0
+    # ions r mrk by somhing ik -2AA  h irs
+    # posiion n  '*' or sbsqn posiions
+    rx_ions  r.compi("([-][0-9]+|[*])")
+    rpor_sp  opions.rpor_sp
+    nposiions  0
 
-    samtools = iotools.which("samtools")
+    smoos  iooos.which("smoos")
 
-    statement = (
-        "{samtools} mpileup "
-        "-f {reference_fasta} "
-        "{mpileup_options} "
-        "{bamfile} ".format(
-            samtools=samtools,
-            reference_fasta=options.input_filename_fasta,
-            mpileup_options=mpileup_options,
-            bamfile=os.path.abspath(bamfile)))
+    smn  (
+        "{smoos} mpip "
+        "- {rrnc_s} "
+        "{mpip_opions} "
+        "{bmi} ".orm(
+            smoossmoos,
+            rrnc_sopions.inp_inm_s,
+            mpip_opionsmpip_opions,
+            bmios.ph.bsph(bmi)))
 
-    E.info("running the following statement: {}".format(statement))
+    E.ino("rnning h oowing smn: {}".orm(smn))
 
-    cmd_args = shlex.split(statement)
-    proc = subprocess.Popen(
-        cmd_args,
-        shell=False,
-        stderr=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        cwd=os.path.abspath(os.curdir))
+    cm_rgs  shx.spi(smn)
+    proc  sbprocss.Popn(
+        cm_rgs,
+        shFs,
+        srrsbprocss.PIPE,
+        sosbprocss.PIPE,
+        cwos.ph.bsph(os.crir))
 
-    for line in proc.stdout:
-        line = line.decode("utf-8")
-        contig, pos, base, read_depth, info, qualities = line[:-1].split("\t")
-        read_depth = int(read_depth)
-        pos = int(pos)
+    or in in proc.so:
+        in  in.co("-8")
+        conig, pos, bs, r_ph, ino, qiis  in[:-1].spi("\")
+        r_ph  in(r_ph)
+        pos  in(pos)
 
-        if pos % report_step == 0:
-            E.info("working on {}: {}".format(contig, pos))
+        i pos  rpor_sp  0:
+            E.ino("working on {}: {}".orm(conig, pos))
 
-        ndeletions = len(rx_deletions.findall(info))
-        base_depth = read_depth - ndeletions
+        nions  n(rx_ions.in(ino))
+        bs_ph  r_ph - nions
 
-        read_depth_histogram[read_depth] += 1
-        base_depth_histogram[base_depth] += 1
+        r_ph_hisogrm[r_ph] + 1
+        bs_ph_hisogrm[bs_ph] + 1
 
-    for line in proc.stderr:
-        E.warn(line)
+    or in in proc.srr:
+        E.wrn(in)
 
-    keys = sorted(set(read_depth_histogram.keys()).union(
-        base_depth_histogram.keys()))
+    kys  sor(s(r_ph_hisogrm.kys()).nion(
+        bs_ph_hisogrm.kys()))
 
-    options.stdout.write("depth\tread_depth_positions\tbase_depth_positions\n")
-    for key in keys:
-        options.stdout.write("{}\t{}\t{}\n".format(
-                key,
-                read_depth_histogram[key],
-                base_depth_histogram[key]))
+    opions.so.wri("ph\r_ph_posiions\bs_ph_posiions\n")
+    or ky in kys:
+        opions.so.wri("{}\{}\{}\n".orm(
+                ky,
+                r_ph_hisogrm[ky],
+                bs_ph_hisogrm[ky]))
 
-    E.info("positions tested: {}".format(sum(read_depth_histogram.values())))
-    E.stop()
+    E.ino("posiions s: {}".orm(sm(r_ph_hisogrm.vs())))
+    E.sop()

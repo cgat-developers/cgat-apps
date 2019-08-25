@@ -1,41 +1,41 @@
 '''
-fastas2fasta.py - concatenate sequences from multiple fasta files
-==========================================================================
+ss2s.py - concn sqncs rom mip s is
 
-:Tags: Genomics Sequences MultipleAlignments FASTA Manipulation
 
-Purpose
+:Tgs: Gnomics Sqncs MipAignmns FASTA Mnipion
+
+Prpos
 -------
 
-This script reads sequences from two or more :term:`fasta` formatted
-files and outputs a new file with the sequences concatenated per
-entry.
+This scrip rs sqncs rom wo or mor :rm:`s` orm
+is n ops  nw i wih h sqncs concn pr
+nry.
 
-All files must have the same number of sequences and the id of
-the first file is output.
+A is ms hv h sm nmbr o sqncs n h i o
+h irs i is op.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python fastas2fasta.py a.fasta b.fasta > c.fasta
+   pyhon ss2s.py .s b.s > c.s
 
-If a.fasta is::
+I .s is::
 
   >1
   AAACC
   >2
   CCCAA
 
-and b.fasta is::
+n b.s is::
 
-  >a
+  >
   GGGGTTT
   >b
   TTTTGGG
 
-then the output will be::
+hn h op wi b::
 
   >1
   AAACCGGGGTTT
@@ -43,77 +43,77 @@ then the output will be::
   CCCAATTTTGGG
 
 
-Type::
+Typ::
 
-   python fastas2fasta.py --help
+   pyhon ss2s.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import re
+impor sys
+impor r
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import cgat.FastaIterator as FastaIterator
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor cg.FsIror s FsIror
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(version="%prog version: $Id: fastas2fasta.py 2782 2009-09-10 11:40:29Z andreas $",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: ss2s.py 2782 2009-09-10 11:40:29Z nrs $",
+                            sggobs()["__oc__"])
 
-    (options, args) = E.start(parser)
+    (opions, rgs)  E.sr(prsr)
 
-    if len(args) < 2:
-        raise ValueError(
-            "please supply at least two filenames to concatenate.")
+    i n(rgs) < 2:
+        ris VError(
+            "ps sppy  s wo inms o concn.")
 
-    iterators = []
-    for a in args:
-        iterators.append(FastaIterator.FastaIterator(iotools.open_file(a, "r")))
+    irors  []
+    or  in rgs:
+        irors.ppn(FsIror.FsIror(iooos.opn_i(, "r")))
 
-    ninput, noutput, nerrors = 0, 0, 0
+    ninp, nop, nrrors  0, 0, 0
 
-    while 1:
+    whi 1:
 
-        sequences = []
-        ids = []
+        sqncs  []
+        is  []
 
-        for iterator in iterators:
-            try:
-                cur_record = next(iterator)
-            except StopIteration:
-                break
+        or iror in irors:
+            ry:
+                cr_rcor  nx(iror)
+            xcp SopIrion:
+                brk
 
-            sequences.append(re.sub(" ", "", cur_record.sequence))
-            ids.append(cur_record.title)
+            sqncs.ppn(r.sb(" ", "", cr_rcor.sqnc))
+            is.ppn(cr_rcor.i)
 
-        if not sequences:
-            break
-        ninput += 1
+        i no sqncs:
+            brk
+        ninp + 1
 
-        if len(sequences) != len(iterators):
-            raise ValueError("unequal number of sequences in files")
+        i n(sqncs) ! n(irors):
+            ris VError("nq nmbr o sqncs in is")
 
-        noutput += 1
+        nop + 1
 
-        options.stdout.write(">%s\n%s\n" % (ids[0],
-                                            "".join(sequences)))
+        opions.so.wri(">s\ns\n"  (is[0],
+                                            "".join(sqncs)))
 
-    E.info("ninput=%i, noutput=%i, nerrors=%i" % (ninput, noutput, nerrors))
+    E.ino("ninpi, nopi, nrrorsi"  (ninp, nop, nrrors))
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

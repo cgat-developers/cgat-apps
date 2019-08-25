@@ -1,221 +1,221 @@
 '''
-cgat_get_options.py - build a sorted list of all options used in scripts
-========================================================================
+cg_g_opions.py - bi  sor is o  opions s in scrips
 
-:Author:
-:Tags: Python
 
-Purpose
+:Ahor:
+:Tgs: Pyhon
+
+Prpos
 -------
 
-Go through all scripts in the cgat code collection and collect
-options used in the scripts.
+Go hrogh  scrips in h cg co cocion n coc
+opions s in h scrips.
 
-This script expects to be executed at the root of the
-cgat code repository.
+This scrip xpcs o b xc  h roo o h
+cg co rposiory.
 
 
-Usage
+Usg
 -----
 
-.. Example use case
+.. Exmp s cs
 
-Example::
+Exmp::
 
-   python cgat_get_options.py
+   pyhon cg_g_opions.py
 
-Type::
+Typ::
 
-   python cgat_get_options.py --help
+   pyhon cg_g_opions.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import os
-import glob
-import imp
-import collections
-import pandas
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor sys
+impor os
+impor gob
+impor imp
+impor cocions
+impor pns
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
-ORIGINAL_START = None
+ORIGINAL_START  Non
 
-PARSER = None
+PARSER  Non
 
-EXPRESSIONS = (
-    ('scripts', 'scripts/*.py'),)
+EXPRESSIONS  (
+    ('scrips', 'scrips/*.py'),)
 
-EXCLUDE = ("__init__.py",
-           "cgat.py",)
-
-
-class DummyError(Exception):
-    pass
+EXCLUDE  ("__ini__.py",
+           "cg.py",)
 
 
-def LocalStart(parser, *args, **kwargs):
-    '''stub for E.start - set return_parser argument to true'''
-    global PARSER
-    PARSER = ORIGINAL_START(parser,
-                            return_parser=True,
-                            **kwargs
+css DmmyError(Excpion):
+    pss
+
+
+ LocSr(prsr, *rgs, **kwrgs):
+    '''sb or E.sr - s rrn_prsr rgmn o r'''
+    gob PARSER
+    PARSER  ORIGINAL_START(prsr,
+                            rrn_prsrTr,
+                            **kwrgs
                             )
-    raise DummyError()
+    ris DmmyError()
 
 
-def collectOptionsFromScript(script_name):
-    '''collect options used in script *script_name*.'''
+ cocOpionsFromScrip(scrip_nm):
+    '''coc opions s in scrip *scrip_nm*.'''
 
-    # call other script
-    prefix, suffix = os.path.splitext(script_name)
+    # c ohr scrip
+    prix, six  os.ph.spix(scrip_nm)
 
-    dirname = os.path.dirname(script_name)
-    basename = os.path.basename(script_name)[:-3]
+    irnm  os.ph.irnm(scrip_nm)
+    bsnm  os.ph.bsnm(scrip_nm)[:-3]
 
-    if os.path.exists(prefix + ".pyc"):
-        os.remove(prefix + ".pyc")
+    i os.ph.xiss(prix + ".pyc"):
+        os.rmov(prix + ".pyc")
 
-    # check if script contains getopt
-    with iotools.open_file(script_name) as inf:
-        if "getopt" in inf.read():
-            E.warn("script %s uses getopt directly" % script_name)
-            return []
+    # chck i scrip conins gop
+    wih iooos.opn_i(scrip_nm) s in:
+        i "gop" in in.r():
+            E.wrn("scrip s ss gop ircy"  scrip_nm)
+            rrn []
 
-    try:
-        module = imp.load_source(basename, script_name)
-    except ImportError as msg:
-        E.warn('could not import %s - skipped: %s' % (basename, msg))
-        return []
+    ry:
+        mo  imp.o_sorc(bsnm, scrip_nm)
+    xcp ImporError s msg:
+        E.wrn('co no impor s - skipp: s'  (bsnm, msg))
+        rrn []
 
-    E.start = LocalStart
+    E.sr  LocSr
 
-    try:
-        module.main(argv=["--help"])
-    except AttributeError:
-        E.warn("no main method in %s" % script_name)
-        return []
-    except SystemExit:
-        E.warn("script exits - possibly does not use E.start()")
-        return []
-    except DummyError:
-        pass
+    ry:
+        mo.min(rgv["--hp"])
+    xcp AribError:
+        E.wrn("no min mho in s"  scrip_nm)
+        rrn []
+    xcp SysmExi:
+        E.wrn("scrip xis - possiby os no s E.sr()")
+        rrn []
+    xcp DmmyError:
+        pss
 
-    result = []
-    for option in PARSER.option_list:
-        # ignore options added by optparse
-        if option.dest is None:
-            continue
+    rs  []
+    or opion in PARSER.opion_is:
+        # ignor opions  by opprs
+        i opion.s is Non:
+            conin
 
-        optstring = option.get_opt_string()
-        if optstring.startswith("--"):
-            optstring = optstring[2:]
-        result.append(optstring)
+        opsring  opion.g_op_sring()
+        i opsring.srswih("--"):
+            opsring  opsring[2:]
+        rs.ppn(opsring)
 
-    return result
+    rrn rs
 
 
-def main(argv=None):
-    """script main.
-    parses command line options in sys.argv, unless *argv* is given.
+ min(rgvNon):
+    """scrip min.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--inplace", dest="inplace", action="store_true",
-        help="update option list in place. New options will"
-        "be added to the list given by --options-tsv-file. "
-        "Options will only be added, not removed [%default]")
+    prsr._rgmn(
+        "--inpc", s"inpc", cion"sor_r",
+        hp"p opion is in pc. Nw opions wi"
+        "b  o h is givn by --opions-sv-i. "
+        "Opions wi ony b , no rmov []")
 
-    parser.add_argument(
-        "--options-tsv-file", dest="tsv_file", type="string",
-        help="existing table with options. Will be updated if "
-        "--in-place is set [default]")
+    prsr._rgmn(
+        "--opions-sv-i", s"sv_i", yp"sring",
+        hp"xising b wih opions. Wi b p i "
+        "--in-pc is s []")
 
-    parser.set_defaults(
-        inplace=False,
-        tsv_file=None)
+    prsr.s_s(
+        inpcFs,
+        sv_iNon)
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    old_options = None
-    if options.tsv_file:
-        if not os.path.exists(options.tsv_file):
-            raise OSError(
-                "filename %s not found, see --options-tsv-file" %
-                options.tsv_file)
-        old_options = pandas.read_csv(
-            iotools.open_file(options.tsv_file),
-            sep="\t",
-            index_col=0,
+    o_opions  Non
+    i opions.sv_i:
+        i no os.ph.xiss(opions.sv_i):
+            ris OSError(
+                "inm s no on, s --opions-sv-i" 
+                opions.sv_i)
+        o_opions  pns.r_csv(
+            iooos.opn_i(opions.sv_i),
+            sp"\",
+            inx_co0,
         )
-        old_options = old_options.fillna("")
+        o_opions  o_opions.in("")
 
-    global ORIGINAL_START
-    ORIGINAL_START = E.start
+    gob ORIGINAL_START
+    ORIGINAL_START  E.sr
 
-    all_options = collections.defaultdict(list)
+    _opions  cocions.ic(is)
 
-    for label, expression in EXPRESSIONS:
+    or b, xprssion in EXPRESSIONS:
 
-        files = glob.glob(expression)
-        files.sort()
+        is  gob.gob(xprssion)
+        is.sor()
 
-        for f in files:
+        or  in is:
 
-            E.debug("processing %s" % f)
-            if os.path.isdir(f):
-                continue
-            if os.path.basename(f) in EXCLUDE:
-                continue
-            collected_options = collectOptionsFromScript(os.path.abspath(f))
-            for o in collected_options:
-                all_options[o].append(f)
+            E.bg("procssing s"  )
+            i os.ph.isir():
+                conin
+            i os.ph.bsnm() in EXCLUDE:
+                conin
+            coc_opions  cocOpionsFromScrip(os.ph.bsph())
+            or o in coc_opions:
+                _opions[o].ppn()
 
-    # add old options
-    for x in old_options.index:
-        if x not in all_options:
-            all_options[x].append("--")
+    #  o opions
+    or x in o_opions.inx:
+        i x no in _opions:
+            _opions[x].ppn("--")
 
-    if options.inplace:
-        outfile = iotools.open_file(options.tsv_file, "w")
-        E.info("updating file '%s'" % options.tsv_file)
-    else:
-        outfile = options.stdout
+    i opions.inpc:
+        oi  iooos.opn_i(opions.sv_i, "w")
+        E.ino("ping i 's'"  opions.sv_i)
+    s:
+        oi  opions.so
 
-    outfile.write("option\taction\tcomment\talternative\tfiles\n")
-    for o, v in sorted(all_options.items()):
-        try:
-            action, comment, alternative, ff = old_options.xs(o)
+    oi.wri("opion\cion\commn\rniv\is\n")
+    or o, v in sor(_opions.ims()):
+        ry:
+            cion, commn, rniv,   o_opions.xs(o)
 
-        except KeyError:
-            action, comment, alternative, ff = "", "", "", ""
+        xcp KyError:
+            cion, commn, rniv,   "", "", "", ""
 
-        if comment == "nan":
-            comment = ""
-        if alternative == "nan":
-            alternative = ""
+        i commn  "nn":
+            commn  ""
+        i rniv  "nn":
+            rniv  ""
 
-        outfile.write("\t".join((list(map(
-            str, (o, action, comment, alternative, ",".join(v)))))) + "\n")
+        oi.wri("\".join((is(mp(
+            sr, (o, cion, commn, rniv, ",".join(v)))))) + "\n")
 
-    if outfile != options.stdout:
-        outfile.close()
+    i oi ! opions.so:
+        oi.cos()
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

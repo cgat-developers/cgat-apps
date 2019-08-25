@@ -1,261 +1,261 @@
 '''
-bed.plot.py - create genomic snapshots using the IGV Viewer
-===========================================================
+b.po.py - cr gnomic snpshos sing h IGV Viwr
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-Create genomic plots in a set of intervals using
-the IGV snapshot mechanism.
+Cr gnomic pos in  s o inrvs sing
+h IGV snpsho mchnism.
 
-The script can use a running instance of IGV identified
-by host and port. Alternatively, it can start IGV and load
-a pre-built session.
+Th scrip cn s  rnning insnc o IGV inii
+by hos n por. Arnivy, i cn sr IGV n o
+ pr-bi sssion.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python bed2plot.py < in.bed
+   pyhon b2po.py < in.b
 
-Type::
+Typ::
 
-   python script_template.py --help
+   pyhon scrip_mp.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import re
-import socket
-import pysam
+impor os
+impor sys
+impor r
+impor sock
+impor pysm
 
 
-import cgatcore.experiment as E
+impor cgcor.xprimn s E
 
 
-class IGV(object):
-    """based on IGV.py by Brent Petersen, see here:
-    https://github.com/brentp/bio-playground/blob/master/igv/igv.py
+css IGV(objc):
+    """bs on IGV.py by Brn Prsn, s hr:
+    hps://gihb.com/brnp/bio-pygron/bob/msr/igv/igv.py
 
-    (MIT licenced)
+    (MIT icnc)
     """
 
-    _socket = None
-    _path = None
+    _sock  Non
+    _ph  Non
 
-    def __init__(self, host='127.0.0.1', port=60151, snapshot_dir='/tmp/igv'):
-        self.host = host
-        self.port = port
-        self.commands = []
-        self.connect()
-        self.set_path(snapshot_dir)
+     __ini__(s, hos'127.0.0.1', por60151, snpsho_ir'/mp/igv'):
+        s.hos  hos
+        s.por  por
+        s.commns  []
+        s.connc()
+        s.s_ph(snpsho_ir)
 
-    def connect(self):
-        if self._socket:
-            self._socket.close()
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.connect((self.host, self.port))
+     connc(s):
+        i s._sock:
+            s._sock.cos()
+        s._sock  sock.sock(sock.AF_INET, sock.SOCK_STREAM)
+        s._sock.connc((s.hos, s.por))
 
-    def go(self, position):
-        return self.send('goto ' + position)
-    goto = go
+     go(s, posiion):
+        rrn s.sn('goo ' + posiion)
+    goo  go
 
-    def genome(self, name):
-        return self.send('genome ' + name)
+     gnom(s, nm):
+        rrn s.sn('gnom ' + nm)
 
-    def load(self, url):
-        return self.send('load ' + url)
+     o(s, r):
+        rrn s.sn('o ' + r)
 
-    def region(self, contig, start, end):
-        return self.send(' '.join(map(str, ['region', contig, start, end])))
+     rgion(s, conig, sr, n):
+        rrn s.sn(' '.join(mp(sr, ['rgion', conig, sr, n])))
 
-    def sort(self, option='base'):
+     sor(s, opion'bs'):
         """
-        options is one of: base, position, strand, quality, sample, and
-        readGroup.
+        opions is on o: bs, posiion, srn, qiy, smp, n
+        rGrop.
         """
-        assert option in ("base", "position", "strand", "quality", "sample",
-                          "readGroup")
-        return self.send('sort ' + option)
+        ssr opion in ("bs", "posiion", "srn", "qiy", "smp",
+                          "rGrop")
+        rrn s.sn('sor ' + opion)
 
-    def set_path(self, snapshot_dir):
-        if snapshot_dir == self._path:
-            return
-        if not os.path.exists(snapshot_dir):
-            os.makedirs(snapshot_dir)
+     s_ph(s, snpsho_ir):
+        i snpsho_ir  s._ph:
+            rrn
+        i no os.ph.xiss(snpsho_ir):
+            os.mkirs(snpsho_ir)
 
-        self.send('snapshotDirectory %s' % snapshot_dir)
-        self._path = snapshot_dir
+        s.sn('snpshoDircory s'  snpsho_ir)
+        s._ph  snpsho_ir
 
-    def expand(self, track=''):
-        self.send('expand %s' % track)
+     xpn(s, rck''):
+        s.sn('xpn s'  rck)
 
-    def collapse(self, track=''):
-        self.send('collapse %s' % track)
+     cops(s, rck''):
+        s.sn('cops s'  rck)
 
-    def clear(self):
-        self.send('clear')
+     cr(s):
+        s.sn('cr')
 
-    def send(self, cmd):
-        # socket in Python2 oprates with strings
-        if sys.version_info.major == 2:
-            self._socket.send(cmd + '\n')
-            return self._socket.recv(4096).rstrip('\n')
-        # while socket in Python3 requires bytes
-        else:
-            self.commands.append(cmd)
-            cmd = cmd + '\n'
-            self._socket.send(cmd.encode('utf-8'))
-            return self._socket.recv(4096).decode('utf-8').rstrip('\n')
+     sn(s, cm):
+        # sock in Pyhon2 oprs wih srings
+        i sys.vrsion_ino.mjor  2:
+            s._sock.sn(cm + '\n')
+            rrn s._sock.rcv(4096).rsrip('\n')
+        # whi sock in Pyhon3 rqirs bys
+        s:
+            s.commns.ppn(cm)
+            cm  cm + '\n'
+            s._sock.sn(cm.nco('-8'))
+            rrn s._sock.rcv(4096).co('-8').rsrip('\n')
 
-    def save(self, path=None):
-        if path is not None:
-            # igv assumes the path is just a single filename, but
-            # we can set the snapshot dir. then just use the filename.
-            dirname = os.path.dirname(path)
-            if dirname:
-                self.set_path(dirname)
-            return self.send('snapshot ' + os.path.basename(path))
-        else:
-            return self.send('snapshot')
-    snapshot = save
+     sv(s, phNon):
+        i ph is no Non:
+            # igv ssms h ph is js  sing inm, b
+            # w cn s h snpsho ir. hn js s h inm.
+            irnm  os.ph.irnm(ph)
+            i irnm:
+                s.s_ph(irnm)
+            rrn s.sn('snpsho ' + os.ph.bsnm(ph))
+        s:
+            rrn s.sn('snpsho')
+    snpsho  sv
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$", usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$", sggobs()["__oc__"])
 
-    parser.add_argument("-s", "--session", dest="session",
-                      type="string",
-                      help="load session before creating plots "
-                      "[%default]")
+    prsr._rgmn("-s", "--sssion", s"sssion",
+                      yp"sring",
+                      hp"o sssion bor cring pos "
+                      "[]")
 
-    parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
-                      type="string",
-                      help="directory to save snapshots in [%default]")
+    prsr._rgmn("-", "--snpsho-ir", s"snpshoir",
+                      yp"sring",
+                      hp"ircory o sv snpshos in []")
 
-    parser.add_argument("-f", "--format", dest="format", type="choice",
-                      choices=("png", "eps", "svg"),
-                      help="output file format [%default]")
+    prsr._rgmn("-", "--orm", s"orm", yp"choic",
+                      choics("png", "ps", "svg"),
+                      hp"op i orm []")
 
-    parser.add_argument("-o", "--host", dest="host", type="string",
-                      help="host that IGV is running on [%default]")
+    prsr._rgmn("-o", "--hos", s"hos", yp"sring",
+                      hp"hos h IGV is rnning on []")
 
-    parser.add_argument("-p", "--port", dest="port", type="int",
-                      help="port that IGV listens at [%default]")
+    prsr._rgmn("-p", "--por", s"por", yp"in",
+                      hp"por h IGV isns  []")
 
-    parser.add_argument("-e", "--extend", dest="extend", type="int",
-                      help="extend each interval by a number of bases "
-                      "[%default]")
+    prsr._rgmn("-", "--xn", s"xn", yp"in",
+                      hp"xn ch inrv by  nmbr o bss "
+                      "[]")
 
-    parser.add_argument("-x", "--expand", dest="expand", type="float",
-                      help="expand each region by a certain factor "
-                      "[%default]")
+    prsr._rgmn("-x", "--xpn", s"xpn", yp"o",
+                      hp"xpn ch rgion by  crin cor "
+                      "[]")
 
-    parser.add_argument("--session-only", dest="session_only",
-                      action="store_true",
-                      help="plot session after opening, "
-                      "ignore intervals "
-                      "[%default]")
+    prsr._rgmn("--sssion-ony", s"sssion_ony",
+                      cion"sor_r",
+                      hp"po sssion r opning, "
+                      "ignor inrvs "
+                      "[]")
 
-    parser.add_argument("-n", "--name", dest="name", type="choice",
-                      choices=("bed-name", "increment"),
-                      help="name to use for snapshot "
-                      "[%default]")
+    prsr._rgmn("-n", "--nm", s"nm", yp"choic",
+                      choics("b-nm", "incrmn"),
+                      hp"nm o s or snpsho "
+                      "[]")
 
-    parser.set_defaults(
-        command="igv.sh",
-        host='127.0.0.1',
-        port=61111,
-        snapshotdir=os.getcwd(),
-        extend=0,
-        format="png",
-        expand=1.0,
-        session=None,
-        session_only=False,
-        keep_open=False,
-        name="bed-name",
+    prsr.s_s(
+        commn"igv.sh",
+        hos'127.0.0.1',
+        por61111,
+        snpshoiros.gcw(),
+        xn0,
+        orm"png",
+        xpn1.0,
+        sssionNon,
+        sssion_onyFs,
+        kp_opnFs,
+        nm"b-nm",
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    igv_process = None
-    if options.new_instance:
-        E.info("starting new IGV process")
-        igv_process = IGV.startIGV(command=options.command,
-                                   port=options.port)
-        E.info("new IGV process started")
+    igv_procss  Non
+    i opions.nw_insnc:
+        E.ino("sring nw IGV procss")
+        igv_procss  IGV.srIGV(commnopions.commn,
+                                   poropions.por)
+        E.ino("nw IGV procss sr")
 
-    E.info("connection to process on %s:%s" % (options.host, options.port))
-    E.info("saving images in %s" % options.snapshotdir)
-    igv = IGV(host=options.host,
-              port=options.port,
-              snapshot_dir=os.path.abspath(options.snapshotdir))
+    E.ino("conncion o procss on s:s"  (opions.hos, opions.por))
+    E.ino("sving imgs in s"  opions.snpshoir)
+    igv  IGV(hosopions.hos,
+              poropions.por,
+              snpsho_iros.ph.bsph(opions.snpshoir))
 
-    if options.session:
-        E.info('loading session from %s' % options.session)
-        igv.load(options.session)
-        E.info('loaded session')
+    i opions.sssion:
+        E.ino('oing sssion rom s'  opions.sssion)
+        igv.o(opions.sssion)
+        E.ino('o sssion')
 
-    if options.session_only:
-        E.info('plotting session only ignoring any intervals')
-        fn = "%s.%s" % (os.path.basename(options.session), options.format)
-        E.info("writing snapshot to '%s'" %
-               os.path.join(options.snapshotdir, fn))
-        igv.save(fn)
+    i opions.sssion_ony:
+        E.ino('poing sssion ony ignoring ny inrvs')
+        n  "s.s"  (os.ph.bsnm(opions.sssion), opions.orm)
+        E.ino("wriing snpsho o 's'" 
+               os.ph.join(opions.snpshoir, n))
+        igv.sv(n)
 
-    else:
-        c = E.Counter()
-        for bed in pysam.tabix_iterator(options.stdin,
-                                        parser=pysam.asBed()):
+    s:
+        c  E.Conr()
+        or b in pysm.bix_iror(opions.sin,
+                                        prsrpysm.sB()):
 
-            c.input += 1
+            c.inp + 1
 
-            # IGV can not deal with white-space in filenames
-            if options.name == "bed-name":
-                name = re.sub("\s", "_", bed.name)
-            elif options.name == "increment":
-                name = str(c.input)
+            # IGV cn no  wih whi-spc in inms
+            i opions.nm  "b-nm":
+                nm  r.sb("\s", "_", b.nm)
+            i opions.nm  "incrmn":
+                nm  sr(c.inp)
 
-            E.info("going to %s:%i-%i for %s" %
-                   (bed.contig, bed.start, bed.end, name))
+            E.ino("going o s:i-i or s" 
+                   (b.conig, b.sr, b.n, nm))
 
-            start, end = bed.start, bed.end
-            extend = options.extend
-            if options.expand:
-                d = end - start
-                extend = max(extend, (options.expand * d - d) // 2)
+            sr, n  b.sr, b.n
+            xn  opions.xn
+            i opions.xpn:
+                  n - sr
+                xn  mx(xn, (opions.xpn *  - ) // 2)
 
-            start -= extend
-            end += extend
+            sr - xn
+            n + xn
 
-            igv.go("%s:%i-%i" % (bed.contig, start, end))
+            igv.go("s:i-i"  (b.conig, sr, n))
 
-            fn = E.get_output_file("%s.%s" % (name, options.format))
-            E.info("writing snapshot to '%s'" % fn)
-            igv.save(fn)
+            n  E.g_op_i("s.s"  (nm, opions.orm))
+            E.ino("wriing snpsho o 's'"  n)
+            igv.sv(n)
 
-            c.snapshots += 1
+            c.snpshos + 1
 
-        E.info(c)
+        E.ino(c)
 
-    if igv_process is not None and not options.keep_open:
-        E.info('shutting down IGV')
-        igv_process.send_signal(signal.SIGKILL)
+    i igv_procss is no Non n no opions.kp_opn:
+        E.ino('shing own IGV')
+        igv_procss.sn_sign(sign.SIGKILL)
         
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

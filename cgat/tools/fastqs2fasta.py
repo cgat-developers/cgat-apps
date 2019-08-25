@@ -1,151 +1,151 @@
 '''
-fastqs2fasta.py - interleave two fastq files
-=============================================
+sqs2s.py - inrv wo sq is
 
-:Tags: Genomics NGS FASTQ FASTA Conversion
 
-Purpose
+:Tgs: Gnomics NGS FASTQ FASTA Convrsion
+
+Prpos
 -------
 
-This script is used to interleave two :term:`fastq`-formatted files
-(paired data) into a single :term:`fasta`-formatted file. Read1 is
-followed by read2 in the resultant file.
+This scrip is s o inrv wo :rm:`sq`-orm is
+(pir ) ino  sing :rm:`s`-orm i. R1 is
+oow by r2 in h rsn i.
 
-:term:`fastq` files MUST be sorted by read identifier.
+:rm:`sq` is MUST b sor by r iniir.
 
-Usage
+Usg
 -----
 
-For example::
+For xmp::
 
-   cgat fastqs2fasta \
-         --first-fastq-file=in.fastq.1.gz \
-         --second-fastq-file=in.fastq.2.gz > out.fasta
+   cg sqs2s \
+         --irs-sq-iin.sq.1.gz \
+         --scon-sq-iin.sq.2.gz > o.s
 
-If :file:`in.fastq.1.gz` looks like this::
+I :i:`in.sq.1.gz` ooks ik his::
 
-    @r1_from_gi|387760314|ref|NC_017594.1|_Streptococcus_saliva_#0/1
+    @r1_rom_gi|387760314|r|NC_017594.1|_Srpococcs_siv_#0/1
     TTCTTGTTGAATCATTTCAATTGTCTCCTTTTAGTTTTATTAGATAATAACAGCTTCTTCCACAACTTCT
     +
-    ??A???ABBDDBDDEDGGFGAFHHCHHIIIDIHGIFIH=HFICIHDHIHIFIFIIIIIIHFHIFHIHHHH
-    @r3_from_gi|315441696|ref|NC_014814.1|_Mycobacterium_gilvum_#0/1
+    ??A???ABBDDBDDEDGGFGAFHHCHHIIIDIHGIFIHHFICIHDHIHIFIFIIIIIIHFHIFHIHHHH
+    @r3_rom_gi|315441696|r|NC_014814.1|_Mycobcrim_givm_#0/1
     ATGAACGCGGCCGAGCAACACCGCCACCACGTGAATCGGTGGTTCTACGACTGCCCGTCGGCCTTCCACC
     +
 
-and :file:`in.fastq.2.gz` looks like this::
+n :i:`in.sq.2.gz` ooks ik his::
 
     A??A?B??BDBDDDBDGGFA>CFCFIIIIIIF;HFIGHCIGHIHHEHHHIIHHFDHH-HD-IDHHHGIHG
-    @r1_from_gi|387760314|ref|NC_017594.1|_Streptococcus_saliva_#0/2
+    @r1_rom_gi|387760314|r|NC_017594.1|_Srpococcs_siv_#0/2
     ACCTTCGTTTCCAAGGTGCAGCAGGTCAACTTGATCAAACTGCCCCTTTGAACGAAGTGAAAAAACAAAT
     +
-    A????@BBDBDDADABGFGFFEHHHIEHHII@IIHIHHIDHCCIHIIIHHIEI5HIHFHIEHIH=CHHC)
-    @r3_from_gi|315441696|ref|NC_014814.1|_Mycobacterium_gilvum_#0/2
+    A????@BBDBDDADABGFGFFEHHHIEHHII@IIHIHHIDHCCIHIIIHHIEI5HIHFHIEHIHCHHC)
+    @r3_rom_gi|315441696|r|NC_014814.1|_Mycobcrim_givm_#0/2
     GGGAGCCTGCAGCGCCGCCGCGACTGCATCGCCGCGGCCGGCATCGTGGGATGGACGGTGCGTCAGACGC
     +
     ???A?9BBDDD5@DDDGFFGFFHIIIHHIHBFHIIHIIHHH>HEIHHFI>FFHGIIHHHDHCCFIHFIHD
 
-then the output will be::
+hn h op wi b::
 
-  >r1_from_gi|387760314|ref|NC_017594.1|_Streptococcus_saliva_#0/1
+  >r1_rom_gi|387760314|r|NC_017594.1|_Srpococcs_siv_#0/1
   TTCTTGTTGAATCATTTCAATTGTCTCCTTTTAGTTTTATTAGATAATAACAGCTTCTTCCACAACTTCT
-  >r1_from_gi|387760314|ref|NC_017594.1|_Streptococcus_saliva_#0/2
+  >r1_rom_gi|387760314|r|NC_017594.1|_Srpococcs_siv_#0/2
   ACCTTCGTTTCCAAGGTGCAGCAGGTCAACTTGATCAAACTGCCCCTTTGAACGAAGTGAAAAAACAAAT
-  >r3_from_gi|315441696|ref|NC_014814.1|_Mycobacterium_gilvum_#0/1
+  >r3_rom_gi|315441696|r|NC_014814.1|_Mycobcrim_givm_#0/1
   ATGAACGCGGCCGAGCAACACCGCCACCACGTGAATCGGTGGTTCTACGACTGCCCGTCGGCCTTCCACC
-  >r3_from_gi|315441696|ref|NC_014814.1|_Mycobacterium_gilvum_#0/2
+  >r3_rom_gi|315441696|r|NC_014814.1|_Mycobcrim_givm_#0/2
   GGGAGCCTGCAGCGCCGCCGCGACTGCATCGCCGCGGCCGGCATCGTGGGATGGACGGTGCGTCAGACGC
-  >r4_from_gi|53711291|ref|NC_006347.1|_Bacteroides_fragilis_#0/1
-  GAGGGATCAGCCTGTTATCCCCGGAGTACCTTTTATCCTTTGAGcgatGTCCCTTCCATACGGAAACACC
-  >r4_from_gi|53711291|ref|NC_006347.1|_Bacteroides_fragilis_#0/2
-  CAACCGTGAGCTCAGTGAAATTGTAGTATCGGTGAAGATGCcgatTACCCGcgatGGGACGAAAAGACCC
-  >r5_from_gi|325297172|ref|NC_015164.1|_Bacteroides_salanitr_#0/1
+  >r4_rom_gi|53711291|r|NC_006347.1|_Bcrois_rgiis_#0/1
+  GAGGGATCAGCCTGTTATCCCCGGAGTACCTTTTATCCTTTGAGcgGTCCCTTCCATACGGAAACACC
+  >r4_rom_gi|53711291|r|NC_006347.1|_Bcrois_rgiis_#0/2
+  CAACCGTGAGCTCAGTGAAATTGTAGTATCGGTGAAGATGCcgTACCCGcgGGGACGAAAAGACCC
+  >r5_rom_gi|325297172|r|NC_015164.1|_Bcrois_snir_#0/1
   TGCGGCGAAATACCAGCCCATGCCCCGTCCCCAGAATTCCTTGGAGCAGCCTTTGTGAGGTTCGGCTTTG
-  >r5_from_gi|325297172|ref|NC_015164.1|_Bacteroides_salanitr_#0/2
+  >r5_rom_gi|325297172|r|NC_015164.1|_Bcrois_snir_#0/2
   AACGGCACGCACAATGCCGACCGCTACAAAAAGGCTGCCGACTGGCTCCGCAATTACCTGGTGAACGACT
 
 
-Type::
+Typ::
 
-   cgat fastqs2fasta --help
+   cg sqs2s --hp
 
-for command line help.
+or commn in hp.
 
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-from itertools import zip_longest
+impor sys
+rom iroos impor zip_ongs
 
-import cgatcore.iotools as iotools
-import cgat.Fastq as Fastq
-import cgatcore.experiment as E
+impor cgcor.iooos s iooos
+impor cg.Fsq s Fsq
+impor cgcor.xprimn s E
 
 
-class PairedReadError(Exception):
+css PirRError(Excpion):
 
     '''
-    exception raised when reads aren't paired -
-    could be not sorted or files of different lengths
+    xcpion ris whn rs rn' pir -
+    co b no sor or is o irn nghs
     '''
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-a", "--first-fastq-file", dest="fastq1", type="string",
-        help="supply read1 fastq file")
-    parser.add_argument(
-        "-b", "--second-fastq-file", dest="fastq2", type="string",
-        help="supply read2 fastq file")
+    prsr._rgmn(
+        "-", "--irs-sq-i", s"sq1", yp"sring",
+        hp"sppy r1 sq i")
+    prsr._rgmn(
+        "-b", "--scon-sq-i", s"sq2", yp"sring",
+        hp"sppy r2 sq i")
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if args and len(args) == 2:
-        options.fastq1, options.fastq2 = args
+    i rgs n n(rgs)  2:
+        opions.sq1, opions.sq2  rgs
 
-    fastq1 = iotools.open_file(options.fastq1)
-    fastq2 = iotools.open_file(options.fastq2)
+    sq1  iooos.opn_i(opions.sq1)
+    sq2  iooos.opn_i(opions.sq2)
 
-    E.info("iterating over fastq files")
-    f1_count = 0
-    for f1, f2 in zip_longest(Fastq.iterate(fastq1),
-                              Fastq.iterate(fastq2)):
-        if not (f1 and f2) or (not f2 and f1):
-            try:
-                raise PairedReadError(
-                    "unpaired reads detected. Are files sorted? are "
-                    "files of equal length?")
-            except PairedReadError as e:
-                raise PairedReadError(e).with_traceback(sys.exc_info()[2])
-        else:
-            assert f1.identifier.endswith("/1") and \
-                f2.identifier.endswith("/2"), \
-                "Reads in file 1 must end with /1 and reads in file 2 with /2"
-            options.stdout.write(
-                ">%s\n%s\n>%s\n%s\n" %
-                (f1.identifier, f1.seq, f2.identifier, f2.seq))
-            f1_count += 1
+    E.ino("iring ovr sq is")
+    1_con  0
+    or 1, 2 in zip_ongs(Fsq.ir(sq1),
+                              Fsq.ir(sq2)):
+        i no (1 n 2) or (no 2 n 1):
+            ry:
+                ris PirRError(
+                    "npir rs c. Ar is sor? r "
+                    "is o q ngh?")
+            xcp PirRError s :
+                ris PirRError().wih_rcbck(sys.xc_ino()[2])
+        s:
+            ssr 1.iniir.nswih("/1") n \
+                2.iniir.nswih("/2"), \
+                "Rs in i 1 ms n wih /1 n rs in i 2 wih /2"
+            opions.so.wri(
+                ">s\ns\n>s\ns\n" 
+                (1.iniir, 1.sq, 2.iniir, 2.sq))
+            1_con + 1
 
-    E.info("output: %i pairs" % f1_count)
+    E.ino("op: i pirs"  1_con)
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

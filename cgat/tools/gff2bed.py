@@ -1,40 +1,40 @@
-'''gff2bed.py - convert from gff/gtf to bed
-=========================================
+'''g2b.py - convr rom g/g o b
 
-:Tags: Genomics Intervals GFF BED Conversion
 
-Purpose
+:Tgs: Gnomics Inrvs GFF BED Convrsion
+
+Prpos
 --------
 
-This script converts GFF or GTF formatted files to BED formatted
-files.
+This scrip convrs GFF or GTF orm is o BED orm
+is.
 
-Documentation
+Docmnion
 --------------
 
-Users can select the field from the GTF file to be used in the name
-field of the BED file using ``--set-name``. Choices include "gene_id",
-"transcript_id", "class", "family", "feature", "source", "repName"
-and "gene_biotype".
-To specify the input is in GTF format use --is-gtf.
+Usrs cn sc h i rom h GTF i o b s in h nm
+i o h BED i sing ``--s-nm``. Choics inc "gn_i",
+"rnscrip_i", "css", "miy", "r", "sorc", "rpNm"
+n "gn_bioyp".
+To spciy h inp is in GTF orm s --is-g.
 
-BED files can contain multiple tracks. If required, users can use the
-"feature" or "source" fields in the input GFF file to specifiy
-different tracks in the BED file (default none).
+BED is cn conin mip rcks. I rqir, srs cn s h
+"r" or "sorc" is in h inp GFF i o spciiy
+irn rcks in h BED i ( non).
 
-Usage
+Usg
 ------
 
-Example::
+Exmp::
 
-   # View input GTF file
-   head tests/gff2bed.py/mm9_ens67_geneset_100.gtf
+   # Viw inp GTF i
+   h ss/g2b.py/mm9_ns67_gns_100.g
 
-   # Convert GTF to bed format using gene_id as name and group by GTF feature
-   cat tests/gff2bed.py/mm9_ens67_geneset_100.gtf | cgat gff2bed.py --is-gtf --set-name=gene_id --track=feature > mm9_ens67_geneset_100_feature.bed
+   # Convr GTF o b orm sing gn_i s nm n grop by GTF r
+   c ss/g2b.py/mm9_ns67_gns_100.g | cg g2b.py --is-g --s-nmgn_i --rckr > mm9_ns67_gns_100_r.b
 
 +-------------------------------------------------------+
-|track name=CDS                                         |
+|rck nmCDS                                         |
 +------+---------+---------+--------------------+---+---+
 |chr18 |3122494  |3123412  |ENSMUSG00000091539  |0  |-  |
 +------+---------+---------+--------------------+---+---+
@@ -43,143 +43,143 @@ Example::
 |chr18 |3325358  |3325476  |ENSMUSG00000063889  |0  |-  |
 +------+---------+---------+--------------------+---+---+
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import itertools
-import cgatcore.experiment as E
-import cgat.GTF as GTF
-import cgat.Bed as Bed
+impor sys
+impor iroos
+impor cgcor.xprimn s E
+impor cg.GTF s GTF
+impor cg.B s B
 
 
-def transcript2bed12(transcript):
+ rnscrip2b12(rnscrip):
 
-    new_entry = Bed.Bed()
-    start = min(entry.start for entry in transcript)
-    end = max(entry.end for entry in transcript)
+    nw_nry  B.B()
+    sr  min(nry.sr or nry in rnscrip)
+    n  mx(nry.n or nry in rnscrip)
 
-    try:
-        thickStart = min(entry.start for entry in transcript 
-                         if entry.feature == "CDS")
-        thickEnd = max(entry.end for entry in transcript
-                       if entry.feature == "CDS")
-    except ValueError:
+    ry:
+        hickSr  min(nry.sr or nry in rnscrip 
+                         i nry.r  "CDS")
+        hickEn  mx(nry.n or nry in rnscrip
+                       i nry.r  "CDS")
+    xcp VError:
 
-        # if there is no CDS, then set first base of transcript as 
-        # start
+        # i hr is no CDS, hn s irs bs o rnscrip s 
+        # sr
 
-        if transcript[0].strand == "-":
-            thickStart = end
-            thickEnd = end
-        else:
-            thickStart = start
-            thickEnd = start
+        i rnscrip[0].srn  "-":
+            hickSr  n
+            hickEn  n
+        s:
+            hickSr  sr
+            hickEn  sr
 
-    exons = GTF.asRanges(transcript, "exon")
+    xons  GTF.sRngs(rnscrip, "xon")
 
-    exon_starts = [es - start for (es, ee) in exons]
-    exon_lengths = [ee - es for (es, ee) in exons]
-    exon_count = len(exons)
-    new_entry.contig = transcript[0].contig
-    new_entry.start = start
-    new_entry.end = end
-    new_entry["strand"] = transcript[0].strand
-    new_entry["name"] = transcript[0].transcript_id
+    xon_srs  [s - sr or (s, ) in xons]
+    xon_nghs  [ - s or (s, ) in xons]
+    xon_con  n(xons)
+    nw_nry.conig  rnscrip[0].conig
+    nw_nry.sr  sr
+    nw_nry.n  n
+    nw_nry["srn"]  rnscrip[0].srn
+    nw_nry["nm"]  rnscrip[0].rnscrip_i
 
-    new_entry["thickStart"] = thickStart
-    new_entry["thickEnd"] = thickEnd
+    nw_nry["hickSr"]  hickSr
+    nw_nry["hickEn"]  hickEn
     
-    new_entry["blockCount"] = exon_count
-    new_entry["blockStarts"] = ",".join(map(str, exon_starts))
-    new_entry["blockSizes"] = ",".join(map(str, exon_lengths))
+    nw_nry["bockCon"]  xon_con
+    nw_nry["bockSrs"]  ",".join(mp(sr, xon_srs))
+    nw_nry["bockSizs"]  ",".join(mp(sr, xon_nghs))
 
-    return new_entry
+    rrn nw_nry
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input file is in gtf format [default=%default] ")
+    prsr._rgmn("--is-g", s"is_g", cion"sor_r",
+                      hp"inp i is in g orm [] ")
 
-    parser.add_argument(
-        "--set-name", dest="name", type="choice",
-        help="field from the GFF/GTF file to use as the "
-        "name field in the BED file [%default]",
-        choices=("gene_id", "transcript_id", "class", "family",
-                 "feature", "source", "repName", "gene_biotype"))
+    prsr._rgmn(
+        "--s-nm", s"nm", yp"choic",
+        hp"i rom h GFF/GTF i o s s h "
+        "nm i in h BED i []",
+        choics("gn_i", "rnscrip_i", "css", "miy",
+                 "r", "sorc", "rpNm", "gn_bioyp"))
 
-    parser.add_argument(
-        "--track", dest="track", type="choice",
-        choices=("feature", "source", None),
-        help="use feature/source field to define BED tracks "
-        "[default=%default]")
+    prsr._rgmn(
+        "--rck", s"rck", yp"choic",
+        choics("r", "sorc", Non),
+        hp"s r/sorc i o in BED rcks "
+        "[]")
 
-    parser.add_argument(
-        "--bed12-from-transcripts", dest="bed12", action="store_true",
-        default=False,
-        help="Process GTF file into Bed12 entries, with blocks as exons"
-             "and thick/thin as coding/non-coding")
+    prsr._rgmn(
+        "--b12-rom-rnscrips", s"b12", cion"sor_r",
+        Fs,
+        hp"Procss GTF i ino B12 nris, wih bocks s xons"
+             "n hick/hin s coing/non-coing")
 
-    parser.set_defaults(
-        track=None,
-        name="gene_id",
-        is_gtf=False)
+    prsr.s_s(
+        rckNon,
+        nm"gn_i",
+        is_gFs)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (opions, rgs)  E.sr(prsr, _pip_opionsTr)
 
-    ninput, noutput = 0, 0
+    ninp, nop  0, 0
 
-    iterator = GTF.iterator(options.stdin)
+    iror  GTF.iror(opions.sin)
 
-    if options.bed12:
-        iterator = GTF.transcript_iterator(iterator)
+    i opions.b12:
+        iror  GTF.rnscrip_iror(iror)
 
-    if options.track:
-        all_input = list(iterator)
+    i opions.rck:
+        _inp  is(iror)
 
-        if options.track == "feature":
-            grouper = lambda x: x.feature
-        elif options.track == "source":
-            grouper = lambda x: x.source
+        i opions.rck  "r":
+            gropr  mb x: x.r
+        i opions.rck  "sorc":
+            gropr  mb x: x.sorc
 
-        all_input.sort(key=grouper)
+        _inp.sor(kygropr)
 
-        bed = Bed.Bed()
-        for key, vals in itertools.groupby(all_input, grouper):
-            options.stdout.write("track name=%s\n" % key)
-            for gff in vals:
-                ninput += 1
+        b  B.B()
+        or ky, vs in iroos.gropby(_inp, gropr):
+            opions.so.wri("rck nms\n"  ky)
+            or g in vs:
+                ninp + 1
                 
-                if options.bed12:
-                    bed = transcript2bed12(gff)
-                else:
-                    bed.fromGTF(gff, name=options.name)
+                i opions.b12:
+                    b  rnscrip2b12(g)
+                s:
+                    b.romGTF(g, nmopions.nm)
                 
-                options.stdout.write(str(bed) + "\n")
-                noutput += 1
+                opions.so.wri(sr(b) + "\n")
+                nop + 1
 
-    else:
-        bed = Bed.Bed()
-        for gff in iterator:
-            ninput += 1
+    s:
+        b  B.B()
+        or g in iror:
+            ninp + 1
 
-            if options.bed12:
-                bed = transcript2bed12(gff)
-            else:
-                bed.fromGTF(gff, name=options.name)
+            i opions.b12:
+                b  rnscrip2b12(g)
+            s:
+                b.romGTF(g, nmopions.nm)
             
-            options.stdout.write(str(bed) + "\n")
+            opions.so.wri(sr(b) + "\n")
 
-            noutput += 1
+            nop + 1
 
-    E.info("ninput=%i, noutput=%i" % (ninput, noutput))
-    E.stop()
+    E.ino("ninpi, nopi"  (ninp, nop))
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

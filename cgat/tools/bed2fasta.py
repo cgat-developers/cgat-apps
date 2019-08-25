@@ -1,178 +1,178 @@
 '''
-bed2fasta.py - get sequences from bed file
-==========================================
-
-:Tags: Genomics Intervals Sequences Conversion BED FASTA
+b2s.py - g sqncs rom b i
 
 
+:Tgs: Gnomics Inrvs Sqncs Convrsion BED FASTA
 
-Purpose
+
+
+Prpos
 -------
 
-This script outputs nucleotide sequences for intervals within
-a :term:`bed` formatted file using a corresponding genome file.
+This scrip ops ncoi sqncs or inrvs wihin
+ :rm:`b` orm i sing  corrsponing gnom i.
 
-Usage
+Usg
 -----
 
-A required input to bed2fasta.py is a cgat indexed genome. To obtain an
-idexed human reference genome we would type
+A rqir inp o b2s.py is  cg inx gnom. To obin n
+ix hmn rrnc gnom w wo yp
 
-Example::
-   cat hg19.fasta | index_fasta.py hg19 > hg19.log
+Exmp::
+   c hg19.s | inx_s.py hg19 > hg19.og
 
-This file would then serve as the --genome-file when we wish to extract
-sequences from a :term:`bed` formatted file.
-
-
-For example we could now type::
-
-   cat in.bed | python bed2fasta.py --genome-file hg19 > out.fasta
-
-Where we take a set of genomic intervals (e.g. from a human ChIP-seq experiment)
-and output their respective nucleotide sequences.
+This i wo hn srv s h --gnom-i whn w wish o xrc
+sqncs rom  :rm:`b` orm i.
 
 
-Type::
+For xmp w co now yp::
 
-   python bed2fasta.py --help
+   c in.b | pyhon b2s.py --gnom-i hg19 > o.s
 
-for command line help.
+Whr w k  s o gnomic inrvs (.g. rom  hmn ChIP-sq xprimn)
+n op hir rspciv ncoi sqncs.
 
-Command line options
+
+Typ::
+
+   pyhon b2s.py --hp
+
+or commn in hp.
+
+Commn in opions
 --------------------
 
 '''
-import sys
-import cgatcore.experiment as E
-import cgat.Bed as Bed
-import cgat.IndexedFasta as IndexedFasta
-import cgat.Masker as Masker
+impor sys
+impor cgcor.xprimn s E
+impor cg.B s B
+impor cg.InxFs s InxFs
+impor cg.Mskr s Mskr
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
+ min(rgvNon):
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genomic sequence to retrieve "
-                      "sequences from.")
+    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
+                      hp"inm wih gnomic sqnc o rriv "
+                      "sqncs rom.")
 
-    parser.add_argument("-m", "--masker", dest="masker", type="choice",
-                      choices=("dust", "dustmasker", "softmask", "none"),
-                      help="apply masker to mask output sequences "
-                      "[%default].")
+    prsr._rgmn("-m", "--mskr", s"mskr", yp"choic",
+                      choics("s", "smskr", "somsk", "non"),
+                      hp"ppy mskr o msk op sqncs "
+                      "[].")
 
-    parser.add_argument("--output-mode", dest="output_mode", type="choice",
-                      choices=("intervals", "leftright", "segments"),
-                      help="what to output. "
-                      "'intervals' generates a single sequence for "
-                      "each bed interval. 'leftright' generates two "
-                      "sequences, one in each direction, for each bed "
-                      "interval. 'segments' can be used to output "
-                      "sequence from bed12 files so that sequence only covers "
-                      "the segements [%default]")
+    prsr._rgmn("--op-mo", s"op_mo", yp"choic",
+                      choics("inrvs", "righ", "sgmns"),
+                      hp"wh o op. "
+                      "'inrvs' gnrs  sing sqnc or "
+                      "ch b inrv. 'righ' gnrs wo "
+                      "sqncs, on in ch ircion, or ch b "
+                      "inrv. 'sgmns' cn b s o op "
+                      "sqnc rom b12 is so h sqnc ony covrs "
+                      "h sgmns []")
 
-    parser.add_argument("--min-sequence-length", dest="min_length", type="int",
-                      help="require a minimum sequence length [%default]")
+    prsr._rgmn("--min-sqnc-ngh", s"min_ngh", yp"in",
+                      hp"rqir  minimm sqnc ngh []")
 
-    parser.add_argument("--max-sequence-length", dest="max_length", type="int",
-                      help="require a maximum sequence length [%default]")
+    prsr._rgmn("--mx-sqnc-ngh", s"mx_ngh", yp"in",
+                      hp"rqir  mximm sqnc ngh []")
 
-    parser.add_argument(
-        "--extend-at", dest="extend_at", type="choice",
-        choices=("none", "3", "5", "both", "3only", "5only"),
-        help="extend at 3', 5' or both or no ends. If 3only or 5only "
-        "are set, only the added sequence is returned [default=%default]")
+    prsr._rgmn(
+        "--xn-", s"xn_", yp"choic",
+        choics("non", "3", "5", "boh", "3ony", "5ony"),
+        hp"xn  3', 5' or boh or no ns. I 3ony or 5ony "
+        "r s, ony h  sqnc is rrn []")
 
-    parser.add_argument(
-        "--extend-by", dest="extend_by", type="int",
-        help="extend by # bases [default=%default]")
+    prsr._rgmn(
+        "--xn-by", s"xn_by", yp"in",
+        hp"xn by # bss []")
 
-    parser.add_argument(
-        "--use-strand", dest="ignore_strand",
-        action="store_false",
-        help="use strand information and return reverse complement "
-        "on intervals located on the negative strand. "
-        "[default=%default]")
+    prsr._rgmn(
+        "--s-srn", s"ignor_srn",
+        cion"sor_s",
+        hp"s srn inormion n rrn rvrs compmn "
+        "on inrvs oc on h ngiv srn. "
+        "[]")
 
-    parser.set_defaults(
-        genome_file=None,
-        masker=None,
-        output_mode="intervals",
-        min_length=0,
-        max_length=0,
-        extend_at=None,
-        extend_by=100,
-        ignore_strand=True,
+    prsr.s_s(
+        gnom_iNon,
+        mskrNon,
+        op_mo"inrvs",
+        min_ngh0,
+        mx_ngh0,
+        xn_Non,
+        xn_by100,
+        ignor_srnTr,
     )
 
-    (options, args) = E.start(parser)
+    (opions, rgs)  E.sr(prsr)
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
-        contigs = fasta.getContigSizes()
-        fasta.setConverter(IndexedFasta.getConverter("zero-both-open"))
+    i opions.gnom_i:
+        s  InxFs.InxFs(opions.gnom_i)
+        conigs  s.gConigSizs()
+        s.sConvrr(InxFs.gConvrr("zro-boh-opn"))
 
-    counter = E.Counter()
-    ids, seqs = [], []
+    conr  E.Conr()
+    is, sqs  [], []
 
-    E.info("collecting sequences")
-    for bed in Bed.setName(Bed.iterator(options.stdin)):
-        counter.input += 1
+    E.ino("cocing sqncs")
+    or b in B.sNm(B.iror(opions.sin)):
+        conr.inp + 1
 
-        lcontig = fasta.getLength(bed.contig)
+        conig  s.gLngh(b.conig)
 
-        if options.ignore_strand:
-            strand = "+"
-        else:
-            strand = bed.strand
+        i opions.ignor_srn:
+            srn  "+"
+        s:
+            srn  b.srn
 
-        if options.output_mode == "segments" and bed.columns == 12:
-            ids.append("%s %s:%i..%i (%s) %s %s" %
-                       (bed.name, bed.contig, bed.start, bed.end, strand,
-                        bed["blockSizes"], bed["blockStarts"]))
-            seg_seqs = [fasta.getSequence(bed.contig, strand, start, end)
-                        for start, end in bed.toIntervals()]
-            seqs.append("".join(seg_seqs))
+        i opions.op_mo  "sgmns" n b.comns  12:
+            is.ppn("s s:i..i (s) s s" 
+                       (b.nm, b.conig, b.sr, b.n, srn,
+                        b["bockSizs"], b["bockSrs"]))
+            sg_sqs  [s.gSqnc(b.conig, srn, sr, n)
+                        or sr, n in b.oInrvs()]
+            sqs.ppn("".join(sg_sqs))
 
-        elif (options.output_mode == "intervals" or
-              options.output_mode == "segments"):
-            ids.append("%s %s:%i..%i (%s)" %
-                       (bed.name, bed.contig, bed.start, bed.end, strand))
-            seqs.append(
-                fasta.getSequence(bed.contig, strand, bed.start, bed.end))
+        i (opions.op_mo  "inrvs" or
+              opions.op_mo  "sgmns"):
+            is.ppn("s s:i..i (s)" 
+                       (b.nm, b.conig, b.sr, b.n, srn))
+            sqs.ppn(
+                s.gSqnc(b.conig, srn, b.sr, b.n))
 
-        elif options.output_mode == "leftright":
-            l = bed.end - bed.start
+        i opions.op_mo  "righ":
+              b.n - b.sr
 
-            start, end = max(0, bed.start - l), bed.end - l
-            ids.append("%s_l %s:%i..%i (%s)" %
-                       (bed.name, bed.contig, start, end, strand))
-            seqs.append(fasta.getSequence(bed.contig, strand, start, end))
+            sr, n  mx(0, b.sr - ), b.n - 
+            is.ppn("s_ s:i..i (s)" 
+                       (b.nm, b.conig, sr, n, srn))
+            sqs.ppn(s.gSqnc(b.conig, srn, sr, n))
 
-            start, end = bed.start + l, min(lcontig, bed.end + l)
-            ids.append("%s_r %s:%i..%i (%s)" %
-                       (bed.name, bed.contig, start, end, strand))
-            seqs.append(fasta.getSequence(bed.contig, strand, start, end))
+            sr, n  b.sr + , min(conig, b.n + )
+            is.ppn("s_r s:i..i (s)" 
+                       (b.nm, b.conig, sr, n, srn))
+            sqs.ppn(s.gSqnc(b.conig, srn, sr, n))
 
-    E.info("collected %i sequences" % len(seqs))
+    E.ino("coc i sqncs"  n(sqs))
 
-    masked = Masker.maskSequences(seqs, options.masker)
-    options.stdout.write(
-        "\n".join([">%s\n%s" % (x, y) for x, y in zip(ids, masked)]) + "\n")
+    msk  Mskr.mskSqncs(sqs, opions.mskr)
+    opions.so.wri(
+        "\n".join([">s\ns"  (x, y) or x, y in zip(is, msk)]) + "\n")
 
-    E.info("masked %i sequences" % len(seqs))
+    E.ino("msk i sqncs"  n(sqs))
 
-    counter.output = len(seqs)
+    conr.op  n(sqs)
 
-    E.info("%s" % counter)
+    E.ino("s"  conr)
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

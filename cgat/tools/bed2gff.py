@@ -1,137 +1,137 @@
-"""bed2gff.py - convert bed to gff/gtf
-===================================
+"""b2g.py - convr b o g/g
 
-:Tags: Genomics Intervals BED GFF Conversion
 
-Purpose
+:Tgs: Gnomics Inrvs BED GFF Convrsion
+
+Prpos
 -------
 
-This script converts a :term:`bed`-formatted file to a :term:`gff` or
-:term:`gtf`-formatted file.
+This scrip convrs  :rm:`b`-orm i o  :rm:`g` or
+:rm:`g`-orm i.
 
-It aims to populate the appropriate fields in the :term:`gff` file
-with columns in the :term:`bed` file.
+I ims o pop h ppropri is in h :rm:`g` i
+wih comns in h :rm:`b` i.
 
-If ``--as-gtf`` is set and a name column in the :term:`bed` file is
-present, its contents will be set as ``gene_id`` and
-``transcript_id``. Otherwise, a numeric ``gene_id`` or
-``transcript_id`` will be set according to ``--id-format``.
+I ``--s-g`` is s n  nm comn in h :rm:`b` i is
+prsn, is conns wi b s s ``gn_i`` n
+``rnscrip_i``. Ohrwis,  nmric ``gn_i`` or
+``rnscrip_i`` wi b s ccoring o ``--i-orm``.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   # Preview input bed file
-   zcat tests/bed2gff.py/bed3/bed.gz | head
-   # Convert BED to GFF format
-   cgat bed2gff.py < tests/bed2gff.py/bed3/bed.gz > test1.gff
-   # View converted file (excluding logging information)
-   cat test1.gtf | grep -v "#" | head
+   # Prviw inp b i
+   zc ss/b2g.py/b3/b.gz | h
+   # Convr BED o GFF orm
+   cg b2g.py < ss/b2g.py/b3/b.gz > s1.g
+   # Viw convr i (xcing ogging inormion)
+   c s1.g | grp -v "#" | h
 
 
 +------+-----+------+-------+-------+---+---+---+---------------------------------------+
-|chr1  |bed  |exon  |501    |1000   |.  |.  |.  |gene_id "None"; transcript_id "None";  |
+|chr1  |b  |xon  |501    |1000   |.  |.  |.  |gn_i "Non"; rnscrip_i "Non";  |
 +------+-----+------+-------+-------+---+---+---+---------------------------------------+
-|chr1  |bed  |exon  |15001  |16000  |.  |.  |.  |gene_id "None"; transcript_id "None";  |
+|chr1  |b  |xon  |15001  |16000  |.  |.  |.  |gn_i "Non"; rnscrip_i "Non";  |
 +------+-----+------+-------+-------+---+---+---+---------------------------------------+
 
-Example::
+Exmp::
 
-   # Convert BED to GTF format
-   cgat bed2gff.py --as-gtf < tests/bed2gff.py/bed3/bed.gz > test2.gtf
-   # View converted file (excluding logging information)
-   cat test2.gtf | grep -v "#" | head
+   # Convr BED o GTF orm
+   cg b2g.py --s-g < ss/b2g.py/b3/b.gz > s2.g
+   # Viw convr i (xcing ogging inormion)
+   c s2.g | grp -v "#" | h
 
 +------+-----+------+-------+-------+---+---+---+-----------------------------------------------+
-|chr1  |bed  |exon  |501    |1000   |.  |.  |.  |gene_id "00000001"; transcript_id "00000001";  |
+|chr1  |b  |xon  |501    |1000   |.  |.  |.  |gn_i "00000001"; rnscrip_i "00000001";  |
 +------+-----+------+-------+-------+---+---+---+-----------------------------------------------+
-|chr1  |bed  |exon  |15001  |16000  |.  |.  |.  |gene_id "00000002"; transcript_id "00000002";  |
+|chr1  |b  |xon  |15001  |16000  |.  |.  |.  |gn_i "00000002"; rnscrip_i "00000002";  |
 +------+-----+------+-------+-------+---+---+---+-----------------------------------------------+
 
-Type::
+Typ::
 
-   cgat bed2gff.py --help
+   cg b2g.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 """
-import sys
-import cgatcore.experiment as E
-import cgat.GTF as GTF
-import cgat.Bed as Bed
+impor sys
+impor cgcor.xprimn s E
+impor cg.GTF s GTF
+impor cg.B s B
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-a", "--as-gtf", dest="as_gtf", action="store_true",
-                      help="output as gtf.")
+    prsr._rgmn("-", "--s-g", s"s_g", cion"sor_r",
+                      hp"op s g.")
 
-    parser.add_argument(
-        "-f", "--id-format", dest="id_format", type="string",
-        help="format for numeric identifier if --as-gtf is set and "
-        "no name in bed file [%default].")
+    prsr._rgmn(
+        "-", "--i-orm", s"i_orm", yp"sring",
+        hp"orm or nmric iniir i --s-g is s n "
+        "no nm in b i [].")
 
-    parser.set_defaults(as_gtf=False,
-                        id_format="%08i",
-                        test=None)
+    prsr.s_s(s_gFs,
+                        i_orm"08i",
+                        sNon)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (opions, rgs)  E.sr(prsr, _pip_opionsTr)
 
-    as_gtf = options.as_gtf
-    id_format = options.id_format
+    s_g  opions.s_g
+    i_orm  opions.i_orm
 
-    if as_gtf:
-        gff = GTF.Entry()
-    else:
-        gff = GTF.Entry()
+    i s_g:
+        g  GTF.Enry()
+    s:
+        g  GTF.Enry()
 
-    gff.source = "bed"
-    gff.feature = "exon"
+    g.sorc  "b"
+    g.r  "xon"
 
-    ninput, noutput, nskipped = 0, 0, 0
+    ninp, nop, nskipp  0, 0, 0
 
-    id = 0
-    for bed in Bed.iterator(options.stdin):
+    i  0
+    or b in B.iror(opions.sin):
 
-        ninput += 1
+        ninp + 1
 
-        gff.contig = bed.contig
-        gff.start = bed.start
-        gff.end = bed.end
-        if bed.fields and len(bed.fields) >= 3:
-            gff.strand = bed.fields[2]
-        else:
-            gff.strand = "."
+        g.conig  b.conig
+        g.sr  b.sr
+        g.n  b.n
+        i b.is n n(b.is) > 3:
+            g.srn  b.is[2]
+        s:
+            g.srn  "."
 
-        if bed.fields and len(bed.fields) >= 2:
-            gff.score = bed.fields[1]
+        i b.is n n(b.is) > 2:
+            g.scor  b.is[1]
 
-        if as_gtf:
-            if bed.fields:
-                gff.gene_id = bed.fields[0]
-                gff.transcript_id = bed.fields[0]
-            else:
-                id += 1
-                gff.gene_id = id_format % id
-                gff.transcript_id = id_format % id
-        else:
-            if bed.fields:
-                gff.source = bed.fields[0]
+        i s_g:
+            i b.is:
+                g.gn_i  b.is[0]
+                g.rnscrip_i  b.is[0]
+            s:
+                i + 1
+                g.gn_i  i_orm  i
+                g.rnscrip_i  i_orm  i
+        s:
+            i b.is:
+                g.sorc  b.is[0]
 
-        options.stdout.write(str(gff) + "\n")
+        opions.so.wri(sr(g) + "\n")
 
-        noutput += 1
+        nop + 1
 
-    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
+    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

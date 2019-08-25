@@ -1,976 +1,976 @@
-'''bam2geneprofile.py - build meta-gene profile for a set of transcripts/genes
-===========================================================================
+'''bm2gnproi.py - bi m-gn proi or  s o rnscrips/gns
 
-:Tags: Genomics NGS Genesets Intervals GTF BAM Summary
 
-Purpose
+:Tgs: Gnomics NGS Gnss Inrvs GTF BAM Smmry
+
+Prpos
 -------
 
-This script takes a :term:`gtf` formatted file, a short reads
-:term:`bam` formatted file and computes meta-gene profiles over
-various annotations derived from the :term:`gtf` file.
+This scrip ks  :rm:`g` orm i,  shor rs
+:rm:`bm` orm i n comps m-gn prois ovr
+vrios nnoions riv rom h :rm:`g` i.
 
-A meta-gene profile is an abstract genomic entity over which reads
-stored in a :term:`bam` formatted file have been counted. A meta-gene
-might be an idealized eukaryotic gene (upstream, exonic sequence,
-downstream) or any other genomic landmark of interest such as
-transcription start sites.
+A m-gn proi is n bsrc gnomic niy ovr which rs
+sor in  :rm:`bm` orm i hv bn con. A m-gn
+migh b n iiz kryoic gn (psrm, xonic sqnc,
+ownsrm) or ny ohr gnomic nmrk o inrs sch s
+rnscripion sr sis.
 
-The script can be used to visualize binding profiles of a chromatin
-mark in gene bodies, binding of transcription factors in promotors or
-sequencing bias (e.g. 3' bias) in RNA-Seq data.
+Th scrip cn b s o visiz bining prois o  chromin
+mrk in gn bois, bining o rnscripion cors in promoors or
+sqncing bis (.g. 3' bis) in RNA-Sq .
 
-This script is designed with a slight emphasis on RNA-Seq
-datasets. For example, it takes care of spliced reads, by using the
-CIGAR string in the BAM file to accurately define aligned bases (if
-the --base-accurate is specified, currently this feature is turned off
-by default for speed reasons).
+This scrip is sign wih  sigh mphsis on RNA-Sq
+ss. For xmp, i ks cr o spic rs, by sing h
+CIGAR sring in h BAM i o ccry in ign bss (i
+h --bs-ccr is spcii, crrny his r is rn o
+by  or sp rsons).
 
-Alternatively, for the purpose of visualizing binding profiles of
-transcription factor ChIP-Seq without the need to use any genomic
-annotations (ENSEMBL, or refseq), you may also consider using
-:doc:`bam2peakshape`, which is designed with a slight emphasis on
-Chip-Seq datasets. For example, :doc:`bam2peakshape` is able to center
-the counting window to the summit of every individual peak.
-:doc:`bam2peakshape` is also able to: (1) plot the control ChIP-Seq
-library to enable side-by-side comparison; (2) randomize the given
-regions to provide a semi-control.
+Arnivy, or h prpos o visizing bining prois o
+rnscripion cor ChIP-Sq wiho h n o s ny gnomic
+nnoions (ENSEMBL, or rsq), yo my so consir sing
+:oc:`bm2pkshp`, which is sign wih  sigh mphsis on
+Chip-Sq ss. For xmp, :oc:`bm2pkshp` is b o cnr
+h coning winow o h smmi o vry inivi pk.
+:oc:`bm2pkshp` is so b o: (1) po h conro ChIP-Sq
+ibrry o nb si-by-si comprison; (2) rnomiz h givn
+rgions o provi  smi-conro.
 
-Usage
+Usg
 -----
 
-Quick start examples
+Qick sr xmps
 ++++++++++++++++++++
 
-The following command will generate the gene profile plot similar to
-Fig 1(a) in the published cgat paper, but using a test dataset that is
-much smaller and simpler than the dataset used for publishing the cgat
-paper. ::
+Th oowing commn wi gnr h gn proi po simir o
+Fig 1() in h pbish cg ppr, b sing  s s h is
+mch smr n simpr hn h s s or pbishing h cg
+ppr. ::
 
-    python ./scripts/bam2geneprofile.py
-        --bam-file=./tests/bam2geneprofile.py/multipleReadsSplicedOutAllIntronsAndSecondExon.bam
-        --gtf-file=./tests/bam2geneprofile.py/onegeneWithoutAnyCDS.gtf.gz
-        --method=geneprofile
-        --reporter=gene
+    pyhon ./scrips/bm2gnproi.py
+        --bm-i./ss/bm2gnproi.py/mipRsSpicOAInronsAnSconExon.bm
+        --g-i./ss/bm2gnproi.py/ongnWihoAnyCDS.g.gz
+        --mhognproi
+        --rporrgn
 
-In the following, a slightly more involved example will use more
-features of this script. The following command generate the gene
-profile showing base accuracy of upstream (500bp), exons, introns and
-downstream(500bp) of a gene model from some user supplied RNA-Seq data
-and geneset. ::
+In h oowing,  sighy mor invov xmp wi s mor
+rs o his scrip. Th oowing commn gnr h gn
+proi showing bs ccrcy o psrm (500bp), xons, inrons n
+ownsrm(500bp) o  gn mo rom som sr sppi RNA-Sq 
+n gns. ::
 
-    python ./scripts/bam2geneprofile.py
-        --bam-file=./rnaseq.bam
-        --gtf-file=./geneset.gtf.gz
-        --method=geneprofilewithintrons
-        --reporter=gene
-        --extension-upstream=500
-        --resolution-upstream=500
-        --extension-downstream=500
-        --resolution-downstream=500
+    pyhon ./scrips/bm2gnproi.py
+        --bm-i./rnsq.bm
+        --g-i./gns.g.gz
+        --mhognproiwihinrons
+        --rporrgn
+        --xnsion-psrm500
+        --rsoion-psrm500
+        --xnsion-ownsrm500
+        --rsoion-ownsrm500
 
-The output will contain read coverage over genes. The profile will
-contain four separate segments:
+Th op wi conin r covrg ovr gns. Th proi wi
+conin or spr sgmns:
 
-1. the upstream region of a gene ( set to be 500bp ),
-   (``--extension-upstream=500``).
+1. h psrm rgion o  gn ( s o b 500bp ),
+   (``--xnsion-psrm500``).
 
-2. the transcribed region of a gene. The transcribed region of every gene will
-   be scaled to 1000 bp (default), shrinking longer transcripts and
-   expanding shorter transcripts.
+2. h rnscrib rgion o  gn. Th rnscrib rgion o vry gn wi
+   b sc o 1000 bp (), shrinking ongr rnscrips n
+   xpning shorr rnscrips.
 
-3. the intronic regions of a gene. These will be scaled to 1000b (default).
+3. h inronic rgions o  gn. Ths wi b sc o 1000b ().
 
-4. the downstream region of a gene (set to be 500bp),
-   (``--extension-downstream=500``).
+4. h ownsrm rgion o  gn (s o b 500bp),
+   (``--xnsion-ownsrm500``).
 
 
 
-Detailed explaination
+Di xpinion
 +++++++++++++++++++++
 
-The :file:`bam2geneprofile.py` script reads in a set of transcripts
-from a :term:`gtf` formatted file. For each transcript, overlapping
-reads from the provided :term:`bam` file are collected. The counts
-within the transcript are then mapped onto the meta-gene structure and
-counts are aggregated over all transcripts in the :term:`gtf` file.
+Th :i:`bm2gnproi.py` scrip rs in  s o rnscrips
+rom  :rm:`g` orm i. For ch rnscrip, ovrpping
+rs rom h provi :rm:`bm` i r coc. Th cons
+wihin h rnscrip r hn mpp ono h m-gn srcr n
+cons r ggrg ovr  rnscrips in h :rm:`g` i.
 
-:term:`Bam` files need to be sorted by coordinate and indexed.
+:rm:`Bm` is n o b sor by coorin n inx.
 
-A meta-gene structure has two components - regions of variable size,
-such as exons, introns, etc, which nevertheless have a fixed start and
-end coordinate in a transcript. The other component are regions of
-fixed width, such a regions of a certain size upstream or downstream
-of a landmark such as a transcription start site.
+A m-gn srcr hs wo componns - rgions o vrib siz,
+sch s xons, inrons, c, which nvrhss hv  ix sr n
+n coorin in  rnscrip. Th ohr componn r rgions o
+ix wih, sch  rgions o  crin siz psrm or ownsrm
+o  nmrk sch s  rnscripion sr si.
 
-The size of the former class, regions of variable size, can be varied
-with ``--resolution`` options. For example, the option
-``--resolution-upstream-utr=1000`` will create a meta-gene with a
-1000bp upstream UTR region. UTRs that are larger will be compressed,
-and UTRs that are smaller, will be stretched to fit the 1000bp
-meta-gene UTR region.
+Th siz o h ormr css, rgions o vrib siz, cn b vri
+wih ``--rsoion`` opions. For xmp, h opion
+``--rsoion-psrm-r1000`` wi cr  m-gn wih 
+1000bp psrm UTR rgion. UTRs h r rgr wi b comprss,
+n UTRs h r smr, wi b srch o i h 1000bp
+m-gn UTR rgion.
 
-The size of fixed-width regions can be set with ``--extension``
-options. For example, the options ``--extension-upstream`` will set
-the size of the uptsream extension region to 1000bp. Note that no
-scaling is required when counting reads towards the fixed-width
-meta-gene profile.
+Th siz o ix-wih rgions cn b s wih ``--xnsion``
+opions. For xmp, h opions ``--xnsion-psrm`` wi s
+h siz o h psrm xnsion rgion o 1000bp. No h no
+scing is rqir whn coning rs owrs h ix-wih
+m-gn proi.
 
-Type::
+Typ::
 
-   python bam2geneprofile.py --help
+   pyhon bm2gnproi.py --hp
 
-for command line help.
+or commn in hp.
 
-Options
+Opions
 -------
 
-The script provides a variety of different meta-gene structures i.e.
-geneprofiles, selectable via using the option: (``--method``).
+Th scrip provis  vriy o irn m-gn srcrs i..
+gnprois, scb vi sing h opion: (``--mho``).
 
-Profiles
+Prois
 ++++++++
 
-Different profiles are accessible through the ``--method`` option. Multiple
-methods can be applied at the same time. While ``upstream`` and ``downstream``
-typically have a fixed size, the other regions such as ``CDS``, ``UTR`` will be
-scaled to a common size.
+Dirn prois r ccssib hrogh h ``--mho`` opion. Mip
+mhos cn b ppi  h sm im. Whi ``psrm`` n ``ownsrm``
+ypicy hv  ix siz, h ohr rgions sch s ``CDS``, ``UTR`` wi b
+sc o  common siz.
 
-utrprofile
+rproi
     UPSTREAM - UTR5 - CDS - UTR3 - DOWNSTREAM
-    gene models with UTR. Separate the coding section from the non-coding part.
+    gn mos wih UTR. Spr h coing scion rom h non-coing pr.
 
-geneprofile
+gnproi
     UPSTREAM - EXON - DOWNSTREAM
-    simple exonic gene models
+    simp xonic gn mos
 
-geneprofilewithintrons
+gnproiwihinrons
     UPSTREAM - EXON - INTRON - DOWNSTREAM
 
-    gene models containing also intronic sequence, only correct if
-    used with ``--use-base-accuracy`` option.
+    gn mos conining so inronic sqnc, ony corrc i
+    s wih ``--s-bs-ccrcy`` opion.
 
-separateexonprofile
+sprxonproi
     UPSTREAM - FIRST EXON - EXON - LAST EXON - DOWNSTREAM
 
-    gene models with the first and last exons separated out from all
-    other exons.  Only applicable to gene models with > 1 exons.
+    gn mos wih h irs n s xons spr o rom 
+    ohr xons.  Ony ppicb o gn mos wih > 1 xons.
 
-separateexonprofilewithintrons
+sprxonproiwihinrons
     UPSTREAM - FIRST EXON - EXON - INTRON - LAST EXON - DOWNSTREAM
 
-    gene models with first and last exons separated out, and includes
-    all introns together.  Excludes genes with < 2 exons and no introns.
+    gn mos wih irs n s xons spr o, n incs
+     inrons oghr.  Excs gns wih < 2 xons n no inrons.
 
-geneprofileabsolutedistancefromthreeprimeend
+gnproibsoisncromhrprimn
 
-    UPSTREAM - EXON (absolute distance, see below) - INTRON (absolute
-    distance, see below) - DOWNSTREAM (the downstream of the exons)
-    region, the script counts over the mRNA transcript only, skipping
-    introns. Designed to visualize the 3 prime bias in RNASeq data,
-    only correct if used together with ``--use-base-accuracy`` option.
+    UPSTREAM - EXON (bso isnc, s bow) - INTRON (bso
+    isnc, s bow) - DOWNSTREAM (h ownsrm o h xons)
+    rgion, h scrip cons ovr h mRNA rnscrip ony, skipping
+    inrons. Dsign o visiz h 3 prim bis in RNASq ,
+    ony corrc i s oghr wih ``--s-bs-ccrcy`` opion.
 
-    absolute distance: In order to to visualize the 3 prime bias,
-    genes are not supposed to be streched to equal length as it did in
-    all other counting methods. In this counting method, we first set
-    a fix length using
-    ``--extension-exons-absolute-distance-topolya``, the script will
-    discard genes shorter than this fixed length. For genes (when all
-    the exons stitched together) longer than this fixed length, the
-    script will only count over this fixed length ( a absolute
-    distance ) from three prime end, instead of compress the longer
-    genes. Same goes for absolute distance intron counting.
+    bso isnc: In orr o o visiz h 3 prim bis,
+    gns r no sppos o b srch o q ngh s i i in
+     ohr coning mhos. In his coning mho, w irs s
+     ix ngh sing
+    ``--xnsion-xons-bso-isnc-opoy``, h scrip wi
+    iscr gns shorr hn his ix ngh. For gns (whn 
+    h xons sich oghr) ongr hn his ix ngh, h
+    scrip wi ony con ovr his ix ngh (  bso
+    isnc ) rom hr prim n, ins o comprss h ongr
+    gns. Sm gos or bso isnc inron coning.
 
-tssprofile
+ssproi
     UPSTREAM - DOWNSTREAM
-    transcription start/stop sites
+    rnscripion sr/sop sis
 
-intervalprofile
+inrvproi
     UPSTREAM - INTERVAL - DOWNSTREAM
-    Similar to geneprofile, but count over the complete span of the gene
-    (including introns).
+    Simir o gnproi, b con ovr h comp spn o h gn
+    (incing inrons).
 
-midpointprofile
+mipoinproi
     UPSTREAM  - DOWNSTREAM
-    aggregate over midpoint of gene model
+    ggrg ovr mipoin o gn mo
 
 
-Normalization
+Normizion
 +++++++++++++
 
-Normalization can be applied in two stages of the computation.
+Normizion cn b ppi in wo sgs o h compion.
 
-Count vector normalization
+Con vcor normizion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before adding counts to the meta-gene profile, the profile for the
-individual transcript can be normalized. Without normalization, highly
-expressed genes will contribute more to the meta-gene profile than
-lowly expressed genes.  Normalization can assure that each gene
-contributes an equal amount.
+Bor ing cons o h m-gn proi, h proi or h
+inivi rnscrip cn b normiz. Wiho normizion, highy
+xprss gns wi conrib mor o h m-gn proi hn
+owy xprss gns.  Normizion cn ssr h ch gn
+conribs n q mon.
 
-Normalization is applied to the vector of read counts that is computed
-for each transcript. Normalization can be applied for the whole
-transcript (``total``) or on a per segment basis depending on the
-counter. For example, in the gene counter, exons, upstream and
-downstream segments can be normalized independently.
+Normizion is ppi o h vcor o r cons h is comp
+or ch rnscrip. Normizion cn b ppi or h who
+rnscrip (``o``) or on  pr sgmn bsis pning on h
+conr. For xmp, in h gn conr, xons, psrm n
+ownsrm sgmns cn b normiz inpnny.
 
-Counts can be normalized either by the maximum or the sum of all
-counts in a segment or across the whole transcript. Normalization is
-controlled with the command line option ``--normalize-trancript``. Its
-arguments are:
+Cons cn b normiz ihr by h mximm or h sm o 
+cons in  sgmn or cross h who rnscrip. Normizion is
+conro wih h commn in opion ``--normiz-rncrip``. Is
+rgmns r:
 
-* ``none``: no normalization
-* ``sum``: sum of counts within a region (exons, upstream, ...).
-  The area under the curve will sum to 1 for each region.
-* ``max``: maximum count within a region (exons,upstream, ...).
-* ``total-sum``: sum of counts across all regions. The area
-  under the curve will sum to 1 for
-  the complete transcript.
-* ``total-max``: maximum count across all regions.
+* ``non``: no normizion
+* ``sm``: sm o cons wihin  rgion (xons, psrm, ...).
+  Th r nr h crv wi sm o 1 or ch rgion.
+* ``mx``: mximm con wihin  rgion (xons,psrm, ...).
+* ``o-sm``: sm o cons cross  rgions. Th r
+  nr h crv wi sm o 1 or
+  h comp rnscrip.
+* ``o-mx``: mximm con cross  rgions.
 
-The options above control the contribution of individual transcripts
-to a meta-gene profile and are thus suited for example for RNA-Seq data.
+Th opions bov conro h conribion o inivi rnscrips
+o  m-gn proi n r hs si or xmp or RNA-Sq .
 
-The options above do not control for different read-depths or any
-local biases. To compare meta-gene profiles between samples,
-additional normalization is required.
+Th opions bov o no conro or irn r-phs or ny
+oc biss. To compr m-gn prois bwn smps,
+iion normizion is rqir.
 
-Meta-gene profile normalization
+M-gn proi normizion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To enable comparison between experiments, the meta-gene profile itself
-can be normalized.  Normalization a profile can help comparing the
-shapes of profiles between different experiments independent of the
-number of reads or transcripts used in the construction of the
-meta-gene profile.
+To nb comprison bwn xprimns, h m-gn proi is
+cn b normiz.  Normizion  proi cn hp compring h
+shps o prois bwn irn xprimns inpnn o h
+nmbr o rs or rnscrips s in h consrcion o h
+m-gn proi.
 
-Meta-gene profile normalization is controlled via the
-``--normalize-profile`` option. Possible normalization are:
+M-gn proi normizion is conro vi h
+``--normiz-proi`` opion. Possib normizion r:
 
-* none: no normalization
-* area: normalize such that the area under the meta-gene profile is 1.
-* counts: normalize by number of features (genes,tss) that have been counted.
-* background: normalize with background (see below).
+* non: no normizion
+* r: normiz sch h h r nr h m-gn proi is 1.
+* cons: normiz by nmbr o rs (gns,ss) h hv bn con.
+* bckgron: normiz wih bckgron (s bow).
 
-A special normalization is activated with the ``background`` option.
-Here, the counts at the left and right most regions are used to
-estimate a background level for each transcript. The counts are then
-divided by this background-level. The assumption is that the meta-gene
-model is computed over a large enough area to include genomic
-background.
+A spci normizion is civ wih h ``bckgron`` opion.
+Hr, h cons  h  n righ mos rgions r s o
+sim  bckgron v or ch rnscrip. Th cons r hn
+ivi by his bckgron-v. Th ssmpion is h h m-gn
+mo is comp ovr  rg nogh r o inc gnomic
+bckgron.
 
-Genes versus transcripts
+Gns vrss rnscrips
 ++++++++++++++++++++++++
 
-The default is to collect reads on a per-transcript
-level. Alternatively, the script can merge all transcripts of a gene
-into a single virtual transcript. Note that this virtual transcript
-might not be a biologically plausible transcript. It is usually better
-to provide :file:`bam2geneprofile.py` with a set of representative
-transcripts per gene in order to avoid up-weighting genes with
-multiple transcripts.
+Th  is o coc rs on  pr-rnscrip
+v. Arnivy, h scrip cn mrg  rnscrips o  gn
+ino  sing vir rnscrip. No h his vir rnscrip
+migh no b  bioogicy psib rnscrip. I is sy br
+o provi :i:`bm2gnproi.py` wih  s o rprsniv
+rnscrips pr gn in orr o voi p-wighing gns wih
+mip rnscrips.
 
-Control
+Conro
 +++++++
 
-If control files (chip-seq input tracks) are supplied, counts in the
-control file can be used to compute a fold-change.
+I conro is (chip-sq inp rcks) r sppi, cons in h
+conro i cn b s o comp  o-chng.
 
-Bed and wiggle files
+B n wigg is
 ++++++++++++++++++++
 
-The densities can be computed from :term:`bed` or :term:`wiggle`
-formatted files. If a :term:`bed` formatted file is supplied, it must
-be compressed with and indexed with :file:`tabix`.
+Th nsiis cn b comp rom :rm:`b` or :rm:`wigg`
+orm is. I  :rm:`b` orm i is sppi, i ms
+b comprss wih n inx wih :i:`bix`.
 
-.. note::
+.. no::
 
-   Paired-endedness is ignored. Both ends of a paired-ended read are
-   treated individually.
+   Pir-nnss is ignor. Boh ns o  pir-n r r
+   r iniviy.
 
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import pysam
-import cgat.GTF as GTF
-import numpy
-import pandas
-import pyBigWig
+impor os
+impor sys
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor pysm
+impor cg.GTF s GTF
+impor nmpy
+impor pns
+impor pyBigWig
 
-from cgat.BamTools import geneprofile
+rom cg.BmToos impor gnproi
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
         """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-m", "--method", dest="methods", type="choice",
-                      action="append",
-                      choices=("geneprofile", "tssprofile", "utrprofile",
-                               "intervalprofile", "midpointprofile",
-                               "geneprofilewithintrons",
-                               "geneprofileabsolutedistancefromthreeprimeend",
-                               "separateexonprofile",
-                               "separateexonprofilewithintrons",
+    prsr._rgmn("-m", "--mho", s"mhos", yp"choic",
+                      cion"ppn",
+                      choics("gnproi", "ssproi", "rproi",
+                               "inrvproi", "mipoinproi",
+                               "gnproiwihinrons",
+                               "gnproibsoisncromhrprimn",
+                               "sprxonproi",
+                               "sprxonproiwihinrons",
                                ),
-                      help='counters to use. Counters describe the '
-                      'meta-gene structure to use. '
-                      'Note using geneprofilewithintrons, or '
-                      'geneprofileabsolutedistancefromthreeprimeend will '
-                      'automatically turn on the --use-base-accuracy option'
-                      '[%default].')
+                      hp'conrs o s. Conrs scrib h '
+                      'm-gn srcr o s. '
+                      'No sing gnproiwihinrons, or '
+                      'gnproibsoisncromhrprimn wi '
+                      'omicy rn on h --s-bs-ccrcy opion'
+                      '[].')
 
-    parser.add_argument("-b", "--bam-file", "--bedfile", "--bigwigfile",
-                      dest="infiles",
-                      metavar="BAM",
-                      type="string", action="append",
-                      help="BAM/bed/bigwig files to use. Do not mix "
-                      "different types [%default]")
+    prsr._rgmn("-b", "--bm-i", "--bi", "--bigwigi",
+                      s"inis",
+                      mvr"BAM",
+                      yp"sring", cion"ppn",
+                      hp"BAM/b/bigwig is o s. Do no mix "
+                      "irn yps []")
 
-    parser.add_argument("-c", "--control-bam-file", dest="controlfiles",
-                      metavar="BAM",
-                      type="string", action="append",
-                      help="control/input to use. Should be of the same "
-                      "type as the bam/bed/bigwig file"
-                      " [%default]")
+    prsr._rgmn("-c", "--conro-bm-i", s"conrois",
+                      mvr"BAM",
+                      yp"sring", cion"ppn",
+                      hp"conro/inp o s. Sho b o h sm "
+                      "yp s h bm/b/bigwig i"
+                      " []")
 
-    parser.add_argument("-g", "--gtf-file", dest="gtffile", type="string",
-                      metavar="GTF",
-                      help="GTF file to use. "
-                      "[%default]")
+    prsr._rgmn("-g", "--g-i", s"gi", yp"sring",
+                      mvr"GTF",
+                      hp"GTF i o s. "
+                      "[]")
 
-    parser.add_argument(
-        "--normalize-transcript",
-        dest="transcript_normalization",
-        type="choice",
-        choices=("none", "max", "sum", "total-max", "total-sum"),
-        help="normalization to apply on each transcript "
-        "profile before adding to meta-gene profile. "
-        "[%default]")
+    prsr._rgmn(
+        "--normiz-rnscrip",
+        s"rnscrip_normizion",
+        yp"choic",
+        choics("non", "mx", "sm", "o-mx", "o-sm"),
+        hp"normizion o ppy on ch rnscrip "
+        "proi bor ing o m-gn proi. "
+        "[]")
 
-    parser.add_argument(
-        "--normalize-profile",
-        dest="profile_normalizations",
-        type="choice", action="append",
-        choices=("all", "none", "area", "counts", "background"),
-        help="normalization to apply on meta-gene "
-        "profile normalization. "
-        "[%default]")
+    prsr._rgmn(
+        "--normiz-proi",
+        s"proi_normizions",
+        yp"choic", cion"ppn",
+        choics("", "non", "r", "cons", "bckgron"),
+        hp"normizion o ppy on m-gn "
+        "proi normizion. "
+        "[]")
 
-    parser.add_argument(
-        "-r", "--reporter", dest="reporter", type="choice",
-        choices=("gene", "transcript"),
-        help="report results for genes or transcripts."
-        " When 'genes` is chosen, exons across all transcripts for"
-        " a gene are merged. When 'transcript' is chosen, counts are"
-        " computed for each transcript separately with each transcript"
-        " contributing equally to the meta-gene profile."
-        " [%default]")
+    prsr._rgmn(
+        "-r", "--rporr", s"rporr", yp"choic",
+        choics("gn", "rnscrip"),
+        hp"rpor rss or gns or rnscrips."
+        " Whn 'gns` is chosn, xons cross  rnscrips or"
+        "  gn r mrg. Whn 'rnscrip' is chosn, cons r"
+        " comp or ch rnscrip spry wih ch rnscrip"
+        " conribing qy o h m-gn proi."
+        " []")
 
-    parser.add_argument("-i", "--shift-size", dest="shifts", type="int",
-                      action="append",
-                      help="shift reads in :term:`bam` formatted file "
-                      "before computing densities (ChIP-Seq). "
-                      "[%default]")
+    prsr._rgmn("-i", "--shi-siz", s"shis", yp"in",
+                      cion"ppn",
+                      hp"shi rs in :rm:`bm` orm i "
+                      "bor comping nsiis (ChIP-Sq). "
+                      "[]")
 
-    parser.add_argument("-a", "--merge-pairs", dest="merge_pairs",
-                      action="store_true",
-                      help="merge pairs in :term:`bam` formatted "
-                      "file before computing "
-                      "densities (ChIP-Seq). "
-                      "[%default]")
+    prsr._rgmn("-", "--mrg-pirs", s"mrg_pirs",
+                      cion"sor_r",
+                      hp"mrg pirs in :rm:`bm` orm "
+                      "i bor comping "
+                      "nsiis (ChIP-Sq). "
+                      "[]")
 
-    parser.add_argument("-u", "--use-base-accuracy", dest="base_accuracy",
-                      action="store_true",
-                      help="compute densities with base accuracy. The default "
-                      "is to only use the start and end of the aligned region "
-                      "(RNA-Seq) "
-                      "[%default]")
+    prsr._rgmn("-", "--s-bs-ccrcy", s"bs_ccrcy",
+                      cion"sor_r",
+                      hp"comp nsiis wih bs ccrcy. Th  "
+                      "is o ony s h sr n n o h ign rgion "
+                      "(RNA-Sq) "
+                      "[]")
 
-    parser.add_argument("-e", "--extend", dest="extends", type="int",
-                      action="append",
-                      help="extend reads in :term:`bam` formatted file "
-                      "(ChIP-Seq). "
-                      "[%default]")
+    prsr._rgmn("-", "--xn", s"xns", yp"in",
+                      cion"ppn",
+                      hp"xn rs in :rm:`bm` orm i "
+                      "(ChIP-Sq). "
+                      "[]")
 
-    parser.add_argument("--resolution-upstream", dest="resolution_upstream",
-                      type="int",
-                      help="resolution of upstream region in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-psrm", s"rsoion_psrm",
+                      yp"in",
+                      hp"rsoion o psrm rgion in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-downstream", dest="resolution_downstream",
-                      type="int",
-                      help="resolution of downstream region in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-ownsrm", s"rsoion_ownsrm",
+                      yp"in",
+                      hp"rsoion o ownsrm rgion in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-upstream-utr",
-                      dest="resolution_upstream_utr",
-                      type="int",
-                      help="resolution of upstream UTR region in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-psrm-r",
+                      s"rsoion_psrm_r",
+                      yp"in",
+                      hp"rsoion o psrm UTR rgion in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-downstream-utr",
-                      dest="resolution_downstream_utr",
-                      type="int",
-                      help="resolution of downstream UTR region in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-ownsrm-r",
+                      s"rsoion_ownsrm_r",
+                      yp"in",
+                      hp"rsoion o ownsrm UTR rgion in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-cds", dest="resolution_cds", type="int",
-                      help="resolution of cds region in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-cs", s"rsoion_cs", yp"in",
+                      hp"rsoion o cs rgion in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-first-exon", dest="resolution_first",
-                      type="int",
-                      help="resolution of first exon in gene, in bp"
-                      "[%default]")
+    prsr._rgmn("--rsoion-irs-xon", s"rsoion_irs",
+                      yp"in",
+                      hp"rsoion o irs xon in gn, in bp"
+                      "[]")
 
-    parser.add_argument("--resolution-last-exon", dest="resolution_last",
-                      type="int",
-                      help="resolution of last exon in gene, in bp"
-                      "[%default]")
+    prsr._rgmn("--rsoion-s-xon", s"rsoion_s",
+                      yp"in",
+                      hp"rsoion o s xon in gn, in bp"
+                      "[]")
 
-    parser.add_argument("--resolution-introns",
-                      dest="resolution_introns", type="int",
-                      help="resolution of introns region in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-inrons",
+                      s"rsoion_inrons", yp"in",
+                      hp"rsoion o inrons rgion in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-exons-absolute-distance-topolya",
-                      dest="resolution_exons_absolute_distance_topolya",
-                      type="int",
-                      help="resolution of exons absolute distance "
-                      "topolya in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-xons-bso-isnc-opoy",
+                      s"rsoion_xons_bso_isnc_opoy",
+                      yp"in",
+                      hp"rsoion o xons bso isnc "
+                      "opoy in bp "
+                      "[]")
 
-    parser.add_argument("--resolution-introns-absolute-distance-topolya",
-                      dest="resolution_introns_absolute_distance_topolya",
-                      type="int",
-                      help="resolution of introns absolute distance "
-                      "topolya in bp "
-                      "[%default]")
+    prsr._rgmn("--rsoion-inrons-bso-isnc-opoy",
+                      s"rsoion_inrons_bso_isnc_opoy",
+                      yp"in",
+                      hp"rsoion o inrons bso isnc "
+                      "opoy in bp "
+                      "[]")
 
-    parser.add_argument("--extension-exons-absolute-distance-topolya",
-                      dest="extension_exons_absolute_distance_topolya",
-                      type="int",
-                      help="extension for exons from the absolute "
-                      "distance from the topolya in bp "
-                      "[%default]")
+    prsr._rgmn("--xnsion-xons-bso-isnc-opoy",
+                      s"xnsion_xons_bso_isnc_opoy",
+                      yp"in",
+                      hp"xnsion or xons rom h bso "
+                      "isnc rom h opoy in bp "
+                      "[]")
 
-    parser.add_argument(
-        "--extension-introns-absolute-distance-topolya",
-        dest="extension_introns_absolute_distance_topolya", type="int",
-        help="extension for introns from the absolute distance from "
-        "the topolya in bp [%default]")
+    prsr._rgmn(
+        "--xnsion-inrons-bso-isnc-opoy",
+        s"xnsion_inrons_bso_isnc_opoy", yp"in",
+        hp"xnsion or inrons rom h bso isnc rom "
+        "h opoy in bp []")
 
-    parser.add_argument(
-        "--extension-upstream", dest="extension_upstream", type="int",
-        help="extension upstream from the first exon in bp"
-        "[%default]")
+    prsr._rgmn(
+        "--xnsion-psrm", s"xnsion_psrm", yp"in",
+        hp"xnsion psrm rom h irs xon in bp"
+        "[]")
 
-    parser.add_argument(
-        "--extension-downstream", dest="extension_downstream", type="int",
-        help="extension downstream from the last exon in bp"
-        "[%default]")
+    prsr._rgmn(
+        "--xnsion-ownsrm", s"xnsion_ownsrm", yp"in",
+        hp"xnsion ownsrm rom h s xon in bp"
+        "[]")
 
-    parser.add_argument(
-        "--extension-inward", dest="extension_inward", type="int",
-        help="extension inward from a TSS start site in bp"
-        "[%default]")
+    prsr._rgmn(
+        "--xnsion-inwr", s"xnsion_inwr", yp"in",
+        hp"xnsion inwr rom  TSS sr si in bp"
+        "[]")
 
-    parser.add_argument(
-        "--extension-outward", dest="extension_outward", type="int",
-        help="extension outward from a TSS start site in bp"
-        "[%default]")
+    prsr._rgmn(
+        "--xnsion-owr", s"xnsion_owr", yp"in",
+        hp"xnsion owr rom  TSS sr si in bp"
+        "[]")
 
-    parser.add_argument("--scale-flank-length", dest="scale_flanks", type="int",
-                      help="scale flanks to (integer multiples of) gene length"
-                      "[%default]")
+    prsr._rgmn("--sc-nk-ngh", s"sc_nks", yp"in",
+                      hp"sc nks o (ingr mips o) gn ngh"
+                      "[]")
 
-    parser.add_argument(
-        "--control-factor", dest="control_factor", type="float",
-        help="factor for normalizing control and foreground data. "
-        "Computed from data if not set. "
-        "[%default]")
+    prsr._rgmn(
+        "--conro-cor", s"conro_cor", yp"o",
+        hp"cor or normizing conro n orgron . "
+        "Comp rom  i no s. "
+        "[]")
 
-    parser.add_argument("--output-all-profiles", dest="output_all_profiles",
-                      action="store_true",
-                      help="keep individual profiles for each "
-                      "transcript and output. "
-                      "[%default]")
+    prsr._rgmn("--op--prois", s"op__prois",
+                      cion"sor_r",
+                      hp"kp inivi prois or ch "
+                      "rnscrip n op. "
+                      "[]")
 
-    parser.add_argument("--counts-tsv-file", dest="input_filename_counts",
-                      type="string",
-                      help="filename with count data for each transcript. "
-                      "Use this instead "
-                      "of recomputing the profile. Useful for plotting the "
-                      "meta-gene profile "
-                      "from previously computed counts "
-                      "[%default]")
+    prsr._rgmn("--cons-sv-i", s"inp_inm_cons",
+                      yp"sring",
+                      hp"inm wih con  or ch rnscrip. "
+                      "Us his ins "
+                      "o rcomping h proi. Us or poing h "
+                      "m-gn proi "
+                      "rom prviosy comp cons "
+                      "[]")
 
-    parser.add_argument(
-        "--background-region-bins",
-        dest="background_region_bins",
-        type="int",
-        help="number of bins on either end of the profile "
-        "to be considered for background meta-gene normalization "
-        "[%default]")
+    prsr._rgmn(
+        "--bckgron-rgion-bins",
+        s"bckgron_rgion_bins",
+        yp"in",
+        hp"nmbr o bins on ihr n o h proi "
+        "o b consir or bckgron m-gn normizion "
+        "[]")
 
-    parser.add_argument("--output-res",
-                      dest="resolution_images", type="int",
-                      help="the output dpi for the figure plot - will default to "
-                      "[%default]")
+    prsr._rgmn("--op-rs",
+                      s"rsoion_imgs", yp"in",
+                      hp"h op pi or h igr po - wi  o "
+                      "[]")
 
-    parser.add_argument("--image-format", dest="image_format", type="string",
-                      help="The output format for the figure plot - defaults to "
-                      "[%default]")                      
+    prsr._rgmn("--img-orm", s"img_orm", yp"sring",
+                      hp"Th op orm or h igr po - s o "
+                      "[]")                      
 
-    parser.set_defaults(
-        remove_rna=False,
-        ignore_pairs=False,
-        force_output=False,
-        bin_size=10,
-        extends=[],
-        shifts=[],
-        sort=[],
-        reporter="transcript",
-        resolution_cds=1000,
-        resolution_introns=1000,
-        # 3kb is a good balance of seeing long enough 3 prime bias and not omit
-        # too many genes. Tim 31th Aug 2013
-        resolution_exons_absolute_distance_topolya=3000,
-        # introns is only for assess the noise level, thus do ont need a long
-        # region, a long region has the side effect of omit more genes. Tim
-        # 31th Aug 2013
-        resolution_introns_absolute_distance_topolya=500,
-        # extension can simply just be the same as resolution
-        extension_exons_absolute_distance_topolya=3000,
-        extension_introns_absolute_distance_topolya=500,
-        resolution_upstream_utr=1000,
-        resolution_downstream_utr=1000,
-        resolution_upstream=1000,
-        resolution_downstream=1000,
-        resolution_first=1000,
-        resolution_last=1000,
-        # mean length of transcripts: about 2.5 kb
-        extension_upstream=2500,
-        extension_downstream=2500,
-        extension_inward=3000,
-        extension_outward=3000,
-        plot=True,
-        methods=[],
-        infiles=[],
-        controlfiles=[],
-        gtffile=None,
-        profile_normalizations=[],
-        transcript_normalization=None,
-        scale_flanks=0,
-        merge_pairs=False,
-        min_insert_size=0,
-        max_insert_size=1000,
-        base_accuracy=False,
-        matrix_format="single",
-        control_factor=None,
-        output_all_profiles=False,
-        background_region_bins=10,
-        input_filename_counts=None,
-        resolution_images=None,
-        image_format="png",
+    prsr.s_s(
+        rmov_rnFs,
+        ignor_pirsFs,
+        orc_opFs,
+        bin_siz10,
+        xns[],
+        shis[],
+        sor[],
+        rporr"rnscrip",
+        rsoion_cs1000,
+        rsoion_inrons1000,
+        # 3kb is  goo bnc o sing ong nogh 3 prim bis n no omi
+        # oo mny gns. Tim 31h Ag 2013
+        rsoion_xons_bso_isnc_opoy3000,
+        # inrons is ony or ssss h nois v, hs o on n  ong
+        # rgion,  ong rgion hs h si c o omi mor gns. Tim
+        # 31h Ag 2013
+        rsoion_inrons_bso_isnc_opoy500,
+        # xnsion cn simpy js b h sm s rsoion
+        xnsion_xons_bso_isnc_opoy3000,
+        xnsion_inrons_bso_isnc_opoy500,
+        rsoion_psrm_r1000,
+        rsoion_ownsrm_r1000,
+        rsoion_psrm1000,
+        rsoion_ownsrm1000,
+        rsoion_irs1000,
+        rsoion_s1000,
+        # mn ngh o rnscrips: bo 2.5 kb
+        xnsion_psrm2500,
+        xnsion_ownsrm2500,
+        xnsion_inwr3000,
+        xnsion_owr3000,
+        poTr,
+        mhos[],
+        inis[],
+        conrois[],
+        giNon,
+        proi_normizions[],
+        rnscrip_normizionNon,
+        sc_nks0,
+        mrg_pirsFs,
+        min_insr_siz0,
+        mx_insr_siz1000,
+        bs_ccrcyFs,
+        mrix_orm"sing",
+        conro_corNon,
+        op__proisFs,
+        bckgron_rgion_bins10,
+        inp_inm_consNon,
+        rsoion_imgsNon,
+        img_orm"png",
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    # Keep for backwards compatability
-    if len(args) == 2:
-        infile, gtf = args
-        options.infiles.append(infile)
-        options.gtffile = gtf
+    # Kp or bckwrs compbiiy
+    i n(rgs)  2:
+        ini, g  rgs
+        opions.inis.ppn(ini)
+        opions.gi  g
 
-    if not options.gtffile:
-        raise ValueError("no GTF file specified")
+    i no opions.gi:
+        ris VError("no GTF i spcii")
 
-    if options.gtffile == "-":
-        options.gtffile = options.stdin
-    else:
-        options.gtffile = iotools.open_file(options.gtffile)
+    i opions.gi  "-":
+        opions.gi  opions.sin
+    s:
+        opions.gi  iooos.opn_i(opions.gi)
 
-    if len(options.infiles) == 0:
-        raise ValueError("no bam/wig/bed files specified")
+    i n(opions.inis)  0:
+        ris VError("no bm/wig/b is spcii")
 
-    for methodsRequiresBaseAccuracy in [
-            "geneprofilewithintrons",
-            "geneprofileabsolutedistancefromthreeprimeend",
+    or mhosRqirsBsAccrcy in [
+            "gnproiwihinrons",
+            "gnproibsoisncromhrprimn",
     ]:
-        # If you implemented any methods that you do not want the
-        # spliced out introns or exons appear to be covered by
-        # non-existent reads, it is better you let those methods imply
-        # --base-accurarcy by add them here.
-        if methodsRequiresBaseAccuracy in options.methods:
-            options.base_accuracy = True
+        # I yo impmn ny mhos h yo o no wn h
+        # spic o inrons or xons ppr o b covr by
+        # non-xisn rs, i is br yo  hos mhos impy
+        # --bs-ccrrcy by  hm hr.
+        i mhosRqirsBsAccrcy in opions.mhos:
+            opions.bs_ccrcy  Tr
 
-    if options.reporter == "gene":
-        gtf_iterator = GTF.flat_gene_iterator(GTF.iterator(options.gtffile))
-    elif options.reporter == "transcript":
-        gtf_iterator = GTF.transcript_iterator(GTF.iterator(options.gtffile))
+    i opions.rporr  "gn":
+        g_iror  GTF._gn_iror(GTF.iror(opions.gi))
+    i opions.rporr  "rnscrip":
+        g_iror  GTF.rnscrip_iror(GTF.iror(opions.gi))
 
-    # Select rangecounter based on file type
-    if len(options.infiles) > 0:
-        if options.infiles[0].endswith(".bam"):
-            bamfiles = [pysam.AlignmentFile(x, "rb") for x in options.infiles]
+    # Sc rngconr bs on i yp
+    i n(opions.inis) > 0:
+        i opions.inis[0].nswih(".bm"):
+            bmis  [pysm.AignmnFi(x, "rb") or x in opions.inis]
 
-            if options.controlfiles:
-                controlfiles = [pysam.AlignmentFile(x, "rb")
-                                for x in options.controlfiles]
-            else:
-                controlfiles = None
+            i opions.conrois:
+                conrois  [pysm.AignmnFi(x, "rb")
+                                or x in opions.conrois]
+            s:
+                conrois  Non
 
-            format = "bam"
-            if options.merge_pairs:
-                range_counter = geneprofile.RangeCounterBAM(
-                    bamfiles,
-                    shifts=options.shifts,
-                    extends=options.extends,
-                    merge_pairs=options.merge_pairs,
-                    min_insert_size=options.min_insert_size,
-                    max_insert_size=options.max_insert_size,
-                    controfiles=controlfiles,
-                    control_factor=options.control_factor)
+            orm  "bm"
+            i opions.mrg_pirs:
+                rng_conr  gnproi.RngConrBAM(
+                    bmis,
+                    shisopions.shis,
+                    xnsopions.xns,
+                    mrg_pirsopions.mrg_pirs,
+                    min_insr_sizopions.min_insr_siz,
+                    mx_insr_sizopions.mx_insr_siz,
+                    conroisconrois,
+                    conro_coropions.conro_cor)
 
-            elif options.shifts or options.extends:
-                range_counter = geneprofile.RangeCounterBAM(
-                    bamfiles,
-                    shifts=options.shifts,
-                    extends=options.extends,
-                    controlfiles=controlfiles,
-                    control_factor=options.control_factor)
+            i opions.shis or opions.xns:
+                rng_conr  gnproi.RngConrBAM(
+                    bmis,
+                    shisopions.shis,
+                    xnsopions.xns,
+                    conroisconrois,
+                    conro_coropions.conro_cor)
 
-            elif options.base_accuracy:
-                range_counter = geneprofile.RangeCounterBAMBaseAccuracy(
-                    bamfiles,
-                    controlfiles=controlfiles,
-                    control_factor=options.control_factor)
-            else:
-                range_counter = geneprofile.RangeCounterBAM(
-                    bamfiles,
-                    controlfiles=controlfiles,
-                    control_factor=options.control_factor)
+            i opions.bs_ccrcy:
+                rng_conr  gnproi.RngConrBAMBsAccrcy(
+                    bmis,
+                    conroisconrois,
+                    conro_coropions.conro_cor)
+            s:
+                rng_conr  gnproi.RngConrBAM(
+                    bmis,
+                    conroisconrois,
+                    conro_coropions.conro_cor)
 
-        elif options.infiles[0].endswith(".bed.gz"):
-            bedfiles = [pysam.Tabixfile(x) for x in options.infiles]
+        i opions.inis[0].nswih(".b.gz"):
+            bis  [pysm.Tbixi(x) or x in opions.inis]
 
-            if options.controlfiles:
-                controlfiles = [pysam.Tabixfile(x)
-                                for x in options.controlfiles]
-            else:
-                controlfiles = None
+            i opions.conrois:
+                conrois  [pysm.Tbixi(x)
+                                or x in opions.conrois]
+            s:
+                conrois  Non
 
-            range_counter = geneprofile.RangeCounterBed(
-                bedfiles,
-                controlfiles=controlfiles,
-                control_factor=options.control_factor)
+            rng_conr  gnproi.RngConrB(
+                bis,
+                conroisconrois,
+                conro_coropions.conro_cor)
 
-        elif options.infiles[0].endswith(".bw"):
-            wigfiles = [pyBigWig.open(x) for x in options.infiles]
-            range_counter = geneprofile.RangeCounterBigWig(wigfiles)
+        i opions.inis[0].nswih(".bw"):
+            wigis  [pyBigWig.opn(x) or x in opions.inis]
+            rng_conr  gnproi.RngConrBigWig(wigis)
 
-        else:
-            raise NotImplementedError(
-                "can't determine file type for %s" % str(options.infiles))
+        s:
+            ris NoImpmnError(
+                "cn' rmin i yp or s"  sr(opions.inis))
 
-    counters = []
-    for method in options.methods:
-        if method == "utrprofile":
-            counters.append(geneprofile.UTRCounter(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_upstream_utr,
-                options.resolution_cds,
-                options.resolution_downstream_utr,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream,
+    conrs  []
+    or mho in opions.mhos:
+        i mho  "rproi":
+            conrs.ppn(gnproi.UTRConr(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_psrm_r,
+                opions.rsoion_cs,
+                opions.rsoion_ownsrm_r,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm,
             ))
 
-        elif method == "geneprofile":
-            counters.append(geneprofile.GeneCounter(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_cds,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream,
-                options.scale_flanks))
+        i mho  "gnproi":
+            conrs.ppn(gnproi.GnConr(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_cs,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm,
+                opions.sc_nks))
 
-        elif method == "geneprofilewithintrons":
-            counters.append(geneprofile.GeneCounterWithIntrons(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_cds,
-                options.resolution_introns,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream,
-                options.scale_flanks))
+        i mho  "gnproiwihinrons":
+            conrs.ppn(gnproi.GnConrWihInrons(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_cs,
+                opions.rsoion_inrons,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm,
+                opions.sc_nks))
 
-        elif method == "geneprofileabsolutedistancefromthreeprimeend":
-            # options.extension_exons_absolute_distance_tostartsite,
-            # options.extension_introns_absolute_distance_tostartsite,
-            # Tim 31th Aug 2013: a possible feature for future,  if five prime
-            # bias is of your interest.
-            # (you need to create another class). It is not very difficult to
-            # derive from this class, but is not implemented yet
-            # This future feature is slightly different the TSS profile
-            # already implemented, because in this future feature introns are
-            # skipped,
-            counters.append(
-                geneprofile.GeneCounterAbsoluteDistanceFromThreePrimeEnd(
-                    range_counter, options.resolution_upstream,
-                    options.resolution_downstream,
-                    options.resolution_exons_absolute_distance_topolya,
-                    options.resolution_introns_absolute_distance_topolya,
-                    options.extension_upstream,
-                    options.extension_downstream,
-                    options.extension_exons_absolute_distance_topolya,
-                    options.extension_introns_absolute_distance_topolya,
-                    options.scale_flanks))
+        i mho  "gnproibsoisncromhrprimn":
+            # opions.xnsion_xons_bso_isnc_osrsi,
+            # opions.xnsion_inrons_bso_isnc_osrsi,
+            # Tim 31h Ag 2013:  possib r or r,  i iv prim
+            # bis is o yor inrs.
+            # (yo n o cr nohr css). I is no vry iic o
+            # riv rom his css, b is no impmn y
+            # This r r is sighy irn h TSS proi
+            # ry impmn, bcs in his r r inrons r
+            # skipp,
+            conrs.ppn(
+                gnproi.GnConrAbsoDisncFromThrPrimEn(
+                    rng_conr, opions.rsoion_psrm,
+                    opions.rsoion_ownsrm,
+                    opions.rsoion_xons_bso_isnc_opoy,
+                    opions.rsoion_inrons_bso_isnc_opoy,
+                    opions.xnsion_psrm,
+                    opions.xnsion_ownsrm,
+                    opions.xnsion_xons_bso_isnc_opoy,
+                    opions.xnsion_inrons_bso_isnc_opoy,
+                    opions.sc_nks))
 
-        elif method == "tssprofile":
-            counters.append(geneprofile.TSSCounter(
-                range_counter,
-                options.extension_outward,
-                options.extension_inward))
+        i mho  "ssproi":
+            conrs.ppn(gnproi.TSSConr(
+                rng_conr,
+                opions.xnsion_owr,
+                opions.xnsion_inwr))
 
-        elif method == "intervalprofile":
-            counters.append(geneprofile.RegionCounter(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_cds,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+        i mho  "inrvproi":
+            conrs.ppn(gnproi.RgionConr(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_cs,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm))
 
-        elif method == "midpointprofile":
-            counters.append(geneprofile.MidpointCounter(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+        i mho  "mipoinproi":
+            conrs.ppn(gnproi.MipoinConr(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm))
 
-        # add new method to split 1st and last exons out
-        # requires a representative transcript for reach gene
-        # gtf should be sorted gene-position
-        elif method == "separateexonprofile":
-            counters.append(geneprofile.SeparateExonCounter(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_first,
-                options.resolution_last,
-                options.resolution_cds,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+        #  nw mho o spi 1s n s xons o
+        # rqirs  rprsniv rnscrip or rch gn
+        # g sho b sor gn-posiion
+        i mho  "sprxonproi":
+            conrs.ppn(gnproi.SprExonConr(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_irs,
+                opions.rsoion_s,
+                opions.rsoion_cs,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm))
 
-        elif method == "separateexonprofilewithintrons":
-            counters.append(geneprofile.SeparateExonWithIntronCounter(
-                range_counter,
-                options.resolution_upstream,
-                options.resolution_first,
-                options.resolution_last,
-                options.resolution_cds,
-                options.resolution_introns,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+        i mho  "sprxonproiwihinrons":
+            conrs.ppn(gnproi.SprExonWihInronConr(
+                rng_conr,
+                opions.rsoion_psrm,
+                opions.rsoion_irs,
+                opions.rsoion_s,
+                opions.rsoion_cs,
+                opions.rsoion_inrons,
+                opions.rsoion_ownsrm,
+                opions.xnsion_psrm,
+                opions.xnsion_ownsrm))
 
-    # set normalization
-    for c in counters:
-        c.setNormalization(options.transcript_normalization)
-        if options.output_all_profiles:
-            c.setOutputProfiles(iotools.open_file(E.get_output_file(c.name) +
-                                                  ".profiles.tsv.gz", "w"))
+    # s normizion
+    or c in conrs:
+        c.sNormizion(opions.rnscrip_normizion)
+        i opions.op__prois:
+            c.sOpProis(iooos.opn_i(E.g_op_i(c.nm) +
+                                                  ".prois.sv.gz", "w"))
 
-    if options.input_filename_counts:
-        # read counts from file
-        E.info("reading counts from %s" % options.input_filename_counts)
-        all_counts = pandas.read_csv(
-            iotools.open_file(options.input_filename_counts),
-            sep='\t', header=0, index_col=0)
+    i opions.inp_inm_cons:
+        # r cons rom i
+        E.ino("ring cons rom s"  opions.inp_inm_cons)
+        _cons  pns.r_csv(
+            iooos.opn_i(opions.inp_inm_cons),
+            sp'\', hr0, inx_co0)
 
-        if len(counters) != 1:
-            raise NotImplementedError(
-                'counting from matrix only implemented for 1 counter.')
-        # build counter based on reference counter
-        counter = geneprofile.UnsegmentedCounter(counters[0])
-        counters = [counter]
-        geneprofile.countFromCounts(counters, all_counts)
+        i n(conrs) ! 1:
+            ris NoImpmnError(
+                'coning rom mrix ony impmn or 1 conr.')
+        # bi conr bs on rrnc conr
+        conr  gnproi.UnsgmnConr(conrs[0])
+        conrs  [conr]
+        gnproi.conFromCons(conrs, _cons)
 
-    else:
-        E.info("starting counting with %i counters" % len(counters))
-        feature_names = geneprofile.countFromGTF(counters,
-                                                 gtf_iterator)
+    s:
+        E.ino("sring coning wih i conrs"  n(conrs))
+        r_nms  gnproi.conFromGTF(conrs,
+                                                 g_iror)
 
-    # output matrices
-    if not options.profile_normalizations:
-        options.profile_normalizations.append("none")
-    elif "all" in options.profile_normalizations:
-        options.profile_normalizations = ["none",
-                                          "area",
-                                          "counts",
-                                          "background"]
+    # op mrics
+    i no opions.proi_normizions:
+        opions.proi_normizions.ppn("non")
+    i "" in opions.proi_normizions:
+        opions.proi_normizions  ["non",
+                                          "r",
+                                          "cons",
+                                          "bckgron"]
 
-    for method, counter in zip(options.methods, counters):
-        profiles = []
-        for norm in options.profile_normalizations:
-            # build matrix, apply normalization
-            profile = counter.getProfile(
-                normalize=norm,
-                background_region_bins=options.background_region_bins)
-            profiles.append(profile)
+    or mho, conr in zip(opions.mhos, conrs):
+        prois  []
+        or norm in opions.proi_normizions:
+            # bi mrix, ppy normizion
+            proi  conr.gProi(
+                normiznorm,
+                bckgron_rgion_binsopions.bckgron_rgion_bins)
+            prois.ppn(proi)
 
-        for x in range(1, len(profiles)):
-            assert profiles[0].shape == profiles[x].shape
+        or x in rng(1, n(prois)):
+            ssr prois[0].shp  prois[x].shp
 
-        # build a single matrix of all profiles for output
-        matrix = numpy.concatenate(profiles)
-        matrix.shape = len(profiles), len(profiles[0])
-        matrix = matrix.transpose()
+        # bi  sing mrix o  prois or op
+        mrix  nmpy.concn(prois)
+        mrix.shp  n(prois), n(prois[0])
+        mrix  mrix.rnspos()
 
-        with iotools.open_file(E.get_output_file(counter.name) +
-                               ".matrix.tsv.gz", "w") as outfile:
-            outfile.write("bin\tregion\tregion_bin\t%s\n" % "\t".join(
-                options.profile_normalizations))
-            fields = []
-            bins = []
-            for field, nbins in zip(counter.fields, counter.nbins):
-                fields.extend([field] * nbins)
-                bins.extend(list(range(nbins)))
+        wih iooos.opn_i(E.g_op_i(conr.nm) +
+                               ".mrix.sv.gz", "w") s oi:
+            oi.wri("bin\rgion\rgion_bin\s\n"  "\".join(
+                opions.proi_normizions))
+            is  []
+            bins  []
+            or i, nbins in zip(conr.is, conr.nbins):
+                is.xn([i] * nbins)
+                bins.xn(is(rng(nbins)))
 
-            for row, cols in enumerate(zip(fields, bins, matrix)):
-                outfile.write("%i\t%s\t" %
-                              (row, "\t".join([str(x) for x in cols[:-1]])))
-                outfile.write("%s\n" %
-                              ("\t".join([str(x) for x in cols[-1]])))
+            or row, cos in nmr(zip(is, bins, mrix)):
+                oi.wri("i\s\" 
+                              (row, "\".join([sr(x) or x in cos[:-1]])))
+                oi.wri("s\n" 
+                              ("\".join([sr(x) or x in cos[-1]])))
 
-        with iotools.open_file(E.get_output_file(counter.name) +
-                               ".lengths.tsv.gz", "w") as outfile:
-            counter.writeLengthStats(outfile)
+        wih iooos.opn_i(E.g_op_i(conr.nm) +
+                               ".nghs.sv.gz", "w") s oi:
+            conr.wriLnghSs(oi)
 
-        if options.output_all_profiles:
-            counter.closeOutputProfiles()
+        i opions.op__prois:
+            conr.cosOpProis()
 
-    if options.plot:
+    i opions.po:
 
-        import matplotlib
-        # avoid Tk or any X
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
+        impor mpoib
+        # voi Tk or ny X
+        mpoib.s("Agg")
+        impor mpoib.pypo s p
 
-        for method, counter in zip(options.methods, counters):
+        or mho, conr in zip(opions.mhos, conrs):
 
-            if method in ("geneprofile",
-                          "geneprofilewithintrons",
-                          "geneprofileabsolutedistancefromthreeprimeend",
-                          "utrprofile",
-                          "intervalprofile",
-                          "separateexonprofile",
-                          "separateexonprofilewithintrons"):
+            i mho in ("gnproi",
+                          "gnproiwihinrons",
+                          "gnproibsoisncromhrprimn",
+                          "rproi",
+                          "inrvproi",
+                          "sprxonproi",
+                          "sprxonproiwihinrons"):
 
-                plt.figure()
-                plt.subplots_adjust(wspace=0.05)
-                max_scale = max([max(x) for x in counter.aggregate_counts])
+                p.igr()
+                p.sbpos_js(wspc0.05)
+                mx_sc  mx([mx(x) or x in conr.ggrg_cons])
 
-                for x, counts in enumerate(counter.aggregate_counts):
-                    plt.subplot(6, 1, x + 1)
-                    plt.plot(list(range(len(counts))), counts)
-                    plt.title(counter.fields[x])
-                    plt.ylim(0, max_scale)
+                or x, cons in nmr(conr.ggrg_cons):
+                    p.sbpo(6, 1, x + 1)
+                    p.po(is(rng(n(cons))), cons)
+                    p.i(conr.is[x])
+                    p.yim(0, mx_sc)
 
-                figname = counter.name + ".full"
+                ignm  conr.nm + "."
 
-                fn = E.get_output_file(figname) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                n  E.g_op_i(ignm) + "." + opions.img_orm
+                p.svig(os.ph.xpnsr(n), ormopions.img_orm, piopions.rsoion_imgs)
 
-                plt.figure()
+                p.igr()
 
-                points = []
-                cuts = []
-                for x, counts in enumerate(counter.aggregate_counts):
-                    points.extend(counts)
-                    cuts.append(len(counts))
+                poins  []
+                cs  []
+                or x, cons in nmr(conr.ggrg_cons):
+                    poins.xn(cons)
+                    cs.ppn(n(cons))
 
-                plt.plot(list(range(len(points))), points)
+                p.po(is(rng(n(poins))), poins)
 
-                xx, xxx = 0, []
-                for x in cuts:
-                    xxx.append(xx + x // 2)
-                    xx += x
-                    plt.axvline(xx,
-                                color="r",
-                                ls="--")
+                xx, xxx  0, []
+                or x in cs:
+                    xxx.ppn(xx + x // 2)
+                    xx + x
+                    p.xvin(xx,
+                                coor"r",
+                                s"--")
 
-                plt.xticks(xxx, counter.fields)
+                p.xicks(xxx, conr.is)
 
-                figname = counter.name + ".detail"
+                ignm  conr.nm + ".i"
 
-                fn = E.get_output_file(figname) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                n  E.g_op_i(ignm) + "." + opions.img_orm
+                p.svig(os.ph.xpnsr(n), ormopions.img_orm, piopions.rsoion_imgs)
 
-            elif method == "tssprofile":
+            i mho  "ssproi":
 
-                plt.figure()
-                plt.subplot(1, 3, 1)
-                plt.plot(list(range(-options.extension_outward,
-                                    options.extension_inward)),
-                         counter.aggregate_counts[0])
-                plt.title(counter.fields[0])
-                plt.subplot(1, 3, 2)
-                plt.plot(list(range(-options.extension_inward,
-                                    options.extension_outward)),
-                         counter.aggregate_counts[1])
-                plt.title(counter.fields[1])
-                plt.subplot(1, 3, 3)
-                plt.title("combined")
-                plt.plot(list(range(-options.extension_outward,
-                                    options.extension_inward)),
-                         counter.aggregate_counts[0])
-                plt.plot(list(range(-options.extension_inward,
-                                    options.extension_outward)),
-                         counter.aggregate_counts[1])
-                plt.legend(counter.fields[:2])
+                p.igr()
+                p.sbpo(1, 3, 1)
+                p.po(is(rng(-opions.xnsion_owr,
+                                    opions.xnsion_inwr)),
+                         conr.ggrg_cons[0])
+                p.i(conr.is[0])
+                p.sbpo(1, 3, 2)
+                p.po(is(rng(-opions.xnsion_inwr,
+                                    opions.xnsion_owr)),
+                         conr.ggrg_cons[1])
+                p.i(conr.is[1])
+                p.sbpo(1, 3, 3)
+                p.i("combin")
+                p.po(is(rng(-opions.xnsion_owr,
+                                    opions.xnsion_inwr)),
+                         conr.ggrg_cons[0])
+                p.po(is(rng(-opions.xnsion_inwr,
+                                    opions.xnsion_owr)),
+                         conr.ggrg_cons[1])
+                p.gn(conr.is[:2])
 
-                fn = E.get_output_file(counter.name) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                n  E.g_op_i(conr.nm) + "." + opions.img_orm
+                p.svig(os.ph.xpnsr(n), ormopions.img_orm, piopions.rsoion_imgs)
 
-            elif method == "midpointprofile":
+            i mho  "mipoinproi":
 
-                plt.figure()
-                plt.plot(numpy.arange(-options.resolution_upstream, 0),
-                         counter.aggregate_counts[0])
-                plt.plot(numpy.arange(0, options.resolution_downstream),
-                         counter.aggregate_counts[1])
+                p.igr()
+                p.po(nmpy.rng(-opions.rsoion_psrm, 0),
+                         conr.ggrg_cons[0])
+                p.po(nmpy.rng(0, opions.rsoion_ownsrm),
+                         conr.ggrg_cons[1])
 
-                fn = E.get_output_file(counter.name) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                n  E.g_op_i(conr.nm) + "." + opions.img_orm
+                p.svig(os.ph.xpnsr(n), ormopions.img_orm, piopions.rsoion_imgs)
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

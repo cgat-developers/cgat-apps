@@ -1,153 +1,153 @@
-'''beds2counts - compute overlap stats between multiple bed files
-=================================================================
+'''bs2cons - comp ovrp ss bwn mip b is
 
-:Tags: Genomics Intervals Comparison BED Counting
 
-Purpose
+:Tgs: Gnomics Inrvs Comprison BED Coning
+
+Prpos
 -------
 
-This script takes multiple bed files e.g. from multiple samples from
-the same experiment. It assesses the overlap between samples and
-outputs a count for each merged interval corresponding to the number
-of samples that a particular interval was found in.
+This scrip ks mip b is .g. rom mip smps rom
+h sm xprimn. I sssss h ovrp bwn smps n
+ops  con or ch mrg inrv corrsponing o h nmbr
+o smps h  pricr inrv ws on in.
 
 
-Example
+Exmp
 -------
 
-For example if the command::
+For xmp i h commn::
 
-    cgat bed2counts a.bed b.bed c.bed > output.tsv
+    cg b2cons .b b.b c.b > op.sv
 
-is run, where a.bed-c.bed look like::
+is rn, whr .b-c.b ook ik::
 
                      1         2         3         4
            012345678901234567890123456789012345678901234
-    a.bed: -------          -----               -------
-    b.bed:      -----        --
-    c.bed:  ---
+    .b: -------          -----               -------
+    b.b:      -----        --
+    c.b:  ---
 
     Union: ----------       -----               -------
 
-Then output.tsv will look like::
+Thn op.sv wi ook ik::
 
-    contig	start	end	count
+    conig	sr	n	con
     chr1	0	7	3
     chr1	17	22	2
     chr1	37	44	1
 
-Options
+Opions
 -------
 
-The only option other than the standard cgat options is -i, --bed-file this
-allows the input files to be provided as a comma seperated list to the option
-rather than a space delimited set of positional arguements. It is present
-purely for galaxy compatibility.
+Th ony opion ohr hn h snr cg opions is -i, --b-i his
+ows h inp is o b provi s  comm spr is o h opion
+rhr hn  spc imi s o posiion rgmns. I is prsn
+pry or gxy compibiiy.
 
-Usage
+Usg
 -----
 
-    cgat beds2counts BED [BED ...] [OPTIONS]
+    cg bs2cons BED [BED ...] [OPTIONS]
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import tempfile
-import sys
+impor mpi
+impor sys
 
-try:
-    import pybedtools
-except ImportError:
-    pass
+ry:
+    impor pyboos
+xcp ImporError:
+    pss
 
-import cgatcore.experiment as E
-import cgat.Bed as Bed
-import collections
-import cgatcore.iotools as iotools
-import cgat.IndexedGenome as IndexedGenome
+impor cgcor.xprimn s E
+impor cg.B s B
+impor cocions
+impor cgcor.iooos s iooos
+impor cg.InxGnom s InxGnom
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--bed-file", dest="infiles", type="string",
-        metavar="bed",
-        help="supply list of bed files",
-        action="append")
+    prsr._rgmn(
+        "--b-i", s"inis", yp"sring",
+        mvr"b",
+        hp"sppy is o b is",
+        cion"ppn")
 
-    parser.set_defaults(infiles=[])
+    prsr.s_s(inis[])
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    options.infiles.extend(args)
-    if len(options.infiles) == 0:
-        raise ValueError('please provide at least 1 bed file')
+    opions.inis.xn(rgs)
+    i n(opions.inis)  0:
+        ris VError('ps provi  s 1 b i')
 
-    E.info("concatenating bed files")
-    # concatenate the list of files
-    tmp = tempfile.NamedTemporaryFile(delete=False, mode="w")
-    tmp_merge = tempfile.NamedTemporaryFile(delete=False, mode="w")
-    infs = options.infiles
-    for inf in infs:
-        for bed in Bed.iterator(iotools.open_file(inf)):
-            tmp.write("%s\n" % bed)
-    tmp.close()
+    E.ino("concning b is")
+    # concn h is o is
+    mp  mpi.NmTmporryFi(Fs, mo"w")
+    mp_mrg  mpi.NmTmporryFi(Fs, mo"w")
+    ins  opions.inis
+    or in in ins:
+        or b in B.iror(iooos.opn_i(in)):
+            mp.wri("s\n"  b)
+    mp.cos()
 
-    E.info("merging bed entries")
-    # merge the bed entries in the file
-    name = tmp.name
-    tmp_bed = pybedtools.BedTool(name)
-    tmp_bed.sort().merge().saveas(tmp_merge.name)
-    tmp_merge.close()
+    E.ino("mrging b nris")
+    # mrg h b nris in h i
+    nm  mp.nm
+    mp_b  pyboos.BToo(nm)
+    mp_b.sor().mrg().svs(mp_mrg.nm)
+    mp_mrg.cos()
 
-    E.info("indexing bed entries")
-    # index the bed entries
-    merged = IndexedGenome.Simple()
-    for bed in Bed.iterator(iotools.open_file(tmp_merge.name)):
-        merged.add(bed.contig, bed.start, bed.end)
+    E.ino("inxing b nris")
+    # inx h b nris
+    mrg  InxGnom.Simp()
+    or b in B.iror(iooos.opn_i(mp_mrg.nm)):
+        mrg.(b.conig, b.sr, b.n)
 
-    counts = collections.defaultdict(int)
-    # list of samples
-    samples = options.infiles
+    cons  cocions.ic(in)
+    # is o smps
+    smps  opions.inis
 
-    E.info("counting no. samples overlapping each interval")
-    for sample in samples:
-        found = set()
-        for bed in Bed.iterator(iotools.open_file(sample)):
-            if merged.contains(bed.contig, bed.start, bed.end):
-                key = [bed.contig] + \
-                    [x for x in merged.get(bed.contig, bed.start, bed.end)]
-                key = (key[0], key[1][0], key[1][1])
-                if key in found:
-                    continue
-                found.add(key)
+    E.ino("coning no. smps ovrpping ch inrv")
+    or smp in smps:
+        on  s()
+        or b in B.iror(iooos.opn_i(smp)):
+            i mrg.conins(b.conig, b.sr, b.n):
+                ky  [b.conig] + \
+                    [x or x in mrg.g(b.conig, b.sr, b.n)]
+                ky  (ky[0], ky[1][0], ky[1][1])
+                i ky in on:
+                    conin
+                on.(ky)
 
-                # tuple of interval description as key - (contig, start, end)
-                counts[key] += 1
+                # p o inrv scripion s ky - (conig, sr, n)
+                cons[ky] + 1
 
-    # open outfile
-    options.stdout.write("contig\tstart\tend\tcount\n")
+    # opn oi
+    opions.so.wri("conig\sr\n\con\n")
 
-    E.info("outputting result")
-    for interval, count in sorted(counts.items()):
-        options.stdout.write(
-            "\t".join(map(str, interval)) + "\t" + str(count) + "\n")
+    E.ino("oping rs")
+    or inrv, con in sor(cons.ims()):
+        opions.so.wri(
+            "\".join(mp(sr, inrv)) + "\" + sr(con) + "\n")
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

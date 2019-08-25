@@ -1,132 +1,132 @@
-'''fastqs2fastq.py - merge reads in fastq files
-============================================
+'''sqs2sq.py - mrg rs in sq is
 
-:Tags: Genomics NGS FASTQ FASTQ Manipulation
 
-Purpose
+:Tgs: Gnomics NGS FASTQ FASTQ Mnipion
+
+Prpos
 -------
 
-This script takes two paired-ended fastq files and outputs a single
-fastq file in which reads have merged.
+This scrip ks wo pir-n sq is n ops  sing
+sq i in which rs hv mrg.
 
-The two files must be sorted by read identifier.
+Th wo is ms b sor by r iniir.
 
-Note that this script is currently a proof-of-principle implementation
-and has not been optimized for speed or functionality.
+No h his scrip is crrny  proo-o-princip impmnion
+n hs no bn opimiz or sp or ncioniy.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python fastqs2fastq.py myReads.1.fastq.gz myReads.2.fastq.gz
-          --method=join
-          > join.fastq
+   pyhon sqs2sq.py myRs.1.sq.gz myRs.2.sq.gz
+          --mhojoin
+          > join.sq
 
-In this example we take a pair of fastq files, join the reads and save
-the output in :file:`join.fastq`.
+In his xmp w k  pir o sq is, join h rs n sv
+h op in :i:`join.sq`.
 
-Type::
+Typ::
 
-   python fastqs2fastq.py --help
+   pyhon sqs2sq.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import collections
-import copy
+impor sys
+impor cocions
+impor copy
 
-import cgatcore.iotools as iotools
-import cgatcore.experiment as E
-import cgat.Fastq as Fastq
-import cgat.Genomics as Genomics
+impor cgcor.iooos s iooos
+impor cgcor.xprimn s E
+impor cg.Fsq s Fsq
+impor cg.Gnomics s Gnomics
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
-                      choices=('join', ),
-                      help="method to apply [default=%default].")
+    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
+                      choics('join', ),
+                      hp"mho o ppy [].")
 
-    parser.set_defaults(
-        method="join",
+    prsr.s_s(
+        mho"join",
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if len(args) != 2:
-        raise ValueError(
-            "please supply at least two fastq files on the commandline")
+    i n(rgs) ! 2:
+        ris VError(
+            "ps sppy  s wo sq is on h commnin")
 
-    fn1, fn2 = args
-    c = E.Counter()
-    outfile = options.stdout
+    n1, n2  rgs
+    c  E.Conr()
+    oi  opions.so
 
-    if options.method == "join":
-        # merge based on diagonals in dotplot
-        iter1 = Fastq.iterate(iotools.open_file(fn1))
-        iter2 = Fastq.iterate(iotools.open_file(fn2))
-        tuple_size = 2
-        for left, right in zip(iter1, iter2):
-            c.input += 1
+    i opions.mho  "join":
+        # mrg bs on igons in opo
+        ir1  Fsq.ir(iooos.opn_i(n1))
+        ir2  Fsq.ir(iooos.opn_i(n2))
+        p_siz  2
+        or , righ in zip(ir1, ir2):
+            c.inp + 1
 
-            # build dictionary of tuples
-            s1, q1 = left.seq, left.quals
-            d = collections.defaultdict(list)
-            for x in range(len(s1) - tuple_size):
-                d[s1[x:x + tuple_size]].append(x)
+            # bi icionry o ps
+            s1, q1  .sq, .qs
+              cocions.ic(is)
+            or x in rng(n(s1) - p_siz):
+                [s1[x:x + p_siz]].ppn(x)
 
-            s2, q2 = right.seq, right.quals
-            s2 = Genomics.reverse_complement(s2)
-            q2 = q2[::-1]
+            s2, q2  righ.sq, righ.qs
+            s2  Gnomics.rvrs_compmn(s2)
+            q2  q2[::-1]
 
-            # compute list of offsets/diagonals
-            offsets = collections.defaultdict(int)
-            for x in range(len(s2) - tuple_size):
-                c = s2[x:x + tuple_size]
-                for y in d[c]:
-                    offsets[x - y] += 1
+            # comp is o oss/igons
+            oss  cocions.ic(in)
+            or x in rng(n(s2) - p_siz):
+                c  s2[x:x + p_siz]
+                or y in [c]:
+                    oss[x - y] + 1
 
-            # find maximum diagonal
-            sorted = sorted([(y, x) for x, y in list(offsets.items())])
-            max_count, max_offset = sorted[-1]
+            # in mximm igon
+            sor  sor([(y, x) or x, y in is(oss.ims())])
+            mx_con, mx_os  sor[-1]
 
-            E.debug('%s: maximum offset at %i' % (left.identifier,
-                                                  max_offset))
+            E.bg('s: mximm os  i'  (.iniir,
+                                                  mx_os))
 
-            # simple merge sequence
-            take = len(s2) - max_offset
-            merged_seq = s1 + s2[take:]
+            # simp mrg sqnc
+            k  n(s2) - mx_os
+            mrg_sq  s1 + s2[k:]
 
-            # simple merge quality scores
-            merged_quals = q1 + q2[take:]
+            # simp mrg qiy scors
+            mrg_qs  q1 + q2[k:]
 
-            new_entry = copy.copy(left)
-            new_entry.seq = merged_seq
-            new_entry.quals = merged_quals
-            outfile.write(new_entry)
-            c.output += 1
+            nw_nry  copy.copy()
+            nw_nry.sq  mrg_sq
+            nw_nry.qs  mrg_qs
+            oi.wri(nw_nry)
+            c.op + 1
 
-    # write footer and output benchmark information.
-    E.info("%s" % str(c))
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.ino("s"  sr(c))
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

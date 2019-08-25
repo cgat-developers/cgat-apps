@@ -1,94 +1,94 @@
-'''compute per-windows stats from a bam-file
+'''comp pr-winows ss rom  bm-i
 
-Purpose
+Prpos
 -------
 
-This script takes a bam file as input and computes a few metrics by
-iterating over the file. The metrics output are:
+This scrip ks  bm i s inp n comps  w mrics by
+iring ovr h i. Th mrics op r:
 
 '''
-import pysam
+impor pysm
 
-import cgatcore.experiment as E
-from cgat.BamTools.bamtools import bam2stats_window_count
+impor cgcor.xprimn s E
+rom cg.BmToos.bmoos impor bm2ss_winow_con
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--region", dest="region", type="string",
-        help="region to restrict analysis to [%default]")
+    prsr._rgmn(
+        "--rgion", s"rgion", yp"sring",
+        hp"rgion o rsric nysis o []")
 
-    parser.add_argument(
-        "--window-size", dest="window_size", type="int",
-        help="window size to use [%default]")
+    prsr._rgmn(
+        "--winow-siz", s"winow_siz", yp"in",
+        hp"winow siz o s []")
 
-    parser.add_argument(
-        "--output-all-windows", dest="output_all_windows", action="store_true",
-        help="output all windows. By default, windows without reads are skipped "
-        "[%default]")
+    prsr._rgmn(
+        "--op--winows", s"op__winows", cion"sor_r",
+        hp"op  winows. By , winows wiho rs r skipp "
+        "[]")
 
-    parser.add_argument(
-        "--reference-fasta", "--input-filename-fasta",
-        dest="input_filename_fasta", type="string",
-        help="filename with reference sequence. If given, used to "
-        "compute G+C content in windows [%default]")
+    prsr._rgmn(
+        "--rrnc-s", "--inp-inm-s",
+        s"inp_inm_s", yp"sring",
+        hp"inm wih rrnc sqnc. I givn, s o "
+        "comp G+C conn in winows []")
 
-    parser.set_defaults(
-        force_output=False,
-        region=None,
-        output_all_windows=False,
-        window_size=500,
-        input_filename_fasta=None,
+    prsr.s_s(
+        orc_opFs,
+        rgionNon,
+        op__winowsFs,
+        winow_siz500,
+        inp_inm_sNon,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    is_stdin = True
-    if len(args) > 0:
-        pysam_in = pysam.AlignmentFile(args[0], "rb")
-        if args[0] != "-":
-            is_stdin = False
-    elif options.stdin == sys.stdin:
-        pysam_in = pysam.AlignmentFile("-", "rb")
-    else:
-        pysam_in = pysam.AlignmentFile(options.stdin, "rb")
-        if options.stdin != "-":
-            is_stdin = False
+    is_sin  Tr
+    i n(rgs) > 0:
+        pysm_in  pysm.AignmnFi(rgs[0], "rb")
+        i rgs[0] ! "-":
+            is_sin  Fs
+    i opions.sin  sys.sin:
+        pysm_in  pysm.AignmnFi("-", "rb")
+    s:
+        pysm_in  pysm.AignmnFi(opions.sin, "rb")
+        i opions.sin ! "-":
+            is_sin  Fs
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
-    else:
-        fasta = None
+    i opions.inp_inm_s:
+        s  pysm.FsFi(opions.inp_inm_s)
+    s:
+        s  Non
 
-    counts_df = bam2stats_window_count(
-        pysam_in,
-        region=options.region,
-        window_size=options.window_size,
-        fasta=fasta)
+    cons_  bm2ss_winow_con(
+        pysm_in,
+        rgionopions.rgion,
+        winow_sizopions.winow_siz,
+        ss)
 
-    if not options.output_all_windows:
-        counts_df = counts_df[counts_df.alignments > 0]
+    i no opions.op__winows:
+        cons_  cons_[cons_.ignmns > 0]
 
-    # add G+C content
-    if fasta:
-        counts_df["percent_gc"] = 100.0 * counts_df.bases_gc / (counts_df.bases_gc + counts_df.bases_at)
-        counts_df.fillna(0, inplace=True)
+    #  G+C conn
+    i s:
+        cons_["prcn_gc"]  100.0 * cons_.bss_gc / (cons_.bss_gc + cons_.bss_)
+        cons_.in(0, inpcTr)
 
-    counts_df.to_csv(
-        options.stdout,
-        sep="\t")
+    cons_.o_csv(
+        opions.so,
+        sp"\")
 
-    E.stop()
+    E.sop()

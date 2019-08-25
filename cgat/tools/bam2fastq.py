@@ -1,174 +1,174 @@
-'''bam2fastq.py - output fastq files from a bam-file
-=================================================
+'''bm2sq.py - op sq is rom  bm-i
 
-:Tags: Genomics NGS Sequences BAM FASTQ Conversion
 
-Purpose
+:Tgs: Gnomics NGS Sqncs BAM FASTQ Convrsion
+
+Prpos
 -------
 
-This script takes a :term:`bam` formatted file and converts to it to
-one or two :term:`fastq` formatted files for single-end or paired-end
-data, respectively.
+This scrip ks  :rm:`bm` orm i n convrs o i o
+on or wo :rm:`sq` orm is or sing-n or pir-n
+, rspcivy.
 
-For paired-end data, the first fastq file contains the first read of a
-read pair and the other contains the second read of read pair.
+For pir-n , h irs sq i conins h irs r o 
+r pir n h ohr conins h scon r o r pir.
 
-Example
+Exmp
 -------
 
-For example::
+For xmp::
 
-   cat in.bam cgat bam2fastq out.1.fastq.gz out.2.fastq.gz
+   c in.bm cg bm2sq o.1.sq.gz o.2.sq.gz
 
-This command converts the :term:`bam` formatted file in.bam into
-:term:`fastq` files containing forward reads (out.1.fastq.gz) and
-reverse reads (out.2.fastq.gz).  The output files can alternatively
-supplied via the option ``--output-pattern-filename``. The statement
-below will create the same two output files::
+This commn convrs h :rm:`bm` orm i in.bm ino
+:rm:`sq` is conining orwr rs (o.1.sq.gz) n
+rvrs rs (o.2.sq.gz).  Th op is cn rnivy
+sppi vi h opion ``--op-prn-inm``. Th smn
+bow wi cr h sm wo op is::
 
-   cat in.bam cgat bam2fastq --output-filename-pattern=out.%s.fastq.gz
+   c in.bm cg bm2sq --op-inm-prno.s.sq.gz
 
-Type::
+Typ::
 
-   python bam2fastq.py --help
+   pyhon bm2sq.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import tempfile
-import shutil
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor os
+impor sys
+impor mpi
+impor shi
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
-import pysam
+impor pysm
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.set_defaults(
+    prsr.s_s(
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    # do sth
-    if len(args) == 1:
-        fastqfile1 = args[0]
-        fastqfile2 = options.output_filename_pattern % "2"
-    elif len(args) == 2:
-        fastqfile1, fastqfile2 = args
-    else:
-        fastqfile1 = options.output_filename_pattern % "1"
-        fastqfile2 = options.output_filename_pattern % "2"
+    # o sh
+    i n(rgs)  1:
+        sqi1  rgs[0]
+        sqi2  opions.op_inm_prn  "2"
+    i n(rgs)  2:
+        sqi1, sqi2  rgs
+    s:
+        sqi1  opions.op_inm_prn  "1"
+        sqi2  opions.op_inm_prn  "2"
 
-    # only output compressed data
-    if not fastqfile1.endswith(".gz"):
-        fastqfile1 += ".gz"
-    if not fastqfile2.endswith(".gz"):
-        fastqfile2 += ".gz"
+    # ony op comprss 
+    i no sqi1.nswih(".gz"):
+        sqi1 + ".gz"
+    i no sqi2.nswih(".gz"):
+        sqi2 + ".gz"
 
-    if options.stdin != sys.stdin:
-        samfile = pysam.AlignmentFile(options.stdin.name, "rb")
-    else:
-        samfile = pysam.AlignmentFile("-", "rb")
+    i opions.sin ! sys.sin:
+        smi  pysm.AignmnFi(opions.sin.nm, "rb")
+    s:
+        smi  pysm.AignmnFi("-", "rb")
 
-    tmpdir = tempfile.mkdtemp()
+    mpir  mpi.mkmp()
 
-    outtemp1 = os.path.join(tmpdir, "pair1.gz")
-    outtemp2 = os.path.join(tmpdir, "pair2.gz")
+    omp1  os.ph.join(mpir, "pir1.gz")
+    omp2  os.ph.join(mpir, "pir2.gz")
 
-    outstream1 = iotools.open_file(outtemp1, "w")
-    outstream2 = iotools.open_file(outtemp2, "w")
+    osrm1  iooos.opn_i(omp1, "w")
+    osrm2  iooos.opn_i(omp2, "w")
 
-    E.info('writing fastq files to temporary directory %s' % tmpdir)
+    E.ino('wriing sq is o mporry ircory s'  mpir)
 
-    found1, found2 = set(), set()
-    read1_qlen, read2_qlen = 0, 0
+    on1, on2  s(), s()
+    r1_qn, r2_qn  0, 0
 
-    c = E.Counter()
-    for read in samfile.fetch(until_eof=True):
-        c.input += 1
-        if not read.is_paired:
-            outstream1.write(
-                "\t".join((read.qname, read.seq, read.qual)) + "\n")
-            found1.add(read.qname)
-            if not read1_qlen:
-                read1_qlen = read.qlen
-            c.unpaired += 1
-        elif read.is_read1:
-            outstream1.write(
-                "\t".join((read.qname, read.seq, read.qual)) + "\n")
-            found1.add(read.qname)
-            if not read1_qlen:
-                read1_qlen = read.qlen
-            c.output1 += 1
-        elif read.is_read2:
-            if read.qname not in found2:
-                outstream2.write(
-                    "\t".join((read.qname, read.seq, read.qual)) + "\n")
-                found2.add(read.qname)
-                if not read2_qlen:
-                    read2_qlen = read.qlen
-                c.output2 += 1
+    c  E.Conr()
+    or r in smi.ch(ni_oTr):
+        c.inp + 1
+        i no r.is_pir:
+            osrm1.wri(
+                "\".join((r.qnm, r.sq, r.q)) + "\n")
+            on1.(r.qnm)
+            i no r1_qn:
+                r1_qn  r.qn
+            c.npir + 1
+        i r.is_r1:
+            osrm1.wri(
+                "\".join((r.qnm, r.sq, r.q)) + "\n")
+            on1.(r.qnm)
+            i no r1_qn:
+                r1_qn  r.qn
+            c.op1 + 1
+        i r.is_r2:
+            i r.qnm no in on2:
+                osrm2.wri(
+                    "\".join((r.qnm, r.sq, r.q)) + "\n")
+                on2.(r.qnm)
+                i no r2_qn:
+                    r2_qn  r.qn
+                c.op2 + 1
 
-    if c.unpaired == 0 and c.output1 == 0 and c.output2 == 0:
-        E.warn("no reads were found")
-        return
+    i c.npir  0 n c.op1  0 n c.op2  0:
+        E.wrn("no rs wr on")
+        rrn
 
-    sort_statement = '''gunzip < %s
-    | sort -k1,1
-    | awk '{printf("@%%s\\n%%s\\n+\\n%%s\\n", $1,$2,$3)}'
-    | gzip > %s'''
+    sor_smn  '''gnzip < s
+    | sor -k1,1
+    | wk '{prin("@s\\ns\\n+\\ns\\n", $1,$2,$3)}'
+    | gzip > s'''
 
-    if c.output1 == 0 and c.output2 == 0:
-        # single end data:
-        outstream1.close()
-        outstream2.close()
-        E.info("sorting fastq files")
-        E.run(sort_statement % (outtemp1, fastqfile1))
+    i c.op1  0 n c.op2  0:
+        # sing n :
+        osrm1.cos()
+        osrm2.cos()
+        E.ino("soring sq is")
+        E.rn(sor_smn  (omp1, sqi1))
 
-    else:
-        # paired end data
-        for qname in found2.difference(found1):
-            outstream1.write(
-                "\t".join((qname, "N" * read1_qlen, "B" * read1_qlen)) + "\n")
-            c.extra1 += 1
+    s:
+        # pir n 
+        or qnm in on2.irnc(on1):
+            osrm1.wri(
+                "\".join((qnm, "N" * r1_qn, "B" * r1_qn)) + "\n")
+            c.xr1 + 1
 
-        for qname in found1.difference(found2):
-            outstream2.write(
-                "\t".join((qname, "N" * read2_qlen, "B" * read2_qlen)) + "\n")
-            c.extra2 += 1
+        or qnm in on1.irnc(on2):
+            osrm2.wri(
+                "\".join((qnm, "N" * r2_qn, "B" * r2_qn)) + "\n")
+            c.xr2 + 1
 
-        E.info("%s" % str(c))
+        E.ino("s"  sr(c))
 
-        outstream1.close()
-        outstream2.close()
+        osrm1.cos()
+        osrm2.cos()
 
-        E.info("sorting fastq files")
-        E.run(sort_statement % (outtemp1, fastqfile1))
-        E.run(sort_statement % (outtemp2, fastqfile2))
+        E.ino("soring sq is")
+        E.rn(sor_smn  (omp1, sqi1))
+        E.rn(sor_smn  (omp2, sqi2))
 
-    shutil.rmtree(tmpdir)
+    shi.rmr(mpir)
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

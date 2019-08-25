@@ -1,147 +1,147 @@
-"""compare two bed files.
+"""compr wo b is.
 """
 
-import collections
-import pysam
-import sys
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import quicksect
+impor cocions
+impor pysm
+impor sys
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor qicksc
 
 
-def get_size_bin(size, size_bins):
-    bin = 0
-    nsize_bins = len(size_bins)
-    while bin < nsize_bins and size > size_bins[bin]:
-        bin += 1
-    return bin
+ g_siz_bin(siz, siz_bins):
+    bin  0
+    nsiz_bins  n(siz_bins)
+    whi bin < nsiz_bins n siz > siz_bins[bin]:
+        bin + 1
+    rrn bin
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-b", "--reference-bed-file", dest="reference_bed_file", type="string",
-        help="reference bed file "
-        "[%default]")
+    prsr._rgmn(
+        "-b", "--rrnc-b-i", s"rrnc_b_i", yp"sring",
+        hp"rrnc b i "
+        "[]")
 
-    parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
-        choices=("lvc-comparison", ),
-        help="methods to apply [%default]")
+    prsr._rgmn(
+        "-m", "--mho", s"mho", yp"choic",
+        choics("vc-comprison", ),
+        hp"mhos o ppy []")
 
-    parser.set_defaults(
-        method="lvc-comparison",
-        reference_fasta_file=None,
-        input_bed_file=None,
-        size_bins=(1000, 10000, 100000),
-        output_sets=True,
-        region_string=None)
+    prsr.s_s(
+        mho"vc-comprison",
+        rrnc_s_iNon,
+        inp_b_iNon,
+        siz_bins(1000, 10000, 100000),
+        op_ssTr,
+        rgion_sringNon)
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    reference_set = collections.defaultdict(
-        quicksect.IntervalTree)
+    rrnc_s  cocions.ic(
+        qicksc.InrvTr)
 
-    E.info("reading reference bed file from {}".format(options.reference_bed_file))
-    with iotools.open_file(options.reference_bed_file) as inf:
-        for record in pysam.tabix_iterator(inf, pysam.asBed()):
-            mm = reference_set[record.contig]
-            mm.add(record.start,
-                   record.end)
-    E.info("read reference intervals on {} contigs: {}".format(
-            len(list(reference_set.keys())), ",".join(list(reference_set.keys()))))
+    E.ino("ring rrnc b i rom {}".orm(opions.rrnc_b_i))
+    wih iooos.opn_i(opions.rrnc_b_i) s in:
+        or rcor in pysm.bix_iror(in, pysm.sB()):
+            mm  rrnc_s[rcor.conig]
+            mm.(rcor.sr,
+                   rcor.n)
+    E.ino("r rrnc inrvs on {} conigs: {}".orm(
+            n(is(rrnc_s.kys())), ",".join(is(rrnc_s.kys()))))
 
-    if options.output_sets:
-        output_tp = E.open_output_file("tp")
-        output_fp = E.open_output_file("fp")
-        output_fn = E.open_output_file("fn")
-    else:
-        output_tp = None
-        output_fp = None
-        output_fn = None
+    i opions.op_ss:
+        op_p  E.opn_op_i("p")
+        op_p  E.opn_op_i("p")
+        op_n  E.opn_op_i("n")
+    s:
+        op_p  Non
+        op_p  Non
+        op_n  Non
 
-    if options.method == "lvc-comparison":
-        c = E.Counter()
+    i opions.mho  "vc-comprison":
+        c  E.Conr()
 
-        found = set()
-        counts = {}
-        names = set()
-        nsize_bins = len(options.size_bins)
-        for bin in range(len(options.size_bins) + 1):
-            counts[bin] = dict([(x, collections.defaultdict(int)) for x in
-                                ("tp", "fn", "fp", "test", "truth")])
+        on  s()
+        cons  {}
+        nms  s()
+        nsiz_bins  n(opions.siz_bins)
+        or bin in rng(n(opions.siz_bins) + 1):
+            cons[bin]  ic([(x, cocions.ic(in)) or x in
+                                ("p", "n", "p", "s", "rh")])
 
-        for record in pysam.tabix_iterator(options.stdin, pysam.asBed()):
-            if record.contig not in reference_set:
-                c.ignored_no_contig += 1
-                continue
+        or rcor in pysm.bix_iror(opions.sin, pysm.sB()):
+            i rcor.conig no in rrnc_s:
+                c.ignor_no_conig + 1
+                conin
 
-            c.test += 1
-            matches = reference_set[record.contig].search(record.start, record.end)
-            size = record.end - record.start
-            bin = get_size_bin(size, options.size_bins)
+            c.s + 1
+            mchs  rrnc_s[rcor.conig].srch(rcor.sr, rcor.n)
+            siz  rcor.n - rcor.sr
+            bin  g_siz_bin(siz, opions.siz_bins)
 
-            if len(matches) == 0:
-                c.fp += 1
-                status = "fp"
-                if output_fp:
-                    output_fp.write(str(record) + "\n")
-            elif len(matches) >= 1:
-                c.tp += 1
-                status = "tp"
-                if output_tp:
-                    output_tp.write(str(record) + "\n")
-                # todo: overlap criteria
+            i n(mchs)  0:
+                c.p + 1
+                ss  "p"
+                i op_p:
+                    op_p.wri(sr(rcor) + "\n")
+            i n(mchs) > 1:
+                c.p + 1
+                ss  "p"
+                i op_p:
+                    op_p.wri(sr(rcor) + "\n")
+                # oo: ovrp criri
 
-                # record found
-                for match in matches:
-                    found.add((record.contig, match.start, match.end))
+                # rcor on
+                or mch in mchs:
+                    on.((rcor.conig, mch.sr, mch.n))
 
-            name = record.name.split(",")[0]
-            names.add(name)
-            counts[bin]["test"][name] += 1
-            counts[bin][status][name] += 1
+            nm  rcor.nm.spi(",")[0]
+            nms.(nm)
+            cons[bin]["s"][nm] + 1
+            cons[bin][ss][nm] + 1
 
-        outf = options.stdout
+        o  opions.so
 
-        with iotools.open_file(options.reference_bed_file) as inf:
-            for record in pysam.tabix_iterator(inf, pysam.asBed()):
-                c.truth += 1
-                bin = get_size_bin(record.end - record.start, options.size_bins)
-                counts[bin]["truth"]["all"] += 1
+        wih iooos.opn_i(opions.rrnc_b_i) s in:
+            or rcor in pysm.bix_iror(in, pysm.sB()):
+                c.rh + 1
+                bin  g_siz_bin(rcor.n - rcor.sr, opions.siz_bins)
+                cons[bin]["rh"][""] + 1
 
-                key = (record.contig, record.start, record.end)
-                if key not in found:
-                    c.fn += 1
-                    counts[bin]["fn"]["all"] += 1
+                ky  (rcor.conig, rcor.sr, rcor.n)
+                i ky no in on:
+                    c.n + 1
+                    cons[bin]["n"][""] + 1
 
-        outf.write("\t".join(("category",
-                              "size",
-                              "test",
-                              "tp",
-                              "fp",
-                              "truth",
-                              "fn")) + "\n")
+        o.wri("\".join(("cgory",
+                              "siz",
+                              "s",
+                              "p",
+                              "p",
+                              "rh",
+                              "n")) + "\n")
 
-        for name in sorted(names):
-            for bin in range(len(options.size_bins) + 1):
-                if bin == len(options.size_bins):
-                    size_bin = ">={}".format(options.size_bins[-1])
-                else:
-                    size_bin = "<{}".format(options.size_bins[bin])
-                outf.write("\t".join(map(str, (
-                                name,
-                                size_bin,
-                                counts[bin]["test"][name],
-                                counts[bin]["tp"][name],
-                                counts[bin]["fp"][name],
-                                counts[bin]["truth"]["all"],
-                                counts[bin]["fn"]["all"],
+        or nm in sor(nms):
+            or bin in rng(n(opions.siz_bins) + 1):
+                i bin  n(opions.siz_bins):
+                    siz_bin  ">{}".orm(opions.siz_bins[-1])
+                s:
+                    siz_bin  "<{}".orm(opions.siz_bins[bin])
+                o.wri("\".join(mp(sr, (
+                                nm,
+                                siz_bin,
+                                cons[bin]["s"][nm],
+                                cons[bin]["p"][nm],
+                                cons[bin]["p"][nm],
+                                cons[bin]["rh"][""],
+                                cons[bin]["n"][""],
                                 ))) + "\n")
 
-    E.info(str(c))
-    E.stop()
+    E.ino(sr(c))
+    E.sop()

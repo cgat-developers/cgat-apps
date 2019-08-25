@@ -1,1222 +1,1222 @@
-"""gtf2gff.py - convert a transcript set to genomic features
-=========================================================
+"""g2g.py - convr  rnscrip s o gnomic rs
 
-:Tags: Genomics Genesets Intervals Transformation GTF GFF
 
-Purpose
+:Tgs: Gnomics Gnss Inrvs Trnsormion GTF GFF
+
+Prpos
 -------
 
-This scripts converts a transcript set in a :term:`gtf` formatted file
-into a set of features in a :term:`gff` formatted file.
+This scrips convrs  rnscrip s in  :rm:`g` orm i
+ino  s o rs in  :rm:`g` orm i.
 
-In other words, a gene set (gtf), which constitutes a hierarchical set
-of annotations, will be converted into a non-hierarchical list of
-genomic segments.
+In ohr wors,  gn s (g), which consis  hirrchic s
+o nnoions, wi b convr ino  non-hirrchic is o
+gnomic sgmns.
 
-Various methods can be used to do the conversion (see command line
-argument ``--method``):
+Vrios mhos cn b s o o h convrsion (s commn in
+rgmn ``--mho``):
 
-exons
-   annotate exons. Exonic segments are classified according to the
-   transcript structure.
+xons
+   nno xons. Exonic sgmns r cssii ccoring o h
+   rnscrip srcr.
 
-genome/full
-   annotate genome with gene set. Genomic segments are labeled
-   ``intronic``, ``intergenic``, etc. This annotation aggregates the
-   information of multiple genes such that each annotation is either
-   valid or ambiguous.
+gnom/
+   nno gnom wih gn s. Gnomic sgmns r b
+   ``inronic``, ``inrgnic``, c. This nnoion ggrgs h
+   inormion o mip gns sch h ch nnoion is ihr
+   vi or mbigos.
 
-genes
-    annotate genome using the information on a gene-by-gene basis.
-    Multiple overlapping annotations will be created for each transcript.
-    Redundant annotations will be merged.
+gns
+    nno gnom sing h inormion on  gn-by-gn bsis.
+    Mip ovrpping nnoions wi b cr or ch rnscrip.
+    Rnn nnoions wi b mrg.
 
-great-domains
-   regulatory domains using the basal+extended model according to GREAT.
+gr-omins
+   rgory omins sing h bs+xn mo ccoring o GREAT.
 
-promotors
-   declare promoter regions. These segments might be overlapping. A promotor
-   is the region x kb upstream of a transcription start site. The option
-   ``--promotor-size`` sets the region width.
+promoors
+   cr promor rgions. Ths sgmns migh b ovrpping. A promoor
+   is h rgion x kb psrm o  rnscripion sr si. Th opion
+   ``--promoor-siz`` ss h rgion wih.
 
-regulons
-   declare regulatory regions. Regulatory regions contain the region x
-   kb of upstream and downstream of a transciption start site. The
-   options ``--upstream-extension`` and ``-downstream`` set the region width.
+rgons
+   cr rgory rgions. Rgory rgions conin h rgion x
+   kb o psrm n ownsrm o  rnscipion sr si. Th
+   opions ``--psrm-xnsion`` n ``-ownsrm`` s h rgion wih.
 
-tts-regulons
-   declare tts regulatory regions. tts-regulatory regions contain the
-   region x kb of upstream and downstream of a transciption
-   termination site. The options ``--upstream-extension`` and ``-downstream``
-   set the region width.
+s-rgons
+   cr s rgory rgions. s-rgory rgions conin h
+   rgion x kb o psrm n ownsrm o  rnscipion
+   rminion si. Th opions ``--psrm-xnsion`` n ``-ownsrm``
+   s h rgion wih.
 
-territories
-   build gene territories around full length genes.
+rrioris
+   bi gn rrioris ron  ngh gns.
 
-tss-territories
-   build gene territories around transcription start sites.
+ss-rrioris
+   bi gn rrioris ron rnscripion sr sis.
 
-In a simple setting, assume we have the two genes below, the first
-with a single transcript on the positive strand, the second on the
-negative strand::
+In  simp sing, ssm w hv h wo gns bow, h irs
+wih  sing rnscrip on h posiiv srn, h scon on h
+ngiv srn::
 
-          Gene A                    Gene B
+          Gn A                    Gn B
            |---|                 |---|  |---|
         >>>>   >>>>           <<<<   <<<<   <<<<
 
-   Genome (simplified result without UTRs and flanks)
+   Gnom (simpii rs wiho UTRs n nks)
 
-          exon   exon         exon   exon   exon
+          xon   xon         xon   xon   xon
    ..---><--><-><--><---------<--><-><--><-><--><-----...
-   intergenic intron  intergenic  intron intron intergenic
+   inrgnic inron  inrgnic  inron inron inrgnic
 
-   Territories
+   Trrioris
 
-        Gene A                    Gene B
+        Gn A                    Gn B
    <---------------------><------------------------------>
 
-   TSS-Territories
+   TSS-Trrioris
 
-        Gene A                    Gene B
+        Gn A                    Gn B
    <-------->            <----------->
 
-   Promotors
+   Promoors
 
    <---->              <---->
 
-Genome
+Gnom
 ++++++
 
-If ``--method=genome``, the gene set is used to annotate the complete genome.
+I ``--mhognom``, h gn s is s o nno h comp gnom.
 
-.. note::
-   The gtf file has to be sorted first by contig and then by position.
+.. no::
+   Th g i hs o b sor irs by conig n hn by posiion.
 
-A segment in the genome will either be covered by:
+A sgmn in h gnom wi ihr b covr by:
 
-cds
-   a coding exon (also: CDS, start_codon).
+cs
+    coing xon (so: CDS, sr_coon).
 
-utr
-   a UTR (also: stop_codon)
+r
+    UTR (so: sop_coon)
 
-5flank, 3flank, flank
-   an upstream/downstream segment of defined size. If the intergenic
-   region is too small to accomodate a flank, the regions is just
-   'flank'.
+5nk, 3nk, nk
+   n psrm/ownsrm sgmn o in siz. I h inrgnic
+   rgion is oo sm o ccomo  nk, h rgions is js
+   'nk'.
 
-intergenic
-   intergenic region.
+inrgnic
+   inrgnic rgion.
 
-5telomeric, 3telomeric
-   telomeric region (before/after first/last gene).
+5omric, 3omric
+   omric rgion (bor/r irs/s gn).
 
-intronic
-   intronic region. An intron has a minimum size of 30 bases.
+inronic
+   inronic rgion. An inron hs  minimm siz o 30 bss.
 
-frameshift
-   frameshift. Introns of less than 4 residues length
+rmshi
+   rmshi. Inrons o ss hn 4 rsis ngh
 
-ambiguous
-   in case of overlapping genes, regions are designated ambiguous
+mbigos
+   in cs o ovrpping gns, rgions r sign mbigos
 
-unknown
-   unknown are ``intronic`` regions that are less than the
-   minimum size of an intron (default: 30) and larger than the size of
-   frameshift (default:4).  These could be either genuine small
-   introns or they could be artefactual arising from collapsing the
-   exons within a gene model.
+nknown
+   nknown r ``inronic`` rgions h r ss hn h
+   minimm siz o n inron (: 30) n rgr hn h siz o
+   rmshi (:4).  Ths co b ihr gnin sm
+   inrons or hy co b rc rising rom copsing h
+   xons wihin  gn mo.
 
-All segments are annotated by their closest gene. Intergenic regions are
-annotated with their two neighbouring genes. The upstream gene is listed
-in the attribute gene_id, the downstream one is listed in the attribute
-downstream_gene_id.
+A sgmns r nno by hir coss gn. Inrgnic rgions r
+nno wih hir wo nighboring gns. Th psrm gn is is
+in h rib gn_i, h ownsrm on is is in h rib
+ownsrm_gn_i.
 
-Genes
+Gns
 +++++
 
-If ``--method=genes``, the gene set is used to annotate the complete genome.
+I ``--mhogns``, h gn s is s o nno h comp gnom.
 
-.. note::
-   The gtf file has to be sorted by gene.
+.. no::
+   Th g i hs o b sor by gn.
 
-A segment in the genome will be annotated as:
+A sgmn in h gnom wi b nno s:
 
-cds
-   a coding exon
+cs
+    coing xon
 
-utr5, utr3
-   a 5' or 3' utr
+r5, r3
+    5' or 3' r
 
-exon
-   an exon. Exons are further classified into first, middle and last exons.
+xon
+   n xon. Exons r rhr cssii ino irs, mi n s xons.
 
-intronic
-   an intronic region. Intronic regions are further divided into
-   first, middle, last.
+inronic
+   n inronic rgion. Inronic rgions r rhr ivi ino
+   irs, mi, s.
 
-upstream, downstream
-   upstream/downstream regions in 5 intervals of a total of 1kb (see
-   option --flank-size to increase the total size).
+psrm, ownsrm
+   psrm/ownsrm rgions in 5 inrvs o  o o 1kb (s
+   opion --nk-siz o incrs h o siz).
 
-.. _territories:
+.. _rrioris:
 
-Territories
+Trrioris
 +++++++++++
 
-If ``--method=territories``, the gene set is used to define gene
-territories.  Territories are segments around genes and are
-non-overlapping. Exons in a gene are merged and the resulting the
-region is enlarged by --radius. Overlapping territories are divided at
-the midpoint between the two genes. The maximum extent of a territory
-is limited by the option ``--territory-extension``
+I ``--mhorrioris``, h gn s is s o in gn
+rrioris.  Trrioris r sgmns ron gns n r
+non-ovrpping. Exons in  gn r mrg n h rsing h
+rgion is nrg by --ris. Ovrpping rrioris r ivi 
+h mipoin bwn h wo gns. Th mximm xn o  rriory
+is imi by h opion ``--rriory-xnsion``
 
-.. note::
-   The gtf file has to be sorted first by contig and then by position.
+.. no::
+   Th g i hs o b sor irs by conig n hn by posiion.
 
-.. note::
-   Genes should already have been merged (gtf2gtf --merge-transcripts)
+.. no::
+   Gns sho ry hv bn mrg (g2g --mrg-rnscrips)
 
-TSSTerritories
+TSSTrrioris
 ++++++++++++++
 
-If ``--method=tss-territories``, the gene set is used to define gene
-territories.  Instead of the full gene length as in
-:ref:`territories`, only the tss is used to define a
-territory. Territories are segments around genes and are
-non-overlapping.  Overlapping territories are divided at the midpoint
-between the two genes. The maximum extent of a territory is limited by
-the option ``--territory-extension``.
+I ``--mhoss-rrioris``, h gn s is s o in gn
+rrioris.  Ins o h  gn ngh s in
+:r:`rrioris`, ony h ss is s o in 
+rriory. Trrioris r sgmns ron gns n r
+non-ovrpping.  Ovrpping rrioris r ivi  h mipoin
+bwn h wo gns. Th mximm xn o  rriory is imi by
+h opion ``--rriory-xnsion``.
 
-.. note::
-   The gtf file has to be sorted first by contig and then by position.
+.. no::
+   Th g i hs o b sor irs by conig n hn by posiion.
 
-.. note::
-   Genes should already have been merged (gtf2gtf --merge-transcripts)
+.. no::
+   Gns sho ry hv bn mrg (g2g --mrg-rnscrips)
 
-The domain definitions corresponds to the ``nearest gene`` rule in GREAT.
+Th omin iniions corrspons o h ``nrs gn`` r in GREAT.
 
-GREAT-Domains
+GREAT-Domins
 +++++++++++++
 
-Define GREAT regulatory domains. Each TSS in a gene is associated with
-a basal region. The basal region is then extended upstream to the
-basal region of the closest gene, but at most to --radius. In the case
-of overlapping genes, the extension is towards the next
-non-overlapping gene.
+Din GREAT rgory omins. Ech TSS in  gn is ssoci wih
+ bs rgion. Th bs rgion is hn xn psrm o h
+bs rgion o h coss gn, b  mos o --ris. In h cs
+o ovrpping gns, h xnsion is owrs h nx
+non-ovrpping gn.
 
-This is the "basal plus extension" rule in GREAT. Commonly used are
-5+1 with 1 Mb extension.  To achieve this, use for example::
+This is h "bs ps xnsion" r in GREAT. Commony s r
+5+1 wih 1 Mb xnsion.  To chiv his, s or xmp::
 
-   cgat gtf2gff \
-   --genome-file=hg19 \
-   --method=great-domains \
-   --upstream-extension=5000 \
-   --downstream-extension=1000 \
-   --territory-extension=1000000 \
-   < in.gtf > out.gff
+   cg g2g \
+   --gnom-ihg19 \
+   --mhogr-omins \
+   --psrm-xnsion5000 \
+   --ownsrm-xnsion1000 \
+   --rriory-xnsion1000000 \
+   < in.g > o.g
 
-If there are a multiple TSS in a transcript, the basal region extends from the
-first to the last TSS plus the upstream/downstream flank.
+I hr r  mip TSS in  rnscrip, h bs rgion xns rom h
+irs o h s TSS ps h psrm/ownsrm nk.
 
 Exons
 +++++
 
-If ``--method=exons``, exons are annotated by their dispensibility.
+I ``--mhoxons``, xons r nno by hir ispnsibiiy.
 
-.. note::
-   The gtf file should be sorted by genes
+.. no::
+   Th g i sho b sor by gns
 
-For each exon, the following additional fields are added to the gtf file:
+For ch xon, h oowing iion is r  o h g i:
 
-ntranscripts
-   number of transcripts
-nused
-   number of transcripts using this exon
-positions
-   positions of exon within transcripts. This is a ``,`` separated
-   list of tuples ``pos:total``. For example, ``1:10,5:8`` indicates
-   an exon that appears in first position in a ten exon transcript and
-   fifth position in an eight exon transcript. The position is
-   according to the direction of transcription.
+nrnscrips
+   nmbr o rnscrips
+ns
+   nmbr o rnscrips sing his xon
+posiions
+   posiions o xon wihin rnscrips. This is  ``,`` spr
+   is o ps ``pos:o``. For xmp, ``1:10,5:8`` inics
+   n xon h pprs in irs posiion in  n xon rnscrip n
+   ih posiion in n igh xon rnscrip. Th posiion is
+   ccoring o h ircion o rnscripion.
 
-.. note::
-   overlapping but non-identical exons, for example due to internal
-   splice sites, are listed as separate exons. Thus the output is not
-   fully flat as some segments could be overlapping (see output
-   variable ``noverlapping`` in the log file).
+.. no::
+   ovrpping b non-inic xons, or xmp  o inrn
+   spic sis, r is s spr xons. Ths h op is no
+   y  s som sgmns co b ovrpping (s op
+   vrib ``novrpping`` in h og i).
 
-The following example uses an ENSEMBL gene set:: (needs genome-file to
-run)
+Th oowing xmp ss n ENSEMBL gn s:: (ns gnom-i o
+rn)
 
-   gunzip < Mus_musculus.NCBIM37.55.gtf.gz | awk '$3 == "CDS"' | python gtf2gff.py --method=exons --restrict-source=protein_coding
+   gnzip < Ms_mscs.NCBIM37.55.g.gz | wk '$3  "CDS"' | pyhon g2g.py --mhoxons --rsric-sorcproin_coing
 
-Promoters
+Promors
 +++++++++
 
-If ``--method=promotors``, putative promotor regions are output. A
-promoter is a pre-defined segment upstream of the transcription start
-site. As the actual start site is usually not known, the start of the
-first exon within a transcript is used as a proxy. A gene can have
-several promotors associated with it, but overlapping promotor regions
-of the same gene will be merged. A promoter can extend into an
-adjacent upstream gene.
+I ``--mhopromoors``, piv promoor rgions r op. A
+promor is  pr-in sgmn psrm o h rnscripion sr
+si. As h c sr si is sy no known, h sr o h
+irs xon wihin  rnscrip is s s  proxy. A gn cn hv
+svr promoors ssoci wih i, b ovrpping promoor rgions
+o h sm gn wi b mrg. A promor cn xn ino n
+jcn psrm gn.
 
-The ``--restrict-source`` option determines which GTF entries are
-output. The default is to output all entries but the user can choose
-from protein_coding, pseudogene or lncRNA.
+Th ``--rsric-sorc`` opion rmins which GTF nris r
+op. Th  is o op  nris b h sr cn choos
+rom proin_coing, psogn or ncRNA.
 
-The size of the promotor region can be specified by the command line
-argument ``--promotor-size``.
+Th siz o h promoor rgion cn b spcii by h commn in
+rgmn ``--promoor-siz``.
 
-Regulons
+Rgons
 +++++++++
 
-If ``--method=regulons``, putative regulon regions are output. This is similar
-to a ``promotor``, but the region extends both upstream and downstream from
-the transcription start site.
+I ``--mhorgons``, piv rgon rgions r op. This is simir
+o  ``promoor``, b h rgion xns boh psrm n ownsrm rom
+h rnscripion sr si.
 
-The ``--restrict-source`` option determines which GTF entries are
-output. The default is to output all entries but the user can choose
-from protein_coding, pseudogene or lncRNA.
+Th ``--rsric-sorc`` opion rmins which GTF nris r
+op. Th  is o op  nris b h sr cn choos
+rom proin_coing, psogn or ncRNA.
 
-The size of the promotor region can be specified by the command line
-argument ``--upstream-extension`` and ``--downstream-extension``
+Th siz o h promoor rgion cn b spcii by h commn in
+rgmn ``--psrm-xnsion`` n ``--ownsrm-xnsion``
 
-If ``--method=tts-regulons``, regulons will be defined around the
-transcription termination site.
+I ``--mhos-rgons``, rgons wi b in ron h
+rnscripion rminion si.
 
-Usage
+Usg
 -----
 
-Type::
+Typ::
 
-    cgat gtf2gff --method=genome --genome-file=hg19 < geneset.gtf > annotations.gff
+    cg g2g --mhognom --gnom-ihg19 < gns.g > nnoions.g
 
-For command line help::
+For commn in hp::
 
-    cgat gtf2gff --help
+    cg g2g --hp
 
-Command line options
+Commn in opions
 ---------------------
 
 """
 
-import sys
-import collections
-import itertools
+impor sys
+impor cocions
+impor iroos
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import cgat.GTF as GTF
-import cgat.IndexedFasta as IndexedFasta
-import cgat.Genomics as Genomics
-import cgat.Intervals as Intervals
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor cg.GTF s GTF
+impor cg.InxFs s InxFs
+impor cg.Gnomics s Gnomics
+impor cg.Inrvs s Inrvs
 
 
-def addSegment(feature, start, end, template, options):
-    """add a generic segment of type *feature*.
+ Sgmn(r, sr, n, mp, opions):
+    """  gnric sgmn o yp *r*.
     """
-    if start >= end:
-        return 0
+    i sr > n:
+        rrn 0
 
-    entry = GTF.Entry()
+    nry  GTF.Enry()
 
-    if isinstance(template, tuple):
-        entry.copy(template[0])
-        entry.clearAttributes()
-        entry.addAttribute("downstream_gene_id", template[1].gene_id)
-    else:
-        entry.copy(template)
-        entry.clearAttributes()
+    i isinsnc(mp, p):
+        nry.copy(mp[0])
+        nry.crAribs()
+        nry.Arib("ownsrm_gn_i", mp[1].gn_i)
+    s:
+        nry.copy(mp)
+        nry.crAribs()
 
-    entry.start, entry.end = start, end
-    entry.feature = feature
-    if feature not in ("exon", "CDS", "UTR", "UTR3", "UTR5"):
-        entry.score = "."
-    options.stdout.write(str(entry) + "\n")
+    nry.sr, nry.n  sr, n
+    nry.r  r
+    i r no in ("xon", "CDS", "UTR", "UTR3", "UTR5"):
+        nry.scor  "."
+    opions.so.wri(sr(nry) + "\n")
 
-    return 1
+    rrn 1
 
 
-def addFlank(start, end, template, options):
-    """add a flank.
+ Fnk(sr, n, mp, opions):
+    """  nk.
     """
-    is_positive = Genomics.IsPositiveStrand(template.strand)
-    is_before = end <= template.start
-    if (is_before and is_positive) or (not is_before and not is_positive):
-        name = "5flank"
-    else:
-        name = "3flank"
+    is_posiiv  Gnomics.IsPosiivSrn(mp.srn)
+    is_bor  n < mp.sr
+    i (is_bor n is_posiiv) or (no is_bor n no is_posiiv):
+        nm  "5nk"
+    s:
+        nm  "3nk"
 
-    return addSegment(name, start, end, template, options)
+    rrn Sgmn(nm, sr, n, mp, opions)
 
 
-def addIntergenicSegment(last, this, fasta, options):
-    """add an intergenic segment between last and this.
+ InrgnicSgmn(s, his, s, opions):
+    """ n inrgnic sgmn bwn s n his.
 
-    At telomeres, either can be None.
+    A omrs, ihr cn b Non.
     """
-    if not this and not last:
-        return 0
-
-    nadded = 0
-    if not this:
-        # last telomere
-        try:
-            lcontig = fasta.getLength(last.contig)
-        except KeyError as msg:
-            if options.ignore_missing:
-                return nadded
-            else:
-                raise KeyError(msg)
-        flank = min(last.end + options.flank, lcontig)
-        nadded += addFlank(last.end, flank, last, options)
-        nadded += addSegment("telomeric", flank, lcontig, last, options)
-    elif not last:
-        # first telomere
-        flank = max(0, this.start - options.flank)
-        nadded += addSegment("telomeric", 0, flank, this, options)
-        nadded += addFlank(flank, this.start, this, options)
-    else:
-        # intergenic region
-        d = this.start - last.end
-        flank = options.flank
-        if d > flank * 2:
-            nadded += addFlank(last.end, last.end + flank, last, options)
-            nadded += addSegment("intergenic", last.end +
-                                 flank, this.start - flank,
-                                 (last, this), options)
-            nadded += addFlank(this.start - flank, this.start, this, options)
-        else:
-            # add short flank between two genes. If they can not agree
-            # on the directionality, "flank" is used.
-            is_positive1 = Genomics.IsPositiveStrand(last.strand)
-            is_positive2 = Genomics.IsPositiveStrand(this.strand)
-            if is_positive1 and not is_positive2:
-                key = "3flank"
-            elif not is_positive1 and is_positive2:
-                key = "5flank"
-            else:
-                key = "flank"
-            nadded += addSegment(key, last.end, this.start,
-                                 (last, this), options)
-
-    return nadded
-
-
-def buildTerritories(iterator, fasta, method, options):
-    """build gene territories.
-
-    Exons in a gene are merged and the resulting segments enlarged by
-    --radius. Territories overlapping are divided in the midpoint
-    between the two genes.
-
-    If *method* is ``gene``, gene territories will be built.
-    If *method* is ``tss``, tss territories will be built.
-
-    """
-
-    ninput, noutput, nambiguous = 0, 0, 0
-
-    assert method in ("gene", "tss")
-
-    dr = 2 * options.radius
-
-    prev_pos = 0
-    last_contig = None
-    gff = None
-
-    def _iterator(iterator):
-        """yield gene plus the locations of the end of the previous gene and
-        start of next gene"""
-
-        last_end, prev_end = 0, 0
-        last_contig = None
-        last = None
-        for matches in GTF.iterator_overlaps(iterator):
-
-            this_start = min([x.start for x in matches])
-            this_end = max([x.end for x in matches])
-
-            if method == "tss":
-                # restrict to tss
-                if matches[0].strand == "+":
-                    this_end = this_start + 1
-                else:
-                    this_start = this_end - 1
-
-            this_contig = matches[0].contig
-
-            if last_contig != this_contig:
-                if last:
-                    yield prev_end, last, fasta.getLength(last_contig)
-                last_end, prev_end = 0, 0
-            else:
-                yield prev_end, last, this_start
-
-            prev_end = last_end
-            last_end = this_end
-            last = matches
-            last_contig = this_contig
-
-        if last:
-            yield prev_end, last, fasta.getLength(last_contig)
-
-    for last_end, matches, next_start in _iterator(iterator):
-
-        gff = GTF.Entry().copy(matches[0])
-
-        start = min([x.start for x in matches])
-        end = max([x.end for x in matches])
-
-        if method == "tss":
-            # restrict to tss
-            if matches[0].strand == "+":
-                end = start + 1
-            else:
-                start = end - 1
-
-        d = start - last_end
-        if d < dr:
-            start -= d // 2
-        else:
-            start -= options.radius
-
-        d = next_start - end
-        if d < dr:
-            end += d // 2
-        else:
-            end += options.radius
-
-        gff.gene_id = ":".join(sorted(set([x.gene_id for x in matches])))
-        gff.transcript_id = gff.gene_id
-        gff.start, gff.end = start, end
-
-        nsegments = len(matches)
-        if nsegments > 1:
-            gff.addAttribute("ambiguous", nsegments)
-            nambiguous += 1
-
-        assert gff.start < gff.end, "invalid segment: %s" % str(gff)
-        options.stdout.write(str(gff) + "\n")
-        noutput += 1
-
-    E.info("ninput=%i, noutput=%i, nambiguous=%i" %
-           (ninput, noutput, nambiguous))
-
-
-def annotateGenome(iterator, fasta, options):
-    """perform a full segmentation of the genome (UTR, exon, intron ...)
-    """
-
-    ninput, noutput, nadded, nambiguous, nframeshifts, nunknown = 0, 0, 0, 0, 0, 0
-    last = None
-    is_ambiguous = False
-
-    for this in iterator:
-        ninput += 1
-
-        E.debug("last=%s" % str(last))
-        E.debug("this=%s" % str(this))
-        E.debug("is_ambiguous=%s" % str(is_ambiguous))
-
-        if last and last.contig == this.contig:
-            # check if file is sorted correctly
-            assert last.start <= this.start, "input file needs to be sorted by contig, start"
-            if last.end <= this.start:
-                if not is_ambiguous:
-                    if last.gene_id != this.gene_id:
-                        nadded += addIntergenicSegment(last,
-                                                       this, fasta, options)
-                    else:
-                        d = this.start - last.end
-                        if d >= options.min_intron_length:
-                            nadded += addSegment("intronic",
-                                                 last.end,
-                                                 this.start,
-                                                 last,
-                                                 options)
-                        elif d <= options.max_frameshift_length:
-                            nframeshifts += addSegment("frameshift",
-                                                       last.end,
-                                                       this.start,
-                                                       last,
-                                                       options)
-                        else:
-                            nunknown += addSegment("unknown",
-                                                   last.end,
-                                                   this.start,
-                                                   last,
-                                                   options)
-                else:
-                    if last.feature == this.feature and \
-                       last.gene_id == this.gene_id:
-                        nambiguous += addSegment(
-                            last.feature,
-                            last.end, this.start,
-                            last, options)
-                    else:
-                        nambiguous += addSegment(
-                            "ambiguous",
-                            last.end, this.start,
-                            last, options)
-                    is_ambiguous = False
-                last = this
-            elif last.end > this.start:
-                if last.gene_id != this.gene_id:
-                    # flag next region as ambiguous
-                    is_ambiguous = True
-                last.end = this.end
-        else:
-            nadded += addIntergenicSegment(last, None, fasta, options)
-            nadded += addIntergenicSegment(None, this, fasta, options)
-            last = this
-
-        options.stdout.write("%s\n" % str(this))
-        noutput += 1
-
-    E.info(
-        "ninput=%i, noutput=%i, nadded=%i, nambiguous=%i, nframeshifts=%i, nunknown=%i" %
-        (ninput, noutput, nadded, nambiguous, nframeshifts, nunknown))
-
-
-def annotateExons(iterator, fasta, options):
-    """annotate exons within iterator."""
-
-    gene_iterator = GTF.gene_iterator(iterator)
-
-    ninput, noutput, noverlapping = 0, 0, 0
-
-    for this in gene_iterator:
-        ninput += 1
-        intervals = collections.defaultdict(list)
-        ntranscripts = len(this)
-
-        is_negative_strand = Genomics.IsNegativeStrand(this[0][0].strand)
-
-        for exons in this:
-            # make sure these are sorted correctly
-            exons.sort(key=lambda x: x.start)
-            if is_negative_strand:
-                exons.reverse()
-
-            nexons = len(exons)
-            for i, e in enumerate(exons):
-                intervals[(e.start, e.end)].append((i + 1, nexons))
-
-        gtf = GTF.Entry()
-        gtf.fromGTF(this[0][0], this[0][0].gene_id, this[0][0].gene_id)
-        gtf.addAttribute("ntranscripts", ntranscripts)
-
-        gtfs = []
-        for r, pos in intervals.items():
-
-            g = GTF.Entry().copy(gtf)
-            g.start, g.end = r
-            g.addAttribute("nused", len(pos))
-            g.addAttribute("pos", ",".join(["%i:%i" % x for x in pos]))
-            gtfs.append(g)
-
-        gtfs.sort(key=lambda x: x.start)
-
-        for g in gtfs:
-            options.stdout.write("%s\n" % str(g))
-
-        # check for exon overlap
-        intervals = [(g.start, g.end) for g in gtfs]
-        nbefore = len(intervals)
-        nafter = len(Intervals.combine(intervals))
-        if nafter != nbefore:
-            noverlapping += 1
-
-        noutput += 1
-
-    if options.loglevel >= 1:
-        options.stdlog.write(
-            "# ninput=%i, noutput=%i, noverlapping=%i\n" % (ninput, noutput, noverlapping))
-
-
-def annotatePromoters(iterator, fasta, options):
-    """annotate promoters within iterator.
-
-    Entries specied with ``--restrict-source`` are annotated.
-    """
-
-    gene_iterator = GTF.gene_iterator(iterator)
-
-    ngenes, ntranscripts, npromotors = 0, 0, 0
-
-    for gene in gene_iterator:
-        ngenes += 1
-        is_negative_strand = Genomics.IsNegativeStrand(gene[0][0].strand)
-        lcontig = fasta.getLength(gene[0][0].contig)
-        promotors = []
-        transcript_ids = []
-        for transcript in gene:
-
-            ntranscripts += 1
-            mi, ma = min([x.start for x in transcript]), max(
-                [x.end for x in transcript])
-            transcript_ids.append(transcript[0].transcript_id)
-            # if tss is directly at start/end of contig, the tss will be within an exon.
-            # otherwise, it is outside an exon.
-            if is_negative_strand:
-                promotors.append(
-                    (min(lcontig - options.promotor, ma), min(lcontig, ma + options.promotor)))
-            else:
-                promotors.append(
-                    (max(0, mi - options.promotor), max(options.promotor, mi)))
-
-        if options.merge_promotors:
-            # merge the promotors (and rename - as sort order might have
-            # changed)
-            promotors = Intervals.combine(promotors)
-            transcript_ids = ["%i" % (x + 1) for x in range(len(promotors))]
-
-        gtf = GTF.Entry()
-        gtf.fromGTF(gene[0][0], gene[0][0].gene_id, gene[0][0].gene_id)
-        gtf.source = "promotor"
-
-        x = 0
-        for start, end in promotors:
-            gtf.start, gtf.end = start, end
-            gtf.transcript_id = transcript_ids[x]
-            options.stdout.write("%s\n" % str(gtf))
-            npromotors += 1
-            x += 1
-
-    E.info("ngenes=%i, ntranscripts=%i, npromotors=%i" %
-           (ngenes, ntranscripts, npromotors))
-
-
-def annotateRegulons(iterator, fasta, tss, options):
-    """annotate regulons within iterator.
-
-    Entries specied with ``--restrict-source`` are annotated.
-    """
-
-    gene_iterator = GTF.gene_iterator(iterator)
-
-    ngenes, ntranscripts, nregulons = 0, 0, 0
-
-    upstream, downstream = options.upstream, options.downstream
-
-    for gene in gene_iterator:
-        ngenes += 1
-        is_negative_strand = Genomics.IsNegativeStrand(gene[0][0].strand)
-        lcontig = fasta.getLength(gene[0][0].contig)
-        regulons = []
-        transcript_ids = []
-        for transcript in gene:
-
-            ntranscripts += 1
-            mi, ma = min([x.start for x in transcript]), max(
-                [x.end for x in transcript])
-            if tss:
-                # add range to both sides of tss
-                if is_negative_strand:
-                    interval = ma - options.downstream, ma + options.upstream
-                else:
-                    interval = mi - options.upstream, mi + options.downstream
-            else:
-                # add range to both sides of tts
-                if is_negative_strand:
-                    interval = mi - options.downstream, mi + options.upstream
-                else:
-                    interval = ma - options.upstream, ma + options.downstream
-
-            interval = (min(lcontig, max(0, interval[0])),
-                        min(lcontig, max(0, interval[1])))
-
-            regulons.append(interval)
-            transcript_ids.append(transcript[0].transcript_id)
-
-        if options.merge_promotors:
-            # merge the regulons (and rename - as sort order might have
-            # changed)
-            regulons = Intervals.combine(regulons)
-            transcript_ids = ["%i" % (x + 1) for x in range(len(regulons))]
-
-        gtf = GTF.Entry()
-        gtf.fromGTF(gene[0][0], gene[0][0].gene_id, gene[0][0].gene_id)
-        gtf.source = "regulon"
-
-        x = 0
-        for start, end in regulons:
-            gtf.start, gtf.end = start, end
-            gtf.transcript_id = transcript_ids[x]
-            options.stdout.write("%s\n" % str(gtf))
-            nregulons += 1
-            x += 1
-
-    E.info("ngenes=%i, ntranscripts=%i, nregulons=%i" %
-           (ngenes, ntranscripts, nregulons))
-
-
-def annotateGREATDomains(iterator, fasta, options):
-    """build great domains
-
-    extend from TSS a basal region.
+    i no his n no s:
+        rrn 0
+
+    n  0
+    i no his:
+        # s omr
+        ry:
+            conig  s.gLngh(s.conig)
+        xcp KyError s msg:
+            i opions.ignor_missing:
+                rrn n
+            s:
+                ris KyError(msg)
+        nk  min(s.n + opions.nk, conig)
+        n + Fnk(s.n, nk, s, opions)
+        n + Sgmn("omric", nk, conig, s, opions)
+    i no s:
+        # irs omr
+        nk  mx(0, his.sr - opions.nk)
+        n + Sgmn("omric", 0, nk, his, opions)
+        n + Fnk(nk, his.sr, his, opions)
+    s:
+        # inrgnic rgion
+          his.sr - s.n
+        nk  opions.nk
+        i  > nk * 2:
+            n + Fnk(s.n, s.n + nk, s, opions)
+            n + Sgmn("inrgnic", s.n +
+                                 nk, his.sr - nk,
+                                 (s, his), opions)
+            n + Fnk(his.sr - nk, his.sr, his, opions)
+        s:
+            #  shor nk bwn wo gns. I hy cn no gr
+            # on h ircioniy, "nk" is s.
+            is_posiiv1  Gnomics.IsPosiivSrn(s.srn)
+            is_posiiv2  Gnomics.IsPosiivSrn(his.srn)
+            i is_posiiv1 n no is_posiiv2:
+                ky  "3nk"
+            i no is_posiiv1 n is_posiiv2:
+                ky  "5nk"
+            s:
+                ky  "nk"
+            n + Sgmn(ky, s.n, his.sr,
+                                 (s, his), opions)
+
+    rrn n
+
+
+ biTrrioris(iror, s, mho, opions):
+    """bi gn rrioris.
+
+    Exons in  gn r mrg n h rsing sgmns nrg by
+    --ris. Trrioris ovrpping r ivi in h mipoin
+    bwn h wo gns.
+
+    I *mho* is ``gn``, gn rrioris wi b bi.
+    I *mho* is ``ss``, ss rrioris wi b bi.
 
     """
 
-    gene_iterator = GTF.gene_iterator(iterator)
+    ninp, nop, nmbigos  0, 0, 0
 
-    counter = E.Counter()
+    ssr mho in ("gn", "ss")
 
-    upstream, downstream = options.upstream, options.downstream
-    radius = options.radius
-    outfile = options.stdout
+    r  2 * opions.ris
 
-    regions = []
+    prv_pos  0
+    s_conig  Non
+    g  Non
+
+     _iror(iror):
+        """yi gn ps h ocions o h n o h prvios gn n
+        sr o nx gn"""
+
+        s_n, prv_n  0, 0
+        s_conig  Non
+        s  Non
+        or mchs in GTF.iror_ovrps(iror):
+
+            his_sr  min([x.sr or x in mchs])
+            his_n  mx([x.n or x in mchs])
+
+            i mho  "ss":
+                # rsric o ss
+                i mchs[0].srn  "+":
+                    his_n  his_sr + 1
+                s:
+                    his_sr  his_n - 1
+
+            his_conig  mchs[0].conig
+
+            i s_conig ! his_conig:
+                i s:
+                    yi prv_n, s, s.gLngh(s_conig)
+                s_n, prv_n  0, 0
+            s:
+                yi prv_n, s, his_sr
+
+            prv_n  s_n
+            s_n  his_n
+            s  mchs
+            s_conig  his_conig
+
+        i s:
+            yi prv_n, s, s.gLngh(s_conig)
+
+    or s_n, mchs, nx_sr in _iror(iror):
+
+        g  GTF.Enry().copy(mchs[0])
+
+        sr  min([x.sr or x in mchs])
+        n  mx([x.n or x in mchs])
+
+        i mho  "ss":
+            # rsric o ss
+            i mchs[0].srn  "+":
+                n  sr + 1
+            s:
+                sr  n - 1
+
+          sr - s_n
+        i  < r:
+            sr -  // 2
+        s:
+            sr - opions.ris
+
+          nx_sr - n
+        i  < r:
+            n +  // 2
+        s:
+            n + opions.ris
+
+        g.gn_i  ":".join(sor(s([x.gn_i or x in mchs])))
+        g.rnscrip_i  g.gn_i
+        g.sr, g.n  sr, n
+
+        nsgmns  n(mchs)
+        i nsgmns > 1:
+            g.Arib("mbigos", nsgmns)
+            nmbigos + 1
+
+        ssr g.sr < g.n, "invi sgmn: s"  sr(g)
+        opions.so.wri(sr(g) + "\n")
+        nop + 1
+
+    E.ino("ninpi, nopi, nmbigosi" 
+           (ninp, nop, nmbigos))
+
+
+ nnoGnom(iror, s, opions):
+    """prorm   sgmnion o h gnom (UTR, xon, inron ...)
+    """
+
+    ninp, nop, n, nmbigos, nrmshis, nnknown  0, 0, 0, 0, 0, 0
+    s  Non
+    is_mbigos  Fs
+
+    or his in iror:
+        ninp + 1
+
+        E.bg("ss"  sr(s))
+        E.bg("hiss"  sr(his))
+        E.bg("is_mbigoss"  sr(is_mbigos))
+
+        i s n s.conig  his.conig:
+            # chck i i is sor corrcy
+            ssr s.sr < his.sr, "inp i ns o b sor by conig, sr"
+            i s.n < his.sr:
+                i no is_mbigos:
+                    i s.gn_i ! his.gn_i:
+                        n + InrgnicSgmn(s,
+                                                       his, s, opions)
+                    s:
+                          his.sr - s.n
+                        i  > opions.min_inron_ngh:
+                            n + Sgmn("inronic",
+                                                 s.n,
+                                                 his.sr,
+                                                 s,
+                                                 opions)
+                        i  < opions.mx_rmshi_ngh:
+                            nrmshis + Sgmn("rmshi",
+                                                       s.n,
+                                                       his.sr,
+                                                       s,
+                                                       opions)
+                        s:
+                            nnknown + Sgmn("nknown",
+                                                   s.n,
+                                                   his.sr,
+                                                   s,
+                                                   opions)
+                s:
+                    i s.r  his.r n \
+                       s.gn_i  his.gn_i:
+                        nmbigos + Sgmn(
+                            s.r,
+                            s.n, his.sr,
+                            s, opions)
+                    s:
+                        nmbigos + Sgmn(
+                            "mbigos",
+                            s.n, his.sr,
+                            s, opions)
+                    is_mbigos  Fs
+                s  his
+            i s.n > his.sr:
+                i s.gn_i ! his.gn_i:
+                    # g nx rgion s mbigos
+                    is_mbigos  Tr
+                s.n  his.n
+        s:
+            n + InrgnicSgmn(s, Non, s, opions)
+            n + InrgnicSgmn(Non, his, s, opions)
+            s  his
+
+        opions.so.wri("s\n"  sr(his))
+        nop + 1
+
+    E.ino(
+        "ninpi, nopi, ni, nmbigosi, nrmshisi, nnknowni" 
+        (ninp, nop, n, nmbigos, nrmshis, nnknown))
+
+
+ nnoExons(iror, s, opions):
+    """nno xons wihin iror."""
+
+    gn_iror  GTF.gn_iror(iror)
+
+    ninp, nop, novrpping  0, 0, 0
+
+    or his in gn_iror:
+        ninp + 1
+        inrvs  cocions.ic(is)
+        nrnscrips  n(his)
+
+        is_ngiv_srn  Gnomics.IsNgivSrn(his[0][0].srn)
+
+        or xons in his:
+            # mk sr hs r sor corrcy
+            xons.sor(kymb x: x.sr)
+            i is_ngiv_srn:
+                xons.rvrs()
+
+            nxons  n(xons)
+            or i,  in nmr(xons):
+                inrvs[(.sr, .n)].ppn((i + 1, nxons))
+
+        g  GTF.Enry()
+        g.romGTF(his[0][0], his[0][0].gn_i, his[0][0].gn_i)
+        g.Arib("nrnscrips", nrnscrips)
+
+        gs  []
+        or r, pos in inrvs.ims():
+
+            g  GTF.Enry().copy(g)
+            g.sr, g.n  r
+            g.Arib("ns", n(pos))
+            g.Arib("pos", ",".join(["i:i"  x or x in pos]))
+            gs.ppn(g)
+
+        gs.sor(kymb x: x.sr)
+
+        or g in gs:
+            opions.so.wri("s\n"  sr(g))
+
+        # chck or xon ovrp
+        inrvs  [(g.sr, g.n) or g in gs]
+        nbor  n(inrvs)
+        nr  n(Inrvs.combin(inrvs))
+        i nr ! nbor:
+            novrpping + 1
+
+        nop + 1
+
+    i opions.ogv > 1:
+        opions.sog.wri(
+            "# ninpi, nopi, novrppingi\n"  (ninp, nop, novrpping))
+
+
+ nnoPromors(iror, s, opions):
+    """nno promors wihin iror.
+
+    Enris spci wih ``--rsric-sorc`` r nno.
+    """
+
+    gn_iror  GTF.gn_iror(iror)
+
+    ngns, nrnscrips, npromoors  0, 0, 0
+
+    or gn in gn_iror:
+        ngns + 1
+        is_ngiv_srn  Gnomics.IsNgivSrn(gn[0][0].srn)
+        conig  s.gLngh(gn[0][0].conig)
+        promoors  []
+        rnscrip_is  []
+        or rnscrip in gn:
+
+            nrnscrips + 1
+            mi, m  min([x.sr or x in rnscrip]), mx(
+                [x.n or x in rnscrip])
+            rnscrip_is.ppn(rnscrip[0].rnscrip_i)
+            # i ss is ircy  sr/n o conig, h ss wi b wihin n xon.
+            # ohrwis, i is osi n xon.
+            i is_ngiv_srn:
+                promoors.ppn(
+                    (min(conig - opions.promoor, m), min(conig, m + opions.promoor)))
+            s:
+                promoors.ppn(
+                    (mx(0, mi - opions.promoor), mx(opions.promoor, mi)))
+
+        i opions.mrg_promoors:
+            # mrg h promoors (n rnm - s sor orr migh hv
+            # chng)
+            promoors  Inrvs.combin(promoors)
+            rnscrip_is  ["i"  (x + 1) or x in rng(n(promoors))]
+
+        g  GTF.Enry()
+        g.romGTF(gn[0][0], gn[0][0].gn_i, gn[0][0].gn_i)
+        g.sorc  "promoor"
+
+        x  0
+        or sr, n in promoors:
+            g.sr, g.n  sr, n
+            g.rnscrip_i  rnscrip_is[x]
+            opions.so.wri("s\n"  sr(g))
+            npromoors + 1
+            x + 1
+
+    E.ino("ngnsi, nrnscripsi, npromoorsi" 
+           (ngns, nrnscrips, npromoors))
+
+
+ nnoRgons(iror, s, ss, opions):
+    """nno rgons wihin iror.
+
+    Enris spci wih ``--rsric-sorc`` r nno.
+    """
+
+    gn_iror  GTF.gn_iror(iror)
+
+    ngns, nrnscrips, nrgons  0, 0, 0
+
+    psrm, ownsrm  opions.psrm, opions.ownsrm
+
+    or gn in gn_iror:
+        ngns + 1
+        is_ngiv_srn  Gnomics.IsNgivSrn(gn[0][0].srn)
+        conig  s.gLngh(gn[0][0].conig)
+        rgons  []
+        rnscrip_is  []
+        or rnscrip in gn:
+
+            nrnscrips + 1
+            mi, m  min([x.sr or x in rnscrip]), mx(
+                [x.n or x in rnscrip])
+            i ss:
+                #  rng o boh sis o ss
+                i is_ngiv_srn:
+                    inrv  m - opions.ownsrm, m + opions.psrm
+                s:
+                    inrv  mi - opions.psrm, mi + opions.ownsrm
+            s:
+                #  rng o boh sis o s
+                i is_ngiv_srn:
+                    inrv  mi - opions.ownsrm, mi + opions.psrm
+                s:
+                    inrv  m - opions.psrm, m + opions.ownsrm
+
+            inrv  (min(conig, mx(0, inrv[0])),
+                        min(conig, mx(0, inrv[1])))
+
+            rgons.ppn(inrv)
+            rnscrip_is.ppn(rnscrip[0].rnscrip_i)
+
+        i opions.mrg_promoors:
+            # mrg h rgons (n rnm - s sor orr migh hv
+            # chng)
+            rgons  Inrvs.combin(rgons)
+            rnscrip_is  ["i"  (x + 1) or x in rng(n(rgons))]
+
+        g  GTF.Enry()
+        g.romGTF(gn[0][0], gn[0][0].gn_i, gn[0][0].gn_i)
+        g.sorc  "rgon"
+
+        x  0
+        or sr, n in rgons:
+            g.sr, g.n  sr, n
+            g.rnscrip_i  rnscrip_is[x]
+            opions.so.wri("s\n"  sr(g))
+            nrgons + 1
+            x + 1
+
+    E.ino("ngnsi, nrnscripsi, nrgonsi" 
+           (ngns, nrnscrips, nrgons))
+
+
+ nnoGREATDomins(iror, s, opions):
+    """bi gr omins
+
+    xn rom TSS  bs rgion.
+
+    """
+
+    gn_iror  GTF.gn_iror(iror)
+
+    conr  E.Conr()
+
+    psrm, ownsrm  opions.psrm, opions.ownsrm
+    ris  opions.ris
+    oi  opions.so
+
+    rgions  []
     ####################################################################
-    # define basal regions for each gene
-    # take all basal regions per transcript and merge them
-    # Thus, the basal region of a gene might be larger than the sum
-    # of options.upstream + options.downstream
-    for gene in gene_iterator:
-        counter.genes += 1
-        is_negative_strand = Genomics.IsNegativeStrand(gene[0][0].strand)
+    # in bs rgions or ch gn
+    # k  bs rgions pr rnscrip n mrg hm
+    # Ths, h bs rgion o  gn migh b rgr hn h sm
+    # o opions.psrm + opions.ownsrm
+    or gn in gn_iror:
+        conr.gns + 1
+        is_ngiv_srn  Gnomics.IsNgivSrn(gn[0][0].srn)
 
-        lcontig = fasta.getLength(gene[0][0].contig)
-        regulons = []
-        transcript_ids = []
+        conig  s.gLngh(gn[0][0].conig)
+        rgons  []
+        rnscrip_is  []
 
-        # collect every basal region per transcript
-        for transcript in gene:
-            counter.transcripts += 1
-            mi, ma = min([x.start for x in transcript]), max(
-                [x.end for x in transcript])
-            # add range to both sides of tss
-            if is_negative_strand:
-                interval = ma - options.downstream, ma + options.upstream
-            else:
-                interval = mi - options.upstream, mi + options.downstream
+        # coc vry bs rgion pr rnscrip
+        or rnscrip in gn:
+            conr.rnscrips + 1
+            mi, m  min([x.sr or x in rnscrip]), mx(
+                [x.n or x in rnscrip])
+            #  rng o boh sis o ss
+            i is_ngiv_srn:
+                inrv  m - opions.ownsrm, m + opions.psrm
+            s:
+                inrv  mi - opions.psrm, mi + opions.ownsrm
 
-            interval = (min(lcontig, max(0, interval[0])),
-                        min(lcontig, max(0, interval[1])))
+            inrv  (min(conig, mx(0, inrv[0])),
+                        min(conig, mx(0, inrv[1])))
 
-            regulons.append(interval)
-            transcript_ids.append(transcript[0].transcript_id)
+            rgons.ppn(inrv)
+            rnscrip_is.ppn(rnscrip[0].rnscrip_i)
 
-        # take first/last entry
-        start, end = min(x[0] for x in regulons), max(x[1] for x in regulons)
+        # k irs/s nry
+        sr, n  min(x[0] or x in rgons), mx(x[1] or x in rgons)
 
-        gtf = GTF.Entry()
-        gtf.fromGTF(gene[0][0], gene[0][0].gene_id, gene[0][0].gene_id)
-        gtf.source = "greatdomain"
-        gtf.start, gtf.end = start, end
-        regions.append(gtf)
+        g  GTF.Enry()
+        g.romGTF(gn[0][0], gn[0][0].gn_i, gn[0][0].gn_i)
+        g.sorc  "gromin"
+        g.sr, g.n  sr, n
+        rgions.ppn(g)
 
-    regions.sort(key=lambda x: (x.contig, x.start))
+    rgions.sor(kymb x: (x.conig, x.sr))
 
-    outf = iotools.open_file("test.gff", "w")
-    for x in regions:
-        outf.write(str(x) + "\n")
-    outf.close()
+    o  iooos.opn_i("s.g", "w")
+    or x in rgions:
+        o.wri(sr(x) + "\n")
+    o.cos()
 
     ####################################################################
-    # extend basal regions
-    regions.sort(key=lambda x: (x.contig, x.start))
+    # xn bs rgions
+    rgions.sor(kymb x: (x.conig, x.sr))
 
-    # iterate within groups of overlapping basal regions
-    groups = list(GTF.iterator_overlaps(iter(regions)))
-    counter.groups = len(groups)
+    # ir wihin grops o ovrpping bs rgions
+    grops  is(GTF.iror_ovrps(ir(rgions)))
+    conr.grops  n(grops)
 
-    last_end = 0
-    reset = False
+    s_n  0
+    rs  Fs
 
-    for region_id, group in enumerate(groups):
+    or rgion_i, grop in nmr(grops):
 
-        # collect basal intervals in group
-        intervals = [(x.start, x.end) for x in group]
+        # coc bs inrvs in grop
+        inrvs  [(x.sr, x.n) or x in grop]
 
-        def overlapsBasalRegion(pos):
-            for start, end in intervals:
-                if start == pos or end == pos:
-                    continue
-                if start <= pos < end:
-                    return True
-                if start > pos:
-                    return False
-            return False
+         ovrpsBsRgion(pos):
+            or sr, n in inrvs:
+                i sr  pos or n  pos:
+                    conin
+                i sr < pos < n:
+                    rrn Tr
+                i sr > pos:
+                    rrn Fs
+            rrn Fs
 
-        # deal with boundary cases - end of contig
-        if region_id < len(groups) - 1:
-            nxt = groups[region_id + 1]
-            if nxt[0].contig == group[0].contig:
-                next_start = min([x.start for x in nxt])
-            else:
-                next_start = fasta.getLength(group[0].contig)
-                reset = True
-        else:
-            next_start = fasta.getLength(group[0].contig)
-            reset = True
+        #  wih bonry css - n o conig
+        i rgion_i < n(grops) - 1:
+            nx  grops[rgion_i + 1]
+            i nx[0].conig  grop[0].conig:
+                nx_sr  min([x.sr or x in nx])
+            s:
+                nx_sr  s.gLngh(grop[0].conig)
+                rs  Tr
+        s:
+            nx_sr  s.gLngh(grop[0].conig)
+            rs  Tr
 
-        # last_end = basal extension of previous group
-        # next_start = basal_extension of next group
+        # s_n  bs xnsion o prvios grop
+        # nx_sr  bs_xnsion o nx grop
 
-        # extend region to previous/next group always extend
-        # dowstream, but upstream only extend if basal region of an
-        # interval is not already overlapping another basal region
-        # within the group
-        save_end = 0
-        for gtf in group:
-            save_end = max(save_end, gtf.end)
-            if gtf.strand == "+":
-                if not overlapsBasalRegion(gtf.start):
-                    gtf.start = max(gtf.start - radius, last_end)
-                # always extend downstream
-                gtf.end = min(gtf.end + radius, next_start)
-            else:
-                # always extend downstream
-                gtf.start = max(gtf.start - radius, last_end)
-                if not overlapsBasalRegion(gtf.end):
-                    gtf.end = min(gtf.end + radius, next_start)
-            outfile.write(str(gtf) + "\n")
-            counter.regulons += 1
+        # xn rgion o prvios/nx grop wys xn
+        # owsrm, b psrm ony xn i bs rgion o n
+        # inrv is no ry ovrpping nohr bs rgion
+        # wihin h grop
+        sv_n  0
+        or g in grop:
+            sv_n  mx(sv_n, g.n)
+            i g.srn  "+":
+                i no ovrpsBsRgion(g.sr):
+                    g.sr  mx(g.sr - ris, s_n)
+                # wys xn ownsrm
+                g.n  min(g.n + ris, nx_sr)
+            s:
+                # wys xn ownsrm
+                g.sr  mx(g.sr - ris, s_n)
+                i no ovrpsBsRgion(g.n):
+                    g.n  min(g.n + ris, nx_sr)
+            oi.wri(sr(g) + "\n")
+            conr.rgons + 1
 
-        if len(group) > 1:
-            counter.overlaps += len(group)
-        else:
-            counter.nonoverlaps += 1
+        i n(grop) > 1:
+            conr.ovrps + n(grop)
+        s:
+            conr.nonovrps + 1
 
-        if reset:
-            last_end = 0
-            reset = False
-        else:
-            last_end = save_end
+        i rs:
+            s_n  0
+            rs  Fs
+        s:
+            s_n  sv_n
 
-    E.info("%s" % str(counter))
+    E.ino("s"  sr(conr))
 
 
-def annotateTTS(iterator, fasta, options):
-    """annotate termination sites within iterator.
+ nnoTTS(iror, s, opions):
+    """nno rminion sis wihin iror.
 
-    Entries specified with ``--restrict-source are annotated``.
+    Enris spcii wih ``--rsric-sorc r nno``.
     """
 
-    gene_iterator = GTF.gene_iterator(iterator)
+    gn_iror  GTF.gn_iror(iror)
 
-    ngenes, ntranscripts, npromotors = 0, 0, 0
+    ngns, nrnscrips, npromoors  0, 0, 0
 
-    for gene in gene_iterator:
-        ngenes += 1
-        is_negative_strand = Genomics.IsNegativeStrand(gene[0][0].strand)
-        lcontig = fasta.getLength(gene[0][0].contig)
-        tts = []
-        transcript_ids = []
-        for transcript in gene:
+    or gn in gn_iror:
+        ngns + 1
+        is_ngiv_srn  Gnomics.IsNgivSrn(gn[0][0].srn)
+        conig  s.gLngh(gn[0][0].conig)
+        s  []
+        rnscrip_is  []
+        or rnscrip in gn:
 
-            ntranscripts += 1
-            mi, ma = min([x.start for x in transcript]), max(
-                [x.end for x in transcript])
-            transcript_ids.append(transcript[0].transcript_id)
-            # if tts is directly at start/end of contig, the tss will
-            # be within an exon.  otherwise, it is outside an exon.
-            if is_negative_strand:
-                tts.append(
-                    (max(0, mi - options.promotor), max(options.promotor, mi)))
-            else:
-                tts.append(
-                    (min(ma, lcontig - options.promotor),
-                     min(lcontig, ma + options.promotor)))
+            nrnscrips + 1
+            mi, m  min([x.sr or x in rnscrip]), mx(
+                [x.n or x in rnscrip])
+            rnscrip_is.ppn(rnscrip[0].rnscrip_i)
+            # i s is ircy  sr/n o conig, h ss wi
+            # b wihin n xon.  ohrwis, i is osi n xon.
+            i is_ngiv_srn:
+                s.ppn(
+                    (mx(0, mi - opions.promoor), mx(opions.promoor, mi)))
+            s:
+                s.ppn(
+                    (min(m, conig - opions.promoor),
+                     min(conig, m + opions.promoor)))
 
-        if options.merge_promotors:
-            # merge the promotors (and rename - as sort order might have
-            # changed)
-            tts = Intervals.combine(tts)
-            transcript_ids = ["%i" % (x + 1) for x in range(len(tts))]
+        i opions.mrg_promoors:
+            # mrg h promoors (n rnm - s sor orr migh hv
+            # chng)
+            s  Inrvs.combin(s)
+            rnscrip_is  ["i"  (x + 1) or x in rng(n(s))]
 
-        gtf = GTF.Entry()
-        gtf.fromGTF(gene[0][0], gene[0][0].gene_id, gene[0][0].gene_id)
-        gtf.source = "tts"
+        g  GTF.Enry()
+        g.romGTF(gn[0][0], gn[0][0].gn_i, gn[0][0].gn_i)
+        g.sorc  "s"
 
-        x = 0
-        for start, end in tts:
-            gtf.start, gtf.end = start, end
-            gtf.transcript_id = transcript_ids[x]
-            options.stdout.write("%s\n" % str(gtf))
-            npromotors += 1
-            x += 1
+        x  0
+        or sr, n in s:
+            g.sr, g.n  sr, n
+            g.rnscrip_i  rnscrip_is[x]
+            opions.so.wri("s\n"  sr(g))
+            npromoors + 1
+            x + 1
 
-    if options.loglevel >= 1:
-        options.stdlog.write(
-            "# ngenes=%i, ntranscripts=%i, ntss=%i\n" %
-            (ngenes, ntranscripts, npromotors))
+    i opions.ogv > 1:
+        opions.sog.wri(
+            "# ngnsi, nrnscripsi, nssi\n" 
+            (ngns, nrnscrips, npromoors))
 
 
-def annotateGenes(iterator, fasta, options):
-    """annotate gene structures
+ nnoGns(iror, s, opions):
+    """nno gn srcrs
 
-    This method outputs intervals for first/middle/last exon/intron,
-    UTRs and flanking regions.
+    This mho ops inrvs or irs/mi/s xon/inron,
+    UTRs n nking rgions.
 
-    This method annotates per transcript. In order to achieve a unique tiling,
-    use only a single transcript per gene and remove any overlap between
-    genes.
+    This mho nnos pr rnscrip. In orr o chiv  niq iing,
+    s ony  sing rnscrip pr gn n rmov ny ovrp bwn
+    gns.
 
     """
 
-    gene_iterator = GTF.gene_iterator(iterator)
+    gn_iror  GTF.gn_iror(iror)
 
-    ngenes, ntranscripts, nskipped = 0, 0, 0
+    ngns, nrnscrips, nskipp  0, 0, 0
 
-    results = []
-    increment = options.increment
+    rss  []
+    incrmn  opions.incrmn
 
-    introns_detail = "introns" in options.detail
-    exons_detail = "exons" in options.detail
+    inrons_i  "inrons" in opions.i
+    xons_i  "xons" in opions.i
 
-    for gene in gene_iterator:
-        ngenes += 1
-        is_negative_strand = Genomics.IsNegativeStrand(gene[0][0].strand)
-        try:
-            lcontig = fasta.getLength(gene[0][0].contig)
-        except KeyError:
-            nskipped += 1
-            continue
+    or gn in gn_iror:
+        ngns + 1
+        is_ngiv_srn  Gnomics.IsNgivSrn(gn[0][0].srn)
+        ry:
+            conig  s.gLngh(gn[0][0].conig)
+        xcp KyError:
+            nskipp + 1
+            conin
 
-        results = []
+        rss  []
 
-        for transcript in gene:
+        or rnscrip in gn:
 
-            def _add(interval, anno):
-                gtf = GTF.Entry()
-                gtf.contig = transcript[0].contig
-                gtf.gene_id = transcript[0].gene_id
-                gtf.transcript_id = transcript[0].transcript_id
-                gtf.strand = transcript[0].strand
-                gtf.feature = anno
-                gtf.start, gtf.end = interval
-                results.append(gtf)
+             _(inrv, nno):
+                g  GTF.Enry()
+                g.conig  rnscrip[0].conig
+                g.gn_i  rnscrip[0].gn_i
+                g.rnscrip_i  rnscrip[0].rnscrip_i
+                g.srn  rnscrip[0].srn
+                g.r  nno
+                g.sr, g.n  inrv
+                rss.ppn(g)
 
-            ntranscripts += 1
+            nrnscrips + 1
 
-            exons = [(x.start, x.end)
-                     for x in transcript if x.feature == "exon"]
-            if len(exons) == 0:
-                nskipped += 1
+            xons  [(x.sr, x.n)
+                     or x in rnscrip i x.r  "xon"]
+            i n(xons)  0:
+                nskipp + 1
 
-            exons.sort()
-            introns = []
-            end = exons[0][1]
-            for exon in exons[1:]:
-                introns.append((end, exon[0]))
-                end = exon[1]
+            xons.sor()
+            inrons  []
+            n  xons[0][1]
+            or xon in xons[1:]:
+                inrons.ppn((n, xon[0]))
+                n  xon[1]
 
-            # add flank
-            start, end = exons[0][0], exons[-1][1]
-            upstream, downstream = [], []
-            for x in range(0, options.flank, increment):
-                upstream.append((start - increment, start))
-                start -= increment
-                downstream.append((end, end + increment))
-                end += increment
+            #  nk
+            sr, n  xons[0][0], xons[-1][1]
+            psrm, ownsrm  [], []
+            or x in rng(0, opions.nk, incrmn):
+                psrm.ppn((sr - incrmn, sr))
+                sr - incrmn
+                ownsrm.ppn((n, n + incrmn))
+                n + incrmn
 
-            # remove out-of-bounds coordinates
-            upstream = [x for x in upstream if x[0] >= 0]
-            downstream = [x for x in downstream if x[1] <= lcontig]
+            # rmov o-o-bons coorins
+            psrm  [x or x in psrm i x[0] > 0]
+            ownsrm  [x or x in ownsrm i x[1] < conig]
 
-            if is_negative_strand:
-                exons.reverse()
-                introns.reverse()
-                upstream, downstream = downstream, upstream
+            i is_ngiv_srn:
+                xons.rvrs()
+                inrons.rvrs()
+                psrm, ownsrm  ownsrm, psrm
 
-            # add exons
-            if exons_detail:
-                _add(exons[0], "first_exon")
-                if len(exons) > 1:
-                    _add(exons[-1], "last_exon")
-                for e in exons[1:-1]:
-                    _add(e, "middle_exon")
-            else:
-                for e in exons:
-                    _add(e, "exon")
+            #  xons
+            i xons_i:
+                _(xons[0], "irs_xon")
+                i n(xons) > 1:
+                    _(xons[-1], "s_xon")
+                or  in xons[1:-1]:
+                    _(, "mi_xon")
+            s:
+                or  in xons:
+                    _(, "xon")
 
-            # add introns
-            if introns_detail:
-                if len(introns) > 0:
-                    _add(introns[0], "first_intron")
-                if len(introns) > 1:
-                    _add(introns[-1], "last_intron")
-                for i in introns[1:-1]:
-                    _add(i, "middle_intron")
-            else:
-                for i in introns:
-                    _add(i, "intron")
+            #  inrons
+            i inrons_i:
+                i n(inrons) > 0:
+                    _(inrons[0], "irs_inron")
+                i n(inrons) > 1:
+                    _(inrons[-1], "s_inron")
+                or i in inrons[1:-1]:
+                    _(i, "mi_inron")
+            s:
+                or i in inrons:
+                    _(i, "inron")
 
-            for x, u in enumerate(upstream):
-                _add(u, "upstream_%i" % (increment * (x + 1)))
+            or x,  in nmr(psrm):
+                _(, "psrm_i"  (incrmn * (x + 1)))
 
-            for x, u in enumerate(downstream):
-                _add(u, "downstream_%i" % (increment * (x + 1)))
+            or x,  in nmr(ownsrm):
+                _(, "ownsrm_i"  (incrmn * (x + 1)))
 
-            results.sort(key=lambda x: x.feature)
+            rss.sor(kymb x: x.r)
 
-        cache = []
-        for key, vals in itertools.groupby(results, key=lambda x: x.feature):
-            v = list(vals)
-            intervals = [(x.start, x.end) for x in v]
-            intervals = Intervals.combine(intervals)
+        cch  []
+        or ky, vs in iroos.gropby(rss, kymb x: x.r):
+            v  is(vs)
+            inrvs  [(x.sr, x.n) or x in v]
+            inrvs  Inrvs.combin(inrvs)
 
-            for start, end in intervals:
-                r = GTF.Entry()
+            or sr, n in inrvs:
+                r  GTF.Enry()
                 r.copy(v[0])
-                r.start, r.end = start, end
-                cache.append(r)
+                r.sr, r.n  sr, n
+                cch.ppn(r)
 
-        cache.sort(key=lambda x: x.start)
-        for r in cache:
-            options.stdout.write("%s\n" % str(r))
+        cch.sor(kymb x: x.sr)
+        or r in cch:
+            opions.so.wri("s\n"  sr(r))
 
-    E.info("ngenes=%i, ntranscripts=%i, nskipped=%i\n" %
-           (ngenes, ntranscripts, nskipped))
+    E.ino("ngnsi, nrnscripsi, nskippi\n" 
+           (ngns, nrnscrips, nskipp))
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I$",
+        sggobs()["__oc__"])
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome [default=%default].")
+    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
+                      hp"inm wih gnom [].")
 
-    parser.add_argument("-i", "--ignore-missing", dest="ignore_missing",
-                      action="store_true",
-                      help="Ignore transcripts on contigs that are not "
-                      "in the genome-file [default=%default].")
+    prsr._rgmn("-i", "--ignor-missing", s"ignor_missing",
+                      cion"sor_r",
+                      hp"Ignor rnscrips on conigs h r no "
+                      "in h gnom-i [].")
 
-    parser.add_argument("-s", "--restrict-source", dest="restrict_source",
-                      type="choice",
-                      choices=("protein_coding", "pseudogene", "lncRNA"),
-                      help="restrict input by source [default=%default].")
+    prsr._rgmn("-s", "--rsric-sorc", s"rsric_sorc",
+                      yp"choic",
+                      choics("proin_coing", "psogn", "ncRNA"),
+                      hp"rsric inp by sorc [].")
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
-                      choices=("full", "genome", "exons",
-                               "promotors", "tts",
-                               "regulons", "tts-regulons",
-                               "genes",
-                               "territories", "tss-territories",
-                               "great-domains",
+    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
+                      choics("", "gnom", "xons",
+                               "promoors", "s",
+                               "rgons", "s-rgons",
+                               "gns",
+                               "rrioris", "ss-rrioris",
+                               "gr-omins",
                                ),
-                      help="method for defining segments [default=%default].")
+                      hp"mho or ining sgmns [].")
 
-    parser.add_argument(
-        "-r", "--territory-extension", dest="radius", type="int",
-        help="radius of a territory [default=%default].")
+    prsr._rgmn(
+        "-r", "--rriory-xnsion", s"ris", yp"in",
+        hp"ris o  rriory [].")
 
-    parser.add_argument(
-        "-f", "--flank-size", dest="flank", type="int",
-        help="size of the flanking region next to a gene [default=%default].")
+    prsr._rgmn(
+        "-", "--nk-siz", s"nk", yp"in",
+        hp"siz o h nking rgion nx o  gn [].")
 
-    parser.add_argument(
-        "--flank-increment-size", dest="increment", type="int",
-        help="size of increment in flank in genestructure annotation "
-        "[default=%default].")
+    prsr._rgmn(
+        "--nk-incrmn-siz", s"incrmn", yp"in",
+        hp"siz o incrmn in nk in gnsrcr nnoion "
+        "[].")
 
-    parser.add_argument(
-        "-p", "--promotor-size", dest="promotor", type="int",
-        help="size of a promotor region [default=%default].")
+    prsr._rgmn(
+        "-p", "--promoor-siz", s"promoor", yp"in",
+        hp"siz o  promoor rgion [].")
 
-    parser.add_argument(
-        "-u", "--upstream-extension", dest="upstream", type="int",
-        help="size of region upstream of tss [default=%default].")
+    prsr._rgmn(
+        "-", "--psrm-xnsion", s"psrm", yp"in",
+        hp"siz o rgion psrm o ss [].")
 
-    parser.add_argument(
-        "-d", "--downstream-extension", dest="downstream", type="int",
-        help="size of region downstream of tss [default=%default].")
+    prsr._rgmn(
+        "-", "--ownsrm-xnsion", s"ownsrm", yp"in",
+        hp"siz o rgion ownsrm o ss [].")
 
-    parser.add_argument(
-        "--gene-detail", dest="detail", type="choice",
-        choices=("introns+exons", "exons", "introns"),
-        help="level of detail for gene structure annotation "
-        "[default=%default].")
+    prsr._rgmn(
+        "--gn-i", s"i", yp"choic",
+        choics("inrons+xons", "xons", "inrons"),
+        hp"v o i or gn srcr nnoion "
+        "[].")
 
-    parser.add_argument(
-        "--merge-overlapping-promotors", dest="merge_promotors",
-        action="store_true",
-        help="merge overlapping promotors [default=%default].")
+    prsr._rgmn(
+        "--mrg-ovrpping-promoors", s"mrg_promoors",
+        cion"sor_r",
+        hp"mrg ovrpping promoors [].")
 
-    parser.add_argument(
-        "--min-intron-length", dest="min_intron_length",
-        type="int",
-        help="minimum intron length. If the distance between two "
-        "consecutive exons is smaller, the region will be marked "
-        "'unknown' [default=%default].")
+    prsr._rgmn(
+        "--min-inron-ngh", s"min_inron_ngh",
+        yp"in",
+        hp"minimm inron ngh. I h isnc bwn wo "
+        "consciv xons is smr, h rgion wi b mrk "
+        "'nknown' [].")
 
-    parser.add_argument(
-        "--is-unsorted", dest="is_sorted", action="store_false",
-        help="sort input before processing. Otherwise, the input is assumed "
-        "to be sorted [default=%default].")
+    prsr._rgmn(
+        "--is-nsor", s"is_sor", cion"sor_s",
+        hp"sor inp bor procssing. Ohrwis, h inp is ssm "
+        "o b sor [].")
 
-    parser.set_defaults(
-        genome_file=None,
-        flank=1000,
-        increment=1000,
-        max_frameshift_length=4,
-        min_intron_length=30,
-        ignore_missing=False,
-        restrict_source=None,
-        method="genome",
-        radius=50000,
-        promotor=5000,
-        merge_promotors=False,
-        upstream=5000,
-        downstream=5000,
-        detail="exons",
-        is_sorted=True,
+    prsr.s_s(
+        gnom_iNon,
+        nk1000,
+        incrmn1000,
+        mx_rmshi_ngh4,
+        min_inron_ngh30,
+        ignor_missingFs,
+        rsric_sorcNon,
+        mho"gnom",
+        ris50000,
+        promoor5000,
+        mrg_promoorsFs,
+        psrm5000,
+        ownsrm5000,
+        i"xons",
+        is_sorTr,
     )
 
-    (options, args) = E.start(parser)
+    (opions, rgs)  E.sr(prsr)
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
-    else:
-        raise ValueError("please specify a --genome-file")
+    i opions.gnom_i:
+        s  InxFs.InxFs(opions.gnom_i)
+    s:
+        ris VError("ps spciy  --gnom-i")
 
-    if not options.restrict_source:
-        iterator = GTF.iterator(options.stdin)
+    i no opions.rsric_sorc:
+        iror  GTF.iror(opions.sin)
 
-    elif options.restrict_source:
-        iterator = GTF.iterator_filtered(GTF.iterator(options.stdin),
-                                         source=options.restrict_source)
+    i opions.rsric_sorc:
+        iror  GTF.iror_ir(GTF.iror(opions.sin),
+                                         sorcopions.rsric_sorc)
 
-    # elif options.method in ("promotors", "tts", "regulons"):
-    #     iterator = GTF.iterator_filtered( GTF.iterator(options.stdin), source = "protein_coding")
-    # else:
-    #     iterator = GTF.iterator(options.stdin)
+    # i opions.mho in ("promoors", "s", "rgons"):
+    #     iror  GTF.iror_ir( GTF.iror(opions.sin), sorc  "proin_coing")
+    # s:
+    #     iror  GTF.iror(opions.sin)
 
-    if not options.is_sorted:
-        iterator = GTF.iterator_sorted(iterator, sort_order="position")
+    i no opions.is_sor:
+        iror  GTF.iror_sor(iror, sor_orr"posiion")
 
-    if options.method == "full" or options.method == "genome":
-        segmentor = annotateGenome(iterator, fasta, options)
-    elif options.method == "territories":
-        segmentor = buildTerritories(iterator, fasta, 'gene', options)
-    elif options.method == "tss-territories":
-        segmentor = buildTerritories(iterator, fasta, 'tss', options)
-    elif options.method == "exons":
-        segmentor = annotateExons(iterator, fasta, options)
-    elif options.method == "promotors":
-        segmentor = annotatePromoters(iterator, fasta, options)
-    elif options.method == "regulons":
-        segmentor = annotateRegulons(iterator, fasta, True, options)
-    elif options.method == "tts-regulons":
-        segmentor = annotateRegulons(iterator, fasta, False, options)
-    elif options.method == "tts":
-        segmentor = annotateTTS(iterator, fasta, options)
-    elif options.method == "genes":
-        segmentor = annotateGenes(iterator, fasta, options)
-    elif options.method == "great-domains":
-        segmentor = annotateGREATDomains(iterator, fasta, options)
+    i opions.mho  "" or opions.mho  "gnom":
+        sgmnor  nnoGnom(iror, s, opions)
+    i opions.mho  "rrioris":
+        sgmnor  biTrrioris(iror, s, 'gn', opions)
+    i opions.mho  "ss-rrioris":
+        sgmnor  biTrrioris(iror, s, 'ss', opions)
+    i opions.mho  "xons":
+        sgmnor  nnoExons(iror, s, opions)
+    i opions.mho  "promoors":
+        sgmnor  nnoPromors(iror, s, opions)
+    i opions.mho  "rgons":
+        sgmnor  nnoRgons(iror, s, Tr, opions)
+    i opions.mho  "s-rgons":
+        sgmnor  nnoRgons(iror, s, Fs, opions)
+    i opions.mho  "s":
+        sgmnor  nnoTTS(iror, s, opions)
+    i opions.mho  "gns":
+        sgmnor  nnoGns(iror, s, opions)
+    i opions.mho  "gr-omins":
+        sgmnor  nnoGREATDomins(iror, s, opions)
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

@@ -1,247 +1,247 @@
 '''
-split_fasta.py - 
-======================================================
+spi_s.py - 
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-.. todo::
+.. oo::
    
-   describe purpose of the script.
+   scrib prpos o h scrip.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python split_fasta.py --help
+   pyhon spi_s.py --hp
 
-Type::
+Typ::
 
-   python split_fasta.py --help
+   pyhon spi_s.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import re
-import os
-import cgat.FastaIterator as FastaIterator
-import cgatcore.iotools as iotools
-import cgatcore.experiment as E
+impor sys
+impor r
+impor os
+impor cg.FsIror s FsIror
+impor cgcor.iooos s iooos
+impor cgcor.xprimn s E
 
 
-class Files:
+css Fis:
 
-    mFiles = {}
+    mFis  {}
 
-    def __init__(self,
-                 output_pattern=None,
-                 skip_identifiers=False):
+     __ini__(s,
+                 op_prnNon,
+                 skip_iniirsFs):
 
-        self.mOutputPattern = output_pattern
-        self.mSkipIdentifiers = skip_identifiers
-        self.mCounts = {}
+        s.mOpPrn  op_prn
+        s.mSkipIniirs  skip_iniirs
+        s.mCons  {}
 
-    def __del__(self):
-        """close all open files."""
-        for file in list(self.mFiles.values()):
-            file.close()
+     ____(s):
+        """cos  opn is."""
+        or i in is(s.mFis.vs()):
+            i.cos()
 
-    def GetFile(self, identifier):
-        return identifier
+     GFi(s, iniir):
+        rrn iniir
 
-    def GetFilename(self, identifier):
-        """get filename for an identifier."""
+     GFinm(s, iniir):
+        """g inm or n iniir."""
 
-        if self.mOutputPattern:
-            return re.sub("%s", str(identifier), self.mOutputPattern)
-        else:
-            return identifier
+        i s.mOpPrn:
+            rrn r.sb("s", sr(iniir), s.mOpPrn)
+        s:
+            rrn iniir
 
-    def OpenFile(self, filename, mode="w"):
-        """open file.
+     OpnFi(s, inm, mo"w"):
+        """opn i.
 
-        If file is in a new directory, create directories.
+        I i is in  nw ircory, cr ircoris.
         """
-        if mode in ("w", "a"):
-            dirname = os.path.dirname(filename)
-            if dirname and not os.path.exists(dirname):
-                os.makedirs(dirname)
+        i mo in ("w", ""):
+            irnm  os.ph.irnm(inm)
+            i irnm n no os.ph.xiss(irnm):
+                os.mkirs(irnm)
 
-        returniotools.open_file(filename, mode)
+        rrniooos.opn_i(inm, mo)
 
-    def Write(self, identifier, sequence):
+     Wri(s, iniir, sqnc):
 
-        filename = self.GetFilename(identifier)
+        inm  s.GFinm(iniir)
 
-        if filename not in self.mFiles:
+        i inm no in s.mFis:
 
-            if len(self.mFiles) > 1000:
-                for f in list(self.mFiles.values()):
-                    f.close()
-                self.mFiles = {}
+            i n(s.mFis) > 1000:
+                or  in is(s.mFis.vs()):
+                    .cos()
+                s.mFis  {}
 
-            self.mFiles[filename] = self.OpenFile(filename, "a")
+            s.mFis[inm]  s.OpnFi(inm, "")
 
-        if self.mSkipIdentifiers:
-            self.mFiles[filename].write("%s\n" % (sequence.sequence))
-        else:
-            self.mFiles[filename].write(
-                ">%s\n%s\n" % (sequence.title, sequence.sequence))
+        i s.mSkipIniirs:
+            s.mFis[inm].wri("s\n"  (sqnc.sqnc))
+        s:
+            s.mFis[inm].wri(
+                ">s\ns\n"  (sqnc.i, sqnc.sqnc))
 
-        if filename not in self.mCounts:
-            self.mCounts[filename] = 0
-        self.mCounts[filename] += 1
+        i inm no in s.mCons:
+            s.mCons[inm]  0
+        s.mCons[inm] + 1
 
-    def DeleteFiles(self, min_size=0):
-        """delete all files below a minimum size."""
+     DFis(s, min_siz0):
+        """  is bow  minimm siz."""
 
-        ndeleted = 0
-        for filename, counts in list(self.mCounts.items()):
-            if counts < min_size:
-                os.remove(filename)
-                ndeleted += 1
+        n  0
+        or inm, cons in is(s.mCons.ims()):
+            i cons < min_siz:
+                os.rmov(inm)
+                n + 1
 
-        return ndeleted
-
-
-class FilesChunks(Files):
-
-    def __init__(self,
-                 chunk_size, **kwargs):
-
-        Files.__init__(self, **kwargs)
-        self.mChunkSize = chunk_size
-        self.mFilename = 0
-
-    def GetFilename(self, identifier):
-
-        if not self.mFilename or self.mCounts[self.mFilename] % self.mChunkSize == 0:
-            self.mFilename = re.sub(
-                "%s", str(len(self.mCounts) + 1), self.mOutputPattern)
-
-        return self.mFilename
+        rrn n
 
 
-def main(argv=None):
-    """script main.
+css FisChnks(Fis):
 
-    parses command line options in sys.argv, unless *argv* is given.
+     __ini__(s,
+                 chnk_siz, **kwrgs):
+
+        Fis.__ini__(s, **kwrgs)
+        s.mChnkSiz  chnk_siz
+        s.mFinm  0
+
+     GFinm(s, iniir):
+
+        i no s.mFinm or s.mCons[s.mFinm]  s.mChnkSiz  0:
+            s.mFinm  r.sb(
+                "s", sr(n(s.mCons) + 1), s.mOpPrn)
+
+        rrn s.mFinm
+
+
+ min(rgvNon):
+    """scrip min.
+
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: split_fasta.py 1714 2007-12-11 16:51:12Z andreas $")
+    prsr  E.OpionPrsr(
+        vrsion"prog vrsion: $I: spi_s.py 1714 2007-12-11 16:51:12Z nrs $")
 
-    parser.add_argument("-f", "--file", dest="input_filename", type="string",
-                      help="input filename. If not given, stdin is used.",
-                      metavar="FILE")
+    prsr._rgmn("-", "--i", s"inp_inm", yp"sring",
+                      hp"inp inm. I no givn, sin is s.",
+                      mvr"FILE")
 
-    parser.add_argument("-i", "--input-pattern", dest="input_pattern", type="string",
-                      help="input pattern. Parses description line in order to extract id.")
+    prsr._rgmn("-i", "--inp-prn", s"inp_prn", yp"sring",
+                      hp"inp prn. Prss scripion in in orr o xrc i.")
 
-    parser.add_argument("-o", "--output-filename-pattern", dest="output_pattern", type="string",
-                      help="output pattern. Gives filename for a given sequence.")
+    prsr._rgmn("-o", "--op-inm-prn", s"op_prn", yp"sring",
+                      hp"op prn. Givs inm or  givn sqnc.")
 
-    parser.add_argument("-n", "--num-sequences", dest="num_sequences", type="int",
-                      help="split by number of sequences (not implemented yet).")
+    prsr._rgmn("-n", "--nm-sqncs", s"nm_sqncs", yp"in",
+                      hp"spi by nmbr o sqncs (no impmn y).")
 
-    parser.add_argument("-m", "--map", dest="map_filename", type="string",
-                      help="map filename. Map identifiers to filenames",
-                      metavar="FILE")
+    prsr._rgmn("-m", "--mp", s"mp_inm", yp"sring",
+                      hp"mp inm. Mp iniirs o inms",
+                      mvr"FILE")
 
-    parser.add_argument("-s", "--skip-identifiers", dest="skip_identifiers", action="store_true",
-                      help="do not write identifiers.",
-                      metavar="FILE")
+    prsr._rgmn("-s", "--skip-iniirs", s"skip_iniirs", cion"sor_r",
+                      hp"o no wri iniirs.",
+                      mvr"FILE")
 
-    parser.add_argument("--min-size", dest="min_size", type="int",
-                      help="minimum cluster size.")
+    prsr._rgmn("--min-siz", s"min_siz", yp"in",
+                      hp"minimm csr siz.")
 
-    parser.set_defaults(
-        input_filename=None,
-        map_filename=None,
-        skip_identifiers=False,
-        input_pattern="^(\S+)",
-        min_size=0,
-        num_sequences=None,
-        output_pattern="%s")
+    prsr.s_s(
+        inp_inmNon,
+        mp_inmNon,
+        skip_iniirsFs,
+        inp_prn"^(\S+)",
+        min_siz0,
+        nm_sqncsNon,
+        op_prn"s")
 
-    (options, args) = E.start(parser)
+    (opions, rgs)  E.sr(prsr)
 
-    if options.input_filename:
-        infile = iotools.open_file(options.input_filename, "r")
-    else:
-        infile = sys.stdin
+    i opions.inp_inm:
+        ini  iooos.opn_i(opions.inp_inm, "r")
+    s:
+        ini  sys.sin
 
-    if options.map_filename:
-        map_id2filename = iotools.ReadMap(open(options.map_filename, "r"))
-    else:
-        map_id2filename = {}
+    i opions.mp_inm:
+        mp_i2inm  iooos.RMp(opn(opions.mp_inm, "r"))
+    s:
+        mp_i2inm  {}
 
-    if options.num_sequences:
-        files = FilesChunks(chunk_size=options.num_sequences,
-                            output_pattern=options.output_pattern,
-                            skip_identifiers=options.skip_identifiers)
+    i opions.nm_sqncs:
+        is  FisChnks(chnk_sizopions.nm_sqncs,
+                            op_prnopions.op_prn,
+                            skip_iniirsopions.skip_iniirs)
 
-    else:
-        files = Files(output_pattern=options.output_pattern,
-                      skip_identifiers=options.skip_identifiers)
+    s:
+        is  Fis(op_prnopions.op_prn,
+                      skip_iniirsopions.skip_iniirs)
 
-    if options.input_pattern:
-        rx = re.compile(options.input_pattern)
-    else:
-        rx = None
+    i opions.inp_prn:
+        rx  r.compi(opions.inp_prn)
+    s:
+        rx  Non
 
-    ninput = 0
-    noutput = 0
-    identifier = None
-    chunk = 0
+    ninp  0
+    nop  0
+    iniir  Non
+    chnk  0
 
-    for seq in FastaIterator.iterate(infile):
+    or sq in FsIror.ir(ini):
 
-        ninput += 1
+        ninp + 1
 
-        if rx:
-            try:
-                identifier = rx.search(seq.title).groups()[0]
-            except AttributeError:
-                print("# parsing error in description line %s" % (seq.title))
-        else:
-            identifier = seq.title
+        i rx:
+            ry:
+                iniir  rx.srch(sq.i).grops()[0]
+            xcp AribError:
+                prin("# prsing rror in scripion in s"  (sq.i))
+        s:
+            iniir  sq.i
 
-        if map_id2filename:
-            if identifier in map_id2filename:
-                identifier = map_id2filename[identifier]
-            else:
-                continue
+        i mp_i2inm:
+            i iniir in mp_i2inm:
+                iniir  mp_i2inm[iniir]
+            s:
+                conin
 
-        files.Write(identifier, seq)
-        noutput += 1
+        is.Wri(iniir, sq)
+        nop + 1
 
-    if options.input_filename:
-        infile.close()
+    i opions.inp_inm:
+        ini.cos()
 
-    # delete all clusters below a minimum size
-    # Note: this has to be done at the end, because
-    # clusters sizes are only available once both the fasta
-    # file and the map has been parsed.
-    if options.min_size:
-        ndeleted = files.DeleteFiles(min_size=options.min_size)
-    else:
-        ndeleted = 0
+    #   csrs bow  minimm siz
+    # No: his hs o b on  h n, bcs
+    # csrs sizs r ony vib onc boh h s
+    # i n h mp hs bn prs.
+    i opions.min_siz:
+        n  is.DFis(min_sizopions.min_siz)
+    s:
+        n  0
 
-    if options.loglevel >= 1:
-        print("# input=%i, output=%i, ndeleted=%i" % (ninput, noutput, ndeleted))
+    i opions.ogv > 1:
+        prin("# inpi, opi, ni"  (ninp, nop, n))
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

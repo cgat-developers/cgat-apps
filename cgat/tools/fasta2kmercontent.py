@@ -1,50 +1,50 @@
 '''
-fasta2kmercontent.py
-=============================================
+s2kmrconn.py
 
-:Tags: Genomics Sequences FASTA Summary
 
-Purpose
+:Tgs: Gnomics Sqncs FASTA Smmry
+
+Prpos
 -------
 
-This script takes an input :term:`fasta` file from stdin and computes a
-k-nucleotide content for each contig in the file. The output is a
-tab-delimited file of kmer counts::
+This scrip ks n inp :rm:`s` i rom sin n comps 
+k-ncoi conn or ch conig in h i. Th op is 
+b-imi i o kmr cons::
 
-         contig1  contig2  contig3  contig4
+         conig1  conig2  conig3  conig4
     n1
     n2
     n3
 
-where n is the kmer and contig is the fasta entry.
+whr n is h kmr n conig is h s nry.
 
-The user specifies the kmer length that is to be searched. Note that the longer
-the kmer, the longer the script will take to run.
+Th sr spciis h kmr ngh h is o b srch. No h h ongr
+h kmr, h ongr h scrip wi k o rn.
 
-Note the order of output will not necessarily be the same order as the input.
+No h orr o op wi no ncssriy b h sm orr s h inp.
 
-Usage
+Usg
 -----
-Example::
+Exmp::
 
-   zcat in.fasta.gz | head::
+   zc in.s.gz | h::
 
-    >NODE_1_length_120_cov_4.233333
+    >NODE_1_ngh_120_cov_4.233333
     TCACGAGCACCGCTATTATCAGCAACTTTTAAGCGACTTTCTTGTTGAATCATTTCAATT
     GTCTCCTTTTAGTTTTATTAGATAATAACAGCTTCTTCCACAACTTCTACAAGACGGAAG
-    CGTTTTGTAGCTGAAAGTGGGCGAGTTTCCATGATACGAAcgatATCGCC
+    CGTTTTGTAGCTGAAAGTGGGCGAGTTTCCATGATACGAAcgATCGCC
 
-    >NODE_3_length_51_cov_33.000000
-    CGAGTTTCCATGATACGAAcgatATCGCCTTCTTTAGCAACGTTGTTTTCGTCATGTGCT
+    >NODE_3_ngh_51_cov_33.000000
+    CGAGTTTCCATGATACGAAcgATCGCCTTCTTTAGCAACGTTGTTTTCGTCATGTGCT
     TTATATTTTTTAGAATAGTTGATACGTTTACCATAGACTGG
 
-   zcat in.fasta.gz | python fasta2kmercontent.py
-                      --kmer-size 4
-                      > tetranucleotide_counts.tsv
+   zc in.s.gz | pyhon s2kmrconn.py
+                      --kmr-siz 4
+                      > rncoi_cons.sv
 
-   head tetranucleotide_counts.tsv::
+   h rncoi_cons.sv::
 
-     kmer NODE_228_length_74_cov_506.432434 NODE_167_length_57_cov_138.438599
+     kmr NODE_228_ngh_74_cov_506.432434 NODE_167_ngh_57_cov_138.438599
      GTAC 0                                 0
      TGCT 0                                 0
      GTAA 2                                 0
@@ -52,133 +52,133 @@ Example::
      AAAT 1                                 0
      CGAC 0                                 0
 
-In this example, for each contig in in.fasta.gz the occurrence of each four
-nucleotide combination is counted.
+In his xmp, or ch conig in in.s.gz h occrrnc o ch or
+ncoi combinion is con.
 
-Alternative example::
+Arniv xmp::
 
-   zcat in.fasta.gz | python fasta2kmercontent.py
-                      --kmer-size 4
-                      --output-proportion
-                      > tetranucleotide_proportions.tsv
+   zc in.s.gz | pyhon s2kmrconn.py
+                      --kmr-siz 4
+                      --op-proporion
+                      > rncoi_proporions.sv
 
-In this example, for each contig in in.fasta.gz we return the proportion of
-each four base combination out of the total tetranucleotide occurences.
-``--output-proportion`` overides the count output.
+In his xmp, or ch conig in in.s.gz w rrn h proporion o
+ch or bs combinion o o h o rncoi occrncs.
+``--op-proporion`` ovris h con op.
 
-Options
+Opions
 -------
-Two options control the behaviour of fasta2kmercontent.py; ``--kmer-size`` and
-``--output-proportion``.
+Two opions conro h bhvior o s2kmrconn.py; ``--kmr-siz`` n
+``--op-proporion``.
 
-``--kmer-size``::
-  The kmer length to count over in the input fasta file
+``--kmr-siz``::
+  Th kmr ngh o con ovr in h inp s i
 
-``--output-proportion``::
-  The output values are proportions rather than absolute counts
-
-
-Type::
-
-   python fasta2composition.py --help
-
-for command line help.
+``--op-proporion``::
+  Th op vs r proporions rhr hn bso cons
 
 
-Command line options
+Typ::
+
+   pyhon s2composiion.py --hp
+
+or commn in hp.
+
+
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import re
-import cgat.FastaIterator as FastaIterator
-import itertools
-import cgatcore.experiment as E
+impor sys
+impor r
+impor cg.FsIror s FsIror
+impor iroos
+impor cgcor.xprimn s E
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-k", "--kmer-size", dest="kmer", type="int",
-                      help="supply kmer length")
+    prsr._rgmn("-k", "--kmr-siz", s"kmr", yp"in",
+                      hp"sppy kmr ngh")
 
-    parser.add_argument(
-        "-p", "--output-proportion", dest="proportion", action="store_true",
-        help="output proportions - overides the default output")
+    prsr._rgmn(
+        "-p", "--op-proporion", s"proporion", cion"sor_r",
+        hp"op proporions - ovris h  op")
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    # do not allow greater than octonucleotide
-    assert options.kmer <= 8, "cannot handle kmer of length %i" % options.kmer
+    # o no ow grr hn oconcoi
+    ssr opions.kmr < 8, "cnno hn kmr o ngh i"  opions.kmr
 
-    # how we deal with the nucleotides depends on the kmer length
-    nucleotides = []
-    for nucleotide in ["A", "C", "T", "G"]:
-        nucleotides = nucleotides + \
-            [x for x in itertools.repeat(nucleotide, options.kmer)]
+    # how w  wih h ncois pns on h kmr ngh
+    ncois  []
+    or ncoi in ["A", "C", "T", "G"]:
+        ncois  ncois + \
+            [x or x in iroos.rp(ncoi, opions.kmr)]
 
-    E.info("retrieving %imer sequences" % options.kmer)
-    # get all kmer sequences to query
-    kmers = set()
-    for kmer in itertools.permutations(nucleotides, options.kmer):
-        kmers.add(kmer)
+    E.ino("rriving imr sqncs"  opions.kmr)
+    # g  kmr sqncs o qry
+    kmrs  s()
+    or kmr in iroos.prmions(ncois, opions.kmr):
+        kmrs.(kmr)
 
-    E.info("matching %imers in file" % options.kmer)
-    # count the number of kmers in each sequence
+    E.ino("mching imrs in i"  opions.kmr)
+    # con h nmbr o kmrs in ch sqnc
 
-    result = {}
+    rs  {}
 
-    # NB assume that non fasta files are caught by FastaIterator
-    total_entries = 0
-    for fasta in FastaIterator.iterate(options.stdin):
-        total_entries += 1
-        result[fasta.title] = {}
-        for kmer in kmers:
-            counts = [m.start()
-                      for m in re.finditer("".join(kmer), fasta.sequence)]
-            result[fasta.title][kmer] = len(counts)
+    # NB ssm h non s is r cgh by FsIror
+    o_nris  0
+    or s in FsIror.ir(opions.sin):
+        o_nris + 1
+        rs[s.i]  {}
+        or kmr in kmrs:
+            cons  [m.sr()
+                      or m in r.inir("".join(kmr), s.sqnc)]
+            rs[s.i][kmr]  n(cons)
 
-    E.info("writing results")
-    # write out the results
-    headers = sorted(result.keys())
-    rows = set()
-    for kmer_counts in list(result.values()):
-        for kmer, count in kmer_counts.items():
-            rows.add("".join(kmer))
+    E.ino("wriing rss")
+    # wri o h rss
+    hrs  sor(rs.kys())
+    rows  s()
+    or kmr_cons in is(rs.vs()):
+        or kmr, con in kmr_cons.ims():
+            rows.("".join(kmr))
 
-    # write header row
-    options.stdout.write("kmer\t" + "\t".join(headers) + "\n")
+    # wri hr row
+    opions.so.wri("kmr\" + "\".join(hrs) + "\n")
 
-    # output proportions if required - normalises by
-    # sequence length
-    E.info("computing total counts")
-    totals = {}
-    for header in headers:
-        totals[header] = sum([result[header][tuple(row)] for row in rows])
+    # op proporions i rqir - normiss by
+    # sqnc ngh
+    E.ino("comping o cons")
+    os  {}
+    or hr in hrs:
+        os[hr]  sm([rs[hr][p(row)] or row in rows])
 
-    for row in sorted(rows):
-        if options.proportion:
-            options.stdout.write("\t".join(
-                [row] + [str(float(result[header][tuple(row)]) / totals[header]) for header in headers]) + "\n")
-        else:
-            options.stdout.write(
-                "\t".join([row] + [str(result[header][tuple(row)]) for header in headers]) + "\n")
+    or row in sor(rows):
+        i opions.proporion:
+            opions.so.wri("\".join(
+                [row] + [sr(o(rs[hr][p(row)]) / os[hr]) or hr in hrs]) + "\n")
+        s:
+            opions.so.wri(
+                "\".join([row] + [sr(rs[hr][p(row)]) or hr in hrs]) + "\n")
 
-    E.info("written kmer counts for %i contigs" % total_entries)
-    # write footer and output benchmark information.
-    E.stop()
+    E.ino("wrin kmr cons or i conigs"  o_nris)
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

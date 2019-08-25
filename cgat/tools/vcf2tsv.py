@@ -1,365 +1,365 @@
-"""convert fasta to VCF
-==========================
+"""convr s o VCF
 
-Output a file in VCF format with variants according
-to a fasta file.
 
-Note: currently only takes first sample in VCF and assumes
-single-sample VCF
+Op  i in VCF orm wih vrins ccoring
+o  s i.
+
+No: crrny ony ks irs smp in VCF n ssms
+sing-smp VCF
 
 """
 
-import sys
-import random
-import collections
-import cgatcore.experiment as E
-import numpy
-import pysam
+impor sys
+impor rnom
+impor cocions
+impor cgcor.xprimn s E
+impor nmpy
+impor pysm
 
 
-class Counter(object):
-    pass
+css Conr(objc):
+    pss
 
 
-class CounterIndelType(Counter):
+css ConrInTyp(Conr):
 
-    header = ["indel_type",
-              "indel_length",
-              "indel_delta",
-              "indel_class"]
+    hr  ["in_yp",
+              "in_ngh",
+              "in_",
+              "in_css"]
 
-    def count(self, record):
-        self.ignore = False
-        self.indel_length = ""
-        self.indel_class = ""
-        self.indel_type = ""
-        self.indel_delta = ""
-        ref = record.ref
-        alt = record.alts[0]
-        if len(record.alts) > 1:
-            return
-        lref = len(ref)
-        lalt = len(alt)
-        if lref == lalt:
-            return
-        elif lref > lalt:
-            self.indel_type = "deletion"
-            self.indel_delta = ref[1:]
-        else:
-            self.indel_type = "insertion"
-            self.indel_delta = alt[1:]
+     con(s, rcor):
+        s.ignor  Fs
+        s.in_ngh  ""
+        s.in_css  ""
+        s.in_yp  ""
+        s.in_  ""
+        r  rcor.r
+          rcor.s[0]
+        i n(rcor.s) > 1:
+            rrn
+        r  n(r)
+          n()
+        i r  :
+            rrn
+        i r > :
+            s.in_yp  "ion"
+            s.in_  r[1:]
+        s:
+            s.in_yp  "insrion"
+            s.in_  [1:]
 
-        self.indel_length = len(self.indel_delta)
-        counts = collections.Counter(self.indel_delta)
-        if len(counts) == 1 and self.indel_length > 2:
-            self.indel_class = "mononucleotide-instability"
-        elif len(counts) == 2 and self.indel_length > 4:
-            self.indel_class = "dinucleotide-instability"
-        else:
-            self.indel_class = "other"
+        s.in_ngh  n(s.in_)
+        cons  cocions.Conr(s.in_)
+        i n(cons)  1 n s.in_ngh > 2:
+            s.in_css  "mononcoi-insbiiy"
+        i n(cons)  2 n s.in_ngh > 4:
+            s.in_css  "incoi-insbiiy"
+        s:
+            s.in_css  "ohr"
 
-    def __str__(self):
-        return "\t".join(map(
-            str,
-            (self.indel_type, self.indel_length,
-             self.indel_delta, self.indel_class)))
-
-
-class CounterContext(Counter):
-
-    header = ["class", "left_class", "right_class", "context"]
-
-    def __init__(self, fasta):
-
-        if fasta is None:
-            raise ValueError("CounterContext requires an indexed fasta file")
-        self.fasta = fasta
-
-        self.region = 20
-
-    def count(self, record):
-
-        pos = record.pos - 1
-        s = self.fasta.fetch(record.chrom,
-                             pos - self.region,
-                             pos + self.region + 1)
-
-        def classify(region, threshold_low_complexity_region=5, threshold_homopolymer=10):
-            c = collections.Counter(region)
-
-            # monomers define homopolymers
-            if len(list(c.values())) == 0:
-                return "empty"
-
-            if max(c.values()) > threshold_homopolymer:
-                return "hompolymer"
-
-            # dimers define low-complexity regions
-            c = collections.Counter([region[x:x+2] for x in range(len(region)-1)])
-            if len(list(c.values())) == 0:
-                return "empty"
-
-            if max(c.values()) > threshold_low_complexity_region:
-                return "low-complexity"
-
-            return "-"
-
-        left_region = s[:self.region]
-        right_region = s[self.region + 1:]
-        self.cls_left = classify(left_region)
-        self.cls_right = classify(right_region)
-
-        self.context = left_region.lower() + s[self.region] + right_region.lower()
-
-        full_cls = (self.cls_left, self.cls_right)
-
-        if self.cls_left == self.cls_right:
-            self.cls = self.cls_left
-            return
-
-        if "-" in full_cls:
-            self.cls = "border"
-        else:
-            self.cls = "repetetive"
-
-    def __str__(self):
-        return "\t".join((self.cls, self.cls_left, self.cls_right, self.context))
+     __sr__(s):
+        rrn "\".join(mp(
+            sr,
+            (s.in_yp, s.in_ngh,
+             s.in_, s.in_css)))
 
 
-class CounterBAM(Counter):
+css ConrConx(Conr):
 
-    def __init__(self, bam):
-        if bam is None:
-            raise ValueError("CounterBAM requires an indexed BAM file")
+    hr  ["css", "_css", "righ_css", "conx"]
 
-        self.bam = bam
+     __ini__(s, s):
+
+        i s is Non:
+            ris VError("ConrConx rqirs n inx s i")
+        s.s  s
+
+        s.rgion  20
+
+     con(s, rcor):
+
+        pos  rcor.pos - 1
+        s  s.s.ch(rcor.chrom,
+                             pos - s.rgion,
+                             pos + s.rgion + 1)
+
+         cssiy(rgion, hrsho_ow_compxiy_rgion5, hrsho_homopoymr10):
+            c  cocions.Conr(rgion)
+
+            # monomrs in homopoymrs
+            i n(is(c.vs()))  0:
+                rrn "mpy"
+
+            i mx(c.vs()) > hrsho_homopoymr:
+                rrn "hompoymr"
+
+            # imrs in ow-compxiy rgions
+            c  cocions.Conr([rgion[x:x+2] or x in rng(n(rgion)-1)])
+            i n(is(c.vs()))  0:
+                rrn "mpy"
+
+            i mx(c.vs()) > hrsho_ow_compxiy_rgion:
+                rrn "ow-compxiy"
+
+            rrn "-"
+
+        _rgion  s[:s.rgion]
+        righ_rgion  s[s.rgion + 1:]
+        s.cs_  cssiy(_rgion)
+        s.cs_righ  cssiy(righ_rgion)
+
+        s.conx  _rgion.owr() + s[s.rgion] + righ_rgion.owr()
+
+        _cs  (s.cs_, s.cs_righ)
+
+        i s.cs_  s.cs_righ:
+            s.cs  s.cs_
+            rrn
+
+        i "-" in _cs:
+            s.cs  "borr"
+        s:
+            s.cs  "rpiv"
+
+     __sr__(s):
+        rrn "\".join((s.cs, s.cs_, s.cs_righ, s.conx))
 
 
-class CounterBAMIndels(CounterBAM):
+css ConrBAM(Conr):
 
-    header = ["mean_depth",
-              "mean_freq_deletions",
-              "mean_freq_insertions",
-              "mean_freq_indels",
-              "positions_with_deletions",
-              "positions_with_insertions",
-              "positions with_indels",
-              "indel_status_string"]
+     __ini__(s, bm):
+        i bm is Non:
+            ris VError("ConrBAM rqirs n inx BAM i")
 
-    def __init__(self, *args, **kwargs):
-        CounterBAM.__init__(self, *args, **kwargs)
+        s.bm  bm
 
-        self.region = 5
 
-    def count(self, record):
+css ConrBAMIns(ConrBAM):
 
-        pos = record.pos - 1
-        varset = None
-        depths = []
-        deletions = []
-        insertions = []
-        for column in self.bam.pileup(record.chrom,
-                                      pos - self.region,
-                                      pos + self.region + 1,
-                                      truncate=True,
-                                      stepper="all"):
-            depths.append(len(column.pileups))
-            deletions.append(sum([x.is_del == 1 for x in column.pileups]))
-            insertions.append(sum([x.indel > 0 for x in column.pileups]))
+    hr  ["mn_ph",
+              "mn_rq_ions",
+              "mn_rq_insrions",
+              "mn_rq_ins",
+              "posiions_wih_ions",
+              "posiions_wih_insrions",
+              "posiions wih_ins",
+              "in_ss_sring"]
 
-        self.depths = numpy.array(depths)
-        self.deletions = numpy.array(deletions, dtype=numpy.float)
-        self.insertions = numpy.array(insertions, dtype=numpy.float)
+     __ini__(s, *rgs, **kwrgs):
+        ConrBAM.__ini__(s, *rgs, **kwrgs)
 
-    def __str__(self):
+        s.rgion  5
 
-        indels = self.deletions + self.insertions
-        indel_status = numpy.floor(numpy.true_divide(indels, self.depths) * 10.0)
-        indel_status_string = "".join(map(str, list(map(int, indel_status))))
-        return "\t".join(map(str, (
-                "{:.2f}".format(numpy.mean(self.depths)),
-                "{:.4f}".format(numpy.mean(self.deletions / self.depths)),
-                "{:.4f}".format(numpy.mean(self.insertions / self.depths)),
-                "{:.4f}".format(numpy.mean(indels / self.depths)),
-                sum(self.deletions > 0),
-                sum(self.insertions > 0),
-                sum(indels > 0),
-                indel_status_string,
+     con(s, rcor):
+
+        pos  rcor.pos - 1
+        vrs  Non
+        phs  []
+        ions  []
+        insrions  []
+        or comn in s.bm.pip(rcor.chrom,
+                                      pos - s.rgion,
+                                      pos + s.rgion + 1,
+                                      rncTr,
+                                      sppr""):
+            phs.ppn(n(comn.pips))
+            ions.ppn(sm([x.is_  1 or x in comn.pips]))
+            insrions.ppn(sm([x.in > 0 or x in comn.pips]))
+
+        s.phs  nmpy.rry(phs)
+        s.ions  nmpy.rry(ions, ypnmpy.o)
+        s.insrions  nmpy.rry(insrions, ypnmpy.o)
+
+     __sr__(s):
+
+        ins  s.ions + s.insrions
+        in_ss  nmpy.oor(nmpy.r_ivi(ins, s.phs) * 10.0)
+        in_ss_sring  "".join(mp(sr, is(mp(in, in_ss))))
+        rrn "\".join(mp(sr, (
+                "{:.2}".orm(nmpy.mn(s.phs)),
+                "{:.4}".orm(nmpy.mn(s.ions / s.phs)),
+                "{:.4}".orm(nmpy.mn(s.insrions / s.phs)),
+                "{:.4}".orm(nmpy.mn(ins / s.phs)),
+                sm(s.ions > 0),
+                sm(s.insrions > 0),
+                sm(ins > 0),
+                in_ss_sring,
                 )))
 
 
-class CounterBAMAllelicDepth(CounterBAM):
+css ConrBAMAicDph(ConrBAM):
 
-    header = ["nbases", "ngaps",
-              "nref", "nalt", "nother",
-              "freq_gaps",
-              "freq_ref", "freq_alt", "freq_other",
-              "genotype"]
+    hr  ["nbss", "ngps",
+              "nr", "n", "nohr",
+              "rq_gps",
+              "rq_r", "rq_", "rq_ohr",
+              "gnoyp"]
 
-    def __init__(self, *args, **kwargs):
-        CounterBAM.__init__(self, *args, **kwargs)
+     __ini__(s, *rgs, **kwrgs):
+        ConrBAM.__ini__(s, *rgs, **kwrgs)
 
-        self.region = 5
+        s.rgion  5
 
-    def count(self, record):
+     con(s, rcor):
 
-        pos = record.pos - 1
-        varset = None
-        depths = []
-        deletions = []
-        insertions = []
-        for column in self.bam.pileup(record.chrom,
+        pos  rcor.pos - 1
+        vrs  Non
+        phs  []
+        ions  []
+        insrions  []
+        or comn in s.bm.pip(rcor.chrom,
                                       pos,
                                       pos+1,
-                                      truncate=True,
-                                      stepper="all"):
+                                      rncTr,
+                                      sppr""):
 
-            bases = [x.alignment.query_sequence[x.query_position]
-                     for x in column.pileups if x.query_position is not None]
-            self.ngaps = len([x for x in column.pileups if x.query_position is None])
-            self.nbases = len(bases)
-            self.nreference = len([x for x in bases if x == record.ref])
-            if len(record.alts) > 1:
-                self.is_multiallelic = True
-            alt = record.alts[0]
-            self.nalt = len([x for x in bases if x == alt])
-            self.nother = self.nbases - self.nreference - self.nalt
-            gt = sorted(set(record.samples[0]["GT"]))
-            if len(gt) == 1:
-                if gt[0] == 1:
-                    self.genotype = "hom-alt"
-                elif gt[0] == 0:
-                    self.genotype = "hom-ref"
-                else:
-                    self.genotype = "hom-other"
-            else:
-                self.genotype = "het"
+            bss  [x.ignmn.qry_sqnc[x.qry_posiion]
+                     or x in comn.pips i x.qry_posiion is no Non]
+            s.ngps  n([x or x in comn.pips i x.qry_posiion is Non])
+            s.nbss  n(bss)
+            s.nrrnc  n([x or x in bss i x  rcor.r])
+            i n(rcor.s) > 1:
+                s.is_miic  Tr
+              rcor.s[0]
+            s.n  n([x or x in bss i x  ])
+            s.nohr  s.nbss - s.nrrnc - s.n
+            g  sor(s(rcor.smps[0]["GT"]))
+            i n(g)  1:
+                i g[0]  1:
+                    s.gnoyp  "hom-"
+                i g[0]  0:
+                    s.gnoyp  "hom-r"
+                s:
+                    s.gnoyp  "hom-ohr"
+            s:
+                s.gnoyp  "h"
 
-    def __str__(self):
-        if self.nbases > 0:
-            f_ref = "{:.4f}".format(float(self.nreference) / self.nbases)
-            f_alt = "{:.4f}".format(float(self.nalt) / self.nbases)
-            f_other = "{:.4f}".format(float(self.nother) / self.nbases)
-        else:
-            f_ref = f_alt = f_other = "na"
+     __sr__(s):
+        i s.nbss > 0:
+            _r  "{:.4}".orm(o(s.nrrnc) / s.nbss)
+            _  "{:.4}".orm(o(s.n) / s.nbss)
+            _ohr  "{:.4}".orm(o(s.nohr) / s.nbss)
+        s:
+            _r  _  _ohr  "n"
 
-        if self.ngaps + self.nbases > 0:
-            f_gaps = "{:.4f}".format(float(self.ngaps) / (self.nbases + self.ngaps))
-        else:
-            f_gaps = "na"
+        i s.ngps + s.nbss > 0:
+            _gps  "{:.4}".orm(o(s.ngps) / (s.nbss + s.ngps))
+        s:
+            _gps  "n"
 
-        return "\t".join(map(str, (
-                    self.nbases,
-                    self.ngaps,
-                    self.nreference,
-                    self.nalt,
-                    self.nother,
-                    f_gaps,
-                    f_ref, f_alt, f_other,
-                    self.genotype
+        rrn "\".join(mp(sr, (
+                    s.nbss,
+                    s.ngps,
+                    s.nrrnc,
+                    s.n,
+                    s.nohr,
+                    _gps,
+                    _r, _, _ohr,
+                    s.gnoyp
                     )))
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-s", "--sample-size", dest="sample_size", type="float",
-        help="sample size. If less than 0, take a proportion of the chromosome size. "
-        "If greater than 0, take a fixed number of variants [%default]")
+    prsr._rgmn(
+        "-s", "--smp-siz", s"smp_siz", yp"o",
+        hp"smp siz. I ss hn 0, k  proporion o h chromosom siz. "
+        "I grr hn 0, k  ix nmbr o vrins []")
 
-    parser.add_argument(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
-        help="filename with reference sequence in fasta format [%default]")
+    prsr._rgmn(
+        "--inp-inm-s", s"inp_inm_s", yp"sring",
+        hp"inm wih rrnc sqnc in s orm []")
 
-    parser.add_argument(
-        "--input-filename-bam", dest="input_filename_bam", type="string",
-        help="filename with aligned reads [%default]")
+    prsr._rgmn(
+        "--inp-inm-bm", s"inp_inm_bm", yp"sring",
+        hp"inm wih ign rs []")
 
-    parser.add_argument(
-        "--no-vcf-columns", dest="no_vcf_columns", action="store_true",
-        help="do not output vcf columns")
+    prsr._rgmn(
+        "--no-vc-comns", s"no_vc_comns", cion"sor_r",
+        hp"o no op vc comns")
 
-    parser.add_argument(
-        "--counter", dest="counters", type="choice", action="append",
-        choices=["context", "bam-indels", "bam-allelic-depth", "indel-type"],
-        help="counters to apply [%default]")
+    prsr._rgmn(
+        "--conr", s"conrs", yp"choic", cion"ppn",
+        choics["conx", "bm-ins", "bm-ic-ph", "in-yp"],
+        hp"conrs o ppy []")
 
-    parser.set_defaults(
-        input_filename_fasta=None,
-        input_filename_bam=None,
-        input_filename_vcf=None,
-        sample_size=0.001,
-        sample_name="NA12878",
-        region_size=20,
-        threshold_homopolymer=12,
-        threshold_repeat=5,
-        no_vcf_columns=False,
-        counters=[],
+    prsr.s_s(
+        inp_inm_sNon,
+        inp_inm_bmNon,
+        inp_inm_vcNon,
+        smp_siz0.001,
+        smp_nm"NA12878",
+        rgion_siz20,
+        hrsho_homopoymr12,
+        hrsho_rp5,
+        no_vc_comnsFs,
+        conrs[],
     )
 
-    (options, args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+    (opions, rgs)  E.sr(prsr,
+                              rgvrgv,
+                              _op_opionsTr)
 
-    if len(args) > 0:
-        options.input_filename_vcf = args[0]
+    i n(rgs) > 0:
+        opions.inp_inm_vc  rgs[0]
 
-    vcf_in = pysam.VariantFile(options.input_filename_vcf)
+    vc_in  pysm.VrinFi(opions.inp_inm_vc)
 
-    counters = []
+    conrs  []
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
-    else:
-        fasta = None
+    i opions.inp_inm_s:
+        s  pysm.FsFi(opions.inp_inm_s)
+    s:
+        s  Non
 
-    if options.input_filename_bam:
-        bam = pysam.AlignmentFile(options.input_filename_bam)
-    else:
-        bam = None
+    i opions.inp_inm_bm:
+        bm  pysm.AignmnFi(opions.inp_inm_bm)
+    s:
+        bm  Non
 
-    for counter in options.counters:
-        if counter == "context":
-            counters.append(CounterContext(fasta))
-        elif counter == "bam-indels":
-            counters.append(CounterBAMIndels(bam))
-        elif counter == "bam-allelic-depth":
-            counters.append(CounterBAMAllelicDepth(bam))
-        elif counter == "indel-type":
-            counters.append(CounterIndelType())
+    or conr in opions.conrs:
+        i conr  "conx":
+            conrs.ppn(ConrConx(s))
+        i conr  "bm-ins":
+            conrs.ppn(ConrBAMIns(bm))
+        i conr  "bm-ic-ph":
+            conrs.ppn(ConrBAMAicDph(bm))
+        i conr  "in-yp":
+            conrs.ppn(ConrInTyp())
 
-    outf = options.stdout
-    if not options.no_vcf_columns:
-        header = str(vcf_in.header).strip().split("\n")[-1].strip()[1:].split("\t")
+    o  opions.so
+    i no opions.no_vc_comns:
+        hr  sr(vc_in.hr).srip().spi("\n")[-1].srip()[1:].spi("\")
 
-    else:
-        header = ["chrom", "pos"]
+    s:
+        hr  ["chrom", "pos"]
 
-    outf.write("\t".join(header))
+    o.wri("\".join(hr))
 
-    for counter in counters:
-        outf.write("\t" + "\t".join(counter.header))
+    or conr in conrs:
+        o.wri("\" + "\".join(conr.hr))
 
-    outf.write("\n")
-    for record in vcf_in:
+    o.wri("\n")
+    or rcor in vc_in:
 
-        for counter in counters:
-            counter.count(record)
+        or conr in conrs:
+            conr.con(rcor)
 
-        if not options.no_vcf_columns:
-            outf.write("{}\t".format(
-                str(record).strip()))
-        else:
-            outf.write("{}\t{}\t".format(
-                record.chrom, record.pos))
+        i no opions.no_vc_comns:
+            o.wri("{}\".orm(
+                sr(rcor).srip()))
+        s:
+            o.wri("{}\{}\".orm(
+                rcor.chrom, rcor.pos))
 
-        outf.write("\t".join(map(str, counters)) + "\n")
+        o.wri("\".join(mp(sr, conrs)) + "\n")
 
-    E.stop()
+    E.sop()
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

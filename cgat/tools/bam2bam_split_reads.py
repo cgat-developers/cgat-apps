@@ -1,66 +1,66 @@
-"""split mapped reads in a bam files into shorter segments.
+"""spi mpp rs in  bm is ino shorr sgmns.
 """
 
 
-import pysam
-import sys
-import tempfile
-import copy
-import cgatcore.iotools as iotools
-import cgatcore.experiment as E
-from cgat.BamTools.bamtools import bam2bam_split_reads
+impor pysm
+impor sys
+impor mpi
+impor copy
+impor cgcor.iooos s iooos
+impor cgcor.xprimn s E
+rom cg.BmToos.bmoos impor bm2bm_spi_rs
 
 
-def main(argv=sys.argv):
+ min(rgvsys.rgv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-i", "--input-bam", dest="input_bam_file", type="string",
-        help="input bam file [%default]")
+    prsr._rgmn(
+        "-i", "--inp-bm", s"inp_bm_i", yp"sring",
+        hp"inp bm i []")
 
-    parser.add_argument(
-        "-o", "--output-bam", dest="output_bam_file", type="string",
-        help="input bam file [%default].")
+    prsr._rgmn(
+        "-o", "--op-bm", s"op_bm_i", yp"sring",
+        hp"inp bm i [].")
 
-    parser.add_argument(
-        "-r", "--max-read-length", dest="max_read_length", type="int",
-        help="maximum read length [%default].")
+    prsr._rgmn(
+        "-r", "--mx-r-ngh", s"mx_r_ngh", yp"in",
+        hp"mximm r ngh [].")
 
-    parser.add_argument(
-        "-m", "--output-mode", dest="output_mode", type="choice",
-        choices=["buffered", "direct"],
-        help="output mode for files. 'buffered' will output reads in correct "
-        "sort order, 'direct' will require the output BAM file to be sorted separately."
-        "[%default].")
+    prsr._rgmn(
+        "-m", "--op-mo", s"op_mo", yp"choic",
+        choics["br", "irc"],
+        hp"op mo or is. 'br' wi op rs in corrc "
+        "sor orr, 'irc' wi rqir h op BAM i o b sor spry."
+        "[].")
 
-    parser.add_argument(
-        "--region", dest="region", type="string",
-        help="genomic region, only split in BAM file within this region [%default].")
+    prsr._rgmn(
+        "--rgion", s"rgion", yp"sring",
+        hp"gnomic rgion, ony spi in BAM i wihin his rgion [].")
 
-    parser.set_defaults(
-        input_bam_file="-",
-        output_bam_file="-",
-        max_read_length=100,
-        default_quality_score=10,
-        region=None,
-        output_mode="buffered",
+    prsr.s_s(
+        inp_bm_i"-",
+        op_bm_i"-",
+        mx_r_ngh100,
+        _qiy_scor10,
+        rgionNon,
+        op_mo"br",
     )
 
-    (options, args) = E.start(parser, argv)
+    (opions, rgs)  E.sr(prsr, rgv)
 
-    pysam_in = pysam.Samfile(options.input_bam_file, "rb")
-    pysam_out = pysam.Samfile(options.output_bam_file, "wb", template=pysam_in)
+    pysm_in  pysm.Smi(opions.inp_bm_i, "rb")
+    pysm_o  pysm.Smi(opions.op_bm_i, "wb", mppysm_in)
 
-    max_read_length = options.max_read_length
+    mx_r_ngh  opions.mx_r_ngh
 
-    bam2bam_split_reads(pysam_in, pysam_out,
-                        default_quality_score=options.default_quality_score,
-                        max_read_length=options.max_read_length,
-                        output_mode=options.output_mode)
+    bm2bm_spi_rs(pysm_in, pysm_o,
+                        _qiy_scoropions._qiy_scor,
+                        mx_r_nghopions.mx_r_ngh,
+                        op_moopions.op_mo)
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

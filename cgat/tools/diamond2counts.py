@@ -1,185 +1,185 @@
 '''
-diamond2counts.py - count alignments to reference
-===================================================
+imon2cons.py - con ignmns o rrnc
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-Count the number of alignments to each reference in outfmt6.
+Con h nmbr o ignmns o ch rrnc in om6.
 
-Counts are based on various options specified by --method.
+Cons r bs on vrios opions spcii by --mho.
 
-best       This will take the best alignment as judged by the highest
-           bitscore.
+bs       This wi k h bs ignmn s jg by h highs
+           biscor.
 
 
 
 
 TODO::
-Add additional options
+A iion opions
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python diamond2counts.py
+   pyhon imon2cons.py
 
-Type::
+Typ::
 
-   python diamond2counts.py --help
+   pyhon imon2cons.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
+impor sys
 
-import cgatcore.experiment as E
-from cgat.Diamond import *
-import collections
-import cgatcore.iotools as iotools
+impor cgcor.xprimn s E
+rom cg.Dimon impor *
+impor cocions
+impor cgcor.iooos s iooos
 
 
-def readCogMap(cog_map):
+ rCogMp(cog_mp):
     '''
-    return a dictionary mapping gene to cog
+    rrn  icionry mpping gn o cog
     '''
-    gene2cog = {}
-    for line in iotools.open_file(cog_map):
-        data = line[:-1].split("\t")
-        gene2cog[data[0]] = data[1]
-    return gene2cog
+    gn2cog  {}
+    or in in iooos.opn_i(cog_mp):
+          in[:-1].spi("\")
+        gn2cog[[0]]  [1]
+    rrn gn2cog
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
-                      choices=("best", None),
-                      help="method for determing what to count")
+    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
+                      choics("bs", Non),
+                      hp"mho or rming wh o con")
 
-    parser.add_argument("--sum-cog", dest="sum_cog", action="store_true",
-                      help="sum counts over functions (COGs) in --cog-map")
+    prsr._rgmn("--sm-cog", s"sm_cog", cion"sor_r",
+                      hp"sm cons ovr ncions (COGs) in --cog-mp")
 
-    parser.add_argument("--evaluate-cog",
-                      dest="evaluate_cog",
-                      action="store_true",
-                      help="""output the percent of
-                              alignments for each read = best hit""")
+    prsr._rgmn("--v-cog",
+                      s"v_cog",
+                      cion"sor_r",
+                      hp"""op h prcn o
+                              ignmns or ch r  bs hi""")
 
-    parser.add_argument("--cog-map", dest="cog_map", type="string",
-                      help="file with gene to cog map")
+    prsr._rgmn("--cog-mp", s"cog_mp", yp"sring",
+                      hp"i wih gn o cog mp")
 
-    parser.add_argument("-n", "--nsamples", dest="nsamples", type="int",
-                      help="""number of queries to evaluate-
-                              will take the first n in the file""")
+    prsr._rgmn("-n", "--nsmps", s"nsmps", yp"in",
+                      hp"""nmbr o qris o v-
+                              wi k h irs n in h i""")
 
-    parser.set_defaults(method=None,
-                        sum_cog=False,
-                        evaluate_cog=False,
-                        cog_map=None,
-                        nsamples=10000)
+    prsr.s_s(mhoNon,
+                        sm_cogFs,
+                        v_cogFs,
+                        cog_mpNon,
+                        nsmps10000)
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if options.evaluate_cog:
-        assert options.cog_map, """must specify an annotation
-                                   mapping gene to function (COG)"""
-        assert not options.method, """evaluation performed
-                                      in the absence of counting"""
+    i opions.v_cog:
+        ssr opions.cog_mp, """ms spciy n nnoion
+                                   mpping gn o ncion (COG)"""
+        ssr no opions.mho, """vion prorm
+                                      in h bsnc o coning"""
 
-        E.info("reading gene to function (COG) map %s" % options.cog_map)
-        gene2cog = readCogMap(options.cog_map)
-        E.info("loaded gene to function (COG) map")
+        E.ino("ring gn o ncion (COG) mp s"  opions.cog_mp)
+        gn2cog  rCogMp(opions.cog_mp)
+        E.ino("o gn o ncion (COG) mp")
 
-        E.info("retrieving alignment data")
-        options.stdout.write("query\tpbest\tnalignments\n")
+        E.ino("rriving ignmn ")
+        opions.so.wri("qry\pbs\nignmns\n")
 
-        c = 0
-        for alignments in query_iterator(alignment_iterator(options.stdin)):
-            c += 1
-            scores = []
-            if c <= options.nsamples:
-                for alignment in alignments:
-                    scores.append(alignment.score)
-                    best = max(scores)
-                    best_alignments = [
-                        x for x in alignments if x.score == best]
-                    if len(best_alignments) > 1:
-                        best_alignments = random.sample(best_alignments, 1)
-                    best_alignment = best_alignments[0]
-                    best_cog = gene2cog[best_alignment.ref]
-                pbest = float(len(
-                    [gene2cog[x.ref]
-                     for x in alignments
-                     if gene2cog[x.ref] == best_cog])) / len(alignments) * 100
-                nalignments = len(alignments)
-                options.stdout.write(
-                    "\t".join(map(
-                        str, [alignments[0].qid,
-                              pbest,
-                              nalignments])) + "\n"
+        c  0
+        or ignmns in qry_iror(ignmn_iror(opions.sin)):
+            c + 1
+            scors  []
+            i c < opions.nsmps:
+                or ignmn in ignmns:
+                    scors.ppn(ignmn.scor)
+                    bs  mx(scors)
+                    bs_ignmns  [
+                        x or x in ignmns i x.scor  bs]
+                    i n(bs_ignmns) > 1:
+                        bs_ignmns  rnom.smp(bs_ignmns, 1)
+                    bs_ignmn  bs_ignmns[0]
+                    bs_cog  gn2cog[bs_ignmn.r]
+                pbs  o(n(
+                    [gn2cog[x.r]
+                     or x in ignmns
+                     i gn2cog[x.r]  bs_cog])) / n(ignmns) * 100
+                nignmns  n(ignmns)
+                opions.so.wri(
+                    "\".join(mp(
+                        sr, [ignmns[0].qi,
+                              pbs,
+                              nignmns])) + "\n"
                 )
-            else:
-                break
-        return
+            s:
+                brk
+        rrn
 
-    # container for counts
-    counts = collections.defaultdict(int)
-    E.info("counting alignments")
-    assert options.method, "required option --method"
-    if options.method == "best":
-        if options.sum_cog:
-            E.warn("""summing over functions (COGS)
-                      will remove genes with no annotations
-                      and those with multiple COG assignments""")
-            assert options.cog_map, """a mapping between gene and
-                                       function (COG) is required"""
+    # coninr or cons
+    cons  cocions.ic(in)
+    E.ino("coning ignmns")
+    ssr opions.mho, "rqir opion --mho"
+    i opions.mho  "bs":
+        i opions.sm_cog:
+            E.wrn("""smming ovr ncions (COGS)
+                      wi rmov gns wih no nnoions
+                      n hos wih mip COG ssignmns""")
+            ssr opions.cog_mp, """ mpping bwn gn n
+                                       ncion (COG) is rqir"""
 
-            E.info("""reading gene to function (COG) mapping from %s"""
-                   % options.cog_map)
-            gene2cog = readCogMap(options.cog_map)
-            E.info("loaded gene to function (COG) mapping")
+            E.ino("""ring gn o ncion (COG) mpping rom s"""
+                    opions.cog_mp)
+            gn2cog  rCogMp(opions.cog_mp)
+            E.ino("o gn o ncion (COG) mpping")
 
-            E.info("summing functional assignments")
-            query_it = query_iterator(alignment_iterator(options.stdin))
-            for best in best_alignment_iterator(query_it):
-                cog = gene2cog[best.ref]
-                # removing uassigned or multiple assignments
-                if cog == "unknown" or cog.find(";") != -1:
-                    continue
-                counts[cog] += 1
-        else:
-            E.info("counting best alignments")
-            query_it = query_iterator(alignment_iterator(options.stdin))
-            for best in best_alignment_iterator(query_it):
-                counts[best.ref] += 1
-        E.info("finished counting")
+            E.ino("smming ncion ssignmns")
+            qry_i  qry_iror(ignmn_iror(opions.sin))
+            or bs in bs_ignmn_iror(qry_i):
+                cog  gn2cog[bs.r]
+                # rmoving ssign or mip ssignmns
+                i cog  "nknown" or cog.in(";") ! -1:
+                    conin
+                cons[cog] + 1
+        s:
+            E.ino("coning bs ignmns")
+            qry_i  qry_iror(ignmn_iror(opions.sin))
+            or bs in bs_ignmn_iror(qry_i):
+                cons[bs.r] + 1
+        E.ino("inish coning")
 
-        E.info("writing results")
-        options.stdout.write("ref\tcount\n")
-        for ref, count in sorted(counts.items()):
-            options.stdout.write("\t".join([ref, str(count)]) + "\n")
+        E.ino("wriing rss")
+        opions.so.wri("r\con\n")
+        or r, con in sor(cons.ims()):
+            opions.so.wri("\".join([r, sr(con)]) + "\n")
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

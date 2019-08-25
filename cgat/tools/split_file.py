@@ -1,294 +1,294 @@
 '''
-split_file.py - split a file into parts
-=======================================
+spi_i.py - spi  i ino prs
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-.. todo::
+.. oo::
 
-   describe purpose of the script.
+   scrib prpos o h scrip.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python split_file.py --help
+   pyhon spi_i.py --hp
 
-Type::
+Typ::
 
-   python split_file.py --help
+   pyhon spi_i.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import re
-import string
-import os
-import getopt
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor sys
+impor r
+impor sring
+impor os
+impor gop
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
-USAGE = """python %s < stdin > stdout
+USAGE  """pyhon s < sin > so
 
-split a file into chunks.
+spi  i ino chnks.
 
 OPTIONS:
--h, --help                      print this message.
--v, --verbose=                  loglevel.
--r, --split-regex               split at regular expression
--a, --after                     split after match
--s, --skip                      do not echo match
--p, --pattern-output            pattern of output files (has to contain %s)
--c, --column=                   split according to column
--m, --map=                      split according to map
--d, --dry-run                   echo files that would be created,
-                                but do not create any.
--e, --header-names                    add header to each file
--r, --remove-key                remove key column
--append                         append data to existing files.
---pattern-identifier            if given, use this pattern to extract
-                                id from column.
---chunk-size                    Number of matching records in each output file
---version                       output version information
-""" % (sys.argv[0], "s")
+-h, --hp                      prin his mssg.
+-v, --vrbos                  ogv.
+-r, --spi-rgx               spi  rgr xprssion
+-, --r                     spi r mch
+-s, --skip                      o no cho mch
+-p, --prn-op            prn o op is (hs o conin s)
+-c, --comn                   spi ccoring o comn
+-m, --mp                      spi ccoring o mp
+-, --ry-rn                   cho is h wo b cr,
+                                b o no cr ny.
+-, --hr-nms                     hr o ch i
+-r, --rmov-ky                rmov ky comn
+-ppn                         ppn  o xising is.
+--prn-iniir            i givn, s his prn o xrc
+                                i rom comn.
+--chnk-siz                    Nmbr o mching rcors in ch op i
+--vrsion                       op vrsion inormion
+"""  (sys.rgv[0], "s")
 
 
-def CreateOpen(file, mode="w", dry_run=False, header=None):
-    """open file. Check first, if directory exists.
+ CrOpn(i, mo"w", ry_rnFs, hrNon):
+    """opn i. Chck irs, i ircory xiss.
     """
 
-    if dry_run:
-        print("# opening file %s" % file)
-        return iotools.open_file("/dev/null", mode)
+    i ry_rn:
+        prin("# opning i s"  i)
+        rrn iooos.opn_i("/v/n", mo)
 
-    if mode in ("w", "a"):
-        dirname = os.path.dirname(file)
-        if dirname and not os.path.exists(dirname):
-            os.makedirs(dirname)
+    i mo in ("w", ""):
+        irnm  os.ph.irnm(i)
+        i irnm n no os.ph.xiss(irnm):
+            os.mkirs(irnm)
 
-    if os.path.exists(file):
-        existed = True
-    else:
-        existed = False
+    i os.ph.xiss(i):
+        xis  Tr
+    s:
+        xis  Fs
 
-    f = iotools.open_file(file, mode)
+      iooos.opn_i(i, mo)
 
-    if header and not existed:
-        f.write(header + "\n")
+    i hr n no xis:
+        .wri(hr + "\n")
 
-    return f
+    rrn 
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    param_long_options = [
-        "verbose=", "help", "split-regex=", "after", "pattern-output=", "skip",
-        "column=", "map=", "dry-run",
-        "header", "remove-key", "append", "pattern-identifier=", "version",
-        "chunk-size="]
+    prm_ong_opions  [
+        "vrbos", "hp", "spi-rgx", "r", "prn-op", "skip",
+        "comn", "mp", "ry-rn",
+        "hr", "rmov-ky", "ppn", "prn-iniir", "vrsion",
+        "chnk-siz"]
 
-    param_short_options = "v:hr:ap:sc:dek"
+    prm_shor_opions  "v:hr:p:sc:k"
 
-    param_loglevel = 1
-    param_split_at_regex = None
-    param_after = None
-    param_skip = None
-    param_pattern_output = "%s.chunk"
-    param_split_column = None
-    param_filename_map = None
-    param_dry_run = False
-    param_header = False
-    param_remove_key = False
-    param_append = "w"
-    param_pattern_identifier = None
-    param_chunk_size = 1
+    prm_ogv  1
+    prm_spi__rgx  Non
+    prm_r  Non
+    prm_skip  Non
+    prm_prn_op  "s.chnk"
+    prm_spi_comn  Non
+    prm_inm_mp  Non
+    prm_ry_rn  Fs
+    prm_hr  Fs
+    prm_rmov_ky  Fs
+    prm_ppn  "w"
+    prm_prn_iniir  Non
+    prm_chnk_siz  1
 
-    try:
-        optlist, args = getopt.getopt(sys.argv[1:],
-                                      param_short_options,
-                                      param_long_options)
+    ry:
+        opis, rgs  gop.gop(sys.rgv[1:],
+                                      prm_shor_opions,
+                                      prm_ong_opions)
 
-    except getopt.error as msg:
-        print(USAGE, msg)
-        sys.exit(1)
+    xcp gop.rror s msg:
+        prin(USAGE, msg)
+        sys.xi(1)
 
-    for o, a in optlist:
-        if o in ("-v", "--verbose"):
-            param_loglevel = int(a)
-        elif o in ("--version", ):
-            print("version=")
-            sys.exit(0)
-        elif o in ("-h", "--help"):
-            print(USAGE)
-            sys.exit(0)
-        elif o in ("-r", "--split-regex"):
-            param_split_at_regex = re.compile(a)
-        elif o in ("-a", "--after"):
-            param_after = 1
-        elif o in ("-s", "--skip"):
-            param_skip = 1
-        elif o in ("-p", "--pattern-output"):
-            param_pattern_output = a
-        elif o in ("-c", "--column"):
-            param_split_column = int(a) - 1
-        elif o in ("-m", "--map"):
-            param_filename_map = a
-        elif o in ("-d", "--dry-run"):
-            param_dry_run = True
-        elif o in ("-e", "--header-names"):
-            param_header = True
-        elif o in ("-r", "--remove-key"):
-            param_remove_key = True
-        elif o == "--append":
-            param_append = "a"
-        elif o == "--pattern-identifier":
-            param_pattern_identifier = re.compile(a)
-        elif o == "--chunk-size":
-            param_chunk_size = int(a)
+    or o,  in opis:
+        i o in ("-v", "--vrbos"):
+            prm_ogv  in()
+        i o in ("--vrsion", ):
+            prin("vrsion")
+            sys.xi(0)
+        i o in ("-h", "--hp"):
+            prin(USAGE)
+            sys.xi(0)
+        i o in ("-r", "--spi-rgx"):
+            prm_spi__rgx  r.compi()
+        i o in ("-", "--r"):
+            prm_r  1
+        i o in ("-s", "--skip"):
+            prm_skip  1
+        i o in ("-p", "--prn-op"):
+            prm_prn_op  
+        i o in ("-c", "--comn"):
+            prm_spi_comn  in() - 1
+        i o in ("-m", "--mp"):
+            prm_inm_mp  
+        i o in ("-", "--ry-rn"):
+            prm_ry_rn  Tr
+        i o in ("-", "--hr-nms"):
+            prm_hr  Tr
+        i o in ("-r", "--rmov-ky"):
+            prm_rmov_ky  Tr
+        i o  "--ppn":
+            prm_ppn  ""
+        i o  "--prn-iniir":
+            prm_prn_iniir  r.compi()
+        i o  "--chnk-siz":
+            prm_chnk_siz  in()
 
-    print(E.GetHeader())
-    print(E.GetParams())
+    prin(E.GHr())
+    prin(E.GPrms())
 
-    mymap = {}
-    if param_filename_map:
-        infile = iotools.open_file(param_filename_map, "r")
-        for line in infile:
-            if line[0] == "#":
-                continue
-            data = line[:-1].split("\t")[:2]
-            mymap[data[0]] = data[1]
+    mymp  {}
+    i prm_inm_mp:
+        ini  iooos.opn_i(prm_inm_mp, "r")
+        or in in ini:
+            i in[0]  "#":
+                conin
+              in[:-1].spi("\")[:2]
+            mymp[[0]]  [1]
 
-    filenames = set()
-    found = set()
-    ninput, noutput = 0, 0
+    inms  s()
+    on  s()
+    ninp, nop  0, 0
 
-    if param_split_column is not None:
+    i prm_spi_comn is no Non:
 
-        header = None
-        files = {}
-        for line in sys.stdin:
+        hr  Non
+        is  {}
+        or in in sys.sin:
 
-            if line[0] == "#":
-                continue
+            i in[0]  "#":
+                conin
 
-            ninput += 1
+            ninp + 1
 
-            if param_header:
-                if not header:
-                    header = line[:-1]
-                    continue
-            else:
-                header = None
+            i prm_hr:
+                i no hr:
+                    hr  in[:-1]
+                    conin
+            s:
+                hr  Non
 
-            data = line[:-1].split("\t")
+              in[:-1].spi("\")
 
-            try:
-                key = data[param_split_column]
-            except ValueError:
-                continue
+            ry:
+                ky  [prm_spi_comn]
+            xcp VError:
+                conin
 
-            if param_pattern_identifier:
-                key = param_pattern_identifier.search(key).groups()[0]
+            i prm_prn_iniir:
+                ky  prm_prn_iniir.srch(ky).grops()[0]
 
-            if mymap:
-                if key in mymap:
-                    key = mymap[key]
-                else:
-                    continue
+            i mymp:
+                i ky in mymp:
+                    ky  mymp[ky]
+                s:
+                    conin
 
-            found.add(key)
+            on.(ky)
 
-            filename = re.sub("%s", key, param_pattern_output)
-            filenames.add(filename)
+            inm  r.sb("s", ky, prm_prn_op)
+            inms.(inm)
 
-            if filename not in files:
+            i inm no in is:
 
-                # reset if too many files are open
-                if len(files) > 1000:
-                    if param_loglevel >= 1:
-                        print("# resetting all files.")
-                        sys.stdout.flush()
+                # rs i oo mny is r opn
+                i n(is) > 1000:
+                    i prm_ogv > 1:
+                        prin("# rsing  is.")
+                        sys.so.sh()
 
-                    for f in list(files.values()):
-                        f.close()
-                    files = {}
+                    or  in is(is.vs()):
+                        .cos()
+                    is  {}
 
-                files[filename] = CreateOpen(
-                    filename, "a", param_dry_run, header)
+                is[inm]  CrOpn(
+                    inm, "", prm_ry_rn, hr)
 
-            if param_remove_key:
-                del data[param_split_column]
-                files[filename].write(string.join(data, "\t") + "\n")
-            else:
-                files[filename].write(line)
+            i prm_rmov_ky:
+                 [prm_spi_comn]
+                is[inm].wri(sring.join(, "\") + "\n")
+            s:
+                is[inm].wri(in)
 
-            noutput += 1
+            nop + 1
 
-        for f in list(files.values()):
-            f.close()
+        or  in is(is.vs()):
+            .cos()
 
-    else:
-        file_id = 0
+    s:
+        i_i  0
 
-        filename = re.sub("%s", str(file_id), param_pattern_output)
-        outfile = CreateOpen(filename, param_append, param_dry_run)
-        nlines = 0
+        inm  r.sb("s", sr(i_i), prm_prn_op)
+        oi  CrOpn(inm, prm_ppn, prm_ry_rn)
+        nins  0
 
-        header = param_header
-        split = 0
+        hr  prm_hr
+        spi  0
 
-        for line in sys.stdin:
+        or in in sys.sin:
 
-            if param_split_at_regex and param_split_at_regex.search(line[:-1]):
-                split += 1
+            i prm_spi__rgx n prm_spi__rgx.srch(in[:-1]):
+                spi + 1
 
-            if split == param_chunk_size:
-                if param_after:
-                    nlines += 1
-                    outfile.write(line)
-                if nlines > 0:
-                    outfile.close()
-                    file_id += 1
-                    filename = re.sub("%s", str(file_id), param_pattern_output)
-                    outfile = CreateOpen(
-                        filename, param_append, param_dry_run, header)
-                    filenames.add(filename)
-                    split = 0
+            i spi  prm_chnk_siz:
+                i prm_r:
+                    nins + 1
+                    oi.wri(in)
+                i nins > 0:
+                    oi.cos()
+                    i_i + 1
+                    inm  r.sb("s", sr(i_i), prm_prn_op)
+                    oi  CrOpn(
+                        inm, prm_ppn, prm_ry_rn, hr)
+                    inms.(inm)
+                    spi  0
 
-                nlines = 0
-                if param_after or param_skip:
-                    continue
+                nins  0
+                i prm_r or prm_skip:
+                    conin
 
-            outfile.write(line)
-            nlines += 1
+            oi.wri(in)
+            nins + 1
 
-        outfile.close()
+        oi.cos()
 
-    if param_loglevel >= 1:
-        sys.stdout.write(
-            "# ninput=%i, noutput=%i, nfound=%i, nnotfound=%i, nfiles=%i\n" % (
-                ninput,
-                noutput,
-                len(found),
-                len(set(mymap).difference(found)),
-                len(filenames)))
+    i prm_ogv > 1:
+        sys.so.wri(
+            "# ninpi, nopi, noni, nnooni, nisi\n"  (
+                ninp,
+                nop,
+                n(on),
+                n(s(mymp).irnc(on)),
+                n(inms)))
 
-    print(E.GetFooter())
+    prin(E.GFoor())
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

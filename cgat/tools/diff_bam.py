@@ -1,44 +1,44 @@
-'''diff_bam.py - compare multiple bam files against each other
-===========================================================
+'''i_bm.py - compr mip bm is gins ch ohr
 
-:Tags: Genomics NGS BAM Comparison
 
-Purpose
+:Tgs: Gnomics NGS BAM Comprison
+
+Prpos
 -------
 
-Compare reads in multiple BAM files against each other.
+Compr rs in mip BAM is gins ch ohr.
 
-.. note::
+.. no::
 
-    BAM files need to be sorted by read name. samtools sort does NOT
-    work as it uses a custom comparison function (strnum_cmp) that is
-    incompatible with the standard lexicographical order in
-    python. See the example below on how to get sorted files.
+    BAM is n o b sor by r nm. smoos sor os NOT
+    work s i ss  csom comprison ncion (srnm_cmp) h is
+    incompib wih h snr xicogrphic orr in
+    pyhon. S h xmp bow on how o g sor is.
 
-This script is for validation purposes. It might take a while
-for large BAM files.
+This scrip is or viion prposs. I migh k  whi
+or rg BAM is.
 
-Usage
+Usg
 -----
 
-If you have two sorted :term:`sam` or :term:`bam` formatted
-files, type::
+I yo hv wo sor :rm:`sm` or :rm:`bm` orm
+is, yp::
 
-   cgat diff_bam a.bam b.bam > out
+   cg i_bm .bm b.bm > o
 
-If they are not sorted, you can use samtools sort to do an
-inplace sort::
+I hy r no sor, yo cn s smoos sor o o n
+inpc sor::
 
-   cgat diff_bam <(samtools view -h a.bam | hsort 0 -k1,1)
-                  <(samtools view -h b.bam | hsort 0 -k1,1)
+   cg i_bm <(smoos viw -h .bm | hsor 0 -k1,1)
+                  <(smoos viw -h b.bm | hsor 0 -k1,1)
 
-The samtools ``-h`` option outputs the header, and the hsort command
-sorts without disturbing the header.
+Th smoos ``-h`` opion ops h hr, n h hsor commn
+sors wiho isrbing h hr.
 
-An example output looks like this:
+An xmp op ooks ik his:
 
 +------------------------------------+----------+--------+--------+--------+---------+---------+
-|read                                |nlocations|nmatched|file1_nh|file2_nh|file1_loc|file2_loc|
+|r                                |nocions|nmch|i1_nh|i2_nh|i1_oc|i2_oc|
 +------------------------------------+----------+--------+--------+--------+---------+---------+
 |42YKVAAXX_HWI-EAS229_1:1:11:1659:174|1         |2       |2       |2       |0,0      |0,0      |
 +------------------------------------+----------+--------+--------+--------+---------+---------+
@@ -47,197 +47,197 @@ An example output looks like this:
 |612UOAAXX_HWI-EAS229_1:1:97:147:1248|2         |2       |2       |2       |0,1      |0,1      |
 +------------------------------------+----------+--------+--------+--------+---------+---------+
 
-This reports for each read the number of locations that the read maps to
-in all files, the number of files that have matches found for the read.
-Then, for each file, it reports the number of matches and the locations
-it maps to (coded as integers, 0 the first location, 1 the second, ...).
+This rpors or ch r h nmbr o ocions h h r mps o
+in  is, h nmbr o is h hv mchs on or h r.
+Thn, or ch i, i rpors h nmbr o mchs n h ocions
+i mps o (co s ingrs, 0 h irs ocion, 1 h scon, ...).
 
-In the example above, the first read maps twice to 1 location in both
-files.  This is a read occuring twice in the input file. The second
-read maps to the same one location in both files, while the third read
-maps to the two same locations in both input files.
+In h xmp bov, h irs r mps wic o 1 ocion in boh
+is.  This is  r occring wic in h inp i. Th scon
+r mps o h sm on ocion in boh is, whi h hir r
+mps o h wo sm ocions in boh inp is.
 
-Type::
+Typ::
 
-   python diff_bam.py --help
+   pyhon i_bm.py --hp
 
-for command line help.
+or commn in hp.
 
-Documentation
+Docmnion
 -------------
 
-For read counts to be correct the NH flag to be set correctly.
+For r cons o b corrc h NH g o b s corrcy.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import itertools
-import pysam
-import cgatcore.experiment as E
+impor sys
+impor iroos
+impor pysm
+impor cgcor.xprimn s E
 
 
-class multiway_groupby(object):
-    # [k for k, g in groupby('AAAABBBCCDAABBB')] --> A B C D A B
-    # [list(g) for k, g in groupby('AAAABBBCCD')] --> AAAA BBB CC D
+css miwy_gropby(objc):
+    # [k or k, g in gropby('AAAABBBCCDAABBB')] --> A B C D A B
+    # [is(g) or k, g in gropby('AAAABBBCCD')] --> AAAA BBB CC D
 
-    def __init__(self, iterables, key=None):
-        # set up iterators
-        self.it = [itertools.groupby(iterable, key) for iterable in iterables]
+     __ini__(s, irbs, kyNon):
+        # s p irors
+        s.i  [iroos.gropby(irb, ky) or irb in irbs]
 
-        # todo: catch StopIterator for empty iterables
-        self.current = [next(self.it[x]) for x in range(len(iterables))]
+        # oo: cch SopIror or mpy irbs
+        s.crrn  [nx(s.i[x]) or x in rng(n(irbs))]
 
-        # decide on target key
-        self.targetkey = min([x[0] for x in self.current if x[0] is not None])
+        # ci on rg ky
+        s.rgky  min([x[0] or x in s.crrn i x[0] is no Non])
 
-    def __iter__(self):
-        return self
+     __ir__(s):
+        rrn s
 
-    def __next__(self):
+     __nx__(s):
 
-        # check if all iterators exhausted
-        if not any(self.it):
-            raise StopIteration
+        # chck i  irors xhs
+        i no ny(s.i):
+            ris SopIrion
 
-        # yield all that correspond to target key and update
-        result = []
-        targetkey = self.targetkey
-        updated = 0
+        # yi  h corrspon o rg ky n p
+        rs  []
+        rgky  s.rgky
+        p  0
 
-        for x, y in enumerate(self.current):
-            key, val = y
-            if key and key == targetkey:
-                # save result (instantiate to prevent overwriting)
-                # in next method
-                result.append(list(val))
-                # advance
-                try:
-                    self.current[x] = next(self.it[x])
-                except StopIteration:
-                    self.it[x] = None
-                    self.current[x] = (None, None)
-                updated += 1
-            else:
-                # return empty result
-                result.append([])
+        or x, y in nmr(s.crrn):
+            ky, v  y
+            i ky n ky  rgky:
+                # sv rs (insni o prvn ovrwriing)
+                # in nx mho
+                rs.ppn(is(v))
+                # vnc
+                ry:
+                    s.crrn[x]  nx(s.i[x])
+                xcp SopIrion:
+                    s.i[x]  Non
+                    s.crrn[x]  (Non, Non)
+                p + 1
+            s:
+                # rrn mpy rs
+                rs.ppn([])
 
-        assert updated > 0, "no updates - infinite loop"
+        ssr p > 0, "no ps - inini oop"
 
-        # decide which is target key
-        try:
-            self.targetkey = min([x[0]
-                                  for x in self.current if x[0] is not None])
-        except ValueError:
-            # if all are None, sequence is empty
-            self.targetkey = None
+        # ci which is rg ky
+        ry:
+            s.rgky  min([x[0]
+                                  or x in s.crrn i x[0] is no Non])
+        xcp VError:
+            # i  r Non, sqnc is mpy
+            s.rgky  Non
 
-        return targetkey, result
+        rrn rgky, rs
 
-    def next(self):
-        return self.__next__()
+     nx(s):
+        rrn s.__nx__()
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--header-names", dest="headers", type="string",
-        help="',' separated list of labels used as headers. "
-        " Should correspond in order to command line arguments [%default]")
+    prsr._rgmn(
+        "--hr-nms", s"hrs", yp"sring",
+        hp"',' spr is o bs s s hrs. "
+        " Sho corrspon in orr o commn in rgmns []")
 
-    parser.set_defaults(
-        headers=None,
+    prsr.s_s(
+        hrsNon,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    read_length = 50
-    max_distance = read_length
+    r_ngh  50
+    mx_isnc  r_ngh
 
-    if len(args) < 2:
-        raise ValueError("please specify at least two BAM files")
+    i n(rgs) < 2:
+        ris VError("ps spciy  s wo BAM is")
 
-    infiles = []
-    for arg in args:
-        infiles.append(pysam.AlignmentFile(arg, 'rb'))
+    inis  []
+    or rg in rgs:
+        inis.ppn(pysm.AignmnFi(rg, 'rb'))
 
-    if options.headers:
-        headers = options.headers.split(",")
-        if len(headers) != len(args):
-            raise ValueError("number of headers and files differrent")
-    else:
-        headers = ["file%i" % x for x in range(1, len(infiles) + 1)]
+    i opions.hrs:
+        hrs  opions.hrs.spi(",")
+        i n(hrs) ! n(rgs):
+            ris VError("nmbr o hrs n is irrn")
+    s:
+        hrs  ["ii"  x or x in rng(1, n(inis) + 1)]
 
-    options.stdout.write("read\tnlocations\tnmatched\t%s\t%s\n" %
-                         ("\t".join(["%s_nh" % x for x in headers]),
-                          "\t".join(["%s_loc" % x for x in headers])))
+    opions.so.wri("r\nocions\nmch\s\s\n" 
+                         ("\".join(["s_nh"  x or x in hrs]),
+                          "\".join(["s_oc"  x or x in hrs])))
 
-    ninput, noutput = 0, 0
-    for readname, result in multiway_groupby(infiles, key=lambda x: x.qname):
-        ninput += 1
-        nmatches = 0
-        locations = set()
+    ninp, nop  0, 0
+    or rnm, rs in miwy_gropby(inis, kymb x: x.qnm):
+        ninp + 1
+        nmchs  0
+        ocions  s()
 
-        # build location directory
-        for r in result:
-            for rr in r:
-                if rr.is_unmapped:
-                    continue
-                locations.add((rr.tid, rr.pos))
+        # bi ocion ircory
+        or r in rs:
+            or rr in r:
+                i rr.is_nmpp:
+                    conin
+                ocions.((rr.i, rr.pos))
 
-        # permit a certain fuzzyness in locations
-        # as some mappers clip and others don't.
-        locations = list(locations)
-        locations.sort()
-        pos2loc = {}
-        last_tid, last_pos, nlocations = None, 0, -1
-        for tid, pos in locations:
-            if tid != last_tid or pos - last_pos > max_distance:
-                nlocations += 1
-            pos2loc[(tid, pos)] = nlocations
-            last_tid, last_pos = tid, pos
-        nlocations += 1
+        # prmi  crin zzynss in ocions
+        # s som mpprs cip n ohrs on'.
+        ocions  is(ocions)
+        ocions.sor()
+        pos2oc  {}
+        s_i, s_pos, nocions  Non, 0, -1
+        or i, pos in ocions:
+            i i ! s_i or pos - s_pos > mx_isnc:
+                nocions + 1
+            pos2oc[(i, pos)]  nocions
+            s_i, s_pos  i, pos
+        nocions + 1
 
-        # code locations
-        codes, nh = [], []
-        for r in result:
-            c = []
-            for rr in r:
-                if rr.is_unmapped:
-                    continue
-                c.append(pos2loc[(rr.tid, rr.pos)])
-            codes.append(",".join(map(str, sorted(c))))
-            nh.append(len(c))
-            if len(c):
-                nmatches += 1
+        # co ocions
+        cos, nh  [], []
+        or r in rs:
+            c  []
+            or rr in r:
+                i rr.is_nmpp:
+                    conin
+                c.ppn(pos2oc[(rr.i, rr.pos)])
+            cos.ppn(",".join(mp(sr, sor(c))))
+            nh.ppn(n(c))
+            i n(c):
+                nmchs + 1
 
-        noutput += 1
-        options.stdout.write("%s\t%i\t%i\t%s\t%s\n" % (
-            readname,
-            nlocations,
-            nmatches,
-            "\t".join(
-                ["%i" % x for x in nh]),
-            "\t".join(codes)))
+        nop + 1
+        opions.so.wri("s\i\i\s\s\n"  (
+            rnm,
+            nocions,
+            nmchs,
+            "\".join(
+                ["i"  x or x in nh]),
+            "\".join(cos)))
 
-    E.info("ninput=%i, noutput=%i" % (ninput, noutput))
+    E.ino("ninpi, nopi"  (ninp, nop))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

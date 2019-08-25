@@ -1,887 +1,887 @@
-'''compute stats from a bam-file
+'''comp ss rom  bm-i
 
-Purpose
+Prpos
 -------
 
-This script takes a bam file as input and computes a few metrics by
-iterating over the file. The metrics output are:
+This scrip ks  bm i s inp n comps  w mrics by
+iring ovr h i. Th mrics op r:
 
 +------------------------+------------------------------------------+
-|*Category*              |*Content*                                 |
+|*Cgory*              |*Conn*                                 |
 +------------------------+------------------------------------------+
-|total                   |total number of alignments in bam file    |
+|o                   |o nmbr o ignmns in bm i    |
 +------------------------+------------------------------------------+
-|alignments_mapped       |alignments mapped to a chromosome (bam    |
-|                        |flag)                                     |
+|ignmns_mpp       |ignmns mpp o  chromosom (bm    |
+|                        |g)                                     |
 +------------------------+------------------------------------------+
-|alignments_unmapped     |alignments unmapped (bam flag)            |
+|ignmns_nmpp     |ignmns nmpp (bm g)            |
 +------------------------+------------------------------------------+
-|qc_fail                 |alignments failing QC (bam flag)          |
+|qc_i                 |ignmns iing QC (bm g)          |
 +------------------------+------------------------------------------+
-|mate_unmapped           |alignments in which the mate is unmapped  |
-|                        |(bam flag)                                |
+|m_nmpp           |ignmns in which h m is nmpp  |
+|                        |(bm g)                                |
 +------------------------+------------------------------------------+
-|reverse                 |alignments in which read maps to reverse  |
-|                        |strand (bam flag)                         |
+|rvrs                 |ignmns in which r mps o rvrs  |
+|                        |srn (bm g)                         |
 +------------------------+------------------------------------------+
-|mate_reverse            |alignments in which mate maps to reverse  |
-|                        |strand (bam flag)                         |
+|m_rvrs            |ignmns in which m mps o rvrs  |
+|                        |srn (bm g)                         |
 +------------------------+------------------------------------------+
-|proper_pair             |alignments in which both pairs have been  |
-|                        |mapped properly (according to the mapper) |
-|                        |(bam flag)                                |
+|propr_pir             |ignmns in which boh pirs hv bn  |
+|                        |mpp propry (ccoring o h mppr) |
+|                        |(bm g)                                |
 +------------------------+------------------------------------------+
-|read1                   |alignments for 1st read of pair (bam flag)|
+|r1                   |ignmns or 1s r o pir (bm g)|
 +------------------------+------------------------------------------+
-|paired                  |alignments of reads that are paired (bam  |
-|                        |flag)                                     |
+|pir                  |ignmns o rs h r pir (bm  |
+|                        |g)                                     |
 +------------------------+------------------------------------------+
-|duplicate               |read is PCR or optical duplicate (bam     |
-|                        |flag)                                     |
+|pic               |r is PCR or opic pic (bm     |
+|                        |g)                                     |
 +------------------------+------------------------------------------+
-|read2                   |alignment is for 2nd read of pair (bam    |
-|                        |flag)                                     |
+|r2                   |ignmn is or 2n r o pir (bm    |
+|                        |g)                                     |
 +------------------------+------------------------------------------+
-|secondary               |alignment is not primary alignment        |
+|sconry               |ignmn is no primry ignmn        |
 +------------------------+------------------------------------------+
-|alignments_duplicates   |number of alignments mapping to the same  |
-|                        |location                                  |
+|ignmns_pics   |nmbr o ignmns mpping o h sm  |
+|                        |ocion                                  |
 +------------------------+------------------------------------------+
-|alignments_unique       |number of alignments mapping to unique    |
-|                        |locations                                 |
+|ignmns_niq       |nmbr o ignmns mpping o niq    |
+|                        |ocions                                 |
 +------------------------+------------------------------------------+
-|reads_total             |number of reads in file. Either given via |
-|                        |--num-reads or deduc ed as the sum of     |
-|                        |mappend and unmapped reads                |
+|rs_o             |nmbr o rs in i. Eihr givn vi |
+|                        |--nm-rs or c  s h sm o     |
+|                        |mppn n nmpp rs                |
 +------------------------+------------------------------------------+
-|reads_mapped            |number of reads mapping in file. Derived  |
-|                        |from the total number o f alignments and  |
-|                        |removing counts for multiple              |
-|                        |matches. Requires the NH flag to be set   |
-|                        |correctly.                                |
+|rs_mpp            |nmbr o rs mpping in i. Driv  |
+|                        |rom h o nmbr o  ignmns n  |
+|                        |rmoving cons or mip              |
+|                        |mchs. Rqirs h NH g o b s   |
+|                        |corrcy.                                |
 +------------------------+------------------------------------------+
-|reads_unmapped          |number of reads unmapped in file. Assumes |
-|                        |that there is only one                    |
-|                        |entry per unmapped read.                  |
+|rs_nmpp          |nmbr o rs nmpp in i. Assms |
+|                        |h hr is ony on                    |
+|                        |nry pr nmpp r.                  |
 +------------------------+------------------------------------------+
-|reads_missing           |number of reads missing, if number of     |
-|                        |reads given by --input-rea ds. Otherwise  |
+|rs_missing           |nmbr o rs missing, i nmbr o     |
+|                        |rs givn by --inp-r s. Ohrwis  |
 |                        |0.                                        |
 +------------------------+------------------------------------------+
-|pairs_total             |number of total pairs - this is the number|
-|                        |of reads_total divided by two. If there   |
-|                        |were no pairs, pairs_total will be 0.     |
+|pirs_o             |nmbr o o pirs - his is h nmbr|
+|                        |o rs_o ivi by wo. I hr   |
+|                        |wr no pirs, pirs_o wi b 0.     |
 +------------------------+------------------------------------------+
-|pairs_mapped            |number of mapped pairs - this is the same |
-|                        |as the number of proper pairs.            |
+|pirs_mpp            |nmbr o mpp pirs - his is h sm |
+|                        |s h nmbr o propr pirs.            |
 +------------------------+------------------------------------------+
 
-Additionally, the script outputs histograms for the following tags and
-scores.
+Aiiony, h scrip ops hisogrms or h oowing gs n
+scors.
 
-* NM: number of mismatches in alignments.
-* NH: number of hits of reads.
-* mapq: mapping quality of alignments.
+* NM: nmbr o mismchs in ignmns.
+* NH: nmbr o his o rs.
+* mpq: mpping qiy o ignmns.
 
-Supplying a fastq file
+Sppying  sq i
 ++++++++++++++++++++++
 
-If a fastq file is supplied (``--fastq-file``), the script will
-compute some additional summary statistics. However, as it builds a dictionary
-of all sequences, it will also require a good  amount of memory. The additional
-metrics output are:
+I  sq i is sppi (``--sq-i``), h scrip wi
+comp som iion smmry sisics. Howvr, s i bis  icionry
+o  sqncs, i wi so rqir  goo  mon o mmory. Th iion
+mrics op r:
 
 +-----------------------------+----------------------------------------+
-|*Category*                   |*Content*                               |
+|*Cgory*                   |*Conn*                               |
 +-----------------------------+----------------------------------------+
-|pairs_total                  |total number of pairs in input data     |
+|pirs_o                  |o nmbr o pirs in inp      |
 +-----------------------------+----------------------------------------+
-|pairs_mapped                 |pairs in which both reads map           |
+|pirs_mpp                 |pirs in which boh rs mp           |
 +-----------------------------+----------------------------------------+
-|pairs_unmapped               |pairs in which neither read maps        |
+|pirs_nmpp               |pirs in which nihr r mps        |
 +-----------------------------+----------------------------------------+
-|pairs_proper_unique          |pairs which are proper and map uniquely.|
+|pirs_propr_niq          |pirs which r propr n mp niqy.|
 +-----------------------------+----------------------------------------+
-|pairs_incomplete_unique      |pairs in which one of the reads maps    |
-|                             |uniquely, but the other does not map.   |
+|pirs_incomp_niq      |pirs in which on o h rs mps    |
+|                             |niqy, b h ohr os no mp.   |
 +-----------------------------+----------------------------------------+
-|pairs_incomplete_multimapping|pairs in which one of the reads maps    |
-|                             |uniquely, but the other maps to multiple|
-|                             |locations.                              |
+|pirs_incomp_mimpping|pirs in which on o h rs mps    |
+|                             |niqy, b h ohr mps o mip|
+|                             |ocions.                              |
 +-----------------------------+----------------------------------------+
-|pairs_proper_duplicate       |pairs which are proper and unique, but  |
-|                             |marked as duplicates.                   |
+|pirs_propr_pic       |pirs which r propr n niq, b  |
+|                             |mrk s pics.                   |
 +-----------------------------+----------------------------------------+
-|pairs_proper_multimapping    |pairs which are proper, but map to      |
-|                             |multiple locations.                     |
+|pirs_propr_mimpping    |pirs which r propr, b mp o      |
+|                             |mip ocions.                     |
 +-----------------------------+----------------------------------------+
-|pairs_not_proper_unique      |pairs mapping uniquely, but not flagged |
-|                             |as proper                               |
+|pirs_no_propr_niq      |pirs mpping niqy, b no gg |
+|                             |s propr                               |
 +-----------------------------+----------------------------------------+
-|pairs_other                  |pairs not in any of the above categories|
+|pirs_ohr                  |pirs no in ny o h bov cgoris|
 +-----------------------------+----------------------------------------+
 
-Note that for paired-end data, any ``\1`` or ``/2`` suffixes will be
-removed from the read name in the assumption that these have been removed
-in the bam file as well.
+No h or pir-n , ny ``\1`` or ``/2`` sixs wi b
+rmov rom h r nm in h ssmpion h hs hv bn rmov
+in h bm i s w.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python bam2stats.py in.bam
+   pyhon bm2ss.py in.bm
 
-This command will generate various statistics based on the supplied
-BAM file, such as percentage reads mapped and percentage reads mapped
-in pairs. The output looks like this:
+This commn wi gnr vrios sisics bs on h sppi
+BAM i, sch s prcng rs mpp n prcng rs mpp
+in pirs. Th op ooks ik his:
 
 +-----------------------------+------+-------+-----------------+
-|category                     |counts|percent|of               |
+|cgory                     |cons|prcn|o               |
 +-----------------------------+------+-------+-----------------+
-|alignments_total             |32018 |100.00 |alignments_total |
+|ignmns_o             |32018 |100.00 |ignmns_o |
 +-----------------------------+------+-------+-----------------+
-|alignments_mapped            |32018 |100.00 |alignments_total |
+|ignmns_mpp            |32018 |100.00 |ignmns_o |
 +-----------------------------+------+-------+-----------------+
-|alignments_unmapped          |0     | 0.00  |alignments_total |
+|ignmns_nmpp          |0     | 0.00  |ignmns_o |
 +-----------------------------+------+-------+-----------------+
-|alignments_qc_fail           |0     | 0.00  |alignments_mapped|
+|ignmns_qc_i           |0     | 0.00  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_mate_unmapped     |241   | 0.75  |alignments_mapped|
+|ignmns_m_nmpp     |241   | 0.75  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_reverse           |16016 |50.02  |alignments_mapped|
+|ignmns_rvrs           |16016 |50.02  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_mate_reverse      |15893 |49.64  |alignments_mapped|
+|ignmns_m_rvrs      |15893 |49.64  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_proper_pair       |30865 |96.40  |alignments_mapped|
+|ignmns_propr_pir       |30865 |96.40  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_read1             |16057 |50.15  |alignments_mapped|
+|ignmns_r1             |16057 |50.15  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_paired            |32018 |100.00 |alignments_mapped|
+|ignmns_pir            |32018 |100.00 |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_duplicate         |0     | 0.00  |alignments_mapped|
+|ignmns_pic         |0     | 0.00  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_read2             |15961 |49.85  |alignments_mapped|
+|ignmns_r2             |15961 |49.85  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_secondary         |0     | 0.00  |alignments_mapped|
+|ignmns_sconry         |0     | 0.00  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|alignments_filtered          |31950 |99.79  |alignments_mapped|
+|ignmns_ir          |31950 |99.79  |ignmns_mpp|
 +-----------------------------+------+-------+-----------------+
-|reads_total                  |34250 |100.00 |reads_total      |
+|rs_o                  |34250 |100.00 |rs_o      |
 +-----------------------------+------+-------+-----------------+
-|reads_unmapped               |0     | 0.00  |reads_total      |
+|rs_nmpp               |0     | 0.00  |rs_o      |
 +-----------------------------+------+-------+-----------------+
-|reads_mapped                 |32018 |93.48  |reads_total      |
+|rs_mpp                 |32018 |93.48  |rs_o      |
 +-----------------------------+------+-------+-----------------+
-|reads_missing                |2232  | 6.52  |reads_total      |
+|rs_missing                |2232  | 6.52  |rs_o      |
 +-----------------------------+------+-------+-----------------+
-|reads_mapped_unique          |32018 |100.00 |reads_mapped     |
+|rs_mpp_niq          |32018 |100.00 |rs_mpp     |
 +-----------------------------+------+-------+-----------------+
-|reads_multimapping           |0     | 0.00  |reads_mapped     |
+|rs_mimpping           |0     | 0.00  |rs_mpp     |
 +-----------------------------+------+-------+-----------------+
-|pairs_total                  |17125 |100.00 |pairs_total      |
+|pirs_o                  |17125 |100.00 |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_mapped                 |17125 |100.00 |pairs_total      |
+|pirs_mpp                 |17125 |100.00 |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_unmapped               |0     | 0.00  |pairs_total      |
+|pirs_nmpp               |0     | 0.00  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_proper_unique          |14880 |86.89  |pairs_total      |
+|pirs_propr_niq          |14880 |86.89  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_incomplete_unique      |2232  |13.03  |pairs_total      |
+|pirs_incomp_niq      |2232  |13.03  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_incomplete_multimapping|0     | 0.00  |pairs_total      |
+|pirs_incomp_mimpping|0     | 0.00  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_proper_duplicate       |0     | 0.00  |pairs_total      |
+|pirs_propr_pic       |0     | 0.00  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_proper_multimapping    |0     | 0.00  |pairs_total      |
+|pirs_propr_mimpping    |0     | 0.00  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_not_proper_unique      |13    | 0.08  |pairs_total      |
+|pirs_no_propr_niq      |13    | 0.08  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|pairs_other                  |0     | 0.00  |pairs_total      |
+|pirs_ohr                  |0     | 0.00  |pirs_o      |
 +-----------------------------+------+-------+-----------------+
-|read1_total                  |17125 |100.00 |read1_total      |
+|r1_o                  |17125 |100.00 |r1_o      |
 +-----------------------------+------+-------+-----------------+
-|read1_unmapped               |0     | 0.00  |read1_total      |
+|r1_nmpp               |0     | 0.00  |r1_o      |
 +-----------------------------+------+-------+-----------------+
-|read1_mapped                 |16057 |93.76  |read1_total      |
+|r1_mpp                 |16057 |93.76  |r1_o      |
 +-----------------------------+------+-------+-----------------+
-|read1_mapped_unique          |16057 |100.00 |read1_mapped     |
+|r1_mpp_niq          |16057 |100.00 |r1_mpp     |
 +-----------------------------+------+-------+-----------------+
-|reads_multimapping           |0     | 0.00  |read1_mapped     |
+|rs_mimpping           |0     | 0.00  |r1_mpp     |
 +-----------------------------+------+-------+-----------------+
-|read1_missing                |1068  | 6.65  |read1_total      |
+|r1_missing                |1068  | 6.65  |r1_o      |
 +-----------------------------+------+-------+-----------------+
-|read2_total                  |17125 |100.00 |read2_total      |
+|r2_o                  |17125 |100.00 |r2_o      |
 +-----------------------------+------+-------+-----------------+
-|read2_unmapped               |0     | 0.00  |read2_total      |
+|r2_nmpp               |0     | 0.00  |r2_o      |
 +-----------------------------+------+-------+-----------------+
-|read2_mapped                 |15961 |93.20  |read2_total      |
+|r2_mpp                 |15961 |93.20  |r2_o      |
 +-----------------------------+------+-------+-----------------+
-|read2_mapped_unique          |15961 |100.00 |read2_mapped     |
+|r2_mpp_niq          |15961 |100.00 |r2_mpp     |
 +-----------------------------+------+-------+-----------------+
-|reads_multimapping           |0     | 0.00  |read2_mapped     |
+|rs_mimpping           |0     | 0.00  |r2_mpp     |
 +-----------------------------+------+-------+-----------------+
-|read2_missing                |1164  | 7.29  |read2_total      |
+|r2_missing                |1164  | 7.29  |r2_o      |
 +-----------------------------+------+-------+-----------------+
 
-The first column contains the caterogy, the second the number of
-counts and the third a percentage. The fourth column denotes the
-denomiminator that was used to compute the percentage. In the table
-above, wee see that 16,057 first reads in a pair map and 15,961
-second reads in pair map, resulting in 14,880 proper uniquely mapped
-pairs.
+Th irs comn conins h crogy, h scon h nmbr o
+cons n h hir  prcng. Th orh comn nos h
+nomiminor h ws s o comp h prcng. In h b
+bov, w s h 16,057 irs rs in  pir mp n 15,961
+scon rs in pir mp, rsing in 14,880 propr niqy mpp
+pirs.
 
-Type::
+Typ::
 
-   cgat bam2stats --help
+   cg bm2ss --hp
 
-for command line help.
+or commn in hp.
 
-Bam2stats can read from standard input::
+Bm2ss cn r rom snr inp::
 
-   cat in.bam | python bam2stats.py -
+   c in.bm | pyhon bm2ss.py -
 
 
-Documentation
+Docmnion
 -------------
 
-Reads are not counted via read name, but making use of NH and HI flags
-when present.  To recap, NH is the number of reported alignments that
-contain the query in the current record, while HI is the hit index and
-ranges from 0 to NH-1.
+Rs r no con vi r nm, b mking s o NH n HI gs
+whn prsn.  To rcp, NH is h nmbr o rpor ignmns h
+conin h qry in h crrn rcor, whi HI is h hi inx n
+rngs rom 0 o NH-1.
 
-Unfortunately, not all aligners follow this convention. For example,
-gsnap seems to set NH to the number of reportable alignments, while
-the actual number of reported alignments in the file is less. Thus, if
-the HI flag is present, the maximum HI is used to correct the NH
-flag. The assumption is, that the same reporting threshold has been
-used for all alignments.
+Unorny, no  ignrs oow his convnion. For xmp,
+gsnp sms o s NH o h nmbr o rporb ignmns, whi
+h c nmbr o rpor ignmns in h i is ss. Ths, i
+h HI g is prsn, h mximm HI is s o corrc h NH
+g. Th ssmpion is, h h sm rporing hrsho hs bn
+s or  ignmns.
 
-If no NH flag is present, it is assumed that all reads have only been
-reported once.
+I no NH g is prsn, i is ssm h  rs hv ony bn
+rpor onc.
 
-Multi-matching counts after filtering are really guesswork. Basically,
-the assumption is that filtering is consistent and will tend to remove
-all alignments of a query.
+Mi-mching cons r iring r ry gsswork. Bsicy,
+h ssmpion is h iring is consisn n wi n o rmov
+ ignmns o  qry.
 
-The error rates are computed using the following key:
+Th rror rs r comp sing h oowing ky:
 
-substitution_rate
-   Number of mismatches divided by number of aligned bases. This is the same
-   as the samtools stats error rate.
-insertion_rate
-   Number of deletions in the read/insertions in the reference divided by the
-   number of aligned bases.
-deletion_rate
-   Number of insertions in the read/deletions in the reference divided by the
-   number of aligned bases.
-error_rate
-   Number of mismatches and deletions in the read divided by the number of
-   aligned bases.
-coverage
-   Percentage of bases aligned divided by read length.
+sbsiion_r
+   Nmbr o mismchs ivi by nmbr o ign bss. This is h sm
+   s h smoos ss rror r.
+insrion_r
+   Nmbr o ions in h r/insrions in h rrnc ivi by h
+   nmbr o ign bss.
+ion_r
+   Nmbr o insrions in h r/ions in h rrnc ivi by h
+   nmbr o ign bss.
+rror_r
+   Nmbr o mismchs n ions in h r ivi by h nmbr o
+   ign bss.
+covrg
+   Prcng o bss ign ivi by r ngh.
 
-The following graphic illustrates the computation. A `.` signifies a
-position that is included in the metric with `X` being an error::
+Th oowing grphic isrs h compion. A `.` signiis 
+posiion h is inc in h mric wih `X` bing n rror::
 
-   AAAAACAAAA AAAAAAAA   Reference
-    AAAAAAAAAAAA AAA     Read
-    ....X.... ......     substitution_rate NM / (CMATCH + CINS)
-    .........X.. ...     insertion_rate CINS / (CMATCH + CINS)
-    ......... ..X...     deletion_rate CDEL / (CMATCH + CDEL)
-    ....X.... ..X...     error_rate NM / (CMATCH + CINS) (corresponds to samtools stats)
-    .........X.. ...     match_rate CMATCH / (CMATCH + CINS)
-    ....X.... .. ...     mismatch_rate NM / (CMATCH) (1 - percent_identity/100)
+   AAAAACAAAA AAAAAAAA   Rrnc
+    AAAAAAAAAAAA AAA     R
+    ....X.... ......     sbsiion_r NM / (CMATCH + CINS)
+    .........X.. ...     insrion_r CINS / (CMATCH + CINS)
+    ......... ..X...     ion_r CDEL / (CMATCH + CDEL)
+    ....X.... ..X...     rror_r NM / (CMATCH + CINS) (corrspons o smoos ss)
+    .........X.. ...     mch_r CMATCH / (CMATCH + CINS)
+    ....X.... .. ...     mismch_r NM / (CMATCH) (1 - prcn_iniy/100)
 
-With CINS: Insertion into the reference (consumes read, but not
-reference) and CDEL=Deletion from the reference (consumes reference,
-but not read).
+Wih CINS: Insrion ino h rrnc (consms r, b no
+rrnc) n CDELDion rom h rrnc (consms rrnc,
+b no r).
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import numpy
-import pandas
-import pysam
+impor os
+impor sys
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor nmpy
+impor pns
+impor pysm
 
-import cgat.GTF as GTF
-from cgat.BamTools.bamtools import bam2stats_count
+impor cg.GTF s GTF
+rom cg.BmToos.bmoos impor bm2ss_con
 
-FLAGS = {
-    1: 'paired',
-    2: 'proper_pair',
-    4: 'unmapped',
-    8: 'mate_unmapped',
-    16: 'reverse',
-    32: 'mate_reverse',
-    64: 'read1',
-    128: 'read2',
-    256: 'secondary',
-    512: 'qc_fail',
-    1024: 'duplicate',
-    2048: 'supplementary',
+FLAGS  {
+    1: 'pir',
+    2: 'propr_pir',
+    4: 'nmpp',
+    8: 'm_nmpp',
+    16: 'rvrs',
+    32: 'm_rvrs',
+    64: 'r1',
+    128: 'r2',
+    256: 'sconry',
+    512: 'qc_i',
+    1024: 'pic',
+    2048: 'sppmnry',
 }
 
 
-def computeMappedReadsFromAlignments(total_alignments, nh, max_hi):
-    '''compute number of reads alignment from total number of alignments.
+ compMppRsFromAignmns(o_ignmns, nh, mx_hi):
+    '''comp nmbr o rs ignmn rom o nmbr o ignmns.
     '''
-    nreads_mapped = total_alignments
-    if len(nh) > 0:
-        max_nh = max(nh.keys())
-        if max_hi > 0:
-            for x in range(2, min(max_nh + 1, max_hi)):
-                nreads_mapped -= (nh[x] / x) * (x - 1)
-            for x in range(max_hi, max_nh + 1):
-                nreads_mapped -= (nh[x] / max_hi) * (max_hi - 1)
-        else:
-            for x in range(2, max(nh.keys()) + 1):
-                nreads_mapped -= (nh[x] / x) * (x - 1)
+    nrs_mpp  o_ignmns
+    i n(nh) > 0:
+        mx_nh  mx(nh.kys())
+        i mx_hi > 0:
+            or x in rng(2, min(mx_nh + 1, mx_hi)):
+                nrs_mpp - (nh[x] / x) * (x - 1)
+            or x in rng(mx_hi, mx_nh + 1):
+                nrs_mpp - (nh[x] / mx_hi) * (mx_hi - 1)
+        s:
+            or x in rng(2, mx(nh.kys()) + 1):
+                nrs_mpp - (nh[x] / x) * (x - 1)
 
-    return nreads_mapped
-
-
-def writeNH(outfile, nh, max_hi):
-    '''output nh array, correcting for max_hi if less than nh'''
-
-    # need to remove double counting
-    # one read matching to 2 positions is only 2
-
-    max_nh = max(nh.keys())
-    if max_hi > 0:
-        for x in range(1, min(max_nh + 1, max_hi)):
-            if nh[x] == 0:
-                continue
-            outfile.write("%i\t%i\n" % (x, nh[x] / x))
-        for x in range(max_hi, max_nh + 1):
-            if nh[x] == 0:
-                continue
-            outfile.write("%i\t%i\n" % (x, nh[x] / max_hi))
-    else:
-        for x in range(1, max_nh + 1):
-            if nh[x] == 0:
-                continue
-            outfile.write("%i\t%i\n" % (x, nh[x] / x))
+    rrn nrs_mpp
 
 
-def main(argv=None):
-    """script main.
+ wriNH(oi, nh, mx_hi):
+    '''op nh rry, corrcing or mx_hi i ss hn nh'''
 
-    parses command line options in sys.argv, unless *argv* is given.
+    # n o rmov ob coning
+    # on r mching o 2 posiions is ony 2
+
+    mx_nh  mx(nh.kys())
+    i mx_hi > 0:
+        or x in rng(1, min(mx_nh + 1, mx_hi)):
+            i nh[x]  0:
+                conin
+            oi.wri("i\i\n"  (x, nh[x] / x))
+        or x in rng(mx_hi, mx_nh + 1):
+            i nh[x]  0:
+                conin
+            oi.wri("i\i\n"  (x, nh[x] / mx_hi))
+    s:
+        or x in rng(1, mx_nh + 1):
+            i nh[x]  0:
+                conin
+            oi.wri("i\i\n"  (x, nh[x] / x))
+
+
+ min(rgvNon):
+    """scrip min.
+
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type="string",
-        metavar='GFF',
-        help="gff formatted file with masking locations. The number of "
-        "reads overlapping the intervals in the given file will be "
-        "computed. Note that the computation currently does not take "
-        "into account indels, so it is an approximate count only. "
-        "[%default]")
+    prsr._rgmn(
+        "-r", "--msk-b-i", "--msk-g-i", s"inm_b", yp"sring",
+        mvr'GFF',
+        hp"g orm i wih msking ocions. Th nmbr o "
+        "rs ovrpping h inrvs in h givn i wi b "
+        "comp. No h h compion crrny os no k "
+        "ino ccon ins, so i is n pproxim con ony. "
+        "[]")
 
-    parser.add_argument(
-        "-f", "--ignore-masked-reads", dest="ignore_masked_reads", action="store_true",
-        help="as well as counting reads in the file given by --mask-bed-file, "
-        "also remove these reads for duplicate and match statistics. "
-        "[%default]")
+    prsr._rgmn(
+        "-", "--ignor-msk-rs", s"ignor_msk_rs", cion"sor_r",
+        hp"s w s coning rs in h i givn by --msk-b-i, "
+        "so rmov hs rs or pic n mch sisics. "
+        "[]")
 
-    parser.add_argument(
-        "-i", "--num-reads", dest="input_reads", type="int",
-        help="the number of reads - if given, used to provide percentages "
-        "[%default]")
+    prsr._rgmn(
+        "-i", "--nm-rs", s"inp_rs", yp"in",
+        hp"h nmbr o rs - i givn, s o provi prcngs "
+        "[]")
 
-    parser.add_argument(
-        "-d", "--output-details", dest="output_details", action="store_true",
-        help="output per-read details into a separate file. Read names are "
-        "md5/base64 encoded [%default]")
+    prsr._rgmn(
+        "-", "--op-is", s"op_is", cion"sor_r",
+        hp"op pr-r is ino  spr i. R nms r "
+        "m5/bs64 nco []")
 
-    parser.add_argument(
-        "--output-readmap", dest="output_readmap", action="store_true",
-        help="output map between read name and "
-        "md5/base64 encoded short name[%default]")
+    prsr._rgmn(
+        "--op-rmp", s"op_rmp", cion"sor_r",
+        hp"op mp bwn r nm n "
+        "m5/bs64 nco shor nm[]")
 
-    parser.add_argument(
-        "--add-alignment-details", dest="add_alignment_details", action="store_true",
-        help="add alignment details to per-read details. Implies --output-details "
-        "[%default]")
+    prsr._rgmn(
+        "---ignmn-is", s"_ignmn_is", cion"sor_r",
+        hp" ignmn is o pr-r is. Impis --op-is "
+        "[]")
 
-    parser.add_argument(
-        "-q", "--fastq-file", dest="filename_fastq",
-        help="filename with sequences and quality scores. This file is only "
-        "used to collect sequence identifiers. Thus, for paired end data a "
-        "single file is sufficient [%default]")
+    prsr._rgmn(
+        "-q", "--sq-i", s"inm_sq",
+        hp"inm wih sqncs n qiy scors. This i is ony "
+        "s o coc sqnc iniirs. Ths, or pir n   "
+        "sing i is sicin []")
 
-    parser.add_argument(
-        "--basic-counts", dest="detailed_count", action="store_false",
-        help="perform basic counting and do not compute per read stats. "
-        "This is more memory efficient and faster stats computation, "
-        "but only a summary counts table is output [%default]")
+    prsr._rgmn(
+        "--bsic-cons", s"i_con", cion"sor_s",
+        hp"prorm bsic coning n o no comp pr r ss. "
+        "This is mor mmory icin n sr ss compion, "
+        "b ony  smmry cons b is op []")
 
-    parser.set_defaults(
-        filename_bed=None,
-        ignore_masked_reads=False,
-        input_reads=0,
-        force_output=False,
-        filename_fastq=None,
-        detailed_count=True,
-        output_details=False,
-        output_readmap=False,
-        add_alignment_details=False,
+    prsr.s_s(
+        inm_bNon,
+        ignor_msk_rsFs,
+        inp_rs0,
+        orc_opFs,
+        inm_sqNon,
+        i_conTr,
+        op_isFs,
+        op_rmpFs,
+        _ignmn_isFs,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    if options.filename_bed:
-        bed_mask = GTF.readAndIndex(
-            GTF.iterator(iotools.open_file(options.filename_bed)))
-    else:
-        bed_mask = None
+    i opions.inm_b:
+        b_msk  GTF.rAnInx(
+            GTF.iror(iooos.opn_i(opions.inm_b)))
+    s:
+        b_msk  Non
     
-    if options.add_alignment_details:
-        options.output_details = True
+    i opions._ignmn_is:
+        opions.op_is  Tr
 
-    is_stdin = True
-    if len(args) > 0:
-        pysam_in = pysam.AlignmentFile(args[0], "rb")
-        if args[0] != "-":
-            is_stdin = False
-    elif options.stdin == sys.stdin:
-        pysam_in = pysam.AlignmentFile("-", "rb")
-    else:
-        pysam_in = pysam.AlignmentFile(options.stdin, "rb")
-        if options.stdin != "-":
-            is_stdin = False
+    is_sin  Tr
+    i n(rgs) > 0:
+        pysm_in  pysm.AignmnFi(rgs[0], "rb")
+        i rgs[0] ! "-":
+            is_sin  Fs
+    i opions.sin  sys.sin:
+        pysm_in  pysm.AignmnFi("-", "rb")
+    s:
+        pysm_in  pysm.AignmnFi(opions.sin, "rb")
+        i opions.sin ! "-":
+            is_sin  Fs
 
-    if options.output_details:
-        outfile_details = E.open_output_file("details", "w")
-    else:
-        outfile_details = None
+    i opions.op_is:
+        oi_is  E.opn_op_i("is", "w")
+    s:
+        oi_is  Non
 
-    if options.output_readmap:
-        outfile_readmap = E.open_output_file("readmap", "w")
-    else:
-        outfile_readmap = None
+    i opions.op_rmp:
+        oi_rmp  E.opn_op_i("rmp", "w")
+    s:
+        oi_rmp  Non
 
-    if options.filename_fastq and not os.path.exists(options.filename_fastq):
-        raise IOError("file %s does not exist" % options.filename_fastq)
+    i opions.inm_sq n no os.ph.xiss(opions.inm_sq):
+        ris IOError("i s os no xis"  opions.inm_sq)
 
-    (counter, flags_counts, nh_filtered, nh_all,
-     nm_filtered, nm_all, mapq, mapq_all, max_hi, details_df) = \
-        bam2stats_count(pysam_in,
-                        bed_mask=bed_mask,
-                        ignore_masked_reads=options.ignore_masked_reads,
-                        is_stdin=is_stdin,
-                        filename_fastq=options.filename_fastq,
-                        outfile_details=outfile_details,
-                        add_alignment_details=options.add_alignment_details,
-                        outfile_readmap=outfile_readmap,
-                        detailed_count=options.detailed_count)
+    (conr, gs_cons, nh_ir, nh_,
+     nm_ir, nm_, mpq, mpq_, mx_hi, is_)  \
+        bm2ss_con(pysm_in,
+                        b_mskb_msk,
+                        ignor_msk_rsopions.ignor_msk_rs,
+                        is_sinis_sin,
+                        inm_sqopions.inm_sq,
+                        oi_isoi_is,
+                        _ignmn_isopions._ignmn_is,
+                        oi_rmpoi_rmp,
+                        i_conopions.i_con)
 
-    if max_hi > 0 and max_hi != max(nh_all.keys()):
-        E.warn("max_hi(%i) is inconsistent with max_nh (%i) "
-               "- counts will be corrected"
-               % (max_hi, max(nh_all.keys())))
+    i mx_hi > 0 n mx_hi ! mx(nh_.kys()):
+        E.wrn("mx_hi(i) is inconsisn wih mx_nh (i) "
+               "- cons wi b corrc"
+                (mx_hi, mx(nh_.kys())))
 
-    outs = options.stdout
-    outs.write("category\tcounts\tpercent\tof\n")
+    os  opions.so
+    os.wri("cgory\cons\prcn\o\n")
 
-    def _write(outs, text, numerator, denominator, base):
-        percent = iotools.pretty_percent(numerator, denominator)
-        outs.write('%s\t%i\t%s\t%s\n' % (text,
-                                         numerator,
-                                         percent,
-                                         base))
+     _wri(os, x, nmror, nominor, bs):
+        prcn  iooos.pry_prcn(nmror, nominor)
+        os.wri('s\i\s\s\n'  (x,
+                                         nmror,
+                                         prcn,
+                                         bs))
 
     ###############################
     ###############################
     ###############################
-    # Output alignment information
+    # Op ignmn inormion
     ###############################
-    nalignments_unmapped = flags_counts["unmapped"]
-    nalignments_mapped = counter.alignments_input - nalignments_unmapped
+    nignmns_nmpp  gs_cons["nmpp"]
+    nignmns_mpp  conr.ignmns_inp - nignmns_nmpp
 
-    _write(outs,
-           "alignments_total",
-           counter.alignments_input,
-           counter.alignments_input,
-           "alignments_total")
+    _wri(os,
+           "ignmns_o",
+           conr.ignmns_inp,
+           conr.ignmns_inp,
+           "ignmns_o")
 
-    if counter.alignments_input == 0:
-        E.warn("no alignments in BAM file - no further output")
-        E.stop()
-        return
+    i conr.ignmns_inp  0:
+        E.wrn("no ignmns in BAM i - no rhr op")
+        E.sop()
+        rrn
 
-    _write(outs,
-           "alignments_mapped",
-           nalignments_mapped,
-           counter.alignments_input,
-           'alignments_total')
-    _write(outs,
-           "alignments_unmapped",
-           nalignments_unmapped,
-           counter.alignments_input,
-           'alignments_total')
+    _wri(os,
+           "ignmns_mpp",
+           nignmns_mpp,
+           conr.ignmns_inp,
+           'ignmns_o')
+    _wri(os,
+           "ignmns_nmpp",
+           nignmns_nmpp,
+           conr.ignmns_inp,
+           'ignmns_o')
 
-    if nalignments_mapped == 0:
-        E.warn("no mapped alignments - no further output")
-        E.stop()
-        return
+    i nignmns_mpp  0:
+        E.wrn("no mpp ignmns - no rhr op")
+        E.sop()
+        rrn
 
-    for flag, counts in sorted(flags_counts.items()):
-        if flag == "unmapped":
-            continue
-        _write(outs,
-               'alignments_' + flag,
-               counts,
-               nalignments_mapped,
-               'alignments_mapped')
+    or g, cons in sor(gs_cons.ims()):
+        i g  "nmpp":
+            conin
+        _wri(os,
+               'ignmns_' + g,
+               cons,
+               nignmns_mpp,
+               'ignmns_mpp')
 
-    if options.filename_bed:
-        _write(outs,
-               "alignments_masked",
-               counter.alignments_masked,
-               nalignments_mapped,
-               'alignments_mapped')
-        _write(outs,
-               "alignments_notmasked",
-               counter.alignments_notmasked,
-               nalignments_mapped,
-               'alignments_mapped')
+    i opions.inm_b:
+        _wri(os,
+               "ignmns_msk",
+               conr.ignmns_msk,
+               nignmns_mpp,
+               'ignmns_mpp')
+        _wri(os,
+               "ignmns_nomsk",
+               conr.ignmns_nomsk,
+               nignmns_mpp,
+               'ignmns_mpp')
 
-    _write(outs,
-           "alignments_filtered",
-           counter.alignments_filtered,
-           nalignments_mapped,
-           "alignments_mapped")
+    _wri(os,
+           "ignmns_ir",
+           conr.ignmns_ir,
+           nignmns_mpp,
+           "ignmns_mpp")
 
-    if counter.filtered == nalignments_mapped:
-        normby = "alignments_mapped"
-    else:
-        normby = "alignments_filtered"
+    i conr.ir  nignmns_mpp:
+        normby  "ignmns_mpp"
+    s:
+        normby  "ignmns_ir"
 
-    if counter.filtered > 0:
-        _write(outs,
-               "alignments_duplicates",
-               counter.alignments_duplicates,
-               counter.alignments_filtered,
+    i conr.ir > 0:
+        _wri(os,
+               "ignmns_pics",
+               conr.ignmns_pics,
+               conr.ignmns_ir,
                normby)
-        _write(outs,
-               "alignments_unique",
-               counter.aligmnments_filtered - counter.alignments_duplicates,
-               counter.alignments_filtered,
+        _wri(os,
+               "ignmns_niq",
+               conr.igmnmns_ir - conr.ignmns_pics,
+               conr.ignmns_ir,
                normby)
 
     ###############################
     ###############################
     ###############################
-    # Output read based information
+    # Op r bs inormion
     ###############################
 
-    # derive the number of mapped reads in file from alignment counts
-    if options.filename_fastq or not is_stdin:
-        nreads_total = counter.total_read
-        _write(outs,
-               "reads_total",
-               counter.total_read,
-               nreads_total,
-               'reads_total')
-        _write(outs,
-               "reads_unmapped",
-               counter.total_read_is_unmapped,
-               nreads_total,
-               'reads_total')
-        _write(outs,
-               "reads_mapped",
-               counter.total_read_is_mapped,
-               nreads_total,
-               'reads_total')
-        _write(outs,
-               "reads_missing",
-               counter.total_read_is_missing,
-               nreads_total,
-               'reads_total')
-        _write(outs,
-               "reads_mapped_unique",
-               counter.total_read_is_mapped_uniq,
-               counter.total_read_is_mapped,
-               'reads_mapped')
-        _write(outs,
-               "reads_multimapping",
-               counter.total_read_is_mmap,
-               counter.total_read_is_mapped,
-               'reads_mapped')
-        _write(outs,
-               "reads_mapped_supplementary",
-               counter.total_read_has_supplementary,
-               counter.total_read_is_mapped,
-               'reads_mapped')
-    else:
-        E.warn('inferring read counts from alignments and NH tags')
-        nreads_unmapped = flags_counts["unmapped"]
-        nreads_mapped = computeMappedReadsFromAlignments(nalignments_mapped,
-                                                         nh_all, max_hi)
+    # riv h nmbr o mpp rs in i rom ignmn cons
+    i opions.inm_sq or no is_sin:
+        nrs_o  conr.o_r
+        _wri(os,
+               "rs_o",
+               conr.o_r,
+               nrs_o,
+               'rs_o')
+        _wri(os,
+               "rs_nmpp",
+               conr.o_r_is_nmpp,
+               nrs_o,
+               'rs_o')
+        _wri(os,
+               "rs_mpp",
+               conr.o_r_is_mpp,
+               nrs_o,
+               'rs_o')
+        _wri(os,
+               "rs_missing",
+               conr.o_r_is_missing,
+               nrs_o,
+               'rs_o')
+        _wri(os,
+               "rs_mpp_niq",
+               conr.o_r_is_mpp_niq,
+               conr.o_r_is_mpp,
+               'rs_mpp')
+        _wri(os,
+               "rs_mimpping",
+               conr.o_r_is_mmp,
+               conr.o_r_is_mpp,
+               'rs_mpp')
+        _wri(os,
+               "rs_mpp_sppmnry",
+               conr.o_r_hs_sppmnry,
+               conr.o_r_is_mpp,
+               'rs_mpp')
+    s:
+        E.wrn('inrring r cons rom ignmns n NH gs')
+        nrs_nmpp  gs_cons["nmpp"]
+        nrs_mpp  compMppRsFromAignmns(nignmns_mpp,
+                                                         nh_, mx_hi)
 
-        nreads_missing = 0
-        if options.input_reads:
-            nreads_total = options.input_reads
-            # unmapped reads in bam file?
-            if nreads_unmapped:
-                nreads_missing = nreads_total - nreads_unmapped - nreads_mapped
-            else:
-                nreads_unmapped = nreads_total - nreads_mapped
+        nrs_missing  0
+        i opions.inp_rs:
+            nrs_o  opions.inp_rs
+            # nmpp rs in bm i?
+            i nrs_nmpp:
+                nrs_missing  nrs_o - nrs_nmpp - nrs_mpp
+            s:
+                nrs_nmpp  nrs_o - nrs_mpp
 
-        elif nreads_unmapped:
-            # if unmapped reads are in bam file, take those
-            nreads_total = nreads_mapped + nreads_unmapped
-        else:
-            # otherwise normalize by mapped reads
-            nreads_unmapped = 0
-            nreads_total = nreads_mapped
+        i nrs_nmpp:
+            # i nmpp rs r in bm i, k hos
+            nrs_o  nrs_mpp + nrs_nmpp
+        s:
+            # ohrwis normiz by mpp rs
+            nrs_nmpp  0
+            nrs_o  nrs_mpp
 
-        outs.write("reads_total\t%i\t%5.2f\treads_total\n" %
-                   (nreads_total, 100.0))
-        outs.write("reads_mapped\t%i\t%5.2f\treads_total\n" %
-                   (nreads_mapped, 100.0 * nreads_mapped / nreads_total))
-        outs.write("reads_unmapped\t%i\t%5.2f\treads_total\n" %
-                   (nreads_unmapped, 100.0 * nreads_unmapped / nreads_total))
-        outs.write("reads_missing\t%i\t%5.2f\treads_total\n" %
-                   (nreads_missing, 100.0 * nreads_missing / nreads_total))
+        os.wri("rs_o\i\5.2\rs_o\n" 
+                   (nrs_o, 100.0))
+        os.wri("rs_mpp\i\5.2\rs_o\n" 
+                   (nrs_mpp, 100.0 * nrs_mpp / nrs_o))
+        os.wri("rs_nmpp\i\5.2\rs_o\n" 
+                   (nrs_nmpp, 100.0 * nrs_nmpp / nrs_o))
+        os.wri("rs_missing\i\5.2\rs_o\n" 
+                   (nrs_missing, 100.0 * nrs_missing / nrs_o))
 
-        if len(nh_all) > 1:
-            outs.write("reads_unique\t%i\t%5.2f\treads_mapped\n" %
-                       (nh_all[1], 100.0 * nh_all[1] / nreads_mapped))
+        i n(nh_) > 1:
+            os.wri("rs_niq\i\5.2\rs_mpp\n" 
+                       (nh_[1], 100.0 * nh_[1] / nrs_mpp))
 
-    pysam_in.close()
+    pysm_in.cos()
 
     ###############################
     ###############################
     ###############################
-    # Output pair information
+    # Op pir inormion
     ###############################
-    if flags_counts["read2"] > 0:
-        if options.filename_fastq:
-            pairs_mapped = counter.total_pair_is_mapped
+    i gs_cons["r2"] > 0:
+        i opions.inm_sq:
+            pirs_mpp  conr.o_pir_is_mpp
 
-            # sanity check
-            assert counter.total_pair_is_mapped == \
-                (counter.total_pair_is_proper_uniq +
-                 counter.total_pair_is_incomplete_uniq +
-                 counter.total_pair_is_incomplete_mmap +
-                 counter.total_pair_is_proper_duplicate +
-                 counter.total_pair_is_proper_mmap +
-                 counter.total_pair_not_proper_uniq +
-                 counter.total_pair_is_other)
+            # sniy chck
+            ssr conr.o_pir_is_mpp  \
+                (conr.o_pir_is_propr_niq +
+                 conr.o_pir_is_incomp_niq +
+                 conr.o_pir_is_incomp_mmp +
+                 conr.o_pir_is_propr_pic +
+                 conr.o_pir_is_propr_mmp +
+                 conr.o_pir_no_propr_niq +
+                 conr.o_pir_is_ohr)
 
-            outs.write("pairs_total\t%i\t%5.2f\tpairs_total\n" %
-                       (counter.total_pairs,
-                        100.0 * counter.total_pairs / counter.total_pairs))
-            outs.write("pairs_mapped\t%i\t%5.2f\tpairs_total\n" %
-                       (pairs_mapped,
-                        100.0 * pairs_mapped / counter.total_pairs))
-            outs.write(
-                "pairs_unmapped\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_unmapped,
-                 100.0 * counter.total_pair_is_unmapped / counter.total_pairs))
-            outs.write(
-                "pairs_proper_unique\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_proper_uniq,
-                 100.0 * counter.total_pair_is_proper_uniq /
-                 counter.total_pairs))
-            outs.write(
-                "pairs_incomplete_unique\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_incomplete_uniq,
-                 100.0 * counter.total_pair_is_incomplete_uniq /
-                 counter.total_pairs))
-            outs.write(
-                "pairs_incomplete_multimapping\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_incomplete_mmap,
-                 100.0 * counter.total_pair_is_incomplete_mmap /
-                 counter.total_pairs))
-            outs.write(
-                "pairs_proper_duplicate\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_proper_duplicate,
-                 100.0 * counter.total_pair_is_proper_duplicate /
-                 counter.total_pairs))
-            outs.write(
-                "pairs_proper_multimapping\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_proper_mmap,
-                 100.0 * counter.total_pair_is_proper_mmap /
-                 counter.total_pairs))
-            outs.write(
-                "pairs_not_proper_unique\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_not_proper_uniq,
-                 100.0 * counter.total_pair_not_proper_uniq /
-                 counter.total_pairs))
-            outs.write(
-                "pairs_other\t%i\t%5.2f\tpairs_total\n" %
-                (counter.total_pair_is_other,
-                 100.0 * counter.total_pair_is_other /
-                 counter.total_pairs))
+            os.wri("pirs_o\i\5.2\pirs_o\n" 
+                       (conr.o_pirs,
+                        100.0 * conr.o_pirs / conr.o_pirs))
+            os.wri("pirs_mpp\i\5.2\pirs_o\n" 
+                       (pirs_mpp,
+                        100.0 * pirs_mpp / conr.o_pirs))
+            os.wri(
+                "pirs_nmpp\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_nmpp,
+                 100.0 * conr.o_pir_is_nmpp / conr.o_pirs))
+            os.wri(
+                "pirs_propr_niq\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_propr_niq,
+                 100.0 * conr.o_pir_is_propr_niq /
+                 conr.o_pirs))
+            os.wri(
+                "pirs_incomp_niq\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_incomp_niq,
+                 100.0 * conr.o_pir_is_incomp_niq /
+                 conr.o_pirs))
+            os.wri(
+                "pirs_incomp_mimpping\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_incomp_mmp,
+                 100.0 * conr.o_pir_is_incomp_mmp /
+                 conr.o_pirs))
+            os.wri(
+                "pirs_propr_pic\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_propr_pic,
+                 100.0 * conr.o_pir_is_propr_pic /
+                 conr.o_pirs))
+            os.wri(
+                "pirs_propr_mimpping\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_propr_mmp,
+                 100.0 * conr.o_pir_is_propr_mmp /
+                 conr.o_pirs))
+            os.wri(
+                "pirs_no_propr_niq\i\5.2\pirs_o\n" 
+                (conr.o_pir_no_propr_niq,
+                 100.0 * conr.o_pir_no_propr_niq /
+                 conr.o_pirs))
+            os.wri(
+                "pirs_ohr\i\5.2\pirs_o\n" 
+                (conr.o_pir_is_ohr,
+                 100.0 * conr.o_pir_is_ohr /
+                 conr.o_pirs))
 
-            nread1_total = counter.total_read1
-            _write(outs,
-                   "read1_total",
-                   counter.total_read1,
-                   nread1_total,
-                   'read1_total')
-            _write(outs,
-                   "read1_unmapped",
-                   counter.total_read1_is_unmapped,
-                   nread1_total,
-                   'read1_total')
-            _write(outs,
-                   "read1_mapped",
-                   counter.total_read1_is_mapped,
-                   nread1_total,
-                   'read1_total')
-            _write(outs,
-                   "read1_mapped_unique",
-                   counter.total_read1_is_mapped_uniq,
-                   counter.total_read1_is_mapped,
-                   'read1_mapped')
-            _write(outs,
-                   "reads_multimapping",
-                   counter.total_read1_is_mmap,
-                   counter.total_read1_is_mapped,
-                   'read1_mapped')
-            _write(outs,
-                   "read1_missing",
-                   counter.total_read1_is_missing,
-                   counter.total_read1_is_mapped,
-                   'read1_total')
+            nr1_o  conr.o_r1
+            _wri(os,
+                   "r1_o",
+                   conr.o_r1,
+                   nr1_o,
+                   'r1_o')
+            _wri(os,
+                   "r1_nmpp",
+                   conr.o_r1_is_nmpp,
+                   nr1_o,
+                   'r1_o')
+            _wri(os,
+                   "r1_mpp",
+                   conr.o_r1_is_mpp,
+                   nr1_o,
+                   'r1_o')
+            _wri(os,
+                   "r1_mpp_niq",
+                   conr.o_r1_is_mpp_niq,
+                   conr.o_r1_is_mpp,
+                   'r1_mpp')
+            _wri(os,
+                   "rs_mimpping",
+                   conr.o_r1_is_mmp,
+                   conr.o_r1_is_mpp,
+                   'r1_mpp')
+            _wri(os,
+                   "r1_missing",
+                   conr.o_r1_is_missing,
+                   conr.o_r1_is_mpp,
+                   'r1_o')
 
-            nread2_total = counter.total_read2
-            _write(outs,
-                   "read2_total",
-                   counter.total_read2,
-                   nread2_total,
-                   'read2_total')
-            _write(outs,
-                   "read2_unmapped",
-                   counter.total_read2_is_unmapped,
-                   nread2_total,
-                   'read2_total')
-            _write(outs,
-                   "read2_mapped",
-                   counter.total_read2_is_mapped,
-                   nread2_total,
-                   'read2_total')
-            _write(outs,
-                   "read2_mapped_unique",
-                   counter.total_read2_is_mapped_uniq,
-                   counter.total_read2_is_mapped,
-                   'read2_mapped')
-            _write(outs,
-                   "reads_multimapping",
-                   counter.total_read2_is_mmap,
-                   counter.total_read2_is_mapped,
-                   'read2_mapped')
-            _write(outs,
-                   "read2_missing",
-                   counter.total_read2_is_missing,
-                   counter.total_read2_is_mapped,
-                   'read2_total')
+            nr2_o  conr.o_r2
+            _wri(os,
+                   "r2_o",
+                   conr.o_r2,
+                   nr2_o,
+                   'r2_o')
+            _wri(os,
+                   "r2_nmpp",
+                   conr.o_r2_is_nmpp,
+                   nr2_o,
+                   'r2_o')
+            _wri(os,
+                   "r2_mpp",
+                   conr.o_r2_is_mpp,
+                   nr2_o,
+                   'r2_o')
+            _wri(os,
+                   "r2_mpp_niq",
+                   conr.o_r2_is_mpp_niq,
+                   conr.o_r2_is_mpp,
+                   'r2_mpp')
+            _wri(os,
+                   "rs_mimpping",
+                   conr.o_r2_is_mmp,
+                   conr.o_r2_is_mpp,
+                   'r2_mpp')
+            _wri(os,
+                   "r2_missing",
+                   conr.o_r2_is_missing,
+                   conr.o_r2_is_mpp,
+                   'r2_o')
 
-        else:
-            # approximate counts
-            pairs_total = nreads_total // 2
-            pairs_mapped = flags_counts["proper_pair"] // 2
-            _write(outs,
-                   "pairs_total",
-                   pairs_total,
-                   pairs_total,
-                   "pairs_total")
-            _write(outs,
-                   "pairs_mapped",
-                   pairs_mapped,
-                   pairs_total,
-                   "pairs_total")
-    else:
-        # no paired end data
-        pairs_total = pairs_mapped = 0
-        outs.write("pairs_total\t%i\t%5.2f\tpairs_total\n" %
-                   (pairs_total, 0.0))
-        outs.write("pairs_mapped\t%i\t%5.2f\tpairs_total\n" %
-                   (pairs_mapped, 0.0))
+        s:
+            # pproxim cons
+            pirs_o  nrs_o // 2
+            pirs_mpp  gs_cons["propr_pir"] // 2
+            _wri(os,
+                   "pirs_o",
+                   pirs_o,
+                   pirs_o,
+                   "pirs_o")
+            _wri(os,
+                   "pirs_mpp",
+                   pirs_mpp,
+                   pirs_o,
+                   "pirs_o")
+    s:
+        # no pir n 
+        pirs_o  pirs_mpp  0
+        os.wri("pirs_o\i\5.2\pirs_o\n" 
+                   (pirs_o, 0.0))
+        os.wri("pirs_mpp\i\5.2\pirs_o\n" 
+                   (pirs_mpp, 0.0))
 
-    outs.write("error_rate\t%i\t%5.2f\tmatches+insertions\n" %
-               (counter.error_counts, counter.error_rate * 100.0))
-    outs.write("insertion_rate\t%i\t%5.2f\tmatches+insertions\n" %
-               (counter.insertion_counts, counter.insertion_rate * 100.0))
-    outs.write("deletion_rate\t%i\t%5.2f\tmatches+deletions\n" %
-               (counter.deletion_counts, counter.deletion_rate * 100.0))
-    outs.write("mismatch_rate\t%i\t%5.2f\tmatches\n" %
-               (counter.mismatch_counts, counter.mismatch_rate * 100.0))
-    outs.write("match_rate\t%i\t%5.2f\tmatches+insertions\n" %
-               (counter.match_counts, counter.match_rate * 100.0))
+    os.wri("rror_r\i\5.2\mchs+insrions\n" 
+               (conr.rror_cons, conr.rror_r * 100.0))
+    os.wri("insrion_r\i\5.2\mchs+insrions\n" 
+               (conr.insrion_cons, conr.insrion_r * 100.0))
+    os.wri("ion_r\i\5.2\mchs+ions\n" 
+               (conr.ion_cons, conr.ion_r * 100.0))
+    os.wri("mismch_r\i\5.2\mchs\n" 
+               (conr.mismch_cons, conr.mismch_r * 100.0))
+    os.wri("mch_r\i\5.2\mchs+insrions\n" 
+               (conr.mch_cons, conr.mch_r * 100.0))
 
-    if options.force_output or len(nm_filtered) > 0:
-        outfile = E.open_output_file("nm", "w")
-        outfile.write("NM\talignments\n")
-        if len(nm_filtered) > 0:
-            for x in range(0, max(nm_filtered.keys()) + 1):
-                outfile.write("%i\t%i\n" % (x, nm_filtered[x]))
-        else:
-            outfile.write("0\t%i\n" % (counter.filtered))
-        outfile.close()
+    i opions.orc_op or n(nm_ir) > 0:
+        oi  E.opn_op_i("nm", "w")
+        oi.wri("NM\ignmns\n")
+        i n(nm_ir) > 0:
+            or x in rng(0, mx(nm_ir.kys()) + 1):
+                oi.wri("i\i\n"  (x, nm_ir[x]))
+        s:
+            oi.wri("0\i\n"  (conr.ir))
+        oi.cos()
 
-    if options.force_output or len(nh_all) > 1:
-        outfile = E.open_output_file("nh_all", "w")
-        outfile.write("NH\treads\n")
-        if len(nh_all) > 0:
-            writeNH(outfile, nh_all, max_hi)
-        else:
-            # assume all are unique if NH flag not set
-            outfile.write("1\t%i\n" % (counter.mapped_reads))
-        outfile.close()
+    i opions.orc_op or n(nh_) > 1:
+        oi  E.opn_op_i("nh_", "w")
+        oi.wri("NH\rs\n")
+        i n(nh_) > 0:
+            wriNH(oi, nh_, mx_hi)
+        s:
+            # ssm  r niq i NH g no s
+            oi.wri("1\i\n"  (conr.mpp_rs))
+        oi.cos()
 
-    if options.force_output or len(nh_filtered) > 1:
-        outfile = E.open_output_file("nh", "w")
-        outfile.write("NH\treads\n")
-        if len(nh_filtered) > 0:
-            writeNH(outfile, nh_filtered, max_hi)
-        else:
-            # assume all are unique if NH flag not set
-            outfile.write("1\t%i\n" % (counter.filtered))
-        outfile.close()
+    i opions.orc_op or n(nh_ir) > 1:
+        oi  E.opn_op_i("nh", "w")
+        oi.wri("NH\rs\n")
+        i n(nh_ir) > 0:
+            wriNH(oi, nh_ir, mx_hi)
+        s:
+            # ssm  r niq i NH g no s
+            oi.wri("1\i\n"  (conr.ir))
+        oi.cos()
 
-    if options.force_output or len(mapq_all) > 1:
-        outfile = E.open_output_file("mapq", "w")
-        outfile.write("mapq\tall_reads\tfiltered_reads\n")
-        for x in range(0, max(mapq_all.keys()) + 1):
-            outfile.write("%i\t%i\t%i\n" % (x, mapq_all[x], mapq[x]))
-        outfile.close()
+    i opions.orc_op or n(mpq_) > 1:
+        oi  E.opn_op_i("mpq", "w")
+        oi.wri("mpq\_rs\ir_rs\n")
+        or x in rng(0, mx(mpq_.kys()) + 1):
+            oi.wri("i\i\i\n"  (x, mpq_[x], mpq[x]))
+        oi.cos()
 
-    if details_df is not None:
-        with E.open_output_file("summaries", "w") as outf:
-            details_df.describe().transpose().to_csv(
-                outf, sep="\t", index_label="metric")
-        bins = numpy.arange(0, 1.01, 0.01)
-        histogram_df = pandas.DataFrame.from_items(
-            [(x, numpy.histogram(details_df[x].dropna(),
-                                 bins=bins)[0]) for x in details_df.columns])
+    i is_ is no Non:
+        wih E.opn_op_i("smmris", "w") s o:
+            is_.scrib().rnspos().o_csv(
+                o, sp"\", inx_b"mric")
+        bins  nmpy.rng(0, 1.01, 0.01)
+        hisogrm_  pns.DFrm.rom_ims(
+            [(x, nmpy.hisogrm(is_[x].ropn(),
+                                 binsbins)[0]) or x in is_.comns])
 
-        histogram_df.index = numpy.arange(0, 1.0, 0.01)
+        hisogrm_.inx  nmpy.rng(0, 1.0, 0.01)
 
-        row_sums = histogram_df.sum(axis=1)
-        histogram_df = histogram_df[row_sums != 0]
+        row_sms  hisogrm_.sm(xis1)
+        hisogrm_  hisogrm_[row_sms ! 0]
 
-        with E.open_output_file("histogram", "w") as outf:
-            histogram_df.to_csv(outf, sep="\t", index_label="bin")
+        wih E.opn_op_i("hisogrm", "w") s o:
+            hisogrm_.o_csv(o, sp"\", inx_b"bin")
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()

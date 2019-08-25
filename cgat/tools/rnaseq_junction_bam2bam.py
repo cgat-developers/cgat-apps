@@ -1,213 +1,213 @@
-'''rnaseq_junction_bams2bam.py - convert mappings against junctions to genomic coordinates
-========================================================================================
+'''rnsq_jncion_bms2bm.py - convr mppings gins jncions o gnomic coorins
 
-:Tags: Genomics NGS Genesets
 
-Purpose
+:Tgs: Gnomics NGS Gnss
+
+Prpos
 -------
 
-This script takes as input a BAM file resulting from reads mapped against
-a junction database and outputs a :term:`bam` formatted file in genomic
-coordinates.
+This scrip ks s inp  BAM i rsing rom rs mpp gins
+ jncion bs n ops  :rm:`bm` orm i in gnomic
+coorins.
 
-The contigs should be of the format
-<chromosome>|<start>|<exon-end>-<exon-start>|<end>|<splice>|<strand>.
+Th conigs sho b o h orm
+<chromosom>|<sr>|<xon-n>-<xon-sr>|<n>|<spic>|<srn>.
 
-<start> - 0-based coordinate of first base
-<exon-end> - 0-based coordinate of last base in exon
-<exon-start> - 0-based coordinate of first base in exon
-<end> - 0-based coordinate of base after last base
+<sr> - 0-bs coorin o irs bs
+<xon-n> - 0-bs coorin o s bs in xon
+<xon-sr> - 0-bs coorin o irs bs in xon
+<n> - 0-bs coorin o bs r s bs
 
-Strand can be either ``fwd`` or ``rev``, though sequences in the database
-and coordinates are all on the forward strand.
+Srn cn b ihr ``w`` or ``rv``, hogh sqncs in h bs
+n coorins r  on h orwr srn.
 
-For example ``chr1|1244933|1244982-1245060|1245110|GTAG|fwd`` translates to the
-intron ``chr1:1244983-1245060`` in python coordinates.
+For xmp ``chr1|1244933|1244982-1245060|1245110|GTAG|w`` rnss o h
+inron ``chr1:1244983-1245060`` in pyhon coorins.
 
-The input bam-file is supposed to be sorted by read. Only the best
-matches are output for each read, were best is defined both in terms
-of number of mismatches and number of colour mismatches.
+Th inp bm-i is sppos o b sor by r. Ony h bs
+mchs r op or ch r, wr bs is in boh in rms
+o nmbr o mismchs n nmbr o coor mismchs.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   cat input.bam | python rnaseq_junction_bam2bam.py - --log=log > output.bam
+   c inp.bm | pyhon rnsq_jncion_bm2bm.py - --ogog > op.bm
 
-Type::
+Typ::
 
-   python rnaseq_junction_bam2bam.py --help
+   pyhon rnsq_jncion_bm2bm.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import itertools
+impor sys
+impor iroos
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import pysam
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor pysm
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: cg_scrip_mp.py 2871 2010-03-03 10:20:44Z nrs $",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-t", "--template-bam-file", dest="filename_genome_bam", type="string",
-                      help="input bam file for header information [%default]")
+    prsr._rgmn("-", "--mp-bm-i", s"inm_gnom_bm", yp"sring",
+                      hp"inp bm i or hr inormion []")
 
-    parser.add_argument("-s", "--contigs-tsv-file", dest="filename_contigs", type="string",
-                      help="filename with contig sizes [%default]")
+    prsr._rgmn("-s", "--conigs-sv-i", s"inm_conigs", yp"sring",
+                      hp"inm wih conig sizs []")
 
-    parser.add_argument("-o", "--colour", dest="colour_mismatches", action="store_true",
-                      help="mismatches will use colour differences (CM tag) [%default]")
+    prsr._rgmn("-o", "--coor", s"coor_mismchs", cion"sor_r",
+                      hp"mismchs wi s coor irncs (CM g) []")
 
-    parser.add_argument("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
-                      help="ignore mismatches [%default]")
+    prsr._rgmn("-i", "--ignor-mismchs", s"ignor_mismchs", cion"sor_r",
+                      hp"ignor mismchs []")
 
-    parser.add_argument("-c", "--remove-contigs", dest="remove_contigs", type="string",
-                      help="','-separated list of contigs to remove [%default]")
+    prsr._rgmn("-c", "--rmov-conigs", s"rmov_conigs", yp"sring",
+                      hp"','-spr is o conigs o rmov []")
 
-    parser.add_argument("-f", "--force-output", dest="force", action="store_true",
-                      help="force overwriting of existing files [%default]")
+    prsr._rgmn("-", "--orc-op", s"orc", cion"sor_r",
+                      hp"orc ovrwriing o xising is []")
 
-    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="remove reads not matching uniquely [%default]")
+    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
+                      hp"rmov rs no mching niqy []")
 
-    parser.set_defaults(
-        filename_genome_bam=None,
-        filename_gtf=None,
-        filename_mismapped=None,
-        remove_contigs=None,
-        force=False,
-        unique=False,
-        colour_mismatches=False,
-        ignore_mismatches=False,
+    prsr.s_s(
+        inm_gnom_bmNon,
+        inm_gNon,
+        inm_mismppNon,
+        rmov_conigsNon,
+        orcFs,
+        niqFs,
+        coor_mismchsFs,
+        ignor_mismchsFs,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    genomefile, referencenames, referencelengths = None, None, None
+    gnomi, rrncnms, rrncnghs  Non, Non, Non
 
-    if options.filename_genome_bam:
-        genomefile = pysam.AlignmentFile(options.filename_genome_bam, "rb")
-    elif options.filename_contigs:
-        contigs = iotools.ReadMap(iotools.open_file(options.filename_contigs))
-        data = list(zip(*list(contigs.items())))
-        referencenames, referencelengths = data[0], list(map(int, data[1]))
-    else:
-        raise ValueError(
-            "please provide either --template-bam-file or --contigs-tsv-file")
+    i opions.inm_gnom_bm:
+        gnomi  pysm.AignmnFi(opions.inm_gnom_bm, "rb")
+    i opions.inm_conigs:
+        conigs  iooos.RMp(iooos.opn_i(opions.inm_conigs))
+          is(zip(*is(conigs.ims())))
+        rrncnms, rrncnghs  [0], is(mp(in, [1]))
+    s:
+        ris VError(
+            "ps provi ihr --mp-bm-i or --conigs-sv-i")
 
-    infile = pysam.AlignmentFile("-", "rb")
-    outfile = pysam.AlignmentFile("-", "wb", template=genomefile,
-                                  referencenames=referencenames,
-                                  referencelengths=referencelengths)
+    ini  pysm.AignmnFi("-", "rb")
+    oi  pysm.AignmnFi("-", "wb", mpgnomi,
+                                  rrncnmsrrncnms,
+                                  rrncnghsrrncnghs)
 
-    if options.colour_mismatches:
-        tag = "CM"
-    else:
-        tag = "NM"
+    i opions.coor_mismchs:
+        g  "CM"
+    s:
+        g  "NM"
 
-    nambiguous = 0
-    ninput = 0
-    nunmapped = 0
-    ncigar = 0
-    nfull = 0
-    noutput = 0
+    nmbigos  0
+    ninp  0
+    nnmpp  0
+    ncigr  0
+    n  0
+    nop  0
 
-    contig2tid = dict([(y, x) for x, y in enumerate(outfile.references)])
+    conig2i  ic([(y, x) or x, y in nmr(oi.rrncs)])
 
-    for qname, readgroup in itertools.groupby(infile, lambda x: x.qname):
-        ninput += 1
-        reads = list(readgroup)
-        if reads[0].is_unmapped:
-            nunmapped += 1
-            continue
+    or qnm, rgrop in iroos.gropby(ini, mb x: x.qnm):
+        ninp + 1
+        rs  is(rgrop)
+        i rs[0].is_nmpp:
+            nnmpp + 1
+            conin
 
-        # filter for best match
-        best = min([x.opt(tag) for x in reads])
-        reads = [x for x in reads if x.opt(tag) == best]
-        if len(reads) > 1:
-            nambiguous += 1
-            continue
+        # ir or bs mch
+        bs  min([x.op(g) or x in rs])
+        rs  [x or x in rs i x.op(g)  bs]
+        i n(rs) > 1:
+            nmbigos + 1
+            conin
 
-        read = reads[0]
+        r  rs[0]
 
-        # reject complicated matches (indels, etc)
-        # to simplify calculations below.
-        if len(read.cigar) > 1:
-            ncigar += 1
-            continue
+        # rjc compic mchs (ins, c)
+        # o simpiy ccions bow.
+        i n(r.cigr) > 1:
+            ncigr + 1
+            conin
 
-        # set NH flag to latest count
-        t = dict(read.tags)
-        t['NH'] = 1
-        read.tags = list(t.items())
+        # s NH g o s con
+          ic(r.gs)
+        ['NH']  1
+        r.gs  is(.ims())
 
-        sname = infile.getrname(read.tid)
+        snm  ini.grnm(r.i)
 
-        contig, first_exon_start, middle, last_exon_end, splice, strand = sname.split(
+        conig, irs_xon_sr, mi, s_xon_n, spic, srn  snm.spi(
             "|")
-        first_exon_end, last_exon_start = middle.split("-")
-        first_exon_start, first_exon_end, last_exon_start, last_exon_end = list(map(int, (
-            first_exon_start, first_exon_end, last_exon_start, last_exon_end)))
-        first_exon_end += 1
+        irs_xon_n, s_xon_sr  mi.spi("-")
+        irs_xon_sr, irs_xon_n, s_xon_sr, s_xon_n  is(mp(in, (
+            irs_xon_sr, irs_xon_n, s_xon_sr, s_xon_n)))
+        irs_xon_n + 1
 
-        total = first_exon_end - first_exon_start + \
-            last_exon_end - last_exon_start
-        first_exon_length = first_exon_end - first_exon_start
+        o  irs_xon_n - irs_xon_sr + \
+            s_xon_n - s_xon_sr
+        irs_xon_ngh  irs_xon_n - irs_xon_sr
 
-        match1 = first_exon_length - read.pos
-        intron_length = last_exon_start - first_exon_end
-        match2 = read.qlen - match1
+        mch1  irs_xon_ngh - r.pos
+        inron_ngh  s_xon_sr - irs_xon_n
+        mch2  r.qn - mch1
 
-        # match lies fully in one exon - ignore
-        if match1 <= 0 or match2 <= 0:
-            nfull += 1
-            continue
+        # mch is y in on xon - ignor
+        i mch1 < 0 or mch2 < 0:
+            n + 1
+            conin
 
-        # increment pos
-        read.pos = first_exon_start + read.pos
-        read.tid = contig2tid[contig]
-        # 3 = BAM_CREF_SKIP
-        read.cigar = [(0, match1), (3, intron_length), (0, match2)]
+        # incrmn pos
+        r.pos  irs_xon_sr + r.pos
+        r.i  conig2i[conig]
+        # 3  BAM_CREF_SKIP
+        r.cigr  [(0, mch1), (3, inron_ngh), (0, mch2)]
 
-        outfile.write(read)
+        oi.wri(r)
 
-        noutput += 1
+        nop + 1
 
-    outfile.close()
-    if genomefile:
-        genomefile.close()
+    oi.cos()
+    i gnomi:
+        gnomi.cos()
 
-    c = E.Counter()
-    c.input = ninput
-    c.output = noutput
-    c.full = nfull
-    c.cigar = ncigar
-    c.ambiguous = nambiguous
-    c.unmapped = nunmapped
+    c  E.Conr()
+    c.inp  ninp
+    c.op  nop
+    c.  n
+    c.cigr  ncigr
+    c.mbigos  nmbigos
+    c.nmpp  nnmpp
 
-    E.info("%s" % str(c))
+    E.ino("s"  sr(c))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

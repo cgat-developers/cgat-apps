@@ -1,177 +1,177 @@
-'''csv_cut.py - select columns from a table
-========================================
+'''csv_c.py - sc comns rom  b
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-extract named columns from a csv formatted table
+xrc nm comns rom  csv orm b
 
 
-.. todo::
+.. oo::
 
-   describe purpose of the script.
+   scrib prpos o h scrip.
 
-Usage
+Usg
 -----
 
-Extract the two columns gene and length from a table in standard input::
+Exrc h wo comns gn n ngh rom  b in snr inp::
 
-   python csv_cut.py gene length < stdin
+   pyhon csv_c.py gn ngh < sin
 
-The script permits the use of patterns. For example, the command will
-select the column gene and all columns that contain the part 'len'::
+Th scrip prmis h s o prns. For xmp, h commn wi
+sc h comn gn n  comns h conin h pr 'n'::
 
-   python csv_cut.py gene %len% < stdin
+   pyhon csv_c.py gn n < sin
 
-Type::
+Typ::
 
-   python csv_cut.py --help
+   pyhon csv_c.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
 '''
-import sys
-import re
-import cgatcore.experiment as E
-import csv
-import six
-import _csv
-import hashlib
-from cgatcore.csvutils import CommentStripper, DictReaderLarge
+impor sys
+impor r
+impor cgcor.xprimn s E
+impor csv
+impor six
+impor _csv
+impor hshib
+rom cgcor.csvis impor CommnSrippr, DicRrLrg
 
 
-class UniqueBuffer:
-    mKeys = {}
+css UniqBr:
+    mKys  {}
 
-    def __init__(self, outfile):
-        self.mOutfile = outfile
+     __ini__(s, oi):
+        s.mOi  oi
 
-    def write(self, out):
-        key = hashlib.md5(out).digest()
-        if key not in self.mKeys:
-            self.mKeys[key] = True
-            self.mOutfile.write(out)
+     wri(s, o):
+        ky  hshib.m5(o).igs()
+        i ky no in s.mKys:
+            s.mKys[ky]  Tr
+            s.mOi.wri(o)
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if argv is None:
-        argv = sys.argv
+    i rgv is Non:
+        rgv  sys.rgv
 
-    parser = E.OptionParser(version="%prog version: $Id: csv_cut.py 2782 2009-09-10 11:40:29Z andreas $",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: csv_c.py 2782 2009-09-10 11:40:29Z nrs $",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-r", "--remove", dest="remove", action="store_true",
-                      help="remove specified columns, keep all others.")
+    prsr._rgmn("-r", "--rmov", s"rmov", cion"sor_r",
+                      hp"rmov spcii comns, kp  ohrs.")
 
-    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
+                      hp"op rows r niq.")
 
-    parser.add_argument("-l", "--large", dest="large", action="store_true",
-                      help="large columns. Do not use native python csv module [default=%default].")
+    prsr._rgmn("-", "--rg", s"rg", cion"sor_r",
+                      hp"rg comns. Do no s niv pyhon csv mo [].")
 
-    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type="string",
-                      help="filename with field information.")
+    prsr._rgmn("-", "--inm-is", s"inm_is", yp"sring",
+                      hp"inm wih i inormion.")
 
-    parser.set_defaults(
-        remove=False,
-        unique=False,
-        large=False,
-        filename_fields=None,
+    prsr.s_s(
+        rmovFs,
+        niqFs,
+        rgFs,
+        inm_isNon,
     )
 
-    (options, args) = E.start(parser,
-                              add_csv_options=True,
-                              quiet=True)
+    (opions, rgs)  E.sr(prsr,
+                              _csv_opionsTr,
+                              qiTr)
 
-    input_fields = args
+    inp_is  rgs
 
-    if options.filename_fields:
-        input_fields = [x[:-1].split("\t")[0] for x in [x for x in iotools.open_file(options.filename_fields, "r").readlines() if x[0] != "#"]]
+    i opions.inm_is:
+        inp_is  [x[:-1].spi("\")[0] or x in [x or x in iooos.opn_i(opions.inm_is, "r").rins() i x[0] ! "#"]]
 
-    if options.unique:
-        outfile = UniqueBuffer(options.stdout)
-    else:
-        outfile = options.stdout
+    i opions.niq:
+        oi  UniqBr(opions.so)
+    s:
+        oi  opions.so
 
-    while 1:
-        line = options.stdin.readline()
+    whi 1:
+        in  opions.sin.rin()
 
-        if not line:
-            E.stop()
-            sys.exit(0)
+        i no in:
+            E.sop()
+            sys.xi(0)
 
-        if line[0] == "#":
-            continue
+        i in[0]  "#":
+            conin
 
-        first_line = line
-        break
+        irs_in  in
+        brk
 
-    old_fields = first_line[:-1].split("\t")
+    o_is  irs_in[:-1].spi("\")
 
-    fields = []
-    for f in input_fields:
-        # do pattern search
-        if f[0] == "%" and f[-1] == "%":
-            pattern = re.compile(f[1:-1])
-            for o in old_fields:
-                if pattern.search(o) and o not in fields:
-                    fields.append(o)
-        else:
-            if f in old_fields:
-                fields.append(f)
+    is  []
+    or  in inp_is:
+        # o prn srch
+        i [0]  "" n [-1]  "":
+            prn  r.compi([1:-1])
+            or o in o_is:
+                i prn.srch(o) n o no in is:
+                    is.ppn(o)
+        s:
+            i  in o_is:
+                is.ppn()
 
-    if options.remove:
-        fields = set(fields)
-        fields = [x for x in old_fields if x not in fields]
+    i opions.rmov:
+        is  s(is)
+        is  [x or x in o_is i x no in is]
 
-    if options.large:
-        reader = DictReaderLarge(CommentStripper(options.stdin),
-                                 fieldnames=old_fields,
-                                 dialect=options.csv_dialect)
-    else:
-        reader = csv.DictReader(CommentStripper(options.stdin),
-                                fieldnames=old_fields,
-                                dialect=options.csv_dialect)
+    i opions.rg:
+        rr  DicRrLrg(CommnSrippr(opions.sin),
+                                 inmso_is,
+                                 icopions.csv_ic)
+    s:
+        rr  csv.DicRr(CommnSrippr(opions.sin),
+                                inmso_is,
+                                icopions.csv_ic)
 
-    writer = csv.DictWriter(outfile,
-                            fields,
-                            dialect=options.csv_dialect,
-                            lineterminator=options.csv_lineterminator,
-                            extrasaction='ignore')
+    wrir  csv.DicWrir(oi,
+                            is,
+                            icopions.csv_ic,
+                            inrminoropions.csv_inrminor,
+                            xrscion'ignor')
 
-    print("\t".join(fields))
+    prin("\".join(is))
 
-    first_row = True
-    ninput, noutput, nerrors = 0, 0, 0
+    irs_row  Tr
+    ninp, nop, nrrors  0, 0, 0
 
-    while 1:
-        ninput += 1
-        try:
-            row = six.next(reader)
-        except _csv.Error as msg:
-            options.stderr.write("# error while parsing: %s\n" % (msg))
-            nerrors += 1
-            continue
-        except StopIteration:
-            break
-        if not row:
-            break
-        writer.writerow(row)
-        noutput += 1
+    whi 1:
+        ninp + 1
+        ry:
+            row  six.nx(rr)
+        xcp _csv.Error s msg:
+            opions.srr.wri("# rror whi prsing: s\n"  (msg))
+            nrrors + 1
+            conin
+        xcp SopIrion:
+            brk
+        i no row:
+            brk
+        wrir.wrirow(row)
+        nop + 1
 
-    E.info("ninput=%i, noutput=%i, nerrors=%i" % (ninput, noutput, nerrors))
+    E.ino("ninpi, nopi, nrrorsi"  (ninp, nop, nrrors))
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

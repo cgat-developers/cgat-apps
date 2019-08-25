@@ -1,392 +1,392 @@
-'''cgat2dot.py - create a graph between cgat scripts
-====================================================
+'''cg2o.py - cr  grph bwn cg scrips
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-This script creates an rdf description of a cgat script.
+This scrip crs n r scripion o  cg scrip.
 
-Optionally, the script outputs also a galaxy xml description of the
-scripts' interface.
+Opiony, h scrip ops so  gxy xm scripion o h
+scrips' inrc.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python cgat2dot.py scripts/*.py
+   pyhon cg2o.py scrips/*.py
 
-Type::
+Typ::
 
-   python cgat2dot.py --help
+   pyhon cg2o.py --hp
 
-for command line help.
+or commn in hp.
 
-Documentation
+Docmnion
 -------------
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import os
-import sys
-import re
-import imp
+impor os
+impor sys
+impor r
+impor imp
 
-import cgatcore.experiment as E
+impor cgcor.xprimn s E
 
-BASE_URL = "https://www.cgat.org/downloads/public/cgat/documentation/"
+BASE_URL  "hps://www.cg.org/ownos/pbic/cg/ocmnion/"
 
-ORIGINAL_START = None
+ORIGINAL_START  Non
 
-PARSER = None
+PARSER  Non
 
 
-def _e(string):
-    return string.replace(' ', '_')
+ _(sring):
+    rrn sring.rpc(' ', '_')
 
-MAP_FORMATS = {
-    'tsv': 'table',
-    'table': 'table',
-    'stats': 'table',
-    'csv': 'table',
+MAP_FORMATS  {
+    'sv': 'b',
+    'b': 'b',
+    'ss': 'b',
+    'csv': 'b',
 }
 
-PRINCIPAL_FORMATS = ('bam',
-                     'gff',
-                     'gtf',
-                     'bed',
-                     'wiggle',
-                     'fasta',
-                     'fastq',
-                     'fastqs')
+PRINCIPAL_FORMATS  ('bm',
+                     'g',
+                     'g',
+                     'b',
+                     'wigg',
+                     's',
+                     'sq',
+                     'sqs')
 
-BREAK_FORMATS = {'table': 0}
-MAP_TYPE2FORMAT = {
-    'gff': 'gff,gtf',
-    'gtf': 'gff,gtf',
-    'bam': 'bam',
-    'sam': 'sam',
+BREAK_FORMATS  {'b': 0}
+MAP_TYPE2FORMAT  {
+    'g': 'g,g',
+    'g': 'g,g',
+    'bm': 'bm',
+    'sm': 'sm',
     'bigwig': 'bigWig',
-    'bed': 'bed',
+    'b': 'b',
 }
 
-NODE_STYLE_DEFAULT = 'color="#A5BB00",style="filled"'
-NODE_STYLE_FORMAT = 'color="#7577B8",style="filled"'
+NODE_STYLE_DEFAULT  'coor"#A5BB00",sy"i"'
+NODE_STYLE_FORMAT  'coor"#7577B8",sy"i"'
 
-EDGE_STYLE_CONVERSION = 'color="#7577B8",penwidth=2'
-EDGE_STYLE_DEFAULT = 'color="#A5BB00",penwidth=1'
-
-
-class DummyError(Exception):
-    pass
+EDGE_STYLE_CONVERSION  'coor"#7577B8",pnwih2'
+EDGE_STYLE_DEFAULT  'coor"#A5BB00",pnwih1'
 
 
-def LocalStart(parser, *args, **kwargs):
-    '''stub for E.start - set return_parser argument to true'''
-    global PARSER
-    PARSER = ORIGINAL_START(parser,
-                            return_parser=True,
-                            **kwargs
+css DmmyError(Excpion):
+    pss
+
+
+ LocSr(prsr, *rgs, **kwrgs):
+    '''sb or E.sr - s rrn_prsr rgmn o r'''
+    gob PARSER
+    PARSER  ORIGINAL_START(prsr,
+                            rrn_prsrTr,
+                            **kwrgs
                             )
-    raise DummyError()
+    ris DmmyError()
 
 
-def getDescription(scriptname, docstring):
-    '''get script description from docstring.'''
+ gDscripion(scripnm, ocsring):
+    '''g scrip scripion rom ocsring.'''
 
-    description = scriptname
-    for line in docstring.split("\n"):
-        if line.startswith(scriptname):
-            description = line[line.index("-") + 1:].strip()
-            break
+    scripion  scripnm
+    or in in ocsring.spi("\n"):
+        i in.srswih(scripnm):
+            scripion  in[in.inx("-") + 1:].srip()
+            brk
 
-    return description
-
-
-def guessFormats(scriptname, docstring):
-    '''guess the input/output format of a script.'''
-
-    input_format, output_format = "tsv", "tsv"
-
-    if "2" in scriptname:
-        input_format, output_format = scriptname.split("2")
-
-    # map cgat format names to GALAXY ones
-    input_format = MAP_FORMATS.get(input_format, input_format)
-    output_format = MAP_FORMATS.get(output_format, output_format)
-
-    return input_format, output_format
+    rrn scripion
 
 
-def buildParam(**kwargs):
-    '''return a parameter with default values.
+ gssForms(scripnm, ocsring):
+    '''gss h inp/op orm o  scrip.'''
 
-    Specific fields can be set by providing keyword arguments.
+    inp_orm, op_orm  "sv", "sv"
+
+    i "2" in scripnm:
+        inp_orm, op_orm  scripnm.spi("2")
+
+    # mp cg orm nms o GALAXY ons
+    inp_orm  MAP_FORMATS.g(inp_orm, inp_orm)
+    op_orm  MAP_FORMATS.g(op_orm, op_orm)
+
+    rrn inp_orm, op_orm
+
+
+ biPrm(**kwrgs):
+    '''rrn  prmr wih  vs.
+
+    Spciic is cn b s by proviing kywor rgmns.
     '''
 
-    param = {}
+    prm  {}
 
-    param['label'] = "label"
-    param['description'] = "description"
-    param['rank'] = 1
-    param['display'] = 'show'
-    param['min_occurrence'] = 0
-    param['max_occurrence'] = 1
+    prm['b']  "b"
+    prm['scripion']  "scripion"
+    prm['rnk']  1
+    prm['ispy']  'show'
+    prm['min_occrrnc']  0
+    prm['mx_occrrnc']  1
 
-    # get default value
-    param['value'] = "value"
-    param['type'] = "text"
-    param['dependencies'] = {}
-    param['property_bag'] = {}
-    param['arg_long'] = '--long-argument'
+    # g  v
+    prm['v']  "v"
+    prm['yp']  "x"
+    prm['pnncis']  {}
+    prm['propry_bg']  {}
+    prm['rg_ong']  '--ong-rgmn'
 
-    param.update(kwargs)
-    return param
-
-
-def processScript(script_name, outfile, options):
-    '''process one script.'''
-
-    # call other script
-    prefix, suffix = os.path.splitext(script_name)
-
-    dirname = os.path.dirname(script_name)
-    basename = os.path.basename(script_name)[:-3]
-
-    if options.src_dir:
-        dirname = options.src_dir
-        script_name = os.path.join(dirname, basename) + ".py"
-
-    if os.path.exists(prefix + ".pyc"):
-        os.remove(prefix + ".pyc")
-
-    pyxfile = os.path.join(dirname, "_") + basename + ".pyx"
-    if os.path.exists(pyxfile):
-        pass
-
-    try:
-        module = imp.load_source(basename, script_name)
-    except ImportError as msg:
-        E.warn('could not import %s - skipped: %s' % (basename, msg))
-        return
-
-    E.info("loaded module %s" % module)
-
-    E.start = LocalStart
-    try:
-        module.main(argv=["--help"])
-    except TypeError as msg:
-        E.warn('could not import %s: %s' % (basename, msg))
-        return
-    except DummyError:
-        pass
-
-    # get script's docstring
-    docstring = module.__doc__
-
-    input_format, output_format = guessFormats(basename, docstring)
-
-    if output_format in BREAK_FORMATS:
-        nodename = '%s%i' % (output_format, BREAK_FORMATS[output_format])
-        outfile.write('%s [label="%s"];\n' %
-                      (nodename,
-                       output_format))
-        BREAK_FORMATS[output_format] += 1
-        output_format = nodename
-
-    url = BASE_URL + "scripts/%s.html" % basename
-
-    # Note that URL needs to be uppercase!
-    if input_format in PRINCIPAL_FORMATS and \
-       output_format in PRINCIPAL_FORMATS:
-        edge_style = EDGE_STYLE_CONVERSION
-    else:
-        edge_style = EDGE_STYLE_DEFAULT
-    outfile.write('"%s" -> "%s" [label="%s",URL="%s",%s];\n' %
-                  (input_format, output_format, basename, url,
-                   edge_style))
-
-    return
-
-    # for k in dir(PARSER):
-    #     print k, getattr(PARSER, k)
-    # for option in PARSER.option_list:
-    # print option, option.type, option.help, option._short_opts,
-    # option._long_opts, option.default
-
-    # @prefix clp: <http://www.humgen.nl/climate/ontologies/clp#> .
-    # @prefix co: <http://www.isi.edu/ikcap/Wingse/componentOntology.owl#> .
-    # @prefix dcterms: <http://purl.org/dc/terms/> .
-
-    defaults = PARSER.get_default_values()
-
-    for option in PARSER.option_list:
-        # ignore options added by optparse
-        if option.dest is None:
-            continue
-
-        # ignore benchmarking options
-        if option.dest.startswith("timeit"):
-            continue
-
-        # ignore options related to forcing output
-        if "force" in option.dest:
-            continue
-
-        # ignore some special options:
-        # if option.dest in ("output_filename_pattern", ):
-        #    continue
-
-        # ignore output options
-        if option.dest in ("stdin", "stdout", "stdlog", "stderr", "loglevel"):
-            continue
-
-        # remove default from help string
-        option.help = re.sub("\[[^\]]*%default[^\]]*\]", "", option.help)
-
-        param = buildParam()
-
-        # get command line option call (long/short option)
-        try:
-            param['arg'] = option._short_opts[0]
-        except IndexError:
-            pass
-
-        try:
-            param['arg_long'] = option._long_opts[0]
-        except IndexError:
-            pass
-
-        assert 'arg' in param or 'arg_long' in param
-
-        # print "----------------------------------"
-        # print [(x,getattr(option,x)) for x in dir( option )]
-
-        param['name'] = option.dest
-        param['ns_name'] = option.dest
-        if option.type == "int":
-            param['type'] = "integer"
-        elif option.type == "float":
-            param['type'] = "float"
-        elif option.type == "string":
-            param['type'] = "text"
-            if option.metavar:
-                mvar = option.metavar.lower()
-                if mvar in MAP_TYPE2FORMAT:
-                    param['format'] = MAP_TYPE2FORMAT[mvar]
-                    param['type'] = "data"
-                if mvar == "bam":
-                    pass
-
-        elif option.type == "choice":
-            param['type'] = "select"
-            param['choices'] = option.choices
-            if option.action == "append":
-                param['multiple'] = True
-        elif option.action.startswith("store"):
-            param['type'] = "boolean"
-        else:
-            raise ValueError("unknown type for %s" % str(option))
-
-        param['label'] = option.dest
-        param['description'] = option.help
-        param['rank'] = 1
-        param['display'] = 'show'
-        param['min_occurrence'] = 0
-        param['max_occurrence'] = 1
-
-        # get default value
-        param['value'] = getattr(defaults,  option.dest)
+    prm.p(kwrgs)
+    rrn prm
 
 
-def main(argv=None):
-    """script main.
+ procssScrip(scrip_nm, oi, opions):
+    '''procss on scrip.'''
 
-    parses command line options in sys.argv, unless *argv* is given.
+    # c ohr scrip
+    prix, six  os.ph.spix(scrip_nm)
+
+    irnm  os.ph.irnm(scrip_nm)
+    bsnm  os.ph.bsnm(scrip_nm)[:-3]
+
+    i opions.src_ir:
+        irnm  opions.src_ir
+        scrip_nm  os.ph.join(irnm, bsnm) + ".py"
+
+    i os.ph.xiss(prix + ".pyc"):
+        os.rmov(prix + ".pyc")
+
+    pyxi  os.ph.join(irnm, "_") + bsnm + ".pyx"
+    i os.ph.xiss(pyxi):
+        pss
+
+    ry:
+        mo  imp.o_sorc(bsnm, scrip_nm)
+    xcp ImporError s msg:
+        E.wrn('co no impor s - skipp: s'  (bsnm, msg))
+        rrn
+
+    E.ino("o mo s"  mo)
+
+    E.sr  LocSr
+    ry:
+        mo.min(rgv["--hp"])
+    xcp TypError s msg:
+        E.wrn('co no impor s: s'  (bsnm, msg))
+        rrn
+    xcp DmmyError:
+        pss
+
+    # g scrip's ocsring
+    ocsring  mo.__oc__
+
+    inp_orm, op_orm  gssForms(bsnm, ocsring)
+
+    i op_orm in BREAK_FORMATS:
+        nonm  'si'  (op_orm, BREAK_FORMATS[op_orm])
+        oi.wri('s [b"s"];\n' 
+                      (nonm,
+                       op_orm))
+        BREAK_FORMATS[op_orm] + 1
+        op_orm  nonm
+
+    r  BASE_URL + "scrips/s.hm"  bsnm
+
+    # No h URL ns o b pprcs!
+    i inp_orm in PRINCIPAL_FORMATS n \
+       op_orm in PRINCIPAL_FORMATS:
+        g_sy  EDGE_STYLE_CONVERSION
+    s:
+        g_sy  EDGE_STYLE_DEFAULT
+    oi.wri('"s" -> "s" [b"s",URL"s",s];\n' 
+                  (inp_orm, op_orm, bsnm, r,
+                   g_sy))
+
+    rrn
+
+    # or k in ir(PARSER):
+    #     prin k, gr(PARSER, k)
+    # or opion in PARSER.opion_is:
+    # prin opion, opion.yp, opion.hp, opion._shor_ops,
+    # opion._ong_ops, opion.
+
+    # @prix cp: <hp://www.hmgn.n/cim/onoogis/cp#> .
+    # @prix co: <hp://www.isi./ikcp/Wings/componnOnoogy.ow#> .
+    # @prix crms: <hp://pr.org/c/rms/> .
+
+    s  PARSER.g__vs()
+
+    or opion in PARSER.opion_is:
+        # ignor opions  by opprs
+        i opion.s is Non:
+            conin
+
+        # ignor bnchmrking opions
+        i opion.s.srswih("imi"):
+            conin
+
+        # ignor opions r o orcing op
+        i "orc" in opion.s:
+            conin
+
+        # ignor som spci opions:
+        # i opion.s in ("op_inm_prn", ):
+        #    conin
+
+        # ignor op opions
+        i opion.s in ("sin", "so", "sog", "srr", "ogv"):
+            conin
+
+        # rmov  rom hp sring
+        opion.hp  r.sb("\[[^\]]*[^\]]*\]", "", opion.hp)
+
+        prm  biPrm()
+
+        # g commn in opion c (ong/shor opion)
+        ry:
+            prm['rg']  opion._shor_ops[0]
+        xcp InxError:
+            pss
+
+        ry:
+            prm['rg_ong']  opion._ong_ops[0]
+        xcp InxError:
+            pss
+
+        ssr 'rg' in prm or 'rg_ong' in prm
+
+        # prin "----------------------------------"
+        # prin [(x,gr(opion,x)) or x in ir( opion )]
+
+        prm['nm']  opion.s
+        prm['ns_nm']  opion.s
+        i opion.yp  "in":
+            prm['yp']  "ingr"
+        i opion.yp  "o":
+            prm['yp']  "o"
+        i opion.yp  "sring":
+            prm['yp']  "x"
+            i opion.mvr:
+                mvr  opion.mvr.owr()
+                i mvr in MAP_TYPE2FORMAT:
+                    prm['orm']  MAP_TYPE2FORMAT[mvr]
+                    prm['yp']  ""
+                i mvr  "bm":
+                    pss
+
+        i opion.yp  "choic":
+            prm['yp']  "sc"
+            prm['choics']  opion.choics
+            i opion.cion  "ppn":
+                prm['mip']  Tr
+        i opion.cion.srswih("sor"):
+            prm['yp']  "boon"
+        s:
+            ris VError("nknown yp or s"  sr(opion))
+
+        prm['b']  opion.s
+        prm['scripion']  opion.hp
+        prm['rnk']  1
+        prm['ispy']  'show'
+        prm['min_occrrnc']  0
+        prm['mx_occrrnc']  1
+
+        # g  v
+        prm['v']  gr(s,  opion.s)
+
+
+ min(rgvNon):
+    """scrip min.
+
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-f", "--format", dest="output_format", type="choice",
-                      choices=("rdf", "galaxy"),
-                      help="output format [%default]. ")
+    prsr._rgmn("-", "--orm", s"op_orm", yp"choic",
+                      choics("r", "gxy"),
+                      hp"op orm []. ")
 
-    parser.add_argument("-l", "--list", dest="filename_list", type="string",
-                      help="filename with list of files to export "
-                      "[%default]. ")
+    prsr._rgmn("-", "--is", s"inm_is", yp"sring",
+                      hp"inm wih is o is o xpor "
+                      "[]. ")
 
-    parser.add_argument("-s", "--source-dir", dest="src_dir", type="string",
-                      help="directory to look for scripts [%default]. ")
+    prsr._rgmn("-s", "--sorc-ir", s"src_ir", yp"sring",
+                      hp"ircory o ook or scrips []. ")
 
-    parser.add_argument("-r", "--input-regex", dest="input_regex", type="string",
-                      help="regular expression to extract script name "
-                      "[%default]. ")
+    prsr._rgmn("-r", "--inp-rgx", s"inp_rgx", yp"sring",
+                      hp"rgr xprssion o xrc scrip nm "
+                      "[]. ")
 
-    parser.add_argument("-p", "--output-filename-pattern", dest="output_pattern",
-                      type="string",
-                      help="pattern to build output filename. Should contain "
-                      "an '%s' [%default]. ")
+    prsr._rgmn("-p", "--op-inm-prn", s"op_prn",
+                      yp"sring",
+                      hp"prn o bi op inm. Sho conin "
+                      "n 's' []. ")
 
-    parser.set_defaults(output_format="rdf",
-                        src_dir=None,
-                        input_regex=None,
-                        output_pattern=None,
-                        filename_list=None)
+    prsr.s_s(op_orm"r",
+                        src_irNon,
+                        inp_rgxNon,
+                        op_prnNon,
+                        inm_isNon)
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv)
 
-    if len(args) == 0:
-        E.info("reading script names from stdin")
-        for line in options.stdin:
-            if line.startswith("#"):
-                continue
-            args.append(line[:-1].split("\t")[0])
+    i n(rgs)  0:
+        E.ino("ring scrip nms rom sin")
+        or in in opions.sin:
+            i in.srswih("#"):
+                conin
+            rgs.ppn(in[:-1].spi("\")[0])
 
-    # start script in order to build the command line parser
-    global ORIGINAL_START
-    ORIGINAL_START = E.start
+    # sr scrip in orr o bi h commn in prsr
+    gob ORIGINAL_START
+    ORIGINAL_START  E.sr
 
-    if options.output_pattern and not options.input_regex:
-        raise ValueError(
-            "please specify --input-regex when using --output-filename-pattern")
+    i opions.op_prn n no opions.inp_rgx:
+        ris VError(
+            "ps spciy --inp-rgx whn sing --op-inm-prn")
 
-    outfile = options.stdout
-    outfile.write("""digraph cgat {
-    size="10,20";
-    # scale graph so that there are no overlaps
-    overlap=scale;
-    splines=True;
+    oi  opions.so
+    oi.wri("""igrph cg {
+    siz"10,20";
+    # sc grph so h hr r no ovrps
+    ovrpsc;
+    spinsTr;
 \n""")
 
-    # set node format for principal genomic formats
-    for format in PRINCIPAL_FORMATS:
-        outfile.write('"%s" [shape=box,%s];\n' % (format, NODE_STYLE_FORMAT))
+    # s no orm or princip gnomic orms
+    or orm in PRINCIPAL_FORMATS:
+        oi.wri('"s" [shpbox,s];\n'  (orm, NODE_STYLE_FORMAT))
 
-    # general node format
-    outfile.write('node [%s];\n' % NODE_STYLE_DEFAULT)
+    # gnr no orm
+    oi.wri('no [s];\n'  NODE_STYLE_DEFAULT)
 
-    # go through script to provide edges
-    for script_name in args:
-        if not script_name.endswith(".py"):
-            raise ValueError("expected a python script ending in '.py'")
+    # go hrogh scrip o provi gs
+    or scrip_nm in rgs:
+        i no scrip_nm.nswih(".py"):
+            ris VError("xpc  pyhon scrip ning in '.py'")
 
-        E.info("input=%s, output=%s" % (script_name, outfile))
-        processScript(script_name, outfile, options)
+        E.ino("inps, ops"  (scrip_nm, oi))
+        procssScrip(scrip_nm, oi, opions)
 
-    outfile.write("}\n")
+    oi.wri("}\n")
 
-    E.stop()
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

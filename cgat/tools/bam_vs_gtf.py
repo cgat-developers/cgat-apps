@@ -1,289 +1,289 @@
-'''bam_vs_gtf.py - compare bam file against gene set
-=================================================
+'''bm_vs_g.py - compr bm i gins gn s
 
-:Tags: Genomics NGS Genesets BAM GTF Summary
 
-Purpose
+:Tgs: Gnomics NGS Gnss BAM GTF Smmry
+
+Prpos
 -------
 
-Compare RNASeq reads in a BAM file and compares it against reference exons to quantify exon overrun / underrun.
+Compr RNASq rs in  BAM i n comprs i gins rrnc xons o qniy xon ovrrn / nrrn.
 
-Documentation
+Docmnion
 -------------
 
-This script is for validation purposes:
-   * Exon overrun should be minimal - reads should not extend beyond known exons.
-   * Spliced reads should link known exons.
+This scrip is or viion prposs:
+   * Exon ovrrn sho b minim - rs sho no xn byon known xons.
+   * Spic rs sho ink known xons.
    
-Please note:
-   * For unspliced reads, any bases extending beyond exon boundaries are counted. 
-   * For spliced reads, both parts of the reads are examined for their overlap.
-        As a consequence, counts are doubled for spliced reads.
-   * The script requires a list of non-overlapping exons as input.
-   * For read counts to be correct the NH (number of hits) flag needs to be set correctly.
+Ps no:
+   * For nspic rs, ny bss xning byon xon bonris r con. 
+   * For spic rs, boh prs o h rs r xmin or hir ovrp.
+        As  consqnc, cons r ob or spic rs.
+   * Th scrip rqirs  is o non-ovrpping xons s inp.
+   * For r cons o b corrc h NH (nmbr o his) g ns o b s corrcy.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   # Preview the BAM file using Samtools view
-   samtools view tests/bam_vs_gtf.py/small.bam | head
-   # Pipe input bam to script and specify gtf file as argument
-   cat tests/bam_vs_gtf.py/small.bam | cgat bam_vs_gtf.py --gtf-file=tests/bam_vs_gtf.py/hg19.chr19.gtf.gz
+   # Prviw h BAM i sing Smoos viw
+   smoos viw ss/bm_vs_g.py/sm.bm | h
+   # Pip inp bm o scrip n spciy g i s rgmn
+   c ss/bm_vs_g.py/sm.bm | cg bm_vs_g.py --g-iss/bm_vs_g.py/hg19.chr19.g.gz
 
 +--------------------+---------+   
-|category            |counts   |
-+====================+=========+
-|spliced_bothoverlap |0        |
+|cgory            |cons   |
++++
+|spic_bohovrp |0        |
 +--------------------+---------+
-|unspliced_overlap   |0        |
+|nspic_ovrp   |0        |
 +--------------------+---------+
-|unspliced_nooverrun |0        |
+|nspic_noovrrn |0        |
 +--------------------+---------+
-|unspliced	     |207      |
+|nspic	     |207      |
 +--------------------+---------+
-|unspliced_nooverlap |207      |
+|nspic_noovrp |207      |
 +--------------------+---------+
-|spliced_overrun     |0        |
+|spic_ovrrn     |0        |
 +--------------------+---------+
-|spliced_halfoverlap |0        |
+|spic_hovrp |0        |
 +--------------------+---------+
-|spliced_exact	     |0        |
+|spic_xc	     |0        |
 +--------------------+---------+
-|spliced_inexact     |0        |
+|spic_inxc     |0        |
 +--------------------+---------+
-|unspliced_overrun   |0        |
+|nspic_ovrrn   |0        |
 +--------------------+---------+
-|spliced	     |18       |
+|spic	     |18       |
 +--------------------+---------+
-|spliced_underrun    |0        |
+|spic_nrrn    |0        |
 +--------------------+---------+
-|mapped	             |225      |
+|mpp	             |225      |
 +--------------------+---------+
-|unmapped	     |0        |
+|nmpp	     |0        |
 +--------------------+---------+
-|input	             |225      |
+|inp	             |225      |
 +--------------------+---------+
-|spliced_nooverlap   |18       |
+|spic_noovrp   |18       |
 +--------------------+---------+
-|spliced_ignored     |0        |
+|spic_ignor     |0        |
 +--------------------+---------+
 
-Type::
+Typ::
 
-   python bam_vs_gtf.py --help
+   pyhon bm_vs_g.py --hp
 
-for command line help.
+or commn in hp.
 
-Command line options
+Commn in opions
 --------------------
 
-filename-exons / filename-gtf: a gtf formatted file containing the
-genomic coordinates of a set of non-overlapping exons, such as from a
-reference genome annotation database (Ensembl, UCSC etc.).
+inm-xons / inm-g:  g orm i conining h
+gnomic coorins o  s o non-ovrpping xons, sch s rom 
+rrnc gnom nnoion bs (Ensmb, UCSC c.).
 
 '''
 
-import sys
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
-import pysam
-import cgat.GTF as GTF
+impor sys
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
+impor pysm
+impor cg.GTF s GTF
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "-e", "--exons-file", "--gtf-file",
-        dest="filename_exons", type="string", metavar="gtf",
-        help="gtf formatted file with non-overlapping exon "
-        "locations (required). [%default]")
+    prsr._rgmn(
+        "-", "--xons-i", "--g-i",
+        s"inm_xons", yp"sring", mvr"g",
+        hp"g orm i wih non-ovrpping xon "
+        "ocions (rqir). []")
 
-    parser.set_defaults(
-        filename_exons=None,
-        read_length=200,
+    prsr.s_s(
+        inm_xonsNon,
+        r_ngh200,
     )
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    exons = GTF.readAndIndex(
-        GTF.iterator(iotools.open_file(options.filename_exons)))
+    xons  GTF.rAnInx(
+        GTF.iror(iooos.opn_i(opions.inm_xons)))
 
-    pysam_in = pysam.AlignmentFile("-", "rb")
+    pysm_in  pysm.AignmnFi("-", "rb")
 
-    nspliced = 0
-    nspliced_ignored = 0
-    nspliced_nooverlap = 0
-    nspliced_halfoverlap = 0
-    nspliced_bothoverlap = 0
-    nspliced_overrun = [0] * 2 * (options.read_length + 10)
-    nspliced_exact = 0
-    nspliced_inexact = 0
-    nunspliced = 0
-    nunspliced_overlap = 0
-    nunspliced_ignored = 0
-    nunspliced_nooverlap = 0
-    nunspliced_overrun = [0] * (options.read_length + 10)
-    overrun_offset = options.read_length + 10
-    ninput = 0
-    nunmapped = 0
+    nspic  0
+    nspic_ignor  0
+    nspic_noovrp  0
+    nspic_hovrp  0
+    nspic_bohovrp  0
+    nspic_ovrrn  [0] * 2 * (opions.r_ngh + 10)
+    nspic_xc  0
+    nspic_inxc  0
+    nnspic  0
+    nnspic_ovrp  0
+    nnspic_ignor  0
+    nnspic_noovrp  0
+    nnspic_ovrrn  [0] * (opions.r_ngh + 10)
+    ovrrn_os  opions.r_ngh + 10
+    ninp  0
+    nnmpp  0
 
-    c = E.Counter()
+    c  E.Conr()
 
-    def _splice_overrun(start, end, overlap):
-        '''return splicesite over/underrun.
+     _spic_ovrrn(sr, n, ovrp):
+        '''rrn spicsi ovr/nrrn.
 
-        positive values: overrun
-        negative values: underrun
-        0: no over/underrun
+        posiiv vs: ovrrn
+        ngiv vs: nrrn
+        0: no ovr/nrrn
         '''
 
-        exon_start = min([x[0] for x in overlap])
-        exon_end = max([x[1] for x in overlap])
+        xon_sr  min([x[0] or x in ovrp])
+        xon_n  mx([x[1] or x in ovrp])
 
-        if start <= exon_start and end > exon_start:
-            # overrun at start or match
-            r = exon_start - start
-        elif start < exon_end and end >= exon_end:
-            # overrun at end or match
-            r = end - exon_end
-        else:
-            # underrun - distance to closest exon boundary
-            r = -min(start - exon_start, exon_end - end)
+        i sr < xon_sr n n > xon_sr:
+            # ovrrn  sr or mch
+            r  xon_sr - sr
+        i sr < xon_n n n > xon_n:
+            # ovrrn  n or mch
+            r  n - xon_n
+        s:
+            # nrrn - isnc o coss xon bonry
+            r  -min(sr - xon_sr, xon_n - n)
 
-        return r
+        rrn r
 
-    for read in pysam_in:
-        ninput += 1
-        if read.is_unmapped:
-            nunmapped += 1
-            continue
+    or r in pysm_in:
+        ninp + 1
+        i r.is_nmpp:
+            nnmpp + 1
+            conin
 
-        # check for BAM_CREF_SKIP code in cigar string
-        cigar = read.cigar
-        is_spliced = 3 in [x[0] for x in cigar]
+        # chck or BAM_CREF_SKIP co in cigr sring
+        cigr  r.cigr
+        is_spic  3 in [x[0] or x in cigr]
 
-        contig = pysam_in.getrname(read.tid)
-        start = read.pos
-        end = read.aend
-        if is_spliced:
-            # count both ends
-            nspliced += 1
+        conig  pysm_in.grnm(r.i)
+        sr  r.pos
+        n  r.n
+        i is_spic:
+            # con boh ns
+            nspic + 1
 
-            if len(cigar) != 3:
-                nspliced_ignored += 1
-                continue
+            i n(cigr) ! 3:
+                nspic_ignor + 1
+                conin
 
-            start5, end5 = start, start + cigar[0][1]
-            start3, end3 = end - cigar[2][1], end
-            try:
-                overlap3 = list(exons.get(contig, start3, end3))
-                overlap5 = list(exons.get(contig, start5, end5))
-            except KeyError:
-                overlap3 = overlap5 = []
+            sr5, n5  sr, sr + cigr[0][1]
+            sr3, n3  n - cigr[2][1], n
+            ry:
+                ovrp3  is(xons.g(conig, sr3, n3))
+                ovrp5  is(xons.g(conig, sr5, n5))
+            xcp KyError:
+                ovrp3  ovrp5  []
 
-            ovl3 = len(overlap3)
-            ovl5 = len(overlap5)
-            o3 = o5 = None
-            if not ovl3 and not ovl5:
-                nspliced_nooverlap += 1
-            elif ovl3 and not ovl5:
-                nspliced_halfoverlap += 1
-                o3 = _splice_overrun(start3, end3, overlap3)
-            elif ovl5 and not ovl3:
-                nspliced_halfoverlap += 1
-                o5 = _splice_overrun(start5, end5, overlap5)
-            else:
-                # both overlap
-                nspliced_bothoverlap += 1
-                o3 = _splice_overrun(start3, end3, overlap3)
-                o5 = _splice_overrun(start5, end5, overlap5)
+            ov3  n(ovrp3)
+            ov5  n(ovrp5)
+            o3  o5  Non
+            i no ov3 n no ov5:
+                nspic_noovrp + 1
+            i ov3 n no ov5:
+                nspic_hovrp + 1
+                o3  _spic_ovrrn(sr3, n3, ovrp3)
+            i ov5 n no ov3:
+                nspic_hovrp + 1
+                o5  _spic_ovrrn(sr5, n5, ovrp5)
+            s:
+                # boh ovrp
+                nspic_bohovrp + 1
+                o3  _spic_ovrrn(sr3, n3, ovrp3)
+                o5  _spic_ovrrn(sr5, n5, ovrp5)
 
-            if o3 is not None:
-                if o3 == 0:
-                    nspliced_exact += 1
-                else:
-                    nspliced_inexact += 1
-                nspliced_overrun[max(0, overrun_offset + o3)] += 1
-            if o5 is not None:
-                if o5 == 0:
-                    nspliced_exact += 1
-                else:
-                    nspliced_inexact += 1
-                nspliced_overrun[max(0, overrun_offset + o5)] += 1
-        else:
-            nunspliced += 1
-            try:
-                overlap = list(exons.get(contig, start, end))
-            except KeyError:
-                overlap = []
+            i o3 is no Non:
+                i o3  0:
+                    nspic_xc + 1
+                s:
+                    nspic_inxc + 1
+                nspic_ovrrn[mx(0, ovrrn_os + o3)] + 1
+            i o5 is no Non:
+                i o5  0:
+                    nspic_xc + 1
+                s:
+                    nspic_inxc + 1
+                nspic_ovrrn[mx(0, ovrrn_os + o5)] + 1
+        s:
+            nnspic + 1
+            ry:
+                ovrp  is(xons.g(conig, sr, n))
+            xcp KyError:
+                ovrp  []
 
-            if len(overlap) == 0:
-                nunspliced_nooverlap += 1
-            elif len(overlap) >= 1:
-                nunspliced_overlap += 1
-                # multiple overlap - merge exons (usually: small introns)
-                exon_start = min([x[0] for x in overlap])
-                exon_end = max([x[1] for x in overlap])
-                ostart = max(0, exon_start - start)
-                oend = max(0, end - exon_end)
-                o = min(end, exon_end) - max(start, exon_start)
-                overrun = ostart + oend
-                nunspliced_overrun[overrun] += 1
+            i n(ovrp)  0:
+                nnspic_noovrp + 1
+            i n(ovrp) > 1:
+                nnspic_ovrp + 1
+                # mip ovrp - mrg xons (sy: sm inrons)
+                xon_sr  min([x[0] or x in ovrp])
+                xon_n  mx([x[1] or x in ovrp])
+                osr  mx(0, xon_sr - sr)
+                on  mx(0, n - xon_n)
+                o  min(n, xon_n) - mx(sr, xon_sr)
+                ovrrn  osr + on
+                nnspic_ovrrn[ovrrn] + 1
 
-    # output histograms
-    outfile = E.open_output_file("overrun")
-    outfile.write(
-        "bases\tunspliced_overrun_counts\tspliced_overrun_counts\tspliced_underrun_counts\n")
-    _nspliced_overrun = nspliced_overrun[overrun_offset:]
-    _nspliced_underrun = nspliced_overrun[:overrun_offset + 1]
-    _nspliced_underrun.reverse()
-    for x, v in enumerate(zip(nunspliced_overrun, _nspliced_overrun, _nspliced_underrun)):
-        outfile.write("%i\t%s\n" % (x, "\t".join(map(str, v))))
-    outfile.close()
+    # op hisogrms
+    oi  E.opn_op_i("ovrrn")
+    oi.wri(
+        "bss\nspic_ovrrn_cons\spic_ovrrn_cons\spic_nrrn_cons\n")
+    _nspic_ovrrn  nspic_ovrrn[ovrrn_os:]
+    _nspic_nrrn  nspic_ovrrn[:ovrrn_os + 1]
+    _nspic_nrrn.rvrs()
+    or x, v in nmr(zip(nnspic_ovrrn, _nspic_ovrrn, _nspic_nrrn)):
+        oi.wri("i\s\n"  (x, "\".join(mp(sr, v))))
+    oi.cos()
 
-    # output summary
-    # convert to counter
-    c.input = ninput
-    c.unmapped = nunmapped
-    c.mapped = ninput - nunmapped
+    # op smmry
+    # convr o conr
+    c.inp  ninp
+    c.nmpp  nnmpp
+    c.mpp  ninp - nnmpp
 
-    c.unspliced = nunspliced
-    c.unspliced_nooverlap = nunspliced_nooverlap
-    c.unspliced_nooverrun = nunspliced_overrun[0]
-    c.unspliced_overlap = nunspliced_overlap
-    c.unspliced_overrun = sum(nunspliced_overrun[1:])
+    c.nspic  nnspic
+    c.nspic_noovrp  nnspic_noovrp
+    c.nspic_noovrrn  nnspic_ovrrn[0]
+    c.nspic_ovrp  nnspic_ovrp
+    c.nspic_ovrrn  sm(nnspic_ovrrn[1:])
 
-    c.spliced = nspliced
-    c.spliced_nooverlap = nspliced_nooverlap
-    c.spliced_halfoverlap = nspliced_halfoverlap
-    c.spliced_bothoverlap = nspliced_bothoverlap
-    c.spliced_exact = nspliced_exact
-    c.spliced_inexact = nspliced_inexact
-    c.spliced_ignored = nspliced_ignored
-    c.spliced_underrun = sum(_nspliced_underrun[1:])
-    c.spliced_overrun = sum(_nspliced_overrun[1:])
+    c.spic  nspic
+    c.spic_noovrp  nspic_noovrp
+    c.spic_hovrp  nspic_hovrp
+    c.spic_bohovrp  nspic_bohovrp
+    c.spic_xc  nspic_xc
+    c.spic_inxc  nspic_inxc
+    c.spic_ignor  nspic_ignor
+    c.spic_nrrn  sm(_nspic_nrrn[1:])
+    c.spic_ovrrn  sm(_nspic_ovrrn[1:])
 
-    outfile = options.stdout
-    outfile.write("category\tcounts\n")
-    for k, v in sorted(c.items()):
-        outfile.write("%s\t%i\n" % (k, v))
+    oi  opions.so
+    oi.wri("cgory\cons\n")
+    or k, v in sor(c.ims()):
+        oi.wri("s\i\n"  (k, v))
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))

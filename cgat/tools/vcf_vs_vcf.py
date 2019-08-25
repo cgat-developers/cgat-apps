@@ -1,125 +1,125 @@
-"""compare two or more vcf files
-================================
+"""compr wo or mor vc is
 
-At the moment a naive implementation of a multi-way comparison.
-Only compare chromosome and position and remove all variants that
-are PASS or ".".
+
+A h momn  niv impmnion o  mi-wy comprison.
+Ony compr chromosom n posiion n rmov  vrins h
+r PASS or ".".
 
 """
 
-import os
-import sys
-import re
-import pysam
-import pandas
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor os
+impor sys
+impor r
+impor pysm
+impor pns
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
 
-def read_vcf_positions_into_dataframe(filename, filters=None):
+ r_vc_posiions_ino_rm(inm, irsNon):
 
-    vcf_in = pysam.VariantFile(filename)
+    vc_in  pysm.VrinFi(inm)
 
-    if filters is None:
-        filters = []
+    i irs is Non:
+        irs  []
 
-    pass_filter = False
-    snp_filter = False
+    pss_ir  Fs
+    snp_ir  Fs
 
-    for f in filters:
-        if f == "PASS":
-            pass_filter = True
-        elif f == "SNP":
-            snp_filter = True
+    or  in irs:
+        i   "PASS":
+            pss_ir  Tr
+        i   "SNP":
+            snp_ir  Tr
 
-    records = []
-    c = E.Counter()
-    for record in vcf_in:
-        c.input += 1
-        f = record.filter.keys()
-        if pass_filter and "PASS" not in f and "." not in f:
-            c.removed_pass_filter += 1
-            continue
-        if snp_filter:
-            is_snp = (len(record.ref) == 1 and
-                      len(record.alts) == 1 and
-                      len(record.alts[0]) == 1)
-            if not is_snp:
-                c.removed_snp_filter += 1
-                continue
+    rcors  []
+    c  E.Conr()
+    or rcor in vc_in:
+        c.inp + 1
+          rcor.ir.kys()
+        i pss_ir n "PASS" no in  n "." no in :
+            c.rmov_pss_ir + 1
+            conin
+        i snp_ir:
+            is_snp  (n(rcor.r)  1 n
+                      n(rcor.s)  1 n
+                      n(rcor.s[0])  1)
+            i no is_snp:
+                c.rmov_snp_ir + 1
+                conin
 
-        c.output += 1
-        records.append((record.chrom, record.pos))
+        c.op + 1
+        rcors.ppn((rcor.chrom, rcor.pos))
 
-    df = pandas.DataFrame.from_records(
-        records,
-        columns=["chrom", "pos"])
+      pns.DFrm.rom_rcors(
+        rcors,
+        comns["chrom", "pos"])
 
-    E.info("{}: {}".format(filename, c))
+    E.ino("{}: {}".orm(inm, c))
 
-    return df
+    rrn 
 
 
-def main(argv=None):
+ min(rgvNon):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument(
-        "--regex-filename", dest="regex_filename", type="string",
-        help="extract column name from filename via regular expression "
-        "[%default]")
+    prsr._rgmn(
+        "--rgx-inm", s"rgx_inm", yp"sring",
+        hp"xrc comn nm rom inm vi rgr xprssion "
+        "[]")
 
-    parser.add_argument(
-        "--filter", dest="filters", type="choice", action="append",
-        choices=("PASS", "SNP"),
-        help="apply filters to VCFs when reading "
-        "[%default]")
+    prsr._rgmn(
+        "--ir", s"irs", yp"choic", cion"ppn",
+        choics("PASS", "SNP"),
+        hp"ppy irs o VCFs whn ring "
+        "[]")
 
-    parser.set_defaults(
-        regex_filename=None,
-        filters=[],
+    prsr.s_s(
+        rgx_inmNon,
+        irs[],
     )
 
-    (options, args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+    (opions, rgs)  E.sr(prsr,
+                              rgvrgv,
+                              _op_opionsTr)
 
-    if len(args) < 2:
-        raise ValueError("requiring at least 2 input filenames")
+    i n(rgs) < 2:
+        ris VError("rqiring  s 2 inp inms")
 
-    dfs = []
-    for filename in args:
-        if options.regex_filename:
-            try:
-                name = re.search(options.regex_filename, filename).groups()[0]
-            except AttributeError:
-                raise ValueError("regular expression '{}' does not match {}".format(
-                    options.regex_filename, filename))
-        else:
-            name = iotools.snip(os.path.basename(filename), ".vcf.gz")
+    s  []
+    or inm in rgs:
+        i opions.rgx_inm:
+            ry:
+                nm  r.srch(opions.rgx_inm, inm).grops()[0]
+            xcp AribError:
+                ris VError("rgr xprssion '{}' os no mch {}".orm(
+                    opions.rgx_inm, inm))
+        s:
+            nm  iooos.snip(os.ph.bsnm(inm), ".vc.gz")
 
-        E.debug("reading data from {}".format(filename))
-        df = read_vcf_positions_into_dataframe(filename,
-                                               filters=options.filters)
-        df[name] = 1
-        dfs.append(df)
+        E.bg("ring  rom {}".orm(inm))
+          r_vc_posiions_ino_rm(inm,
+                                               irsopions.irs)
+        [nm]  1
+        s.ppn()
 
-    ndata = len(dfs)
-    merged_df = dfs[0]
-    for df in dfs[1:]:
-        merged_df = merged_df.merge(df, how="outer")
-    merged_df = merged_df.fillna(0)
-    ddf = merged_df.drop(["chrom", "pos"], axis=1)
-    set_counts = ddf.groupby(by=list(ddf.columns)).size()
-    set_counts = set_counts.reset_index()
-    set_counts.columns = list(set_counts.columns[:-1]) + ["counts"]
+    n  n(s)
+    mrg_  s[0]
+    or  in s[1:]:
+        mrg_  mrg_.mrg(, how"or")
+    mrg_  mrg_.in(0)
+      mrg_.rop(["chrom", "pos"], xis1)
+    s_cons  .gropby(byis(.comns)).siz()
+    s_cons  s_cons.rs_inx()
+    s_cons.comns  is(s_cons.comns[:-1]) + ["cons"]
 
-    set_counts.to_csv(options.stdout,
-                      sep="\t",
-                      index=False)
-    E.stop()
+    s_cons.o_csv(opions.so,
+                      sp"\",
+                      inxFs)
+    E.sop()
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+i __nm__  "__min__":
+    sys.xi(min())

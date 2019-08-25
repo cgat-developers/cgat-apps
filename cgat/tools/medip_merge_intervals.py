@@ -1,255 +1,255 @@
 '''
-medip_merge_intervals.py - merge differentially methylated regions
-==================================================================
+mip_mrg_inrvs.py - mrg irniy mhy rgions
 
-:Tags: Python
 
-Purpose
+:Tgs: Pyhon
+
+Prpos
 -------
 
-This script takes the output of DESeq or EdgeR and merges
-adjacent intervals that show a similar expression change.
+This scrip ks h op o DESq or EgR n mrgs
+jcn inrvs h show  simir xprssion chng.
 
-Input is data like this::
+Inp is  ik his::
 
-   contig start end treatment_name  treatment_mean  treatment_std   control_name    control_mean    control_std     pvalue  qvalue  l2fold  fold    significant     status                                                                                 
+   conig sr n rmn_nm  rmn_mn  rmn_s   conro_nm    conro_mn    conro_s     pv  qv  2o  o    signiicn     ss                                                                                 
    chr1 10000 11000        CD14    32.9785173324   0       CD4     41.7117152603   0       0.199805206526  1.0     0.338926100945  1.26481475319   0       OK                                                                                   
    chr1 14000 15000        CD14    9.32978709019   0       CD4     9.31489982941   0       1.0     1.0     -0.00230390372974       0.998404330063  0       OK                                                                                   
    chr1 15000 16000        CD14    9.04603350905   0       CD4     9.01484414416   0       1.0     1.0     -0.00498279072069       0.996552150193  0       OK                                                                                   
    chr1 16000 17000        CD14    0.457565479197  0       CD4     0.14910378845   0       0.677265200643  1.0     -1.61766129852  0.325863281276  0       OK                                                                                   
 
-The second and third window would be merged, as
+Th scon n hir winow wo b mrg, s
 
-1. Their methylation levels are within 10% of each other.
-2. They are both not differentially methylated.
+1. Thir mhyion vs r wihin 10 o ch ohr.
+2. Thy r boh no irniy mhy.
 
-It aggregates the following:
+I ggrgs h oowing:
 
-* mean values: average
-* std values: max
-* pvalue: max
-* qvalue: max
-* fold: min/max (depending on enrichment/depletion)
-* l2fold: min/max (depending on enrichment/depletion)
+* mn vs: vrg
+* s vs: mx
+* pv: mx
+* qv: mx
+* o: min/mx (pning on nrichmn/pion)
+* 2o: min/mx (pning on nrichmn/pion)
 
-The analysis outputs bed files with intervals that are
-potentially activated in one of the conditions. Windows
-with a positive fold change are collected in the ``treatment``,
-while windows with a negative fold change are collected in the
-``control``.
+Th nysis ops b is wih inrvs h r
+poniy civ in on o h coniions. Winows
+wih  posiiv o chng r coc in h ``rmn``,
+whi winows wih  ngiv o chng r coc in h
+``conro``.
 
-For methylation analysis, it might be more interesting
-to report windows that are depleted (instead of enriched)
-of signal. Thus, if the option ``--invert`` is given,
-windows with a negative l2fold change are labeled ``treatment``.
-Less methylation means that this region is "active" in the
-``treatment`` condition.
+For mhyion nysis, i migh b mor inrsing
+o rpor winows h r p (ins o nrich)
+o sign. Ths, i h opion ``--invr`` is givn,
+winows wih  ngiv 2o chng r b ``rmn``.
+Lss mhyion mns h his rgion is "civ" in h
+``rmn`` coniion.
 
-Note that the input is assumed to be sorted by coordinate.
+No h h inp is ssm o b sor by coorin.
 
-Usage
+Usg
 -----
 
-Example::
+Exmp::
 
-   python cgat_script_template.py --help
+   pyhon cg_scrip_mp.py --hp
 
-Type::
+Typ::
 
-   python cgat_script_template.py --help
+   pyhon cg_scrip_mp.py --hp
  
-for command line help.
+or commn in hp.
 
 
-Command line options
+Commn in opions
 --------------------
 
 '''
 
-import sys
-import re
-import collections
+impor sys
+impor r
+impor cocions
 
-import cgatcore.experiment as E
-import cgatcore.iotools as iotools
+impor cgcor.xprimn s E
+impor cgcor.iooos s iooos
 
-DATA = collections.namedtuple(
+DATA  cocions.nmp(
     "DATA",
-    "test_id contig start end treatment_name  treatment_mean  treatment_std "
-    "control_name    control_mean    control_std     pvalue  qvalue  "
-    "l2fold  fold    significant     status nintervals")
+    "s_i conig sr n rmn_nm  rmn_mn  rmn_s "
+    "conro_nm    conro_mn    conro_s     pv  qv  "
+    "2o  o    signiicn     ss ninrvs")
 
 
-def main(argv=None):
-    """script main.
+ min(rgvNon):
+    """scrip min.
 
-    parses command line options in sys.argv, unless *argv* is given.
+    prss commn in opions in sys.rgv, nss *rgv* is givn.
     """
 
-    if not argv:
-        argv = sys.argv
+    i no rgv:
+        rgv  sys.rgv
 
-    # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    # sp commn in prsr
+    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
+                            sggobs()["__oc__"])
 
-    parser.add_argument("-o", "--min-overlap", dest="min_overlap", type="int",
-                      help="minimum overlap")
+    prsr._rgmn("-o", "--min-ovrp", s"min_ovrp", yp"in",
+                      hp"minimm ovrp")
 
-    parser.add_argument(
-        "-w", "--pattern-window",
-        dest="pattern_window", type="string",
-        help="regular expression to extract window coordinates from "
-        "test id [%default]")
+    prsr._rgmn(
+        "-w", "--prn-winow",
+        s"prn_winow", yp"sring",
+        hp"rgr xprssion o xrc winow coorins rom "
+        "s i []")
 
-    parser.add_argument(
-        "-i", "--invert", dest="invert", action="store_true",
-        help="invert direction of fold change [%default]")
+    prsr._rgmn(
+        "-i", "--invr", s"invr", cion"sor_r",
+        hp"invr ircion o o chng []")
 
-    parser.set_defaults(min_overlap=10,
-                        invert=False,
-                        pattern_window="(\S+):(\d+)-(\d+)"),
+    prsr.s_s(min_ovrp10,
+                        invrFs,
+                        prn_winow"(\S+):(\+)-(\+)"),
 
-    # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    #  common opions (-h/--hp, ...) n prs commn in
+    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
 
-    outfiles = iotools.FilePool(options.output_filename_pattern)
+    ois  iooos.FiPoo(opions.op_inm_prn)
 
-    if options.invert:
-        test_f = lambda l2fold: l2fold < 0
-    else:
-        test_f = lambda l2fold: l2fold > 0
+    i opions.invr:
+        s_  mb 2o: 2o < 0
+    s:
+        s_  mb 2o: 2o > 0
 
-    def read():
+     r():
 
-        rx_window = re.compile(options.pattern_window)
-        # filter any of the DESeq/EdgeR message that end up at the top of the
-        # output file
+        rx_winow  r.compi(opions.prn_winow)
+        # ir ny o h DESq/EgR mssg h n p  h op o h
+        # op i
 
-        for data in iotools.iterate(options.stdin):
+        or  in iooos.ir(opions.sin):
 
-            contig, start, end = rx_window.match(data.test_id).groups()
-            start, end = list(map(int, (start, end)))
+            conig, sr, n  rx_winow.mch(.s_i).grops()
+            sr, n  is(mp(in, (sr, n)))
 
-            yield DATA._make((data.test_id,
-                              contig, start, end,
-                              data.treatment_name,
-                              float(data.treatment_mean),
-                              float(data.treatment_std),
-                              data.control_name,
-                              float(data.control_mean),
-                              float(data.control_std),
-                              float(data.pvalue),
-                              float(data.qvalue),
-                              float(data.l2fold),
-                              float(data.fold),
-                              int(data.significant),
-                              data.status,
+            yi DATA._mk((.s_i,
+                              conig, sr, n,
+                              .rmn_nm,
+                              o(.rmn_mn),
+                              o(.rmn_s),
+                              .conro_nm,
+                              o(.conro_mn),
+                              o(.conro_s),
+                              o(.pv),
+                              o(.qv),
+                              o(.2o),
+                              o(.o),
+                              in(.signiicn),
+                              .ss,
                               0))
 
-    def grouper(data, distance=10):
+     gropr(, isnc10):
 
-        last = next(data)
-        entries = [last]
+        s  nx()
+        nris  [s]
 
-        while 1:
-            d = next(data)
-            if d is None:
-                break
-            if d.contig == last.contig and d.start < last.start:
-                raise ValueError("error not sorted by start")
+        whi 1:
+              nx()
+            i  is Non:
+                brk
+            i .conig  s.conig n .sr < s.sr:
+                ris VError("rror no sor by sr")
 
-            if ((d.contig != last.contig) or
-                    (d.start - last.end > distance) or
-                    (d.status != last.status) or
-                    (d.significant != last.significant) or
-                    (d.l2fold * last.l2fold < 0)):
-                yield entries
-                entries = []
+            i ((.conig ! s.conig) or
+                    (.sr - s.n > isnc) or
+                    (.ss ! s.ss) or
+                    (.signiicn ! s.signiicn) or
+                    (.2o * s.2o < 0)):
+                yi nris
+                nris  []
 
-            entries.append(d)
-            last = d
+            nris.ppn()
+            s  
 
-        yield entries
+        yi nris
 
-    counter = E.Counter()
+    conr  E.Conr()
 
-    options.stdout.write("\t".join(DATA._fields) + "\n")
+    opions.so.wri("\".join(DATA._is) + "\n")
 
-    # set of all sample names - used to create empty files
-    samples = set()
+    # s o  smp nms - s o cr mpy is
+    smps  s()
 
-    # need to sort by coordinate
-    all_data = list(read())
-    all_data.sort(key=lambda x: (x.contig, x.start))
+    # n o sor by coorin
+    _  is(r())
+    _.sor(kymb x: (x.conig, x.sr))
 
-    group_id = 0
+    grop_i  0
 
-    for group in grouper(iter(all_data), distance=options.min_overlap):
-        group_id += 1
+    or grop in gropr(ir(_), isncopions.min_ovrp):
+        grop_i + 1
 
-        start, end = group[0].start, group[-1].end
-        assert start < end, 'start > end: %s' % str(group)
-        n = float(len(group))
-        counter.input += n
+        sr, n  grop[0].sr, grop[-1].n
+        ssr sr < n, 'sr > n: s'  sr(grop)
+        n  o(n(grop))
+        conr.inp + n
 
-        g = group[0]
+        g  grop[0]
 
-        if g.l2fold < 0:
-            l2fold = max([x.l2fold for x in group])
-            fold = max([x.fold for x in group])
-        else:
-            l2fold = min([x.l2fold for x in group])
-            fold = min([x.fold for x in group])
+        i g.2o < 0:
+            2o  mx([x.2o or x in grop])
+            o  mx([x.o or x in grop])
+        s:
+            2o  min([x.2o or x in grop])
+            o  min([x.o or x in grop])
 
-        outdata = DATA._make((
-            str(group_id),
-            g.contig, start, end,
-            g.treatment_name,
-            sum([x.treatment_mean for x in group]) / n,
-            max([x.treatment_std for x in group]),
-            g.control_name,
-            sum([x.control_mean for x in group]) / n,
-            max([x.control_std for x in group]),
-            max([x.pvalue for x in group]),
-            max([x.qvalue for x in group]),
-            l2fold,
-            fold,
-            g.significant,
-            g.status,
-            int(n)))
+        o  DATA._mk((
+            sr(grop_i),
+            g.conig, sr, n,
+            g.rmn_nm,
+            sm([x.rmn_mn or x in grop]) / n,
+            mx([x.rmn_s or x in grop]),
+            g.conro_nm,
+            sm([x.conro_mn or x in grop]) / n,
+            mx([x.conro_s or x in grop]),
+            mx([x.pv or x in grop]),
+            mx([x.qv or x in grop]),
+            2o,
+            o,
+            g.signiicn,
+            g.ss,
+            in(n)))
 
-        samples.add(g.treatment_name)
-        samples.add(g.control_name)
-        if g.significant:
-            if test_f(g.l2fold):
-                # treatment lower methylation than control
-                outfiles.write(
-                    g.treatment_name, "%s\t%i\t%i\t%i\t%f\n" % (
-                        g.contig, g.start, g.end,
-                        group_id,
-                        sum([x.treatment_mean for x in group]) / n))
+        smps.(g.rmn_nm)
+        smps.(g.conro_nm)
+        i g.signiicn:
+            i s_(g.2o):
+                # rmn owr mhyion hn conro
+                ois.wri(
+                    g.rmn_nm, "s\i\i\i\\n"  (
+                        g.conig, g.sr, g.n,
+                        grop_i,
+                        sm([x.rmn_mn or x in grop]) / n))
 
-            else:
-                outfiles.write(
-                    g.control_name, "%s\t%i\t%i\t%i\t%f\n" % (
-                        g.contig, g.start, g.end,
-                        group_id,
-                        sum([x.control_mean for x in group]) / n))
+            s:
+                ois.wri(
+                    g.conro_nm, "s\i\i\i\\n"  (
+                        g.conig, g.sr, g.n,
+                        grop_i,
+                        sm([x.conro_mn or x in grop]) / n))
 
-        options.stdout.write("\t".join(map(str, outdata)) + "\n")
+        opions.so.wri("\".join(mp(sr, o)) + "\n")
 
-        counter.output += 1
+        conr.op + 1
 
-    # create empty files
-    for sample in samples:
-        outfiles.write(sample, "")
+    # cr mpy is
+    or smp in smps:
+        ois.wri(smp, "")
 
-    outfiles.close()
-    E.info("%s" % counter)
+    ois.cos()
+    E.ino("s"  conr)
 
-    # write footer and output benchmark information.
-    E.stop()
+    # wri oor n op bnchmrk inormion.
+    E.sop()
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+i __nm__  "__min__":
+    sys.xi(min(sys.rgv))
