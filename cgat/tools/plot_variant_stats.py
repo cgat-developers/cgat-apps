@@ -97,24 +97,24 @@ def main(argv=None):
 
     parser.add_argument(
         "-r", "--regex-filename", dest="regex_filename", type=str,
-        help="[%default]")
+        help=)
 
     parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--input-file-format", dest="input_file_format", type=str,
         choices=("tsv", "bcftools-query"),
         help="input file format "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--plot-options", dest="plot_options", type=str,
         help="plot options to pass through to the plotter. The string is "
         "eval'ed, for example: --plot-options='window_size=3, ylabel=\"12\"' "
-        "[%default]")
+        )
 
     parser.set_defaults(
         method=None,

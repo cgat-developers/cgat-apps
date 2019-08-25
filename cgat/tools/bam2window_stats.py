@@ -37,7 +37,7 @@ def main(argv=None):
     parser.add_argument(
         "--output-all-windows", dest="output_all_windows", action="store_true",
         help="output all windows. By default, windows without reads are skipped "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--reference-fasta", "--input-filename-fasta",

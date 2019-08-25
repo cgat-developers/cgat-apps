@@ -433,7 +433,7 @@ def main(argv=None):
         "--gff-file", dest="filename_gff", type=str,
         metavar="GFF",
         help="second filename of features (see --remove-overlapping) "
-        "[%default]")
+        )
 
     parser.add_argument("--invert-filter",
                       dest="invert_filter",
@@ -476,7 +476,7 @@ def main(argv=None):
     parser.add_argument("--permit-duplicates", dest="strict",
                       action="store_false",
                       help="permit duplicate genes. "
-                      "[%default]")
+                      )
 
     parser.add_argument(
         "--duplicate-feature",
@@ -487,7 +487,7 @@ def main(argv=None):
         "If ``ucsc`` is chosen, transcripts ending on _dup# are "
         "removed. This is necessary to remove duplicate entries "
         "that are next to each other in the sort order "
-        "[%default]")
+        )
 
     parser.add_argument("--use-gene-id", dest="use_geneid", action="store_true",
                       help="when merging transcripts, exons or introns, use "

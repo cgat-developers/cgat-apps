@@ -172,12 +172,12 @@ def main(argv=None):
     parser.add_argument(
         "--min-interval-length", dest="min_length", type=int,
         help="set minimum length for sequences output "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--max-length", dest="max_length", type=int,
         help="set maximum length for sequences output "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--extend-at", dest="extend_at", type=str,

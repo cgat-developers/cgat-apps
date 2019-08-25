@@ -68,13 +68,13 @@ def main(argv=None):
     parser.add_argument(
         "--regex-filename", dest="regex_filename", type=str,
         help="extract column name from filename via regular expression "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--filter", dest="filters", type=str, action="append",
         choices=("PASS", "SNP"),
         help="apply filters to VCFs when reading "
-        "[%default]")
+        )
 
     parser.set_defaults(
         regex_filename=None,

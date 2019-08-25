@@ -67,7 +67,7 @@ def main(argv=None):
     parser.add_argument(
         "-i", "--max-iterations", type=int,
         help="maximum number of iterations. Set to 0 to go through all reads "
-        "[%default]")
+        )
 
     parser.set_defaults(
         max_iteratiors=10000

@@ -381,7 +381,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--output-removed-tsv", dest="output_removed_tsv", type=str,
@@ -391,7 +391,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "--output-stats-tsv", dest="output_stats_tsv", type=str,
         help="if given, output statistics will be written to this file. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--output-removed-fastq", dest="output_removed_fastq", type=str,

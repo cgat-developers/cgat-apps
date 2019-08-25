@@ -64,7 +64,7 @@ def main(argv=None):
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-m", "--method", dest="method", type=str,
@@ -79,17 +79,17 @@ def main(argv=None):
     parser.add_argument(
         "-r", "--region-string", dest="region_string", type=str,
         help="region string. Only apply method in specified region. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--min-base-quality", dest="min_base_quality", type=int,
         help="minimum base quality for barcode analysis. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-s", "--stepper", dest="stepper", type=str,

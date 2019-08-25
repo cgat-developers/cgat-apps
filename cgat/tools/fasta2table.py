@@ -156,7 +156,7 @@ def main(argv=None):
     parser.add_argument(
         "--add-total", dest="add_total", action="store_true",
         help="add a row with column totals at the end of the table"
-        "[%default]")
+        )
 
     parser.set_defaults(
         filename_weights=None,

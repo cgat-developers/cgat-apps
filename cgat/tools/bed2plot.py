@@ -139,7 +139,7 @@ def main(argv=sys.argv):
     parser.add_argument("-s", "--session", dest="session",
                       type=str,
                       help="load session before creating plots "
-                      "[%default]")
+                      )
 
     parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
                       type=str,
@@ -157,22 +157,22 @@ def main(argv=sys.argv):
 
     parser.add_argument("-e", "--extend", dest="extend", type=int,
                       help="extend each interval by a number of bases "
-                      "[%default]")
+                      )
 
     parser.add_argument("-x", "--expand", dest="expand", type="float",
                       help="expand each region by a certain factor "
-                      "[%default]")
+                      )
 
     parser.add_argument("--session-only", dest="session_only",
                       action="store_true",
                       help="plot session after opening, "
                       "ignore intervals "
-                      "[%default]")
+                      )
 
     parser.add_argument("-n", "--name", dest="name", type=str,
                       choices=("bed-name", "increment"),
                       help="name to use for snapshot "
-                      "[%default]")
+                      )
 
     parser.set_defaults(
         command="igv.sh",

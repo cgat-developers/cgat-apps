@@ -165,7 +165,7 @@ def main(argv=None):
 
     parser.add_argument("-s", "--shift-size", dest="shift", type=int,
                       help="shift reads by a certain amount (ChIP-Seq) "
-                      "[%default]")
+                      )
 
     parser.add_argument("-e", "--extend", dest="extend", type=int,
                       help="extend reads by a certain amount "
@@ -173,7 +173,7 @@ def main(argv=None):
 
     parser.add_argument("-p", "--wiggle-span", dest="span", type=int,
                       help="span of a window in wiggle tracks "
-                      "[%default]")
+                      )
 
     parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
                       action="store_true",

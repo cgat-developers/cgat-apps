@@ -390,18 +390,18 @@ def main(argv=None):
         "reads overlapping the intervals in the given file will be "
         "computed. Note that the computation currently does not take "
         "into account indels, so it is an approximate count only. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-f", "--ignore-masked-reads", dest="ignore_masked_reads", action="store_true",
         help="as well as counting reads in the file given by --mask-bed-file, "
         "also remove these reads for duplicate and match statistics. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-i", "--num-reads", dest="input_reads", type=int,
         help="the number of reads - if given, used to provide percentages "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-d", "--output-details", dest="output_details", action="store_true",
@@ -416,7 +416,7 @@ def main(argv=None):
     parser.add_argument(
         "--add-alignment-details", dest="add_alignment_details", action="store_true",
         help="add alignment details to per-read details. Implies --output-details "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-q", "--fastq-file", dest="filename_fastq",

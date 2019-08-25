@@ -556,7 +556,7 @@ def main(argv=None):
                       help="define which sequences/qualities to strip. "
                       "match means that stripping only applies to entries "
                       "without mismatches (requires NM tag to be present). "
-                      "[%default]")
+                      )
 
     parser.add_argument("--filter-method", dest="filter_methods",
                       action="append", type=str,
@@ -569,7 +569,7 @@ def main(argv=None):
                                "min-average-base-quality"),
                       help="filter method to apply to remove alignments "
                       "from a bam file. Multiple methods can be supplied "
-                      "[%default]")
+                      )
 
     parser.add_argument("--reference-bam-file", dest="reference_bam",
                       type=str,
@@ -579,7 +579,7 @@ def main(argv=None):
                       help="force processing. Some methods such "
                       "as strip/unstrip will stop processing if "
                       "they think it not necessary "
-                      "[%default]")
+                      )
 
     parser.add_argument("--output-sam", dest="output_sam", action="store_true",
                       help="output in sam format [%default]")

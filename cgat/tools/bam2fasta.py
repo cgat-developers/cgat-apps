@@ -180,18 +180,18 @@ def main(argv=None):
     parser.add_argument(
         "-m", "--merge-intervals", dest="merge_intervals", action="store_true",
         help="merge intervals in bed file. Useful if you have a site bed-file "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-c", "--barcode-fasta-file", dest="barcode_fasta_file",
         help="barcode sequence in fasta format. Variable positions "
         "should be marked by N "
-        "[%default]")
+        )
 
     parser.set_defaults(
         reference_fasta_file=None,

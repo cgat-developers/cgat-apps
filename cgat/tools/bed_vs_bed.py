@@ -25,7 +25,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-b", "--reference-bed-file", dest="reference_bed_file", type=str,
         help="reference bed file "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-m", "--method", dest="method", type=str,

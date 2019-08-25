@@ -16,7 +16,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-m", "--method", dest="methods", action="append", type=str,

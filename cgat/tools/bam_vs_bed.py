@@ -111,13 +111,13 @@ def main(argv=None):
         action="store_true",
         help="sort the bed file by chromosomal location before "
         "processing. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--assume-sorted", dest="sort_bed",
         action="store_false",
         help="assume that the bed-file is sorted by chromosomal location. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "--split-intervals", dest="split_intervals",
@@ -125,7 +125,7 @@ def main(argv=None):
         help="treat split BAM intervals, for example spliced intervals, "
         "as separate intervals. Note that a single alignment might be "
         "counted several times as a result. "
-        "[%default]")
+        )
 
     parser.set_defaults(
         min_overlap=0.5,

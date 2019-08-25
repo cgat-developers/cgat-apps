@@ -129,12 +129,12 @@ def main(argv=None):
     parser.add_argument(
         "-1", "--pattern1", dest="pattern1", type=str,
         help="pattern to extract identifier from in identifiers1. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-2", "--pattern2", dest="pattern2", type=str,
         help="pattern to extract identifier from in identifiers2. "
-        "[%default]")
+        )
 
     parser.add_argument(
         "-o", "--output-section", dest="output", type=str,
