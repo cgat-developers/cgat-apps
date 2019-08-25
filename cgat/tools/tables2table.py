@@ -223,7 +223,7 @@ def main(argv=sys.argv):
                       "[default=%default]")
 
     parser.add_argument("--test", dest="test",
-                      type="int",
+                      type=int,
                       help="test combining tables with "
                       "first X rows [default=%default]")
 

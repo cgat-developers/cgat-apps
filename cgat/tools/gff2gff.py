@@ -483,19 +483,19 @@ def main(argv=None):
 
     parser.add_argument(
         "--assembly-report-hasids",
-        dest="assembly_report_hasIDs", type="int",
+        dest="assembly_report_hasIDs", type=int,
         help="path to assembly report file which allows mapping of "
         "ensembl to ucsc contigs when running method sanitize [%default].")
 
     parser.add_argument(
         "--assembly-report-ucsccol", dest="assembly_report_ucsccol",
-        type="int",
+        type=int,
         help="column in the assembly report containing ucsc contig ids"
         "[%default].")
 
     parser.add_argument(
         "--assembly-report-ensemblcol", dest="assembly_report_ensemblcol",
-        type="int",
+        type=int,
         help="column in the assembly report containing ensembl contig ids"
         "[%default].")
 
@@ -514,19 +514,19 @@ def main(argv=None):
         help="extension for downstream end [%default].")
 
     parser.add_argument(
-        "--min-distance", dest="min_distance", type="int",
+        "--min-distance", dest="min_distance", type=int,
         help="minimum distance of features to merge/join [%default].")
 
     parser.add_argument(
-        "--max-distance", dest="max_distance", type="int",
+        "--max-distance", dest="max_distance", type=int,
         help="maximum distance of features to merge/join [%default].")
 
     parser.add_argument(
-        "--min-features", dest="min_features", type="int",
+        "--min-features", dest="min_features", type=int,
         help="minimum number of features to merge/join [%default].")
 
     parser.add_argument(
-        "--max-features", dest="max_features", type="int",
+        "--max-features", dest="max_features", type=int,
         help="maximum number of features to merge/join [%default].")
 
     parser.add_argument(

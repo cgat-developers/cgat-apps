@@ -155,12 +155,12 @@ def main(argv=None):
 
     parser.add_argument(
         "--filtering-kmer-size",
-        dest="filtering_kmer_size", type="int",
+        dest="filtering_kmer_size", type=int,
         help="kmer size for method 'filter-by-sequence' [default=%default].")
 
     parser.add_argument(
         "--filtering-min-kmer-matches",
-        dest="filtering_min_kmer_matches", type="int",
+        dest="filtering_min_kmer_matches", type=int,
         help="minimum number of matches 'filter-by-sequence' [default=%default].")
 
     parser.set_defaults(

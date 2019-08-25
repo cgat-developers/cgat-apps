@@ -46,10 +46,10 @@ def main(argv=None):
         "-g", "--genome-file", dest="genome_file", type=str,
         help="filename with Samtools indexed genome [default=%default].")
     parser.add_argument(
-        "-w", "--window-size", dest="window", type="int",
+        "-w", "--window-size", dest="window", type=int,
         help="Window size for tiling [default=%default].")
     parser.add_argument(
-        "-s", "--shift-size", dest="shift", type="int",
+        "-s", "--shift-size", dest="shift", type=int,
         help="Window shift for tiling [default=%default].")
 
     parser.set_defaults(

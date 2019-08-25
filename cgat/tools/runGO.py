@@ -192,7 +192,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-m", "--min-counts", dest="minimum_counts",
-        type="int",
+        type=int,
         help="minimum count - ignore all categories that have "
         "fewer than # number of genes"
         " [default=%default].")
@@ -233,7 +233,7 @@ def main(argv=None):
         "[default=%default].")
 
     parser.add_argument(
-        "--sample-size", dest="sample", type="int",
+        "--sample-size", dest="sample", type=int,
         help="do sampling (with # samples) [default=%default].")
 
     parser.add_argument(

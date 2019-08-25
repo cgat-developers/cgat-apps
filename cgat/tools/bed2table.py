@@ -556,12 +556,12 @@ def main(argv=None):
         "[default=%default].")
 
     parser.add_argument(
-        "-o", "--offset", dest="offsets", type="int", action="append",
+        "-o", "--offset", dest="offsets", type=int, action="append",
         help="tag offsets for tag counting - supply as many as there "
         "are bam-files [default=%default].")
 
     parser.add_argument(
-        "--control-offset", dest="control_offsets", type="int",
+        "--control-offset", dest="control_offsets", type=int,
         action="append",
         help="control tag offsets for tag counting - supply as many as "
         "there are bam-files [default=%default].")

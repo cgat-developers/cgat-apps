@@ -571,7 +571,7 @@ def main(argv=None):
                       "[default=%default].")
 
     parser.add_argument("--proximal-distance", dest="proximal_distance",
-                      type="int",
+                      type=int,
                       help="distance to be considered proximal to "
                       "an interval [default=%default].")
 

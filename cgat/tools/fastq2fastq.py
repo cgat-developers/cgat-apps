@@ -429,11 +429,11 @@ def main(argv=sys.argv):
         help="minimum average quality [%default]")
 
     parser.add_argument(
-        "--min-sequence-length", dest="min_sequence_length", type="int",
+        "--min-sequence-length", dest="min_sequence_length", type=int,
         help="minimum sequence length [%default]")
 
     parser.add_argument(
-        "--quality-offset", dest="quality_offset", type="int",
+        "--quality-offset", dest="quality_offset", type=int,
         help="offset to modify quality values with [%default]")
 
     parser.add_argument(
@@ -464,11 +464,11 @@ def main(argv=sys.argv):
         "method apply [default=%default].")
 
     parser.add_argument(
-        "--num-bases", dest="nbases", type="int",
+        "--num-bases", dest="nbases", type=int,
         help="number of bases to trim [default=%default].")
 
     parser.add_argument(
-        "--seed", dest="seed", type="int",
+        "--seed", dest="seed", type=int,
         help="seed for random number generator [default=%default].")
 
     parser.add_argument(

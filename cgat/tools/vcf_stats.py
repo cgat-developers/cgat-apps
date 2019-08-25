@@ -136,7 +136,7 @@ def main(argv=sys.argv):
         "At the moment, only integer metrics are supported [%default]")
 
     parser.add_argument(
-        "--format-distribution-nbins", dest="format_distributions_nbins", type="int",
+        "--format-distribution-nbins", dest="format_distributions_nbins", type=int,
         help="number of bins to use for histograms [%default]")
 
     parser.add_argument(
@@ -145,7 +145,7 @@ def main(argv=sys.argv):
         help="only use variant positions [%default]")
 
     parser.add_argument(
-        "--gc-window-size", dest="gc_window_size", type="int",
+        "--gc-window-size", dest="gc_window_size", type=int,
         help="(half) window size to use for G+C computation. A size "
         "of 50 means that 50 bases on either side of the variant are "
         "used to compute the G+C content [%default]")

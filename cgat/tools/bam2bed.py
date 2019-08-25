@@ -131,12 +131,12 @@ def main(argv=None):
                       help="merge paired-ended reads and output interval "
                       "for entire fragment [default=%default]. ")
 
-    parser.add_argument("--max-insert-size", dest="max_insert_size", type="int",
+    parser.add_argument("--max-insert-size", dest="max_insert_size", type=int,
                       help="only merge paired-end reads if they are less than "
                       "# bases apart. "
                       " 0 turns off this filter [default=%default]. ")
 
-    parser.add_argument("--min-insert-size", dest="min_insert_size", type="int",
+    parser.add_argument("--min-insert-size", dest="min_insert_size", type=int,
                       help="only merge paired-end reads if they are at "
                       "least # bases apart. "
                       " 0 turns off this filter [default=%default]. ")

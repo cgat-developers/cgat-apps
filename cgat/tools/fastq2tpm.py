@@ -279,10 +279,10 @@ def main(argv=None):
     parser.add_argument("--use-bias", dest="bias", action="store_true",
                       help="use kallisto's bias correction")
 
-    parser.add_argument("--bootstraps", dest="bootstrap", type="int",
+    parser.add_argument("--bootstraps", dest="bootstrap", type=int,
                       help="number of bootstraps to apply to quantification")
 
-    parser.add_argument("--seed", dest="seed", type="int",
+    parser.add_argument("--seed", dest="seed", type=int,
                       help="seed number for random number genration "
                       "and bootstrapping")
 
@@ -297,14 +297,14 @@ def main(argv=None):
     parser.add_argument("--paired-end", dest="paired", action="store_true",
                       help="data are paired end")
 
-    parser.add_argument("--kmer-size", dest="kmer", type="int",
+    parser.add_argument("--kmer-size", dest="kmer", type=int,
                       help="kmer size to use for index generation")
 
     parser.add_argument("--gene-gtf", dest="gene_gtf", type=str,
                       help="GTF file containing transcripts and gene "
                       "identifiers to calculate gene-level estimates")
 
-    parser.add_argument("--threads", dest="threads", type="int",
+    parser.add_argument("--threads", dest="threads", type=int,
                       help="number of threads to use for kallisto "
                       "quantificaion")
 

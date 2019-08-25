@@ -65,7 +65,7 @@ def main(argv=None):
         version="%prog version: $Id$", usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--max-iterations", type="int",
+        "-i", "--max-iterations", type=int,
         help="maximum number of iterations. Set to 0 to go through all reads "
         "[%default]")
 

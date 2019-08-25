@@ -87,7 +87,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "--min-base-quality", dest="min_base_quality", type="int",
+        "--min-base-quality", dest="min_base_quality", type=int,
         help="minimum base quality for barcode analysis. "
         "[%default]")
 

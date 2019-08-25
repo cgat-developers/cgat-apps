@@ -76,7 +76,7 @@ def main(argv=sys.argv):
         help="set sequence prefix [%default]")
 
     parser.add_argument(
-        "--min-length", dest="min_length", type="int",
+        "--min-length", dest="min_length", type=int,
         help="minimum alignment length [%default]")
 
     parser.add_argument(

@@ -25,7 +25,7 @@ def main(argv=sys.argv):
         help="input bam file [%default].")
 
     parser.add_argument(
-        "-r", "--max-read-length", dest="max_read_length", type="int",
+        "-r", "--max-read-length", dest="max_read_length", type=int,
         help="maximum read length [%default].")
 
     parser.add_argument(

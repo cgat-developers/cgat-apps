@@ -189,14 +189,14 @@ def buildOptionParser(argv):
         "around peak [%default]")
 
     parser.add_argument(
-        "-w", "--window-size", dest="window_size", type="int",
+        "-w", "--window-size", dest="window_size", type=int,
         help="window size in bp on either side of a peak used for getting "
         "read densities. If ``--window-size`` is 1000, the actual window size"
         "will be 2kb, 1kb on either side of the peak in an interval"
         "[%default]")
 
     parser.add_argument(
-        "-b", "--bin-size", dest="bin_size", type="int",
+        "-b", "--bin-size", dest="bin_size", type=int,
         help="bin-size in bp for computing read densities. "
         "If ``--window-size`` is set to 1000 and ``--bin-size`` to 10, "
         "there will be 100 bins on either side of a peak. "
@@ -259,7 +259,7 @@ def buildOptionParser(argv):
         "[%default]")
 
     parser.add_argument(
-        "-i", "--shift-size", dest="shift", type="int",
+        "-i", "--shift-size", dest="shift", type=int,
         help="shift for reads. When processing bam files, "
         "reads will be shifted upstream/downstream by this amount. "
         "[%default]")

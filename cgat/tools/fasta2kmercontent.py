@@ -110,7 +110,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-k", "--kmer-size", dest="kmer", type="int",
+    parser.add_argument("-k", "--kmer-size", dest="kmer", type=int,
                       help="supply kmer length")
 
     parser.add_argument(

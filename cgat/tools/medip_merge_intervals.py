@@ -93,7 +93,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-o", "--min-overlap", dest="min_overlap", type="int",
+    parser.add_argument("-o", "--min-overlap", dest="min_overlap", type=int,
                       help="minimum overlap")
 
     parser.add_argument(

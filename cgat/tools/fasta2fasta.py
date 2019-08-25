@@ -234,7 +234,7 @@ def main(argv=None):
         help="input filename with map for identifiers. The first row is a header")
 
     parser.add_argument(
-        "--fold-width", dest="fold_width", type="int",
+        "--fold-width", dest="fold_width", type=int,
         help="fold width for sequence output. 0 is unfolded [%default]")
     
     parser.set_defaults(

@@ -77,10 +77,10 @@ def main(argv=None):
                       "sequence from bed12 files so that sequence only covers "
                       "the segements [%default]")
 
-    parser.add_argument("--min-sequence-length", dest="min_length", type="int",
+    parser.add_argument("--min-sequence-length", dest="min_length", type=int,
                       help="require a minimum sequence length [%default]")
 
-    parser.add_argument("--max-sequence-length", dest="max_length", type="int",
+    parser.add_argument("--max-sequence-length", dest="max_length", type=int,
                       help="require a maximum sequence length [%default]")
 
     parser.add_argument(
@@ -90,7 +90,7 @@ def main(argv=None):
         "are set, only the added sequence is returned [default=%default]")
 
     parser.add_argument(
-        "--extend-by", dest="extend_by", type="int",
+        "--extend-by", dest="extend_by", type=int,
         help="extend by # bases [default=%default]")
 
     parser.add_argument(

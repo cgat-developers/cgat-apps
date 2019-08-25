@@ -151,7 +151,7 @@ def main(argv=None):
     parser.add_argument("-o", "--output-filename-pattern", dest="output_pattern", type=str,
                       help="output pattern. Gives filename for a given sequence.")
 
-    parser.add_argument("-n", "--num-sequences", dest="num_sequences", type="int",
+    parser.add_argument("-n", "--num-sequences", dest="num_sequences", type=int,
                       help="split by number of sequences (not implemented yet).")
 
     parser.add_argument("-m", "--map", dest="map_filename", type=str,
@@ -162,7 +162,7 @@ def main(argv=None):
                       help="do not write identifiers.",
                       metavar="FILE")
 
-    parser.add_argument("--min-size", dest="min_size", type="int",
+    parser.add_argument("--min-size", dest="min_size", type=int,
                       help="minimum cluster size.")
 
     parser.set_defaults(

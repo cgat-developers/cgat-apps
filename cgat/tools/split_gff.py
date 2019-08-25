@@ -128,7 +128,7 @@ def main(argv=None):
         usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--min-chunk-size", dest="min_chunk_size", type="int",
+        "-i", "--min-chunk-size", dest="min_chunk_size", type=int,
         help="minimum chunk size [default=%default].")
 
     parser.add_argument(

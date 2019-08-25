@@ -243,12 +243,12 @@ def main(argv=None):
                       action="append", help="features to collect "
                       "[default=%default]")
 
-    parser.add_argument("-w", "--window-size", dest="window_size", type="int",
+    parser.add_argument("-w", "--window-size", dest="window_size", type=int,
                       help="window size in bp for histogram computation. "
                       "Determines the bin size.  "
                       "[default=%default]")
 
-    parser.add_argument("-b", "--num-bins", dest="num_bins", type="int",
+    parser.add_argument("-b", "--num-bins", dest="num_bins", type=int,
                       help="number of bins for histogram computation "
                       "if window size is not given. "
                       "[default=%default]")

@@ -364,7 +364,7 @@ def main(argv=None):
 
     parser.add_argument("--merge-exons-distance",
                       dest="merge_exons_distance",
-                      type="int",
+                      type=int,
                       help="distance in nucleotides between "
                       "exons to be merged [%default].")
 
@@ -442,27 +442,27 @@ def main(argv=None):
                       "(like grep -v). "
                       "[%default].")
 
-    parser.add_argument("--sample-size", dest="sample_size", type="int",
+    parser.add_argument("--sample-size", dest="sample_size", type=int,
                       help="extract a random sample of size # if the option "
                       "'--method=filter --filter-method' is set "
                       "[%default].")
 
     parser.add_argument(
         "--intron-min-length",
-        dest="intron_min_length", type="int",
+        dest="intron_min_length", type=int,
         help="minimum length for introns (for --exons-file2introns) "
         "[%default].")
 
     parser.add_argument("--min-exons-length",
                       dest="min_exons_length",
-                      type="int",
+                      type=int,
                       help="minimum length for gene (sum of exons) "
                       "(--sam-fileple-size) [%default].")
 
     parser.add_argument(
         "--intron-border",
         dest="intron_border",
-        type="int",
+        type=int,
         help="number of residues to exclude at intron at either end "
         "(--exons-file2introns) [%default].")
 

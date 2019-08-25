@@ -86,7 +86,7 @@ def main(argv=None):
     parser.add_argument("--cog-map", dest="cog_map", type=str,
                       help="file with gene to cog map")
 
-    parser.add_argument("-n", "--nsamples", dest="nsamples", type="int",
+    parser.add_argument("-n", "--nsamples", dest="nsamples", type=int,
                       help="""number of queries to evaluate-
                               will take the first n in the file""")
 

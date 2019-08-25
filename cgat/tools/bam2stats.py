@@ -399,7 +399,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "-i", "--num-reads", dest="input_reads", type="int",
+        "-i", "--num-reads", dest="input_reads", type=int,
         help="the number of reads - if given, used to provide percentages "
         "[%default]")
 

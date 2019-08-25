@@ -384,7 +384,7 @@ def main(argv=None):
         " contributing equally to the meta-gene profile."
         " [%default]")
 
-    parser.add_argument("-i", "--shift-size", dest="shifts", type="int",
+    parser.add_argument("-i", "--shift-size", dest="shifts", type=int,
                       action="append",
                       help="shift reads in :term:`bam` formatted file "
                       "before computing densities (ChIP-Seq). "
@@ -404,101 +404,101 @@ def main(argv=None):
                       "(RNA-Seq) "
                       "[%default]")
 
-    parser.add_argument("-e", "--extend", dest="extends", type="int",
+    parser.add_argument("-e", "--extend", dest="extends", type=int,
                       action="append",
                       help="extend reads in :term:`bam` formatted file "
                       "(ChIP-Seq). "
                       "[%default]")
 
     parser.add_argument("--resolution-upstream", dest="resolution_upstream",
-                      type="int",
+                      type=int,
                       help="resolution of upstream region in bp "
                       "[%default]")
 
     parser.add_argument("--resolution-downstream", dest="resolution_downstream",
-                      type="int",
+                      type=int,
                       help="resolution of downstream region in bp "
                       "[%default]")
 
     parser.add_argument("--resolution-upstream-utr",
                       dest="resolution_upstream_utr",
-                      type="int",
+                      type=int,
                       help="resolution of upstream UTR region in bp "
                       "[%default]")
 
     parser.add_argument("--resolution-downstream-utr",
                       dest="resolution_downstream_utr",
-                      type="int",
+                      type=int,
                       help="resolution of downstream UTR region in bp "
                       "[%default]")
 
-    parser.add_argument("--resolution-cds", dest="resolution_cds", type="int",
+    parser.add_argument("--resolution-cds", dest="resolution_cds", type=int,
                       help="resolution of cds region in bp "
                       "[%default]")
 
     parser.add_argument("--resolution-first-exon", dest="resolution_first",
-                      type="int",
+                      type=int,
                       help="resolution of first exon in gene, in bp"
                       "[%default]")
 
     parser.add_argument("--resolution-last-exon", dest="resolution_last",
-                      type="int",
+                      type=int,
                       help="resolution of last exon in gene, in bp"
                       "[%default]")
 
     parser.add_argument("--resolution-introns",
-                      dest="resolution_introns", type="int",
+                      dest="resolution_introns", type=int,
                       help="resolution of introns region in bp "
                       "[%default]")
 
     parser.add_argument("--resolution-exons-absolute-distance-topolya",
                       dest="resolution_exons_absolute_distance_topolya",
-                      type="int",
+                      type=int,
                       help="resolution of exons absolute distance "
                       "topolya in bp "
                       "[%default]")
 
     parser.add_argument("--resolution-introns-absolute-distance-topolya",
                       dest="resolution_introns_absolute_distance_topolya",
-                      type="int",
+                      type=int,
                       help="resolution of introns absolute distance "
                       "topolya in bp "
                       "[%default]")
 
     parser.add_argument("--extension-exons-absolute-distance-topolya",
                       dest="extension_exons_absolute_distance_topolya",
-                      type="int",
+                      type=int,
                       help="extension for exons from the absolute "
                       "distance from the topolya in bp "
                       "[%default]")
 
     parser.add_argument(
         "--extension-introns-absolute-distance-topolya",
-        dest="extension_introns_absolute_distance_topolya", type="int",
+        dest="extension_introns_absolute_distance_topolya", type=int,
         help="extension for introns from the absolute distance from "
         "the topolya in bp [%default]")
 
     parser.add_argument(
-        "--extension-upstream", dest="extension_upstream", type="int",
+        "--extension-upstream", dest="extension_upstream", type=int,
         help="extension upstream from the first exon in bp"
         "[%default]")
 
     parser.add_argument(
-        "--extension-downstream", dest="extension_downstream", type="int",
+        "--extension-downstream", dest="extension_downstream", type=int,
         help="extension downstream from the last exon in bp"
         "[%default]")
 
     parser.add_argument(
-        "--extension-inward", dest="extension_inward", type="int",
+        "--extension-inward", dest="extension_inward", type=int,
         help="extension inward from a TSS start site in bp"
         "[%default]")
 
     parser.add_argument(
-        "--extension-outward", dest="extension_outward", type="int",
+        "--extension-outward", dest="extension_outward", type=int,
         help="extension outward from a TSS start site in bp"
         "[%default]")
 
-    parser.add_argument("--scale-flank-length", dest="scale_flanks", type="int",
+    parser.add_argument("--scale-flank-length", dest="scale_flanks", type=int,
                       help="scale flanks to (integer multiples of) gene length"
                       "[%default]")
 
@@ -526,13 +526,13 @@ def main(argv=None):
     parser.add_argument(
         "--background-region-bins",
         dest="background_region_bins",
-        type="int",
+        type=int,
         help="number of bins on either end of the profile "
         "to be considered for background meta-gene normalization "
         "[%default]")
 
     parser.add_argument("--output-res",
-                      dest="resolution_images", type="int",
+                      dest="resolution_images", type=int,
                       help="the output dpi for the figure plot - will default to "
                       "[%default]")
 

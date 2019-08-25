@@ -1108,28 +1108,28 @@ def main(argv=None):
                       help="method for defining segments [default=%default].")
 
     parser.add_argument(
-        "-r", "--territory-extension", dest="radius", type="int",
+        "-r", "--territory-extension", dest="radius", type=int,
         help="radius of a territory [default=%default].")
 
     parser.add_argument(
-        "-f", "--flank-size", dest="flank", type="int",
+        "-f", "--flank-size", dest="flank", type=int,
         help="size of the flanking region next to a gene [default=%default].")
 
     parser.add_argument(
-        "--flank-increment-size", dest="increment", type="int",
+        "--flank-increment-size", dest="increment", type=int,
         help="size of increment in flank in genestructure annotation "
         "[default=%default].")
 
     parser.add_argument(
-        "-p", "--promotor-size", dest="promotor", type="int",
+        "-p", "--promotor-size", dest="promotor", type=int,
         help="size of a promotor region [default=%default].")
 
     parser.add_argument(
-        "-u", "--upstream-extension", dest="upstream", type="int",
+        "-u", "--upstream-extension", dest="upstream", type=int,
         help="size of region upstream of tss [default=%default].")
 
     parser.add_argument(
-        "-d", "--downstream-extension", dest="downstream", type="int",
+        "-d", "--downstream-extension", dest="downstream", type=int,
         help="size of region downstream of tss [default=%default].")
 
     parser.add_argument(
@@ -1145,7 +1145,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--min-intron-length", dest="min_intron_length",
-        type="int",
+        type=int,
         help="minimum intron length. If the distance between two "
         "consecutive exons is smaller, the region will be marked "
         "'unknown' [default=%default].")

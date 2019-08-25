@@ -598,7 +598,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--downsample", dest="downsample",
-        type="int",
+        type=int,
         help="Number of reads to downsample to")
 
     parser.add_argument(
@@ -615,7 +615,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--minimum-read-length", dest="minimum_read_length",
-        type="int",
+        type=int,
         help="minimum read length when filtering [%default]")
 
     parser.add_argument(

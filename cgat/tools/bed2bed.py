@@ -510,7 +510,7 @@ def main(argv=sys.argv):
                                "filter-names", "rename-chr"),
                       help="method to apply [default=%default]")
 
-    parser.add_argument("--num-bins", dest="num_bins", type="int",
+    parser.add_argument("--num-bins", dest="num_bins", type=int,
                       help="number of bins into which to merge (used for "
                       "method `bins) [default=%default]")
 
@@ -525,12 +525,12 @@ def main(argv=sys.argv):
         "bin_edges is given) [default=%default]")
 
     parser.add_argument(
-        "--merge-distance", dest="merge_distance", type="int",
+        "--merge-distance", dest="merge_distance", type=int,
         help="distance in bases over which to merge that are not "
         "directly adjacent [default=%default]")
 
     parser.add_argument(
-        "--merge-min-intervals", dest="merge_min_intervals", type="int",
+        "--merge-min-intervals", dest="merge_min_intervals", type=int,
         help="only output merged intervals that are build from at least "
         "x intervals [default=%default]")
 
@@ -556,7 +556,7 @@ def main(argv=sys.argv):
         "overlapping intervals do not match [default=%default]")
 
     parser.add_argument(
-        "--offset", dest="offset",  type="int",
+        "--offset", dest="offset",  type=int,
         help="offset for shifting intervals [default=%default]")
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,

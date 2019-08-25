@@ -126,12 +126,12 @@ def main(argv=None):
                      "[default=%default].")
     group.add_argument("--benchmark-num-iterations",
                      dest="benchmark_num_iterations",
-                     type="int",
+                     type=int,
                      help="number of iterations for benchmark "
                      "[default=%default].")
     group.add_argument("--benchmark-fragment-size",
                      dest="benchmark_fragment_size",
-                     type="int",
+                     type=int,
                      help="benchmark: fragment size [default=%default].")
     parser.add_argument_group(group)
 
@@ -140,7 +140,7 @@ def main(argv=None):
                      help="verify against other database [default=%default].")
 
     group.add_argument("--verify-iterations", dest="verify_num_iterations",
-                     type="int",
+                     type=int,
                      help="number of iterations for verification "
                      "[default=%default].")
     parser.add_argument_group(group)
@@ -192,7 +192,7 @@ def main(argv=None):
                      "[default=%%default]." % ", ".join(compression_choices))
 
     group.add_argument("--random-access-points", dest="random_access_points",
-                     type="int",
+                     type=int,
                      help="set random access points every # number "
                      "of nucleotides for block compression schemes "
                      "[default=%default].")

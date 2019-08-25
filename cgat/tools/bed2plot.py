@@ -152,10 +152,10 @@ def main(argv=sys.argv):
     parser.add_argument("-o", "--host", dest="host", type=str,
                       help="host that IGV is running on [%default]")
 
-    parser.add_argument("-p", "--port", dest="port", type="int",
+    parser.add_argument("-p", "--port", dest="port", type=int,
                       help="port that IGV listens at [%default]")
 
-    parser.add_argument("-e", "--extend", dest="extend", type="int",
+    parser.add_argument("-e", "--extend", dest="extend", type=int,
                       help="extend each interval by a number of bases "
                       "[%default]")
 

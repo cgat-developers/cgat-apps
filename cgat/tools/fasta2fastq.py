@@ -200,7 +200,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--output-quality-format", dest="q_format", type="int",
+        "--output-quality-format", dest="q_format", type=int,
         help="sequence quality format, e.g 33 = +33/Sanger"
         "[default=%default].")
 
@@ -233,11 +233,11 @@ def main(argv=None):
         "or copies per entry [default = %default].")
 
     parser.add_argument(
-        "--output-read-length", dest="read_length", type="int",
+        "--output-read-length", dest="read_length", type=int,
         help="read length [default = %default].")
 
     parser.add_argument(
-        "--sequence-error-phred", dest="phred", type="int",
+        "--sequence-error-phred", dest="phred", type=int,
         help="phred quality score [default = %default].")
 
     parser.add_argument(

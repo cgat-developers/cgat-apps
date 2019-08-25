@@ -170,12 +170,12 @@ def main(argv=None):
         help="remove regions instead of masking [%default].")
 
     parser.add_argument(
-        "--min-interval-length", dest="min_length", type="int",
+        "--min-interval-length", dest="min_length", type=int,
         help="set minimum length for sequences output "
         "[%default]")
 
     parser.add_argument(
-        "--max-length", dest="max_length", type="int",
+        "--max-length", dest="max_length", type=int,
         help="set maximum length for sequences output "
         "[%default]")
 
@@ -193,7 +193,7 @@ def main(argv=None):
         " header section")
 
     parser.add_argument(
-        "--extend-by", dest="extend_by", type="int",
+        "--extend-by", dest="extend_by", type=int,
         help="extend by # bases [default=%default]")
 
     parser.add_argument(
@@ -206,7 +206,7 @@ def main(argv=None):
         help="apply masker [%default].")
 
     parser.add_argument(
-        "--fold-at", dest="fold_at", type="int",
+        "--fold-at", dest="fold_at", type=int,
         help="fold sequence every n bases[%default].")
 
     parser.add_argument(

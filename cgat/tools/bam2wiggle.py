@@ -163,15 +163,15 @@ def main(argv=None):
                           "bigwig", "bed"),
                       help="output format [default=%default]")
 
-    parser.add_argument("-s", "--shift-size", dest="shift", type="int",
+    parser.add_argument("-s", "--shift-size", dest="shift", type=int,
                       help="shift reads by a certain amount (ChIP-Seq) "
                       "[%default]")
 
-    parser.add_argument("-e", "--extend", dest="extend", type="int",
+    parser.add_argument("-e", "--extend", dest="extend", type=int,
                       help="extend reads by a certain amount "
                       "(ChIP-Seq) [%default]")
 
-    parser.add_argument("-p", "--wiggle-span", dest="span", type="int",
+    parser.add_argument("-p", "--wiggle-span", dest="span", type=int,
                       help="span of a window in wiggle tracks "
                       "[%default]")
 
@@ -195,13 +195,13 @@ def main(argv=None):
                       "[default=%default]")
 
     parser.add_argument("--max-insert-size", dest="max_insert_size",
-                      type="int",
+                      type=int,
                       help="only merge if insert size less that "
                       "# bases. 0 turns of this filter "
                       "[default=%default].")
 
     parser.add_argument("--min-insert-size", dest="min_insert_size",
-                      type="int",
+                      type=int,
                       help="only merge paired-end reads if they are "
                       "at least # bases apart. "
                       "0 turns of this filter. [default=%default]")

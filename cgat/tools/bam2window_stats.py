@@ -31,7 +31,7 @@ def main(argv=None):
         help="region to restrict analysis to [%default]")
 
     parser.add_argument(
-        "--window-size", dest="window_size", type="int",
+        "--window-size", dest="window_size", type=int,
         help="window size to use [%default]")
 
     parser.add_argument(
