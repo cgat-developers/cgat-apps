@@ -1,76 +1,76 @@
-'''sq2b.py - comp ss on rs in sq is
+'''fastq2table.py - compute stats on reads in fastq files
+======================================================
 
+:Tags: Genomics NGS Sequences FASTQ Annotation
 
-:Tgs: Gnomics NGS Sqncs FASTQ Annoion
-
-Prpos
+Purpose
 -------
 
-This scrip irs ovr  sq i n ops
-smmry sisics or ch r.
+This script iterates over a fastq file and outputs
+summary statistics for each read.
 
-Th op is  b-imi x i wih h oowing comns:
+The output is a tab-delimited text file with the following columns:
 
 +----------+----------------------------------------+
-|*Comn*  |*Conn*                               |
+|*Column*  |*Content*                               |
 +----------+----------------------------------------+
-|r      |r iniir prsn in inp sq  |
-|          |i                                    |
+|read      |read identifier present in input fastq  |
+|          |file                                    |
 +----------+----------------------------------------+
-|ni   |nmbr o rs h  bow Q10     |
+|nfailed   |number of reads that fall below Q10     |
 +----------+----------------------------------------+
-|nN        |nmbr o mbigos bs cs (N)      |
+|nN        |number of ambiguous base calls (N)      |
 +----------+----------------------------------------+
-|nv      |nmbr o bss in h r             |
+|nval      |number of bases in the read             |
 +----------+----------------------------------------+
-|min       |minimm bs qiy scor or h r |
+|min       |minimum base quality score for the read |
 +----------+----------------------------------------+
-|mx       |mximm bs qiy or h r       |
+|max       |maximum base quality for the read       |
 +----------+----------------------------------------+
-|mn      |mn bs qiy or h r          |
+|mean      |mean base quality for the read          |
 +----------+----------------------------------------+
-|min    |min bs qiy or h r        |
+|median    |median base quality for the read        |
 +----------+----------------------------------------+
-|sv    |snr viion o qiy scors   |
-|          |or h r                            |
+|stddev    |standard devitation of quality scores   |
+|          |for the read                            |
 +----------+----------------------------------------+
-|sm       |sm o qiy scors or h r      |
+|sum       |sum of quality scores for the read      |
 +----------+----------------------------------------+
-|q1        |25h prcni o qiy scors or   |
-|          |h r                                |
+|q1        |25th percentile of quality scores for   |
+|          |the read                                |
 +----------+----------------------------------------+
-|q3        |25h prcni o qiy scors or   |
-|          |h r                                |
+|q3        |25th percentile of quality scores for   |
+|          |the read                                |
 +----------+----------------------------------------+
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   cg sq2b --gss-ormsngr < in.sq > o.sv
+   cgat fastq2table --guess-format=sanger < in.fastq > out.tsv
 
-In his xmp w know h or  hv qiy scors orm s
-sngr. Givn h imin-1.8 qiy scors r highy ovrpping
-wih sngr, his opion s o sngr qiis. In  mo
-h scrip my no b b o isingish highy ovrpping ss o
-qiy scors.
+In this example we know that our data have quality scores formatted as
+sanger. Given that illumina-1.8 quality scores are highly overlapping
+with sanger, this option defaults to sanger qualities. In default mode
+the script may not be able to distinguish highly overlapping sets of
+quality scores.
 
-I w provi wo rs o h scrip::
+If we provide two reads to the script::
 
    @DHKW5DQ1:308:D28FGACXX:5:2211:8051:4398
    ACAATGTCCTGATGTGAATGCCCCTACTATTCAGATCGCTTAGGGCATGC
    +
-   B1?DFDDHHFFHIJJIJGGIJGFIEE9CHIIFEGGIIJGIGIGIIDGHI
+   B1=?DFDDHHFFHIJJIJGGIJGFIEE9CHIIFEGGIIJGIGIGIIDGHI
    @DHKW5DQ1:308:D28FGACXX:5:1315:15039:83265
    GAATGCCCCTACTATTCAGATCGCTTAGGGCATGCGTCGCATGTGAGTAA
    +
    @@@FDFFFHGHHHJIIIJIGHIJJIGHGHC9FBFBGHIIEGHIGC>F@FA
 
-w g h oowing b s op:
+we get the following table as output:
 
 +-----------------------------------------+-------+--+----+-------+-------+-------+-------+------+---------+-------+-------+
-|r                                     |ni|nN|nv|min    |mx    |mn   |min |sv|sm      |q1     |q3     |
+|read                                     |nfailed|nN|nval|min    |max    |mean   |median |stddev|sum      |q1     |q3     |
 +-----------------------------------------+-------+--+----+-------+-------+-------+-------+------+---------+-------+-------+
 |DHKW5DQ1:308:D28FGACXX:5:2211:8051:4398  |0      |0 |50  |16.0000|41.0000|37.2000|38.0000|4.4900|1860.0000|36.0000|40.0000|
 +-----------------------------------------+-------+--+----+-------+-------+-------+-------+------+---------+-------+-------+
@@ -78,93 +78,93 @@ w g h oowing b s op:
 +-----------------------------------------+-------+--+----+-------+-------+-------+-------+------+---------+-------+-------+
 
 
-Typ::
+Type::
 
-   cg sq2b --hp
+   cgat fastq2table --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
+import sys
 
-impor cgcor.xprimn s E
-impor cg.Ss s Ss
-impor cg.Fsq s Fsq
+import cgatcore.experiment as E
+import cgat.Stats as Stats
+import cgat.Fastq as Fastq
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "--gss-orm", s"gss_orm", yp"choic",
-        choics(
-            'sngr', 'sox', 'phr64', 'imin-1.8', 'ingr'),
-        hp"Th  bhvior o h scrip is o gss h qiy "
-        "orm o h inp sq i. Th sr cn spciy h "
-        "qiy orm o h inp i sing h --gss-orm opion. "
-        "Th scrip wi s his orm i h "
-        "sqnc qiis r mbigos.[].")
+    parser.add_argument(
+        "--guess-format", dest="guess_format", type="choice",
+        choices=(
+            'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),
+        help="The default behaviour of the script is to guess the quality "
+        "format of the input fastq file. The user can specify the "
+        "quality format of the input file using the --guess-format option. "
+        "The script will use this format if the "
+        "sequence qualities are ambiguous.[default=%default].")
 
-    prsr._rgmn(
-        "--rg-orm", s"rg_orm", yp"choic",
-        choics(
-            'sngr', 'sox', 'phr64', 'imin-1.8', 'ingr'),
-        hp"Th scrip wi convr qiy scors o h sinion "
-        "orm nss [].")
+    parser.add_argument(
+        "--target-format", dest="target_format", type="choice",
+        choices=(
+            'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),
+        help="The script will convert quality scores to the destination "
+        "format unless [default=%default].")
 
-    prsr.s_s(
-        rg_ormNon,
-        gss_ormNon,
-        min_qiy10,
+    parser.set_defaults(
+        target_format=None,
+        guess_format=None,
+        min_quality=10,
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    c  E.Conr()
+    c = E.Counter()
 
-    i opions.rg_orm:
-        iror  Fsq.ir_convr(opions.sin,
-                                         ormopions.rg_orm,
-                                         gssopions.gss_orm)
-    s:
-        iror  Fsq.ir_gss(opions.sin,
-                                       gssopions.gss_orm)
+    if options.target_format:
+        iterator = Fastq.iterate_convert(options.stdin,
+                                         format=options.target_format,
+                                         guess=options.guess_format)
+    else:
+        iterator = Fastq.iterate_guess(options.stdin,
+                                       guess=options.guess_format)
 
-    opions.so.wri("r\ni\nN\s\n" 
-                         ("\".join(Ss.Smmry().gHrs())))
+    options.stdout.write("read\tnfailed\tnN\t%s\n" %
+                         ("\t".join(Stats.Summary().getHeaders())))
 
-    min_qiy  opions.min_qiy
+    min_quality = options.min_quality
 
-    or rcor in iror:
-        c.inp + 1
-        qs  rcor.oPhr()
-        ni  n([x or x in qs i x < min_qiy])
-        nns  rcor.sq.con("N") + rcor.sq.con(".")
-        opions.so.wri("s\i\i\s\n"  (rcor.iniir,
-                                                   ni,
+    for record in iterator:
+        c.input += 1
+        quals = record.toPhred()
+        nfailed = len([x for x in quals if x < min_quality])
+        nns = record.seq.count("N") + record.seq.count(".")
+        options.stdout.write("%s\t%i\t%i\t%s\n" % (record.identifier,
+                                                   nfailed,
                                                    nns,
-                                                   sr(Ss.Smmry(qs))
+                                                   str(Stats.Summary(quals))
                                                    ))
-        c.op + 1
+        c.output += 1
 
-    # wri oor n op bnchmrk inormion.
-    E.ino("s"  sr(c))
-    E.sop()
+    # write footer and output benchmark information.
+    E.info("%s" % str(c))
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

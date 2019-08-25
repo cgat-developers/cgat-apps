@@ -1,485 +1,485 @@
-'''g2b.py - comp rs or inrscion o wo g is
+'''gff2table.py - compute features for intersection of two gff files
+=================================================================
 
+:Tags: Genomics Intervals Annotation Comparison GFF
 
-:Tgs: Gnomics Inrvs Annoion Comprison GFF
-
-Prpos
+Purpose
 -------
 
-coc inrvs rom wo g is n comp rs bs on
-hir inrscion. Th scrip is inn o comp propris or 
-s o non-ovrpping winows.
+collect intervals from two gff files and compute features based on
+their intersection. The script is intended to compute properties for a
+set of non-overlapping windows.
 
-Trnsorms:
-   * non:        no rnsorm
-   * ovrp:     ovrp bwn s1 n s2
-   * compmn:  pr o s1 h is no covr by s2
-   * hir_coon: ony ks vry hir posiion. Ns rm inormion
-                  in h g i.
+Transforms:
+   * none:        no transform
+   * overlap:     overlap between set1 and set2
+   * complement:  part of set1 that is not covered by set2
+   * third_codon: only takes every third position. Needs frame information
+                  in the gff file.
 
-Dcorors:
-   * GC:            G+C conn o inrvs
-   * con:         nmbr o winows
-   * mn-ngh:   mn ngh o inrvs ovrpping wih winow
+Decorators:
+   * GC:            G+C content of intervals
+   * count:         number of windows
+   * mean-length:   mean length of intervals overlapping with window
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon g2b.py --hp
+   python gff2table.py --help
 
-Typ::
+Type::
 
-   pyhon g2b.py --hp
+   python gff2table.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor r
+import sys
+import re
 
-impor cgcor.xprimn s E
-impor cg.Gnomics s Gnomics
-impor cg.InxFs s InxFs
-impor cg.InxGnom s InxGnom
+import cgatcore.experiment as E
+import cgat.Genomics as Genomics
+import cgat.IndexedFasta as IndexedFasta
+import cgat.IndexedGenome as IndexedGenome
 
-impor cg.Inrvs s Inrvs
-impor cg.Ss s Ss
-impor cg.GTF s GTF
-
-
- coror_cons(inrvs, sr, n, conig, s):
-    """comp ngh isribion."""
-      Ss.DisribionPrmrs([x[1] - x[0] or x in inrvs])
-    rrn ['nv'], sr()
+import cgat.Intervals as Intervals
+import cgat.Stats as Stats
+import cgat.GTF as GTF
 
 
- coror_prcn_covrg(inrvs, sr, n, conig, s):
-    """comp ngh o inrvs."""
-      Ss.DisribionPrmrs([x[1] - x[0] or x in inrvs])
-    rrn 100.0 * o(['sm']) / (n - sr), sr()
+def decorator_counts(intervals, start, end, contig, fasta):
+    """compute length distribution."""
+    d = Stats.DistributionalParameters([x[1] - x[0] for x in intervals])
+    return d['nval'], str(d)
 
 
- coror_mn_ngh(inrvs, sr, n, conig, s):
-    """comp ngh isribion."""
-      Ss.DisribionPrmrs([x[1] - x[0] or x in inrvs])
-    rrn ['mn'], sr()
+def decorator_percent_coverage(intervals, start, end, contig, fasta):
+    """compute length of intervals."""
+    d = Stats.DistributionalParameters([x[1] - x[0] for x in intervals])
+    return 100.0 * float(d['sum']) / (end - start), str(d)
 
 
- coror_min_ngh(inrvs, sr, n, conig, s):
-    """comp ngh isribion."""
-      Ss.DisribionPrmrs([x[1] - x[0] or x in inrvs])
-    rrn ['min'], sr()
+def decorator_mean_length(intervals, start, end, contig, fasta):
+    """compute length distribution."""
+    d = Stats.DistributionalParameters([x[1] - x[0] for x in intervals])
+    return d['mean'], str(d)
 
 
- coror_prcn_gc(inrvs, sr, n, conig, s):
-    """comp G+C conn in inrvs.
+def decorator_median_length(intervals, start, end, contig, fasta):
+    """compute length distribution."""
+    d = Stats.DistributionalParameters([x[1] - x[0] for x in intervals])
+    return d['median'], str(d)
+
+
+def decorator_percent_gc(intervals, start, end, contig, fasta):
+    """compute G+C content in intervals.
     """
-    , ngc  0, 0
+    l, ngc = 0, 0
 
-    # ch sqnc o h comp winow irs
-    sqnc  s.gSqnc(conig, "+", sr, n)
+    # fetch sequence of the complete window first
+    sequence = fasta.getSequence(contig, "+", start, end)
 
-    or isr, in in inrvs:
-        ngc + n([x or x in sqnc[isr - sr:in - sr] i x in "GCgc"])
-         + in - isr
+    for istart, iend in intervals:
+        ngc += len([x for x in sequence[istart - start:iend - start] if x in "GCgc"])
+        l += iend - istart
 
-    rrn 100.0 * ngc / , Non
-
-
- coror_min_scor(vs, sr, n, conig):
-    """comp min o vs."""
-      Ss.DisribionPrmrs(vs)
-    rrn ['min'], sr()
+    return 100.0 * ngc / l, None
 
 
- coror_mn_scor(vs, sr, n, conig):
-    """comp mn o vs."""
-      Ss.DisribionPrmrs(vs)
-    rrn ['mn'], sr()
+def decorator_median_score(values, start, end, contig):
+    """compute median of values."""
+    d = Stats.DistributionalParameters(values)
+    return d['median'], str(d)
 
 
- coror_sv_scor(vs, sr, n, conig):
-    """comp sv o vs."""
-      Ss.DisribionPrmrs(vs)
-    rrn ['sv'], sr()
+def decorator_mean_score(values, start, end, contig):
+    """compute mean of values."""
+    d = Stats.DistributionalParameters(values)
+    return d['mean'], str(d)
 
 
- coror_min_scor(vs, sr, n, conig):
-    """comp minmm o vs."""
-      Ss.DisribionPrmrs(vs)
-    rrn ['min'], sr()
+def decorator_stddev_score(values, start, end, contig):
+    """compute stddev of values."""
+    d = Stats.DistributionalParameters(values)
+    return d['stddev'], str(d)
 
 
- coror_mx_scor(vs, sr, n, conig):
-    """comp minmm o vs."""
-      Ss.DisribionPrmrs(vs)
-    rrn ['mx'], sr()
+def decorator_min_score(values, start, end, contig):
+    """compute minumum of values."""
+    d = Stats.DistributionalParameters(values)
+    return d['min'], str(d)
 
 
- rnsorm_ovrp(sr, n, inrvs_wih_g):
-    """rnsorm: ovrp o inrvs in x wih y."""
-    y  Inrvs.combinInrvs(
-        [(x[0], x[1]) or x in inrvs_wih_g])
-    rrn Inrvs.prnInrvs(y, sr, n)
+def decorator_max_score(values, start, end, contig):
+    """compute minumum of values."""
+    d = Stats.DistributionalParameters(values)
+    return d['max'], str(d)
 
 
- rnsorm_compmn(sr, n, inrvs_wih_g):
-    y  Inrvs.combinInrvs(
-        [(x[0], x[1]) or x in inrvs_wih_g])
-    rrn Inrvs.compmnInrvs(y, sr, n)
+def transform_overlap(start, end, intervals_with_gff):
+    """transform: overlap of intervals in x with y."""
+    y = Intervals.combineIntervals(
+        [(x[0], x[1]) for x in intervals_with_gff])
+    return Intervals.pruneIntervals(y, start, end)
 
 
- rnsorm_hir_coon(sr, n, inrvs_wih_g):
-    """rnsorm: ony rrn ncoi posiions in winow (sr, n) 
-    h r in hir coon posiion.
+def transform_complement(start, end, intervals_with_gff):
+    y = Intervals.combineIntervals(
+        [(x[0], x[1]) for x in intervals_with_gff])
+    return Intervals.complementIntervals(y, start, end)
+
+
+def transform_third_codon(start, end, intervals_with_gff):
+    """transform: only return nucleotide positions in window (start, end) 
+    that are in third codon position.
     """
-    inrvs  []
-    or isr, in, g in inrvs_wih_g:
+    intervals = []
+    for istart, iend, gff in intervals_with_gff:
 
-        i g.rm  ".":
-            ris VError("n  rm or hir coon posiions.")
+        if gff.frame == ".":
+            raise ValueError("need a frame for third codon positions.")
 
-        # rm  ncois rom sr o nx coon
-        rm  in(g.rm)
+        # frame = nucleotides from start to next codon
+        frame = int(gff.frame)
 
-        # o mk i sir, convr o 0-bs coorins,
-        # wih zro sring  irs posiion in winow
-        # r-rrng posiions on ngiv srn
-        i Gnomics.IsNgivSrn(g.srn):
-            # convr o ngiv srn coorins coning rom 0
-            coorin_os  n
-            rvrs  Tr
-            isr, in  n - in, n - isr
-        s:
-            isr, in  isr - sr, in - sr
-            rvrs  Fs
-            coorin_os  sr
+        # to make life easier, convert to 0-based coordinates,
+        # with zero starting at first position in window
+        # re-arrange positions on negative strand
+        if Genomics.IsNegativeStrand(gff.strand):
+            # convert to negative strand coordinates counting from 0
+            coordinate_offset = end
+            reverse = True
+            istart, iend = end - iend, end - istart
+        else:
+            istart, iend = istart - start, iend - start
+            reverse = False
+            coordinate_offset = start
 
-        # mk sr h yo sr on  scon coon posiion n wihin winow
-        i isr < 0:
-            rm  (rm + isr)  3
-            isr  0
-        i rm ! 0:
-            isr - (3 - rm)
-        isr + 2
+        # make sure that you start on a second codon position and within window
+        if istart < 0:
+            frame = (frame + istart) % 3
+            istart = 0
+        if frame != 0:
+            istart -= (3 - frame)
+        istart += 2
 
-        in  min(in, n - sr)
+        iend = min(iend, end - start)
 
-        or x in rng(isr, in, 3):
+        for x in range(istart, iend, 3):
 
-            i rvrs:
-                c  coorin_os - x - 1
-            s:
-                c  coorin_os + x
-            inrvs.ppn((c, c + 1))
+            if reverse:
+                c = coordinate_offset - x - 1
+            else:
+                c = coordinate_offset + x
+            intervals.append((c, c + 1))
 
-    rrn Inrvs.combinInrvs(inrvs)
-
-
- s_rnsorm_hir_coon():
-
-     s_nry(rm, srn, xrom, xo, sr, n, r):
-
-        nry  GTF.Enry()
-        nry.rm  rm
-        nry.srn  srn
-        nry.sr  xrom
-        nry.n  xo
-
-        inrvs  rnsorm_hir_coon(sr, n, [(xrom, xo, nry)])
-        i r ! inrvs:
-            prin("i:", r ! inrvs)
-
-    s_nry(0, "+", 1, 7, 0, 6, [(3, 4)])
-    s_nry(0, "-", 1, 7, 0, 6, [(1, 2), (4, 5)])
-    s_nry(1, "+", 1, 7, 0, 6, [(1, 2), (4, 5)])
-    s_nry(2, "+", 1, 7, 0, 6, [(2, 3), (5, 6)])
-    s_nry(1, "-", 1, 7, 0, 6, [(3, 4)])
-    s_nry(2, "-", 1, 7, 0, 6, [(2, 3), (5, 6)])
-
-    sys.xi(0)
+    return Intervals.combineIntervals(intervals)
 
 
- nnoWinows(conig, winows, g_, s, opions):
-    """nno winows."""
+def test_transform_third_codon():
 
-    inx  InxGnom.InxGnom()
-    or g in g_:
-        inx.(g.conig, g.sr, g.n, g)
+    def test_entry(frame, strand, xfrom, xto, start, end, ref):
 
-    is_g  opions.is_g
+        entry = GTF.Entry()
+        entry.frame = frame
+        entry.strand = strand
+        entry.start = xfrom
+        entry.end = xto
 
-    i opions.rnsorm  "non":
-        rnsorm  mb x, y, z: [(x[0], x[1]) or x in z]
-    i opions.rnsorm  "ovrp":
-        rnsorm  rnsorm_ovrp
-    i opions.rnsorm  "compmn":
-        rnsorm  rnsorm_compmn
-    i opions.rnsorm  "hir_coon":
-        rnsorm  rnsorm_hir_coon
-    s:
-        ris VError("nknown rnsorm s"  opions.rnsorm)
+        intervals = transform_third_codon(start, end, [(xfrom, xto, entry)])
+        if ref != intervals:
+            print("failed:", ref != intervals)
 
-    work_on_inrvs  Tr
-    i opions.coror  "cons":
-        coror  coror_cons
-    i opions.coror  "mn-ngh":
-        coror  coror_mn_ngh
-    i opions.coror  "min-ngh":
-        coror  coror_min_ngh
-    i opions.coror  "prcn-covrg":
-        coror  coror_prcn_covrg
-    i opions.coror  "gc":
-        coror  coror_prcn_gc
-    i opions.coror  "min-scor":
-        coror  coror_min_scor
-        work_on_inrvs  Fs
-    i opions.coror  "mn-scor":
-        coror  coror_mn_scor
-        work_on_inrvs  Fs
-    i opions.coror  "sv-scor":
-        coror  coror_sv_scor
-        work_on_inrvs  Fs
-    i opions.coror  "min-scor":
-        coror  coror_min_scor
-        work_on_inrvs  Fs
-    i opions.coror  "mx-scor":
-        coror  coror_mx_scor
-        work_on_inrvs  Fs
-    s:
-        ris VError("nknown coror s"  opions.coror)
+    test_entry(0, "+", 1, 7, 0, 6, [(3, 4)])
+    test_entry(0, "-", 1, 7, 0, 6, [(1, 2), (4, 5)])
+    test_entry(1, "+", 1, 7, 0, 6, [(1, 2), (4, 5)])
+    test_entry(2, "+", 1, 7, 0, 6, [(2, 3), (5, 6)])
+    test_entry(1, "-", 1, 7, 0, 6, [(3, 4)])
+    test_entry(2, "-", 1, 7, 0, 6, [(2, 3), (5, 6)])
 
-    or sr, n in winows:
-
-        # cons/ngh bor/r rnsormion
-        n1, 1, n2, 2  0, 0, 0, 0
-
-        vs, inrvs_wih_g, gns, rnscrips  [], [], s(), s()
-
-        ry:
-            or isr, in, v in inx.g(conig, sr, n):
-                n1 + 1
-                1 + in - isr
-                inrvs_wih_g.ppn((isr, in, v))
-                vs.ppn(v.scor)
-                i is_g:
-                    gns.(v.gn_i)
-                    rnscrips.(v.rnscrip_i)
-        xcp KyError:
-            pss
-
-        i n1  0 n opions.skip_mpy:
-            conin
-
-        i work_on_inrvs:
-
-            i opions.ogv > 3:
-                opions.sog.wri("# inrvs in winow i:i bor rnsormion: s\n"  (
-                    sr, n, sr(inrvs)))
-
-            inrvs  rnsorm(sr, n, inrvs_wih_g)
-
-            or xsr, xn in inrvs:
-                n2 + 1
-                2 + xn - xsr
-
-            i opions.ogv > 3:
-                opions.sog.wri("# inrvs in winow i:i r rnsormion: s\n"  (
-                    sr, n, sr(inrvs)))
-
-            scor, xr_ino  coror(inrvs, sr, n, conig, s)
-
-        s:
-            i n(vs) > 0:
-                vs  is(mp(o, vs))
-                scor, xr_ino  coror(vs, sr, n, conig)
-            s:
-                scor, xr_ino  0, Non
-
-            2  0
-            n2  0
-
-        i is_g:
-            ngns, nrnscrips  n(gns), n(rnscrips)
-        s:
-            ngns, nrnscrips  0, 0
-
-        i xr_ino:
-            xr_ino  r.sb("\", ";", xr_ino)
-        opions.so.wri("\".join(
-            mp(sr, (conig, sr, n,
-                      ngns, nrnscrips,
-                      n1, 1,
-                      n2, 2,
-                      scor,
-                      xr_ino))) + "\n")
+    sys.exit(0)
 
 
- min(rgvNon):
-    """scrip min.
+def annotateWindows(contig, windows, gff_data, fasta, options):
+    """annotate windows."""
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    index = IndexedGenome.IndexedGenome()
+    for g in gff_data:
+        index.add(g.contig, g.start, g.end, g)
+
+    is_gtf = options.is_gtf
+
+    if options.transform == "none":
+        transform = lambda x, y, z: [(x[0], x[1]) for x in z]
+    elif options.transform == "overlap":
+        transform = transform_overlap
+    elif options.transform == "complement":
+        transform = transform_complement
+    elif options.transform == "third_codon":
+        transform = transform_third_codon
+    else:
+        raise ValueError("unknown transform %s" % options.transform)
+
+    work_on_intervals = True
+    if options.decorator == "counts":
+        decorator = decorator_counts
+    elif options.decorator == "mean-length":
+        decorator = decorator_mean_length
+    elif options.decorator == "median-length":
+        decorator = decorator_median_length
+    elif options.decorator == "percent-coverage":
+        decorator = decorator_percent_coverage
+    elif options.decorator == "gc":
+        decorator = decorator_percent_gc
+    elif options.decorator == "median-score":
+        decorator = decorator_median_score
+        work_on_intervals = False
+    elif options.decorator == "mean-score":
+        decorator = decorator_mean_score
+        work_on_intervals = False
+    elif options.decorator == "stddev-score":
+        decorator = decorator_stddev_score
+        work_on_intervals = False
+    elif options.decorator == "min-score":
+        decorator = decorator_min_score
+        work_on_intervals = False
+    elif options.decorator == "max-score":
+        decorator = decorator_max_score
+        work_on_intervals = False
+    else:
+        raise ValueError("unknown decorator %s" % options.decorator)
+
+    for start, end in windows:
+
+        # counts/length before/after transformation
+        n1, l1, n2, l2 = 0, 0, 0, 0
+
+        values, intervals_with_gff, genes, transcripts = [], [], set(), set()
+
+        try:
+            for istart, iend, value in index.get(contig, start, end):
+                n1 += 1
+                l1 += iend - istart
+                intervals_with_gff.append((istart, iend, value))
+                values.append(value.score)
+                if is_gtf:
+                    genes.add(value.gene_id)
+                    transcripts.add(value.transcript_id)
+        except KeyError:
+            pass
+
+        if n1 == 0 and options.skip_empty:
+            continue
+
+        if work_on_intervals:
+
+            if options.loglevel >= 3:
+                options.stdlog.write("# intervals in window %i:%i before transformation: %s\n" % (
+                    start, end, str(intervals)))
+
+            intervals = transform(start, end, intervals_with_gff)
+
+            for xstart, xend in intervals:
+                n2 += 1
+                l2 += xend - xstart
+
+            if options.loglevel >= 3:
+                options.stdlog.write("# intervals in window %i:%i after transformation: %s\n" % (
+                    start, end, str(intervals)))
+
+            score, extra_info = decorator(intervals, start, end, contig, fasta)
+
+        else:
+            if len(values) > 0:
+                values = list(map(float, values))
+                score, extra_info = decorator(values, start, end, contig)
+            else:
+                score, extra_info = 0, None
+
+            l2 = 0
+            n2 = 0
+
+        if is_gtf:
+            ngenes, ntranscripts = len(genes), len(transcripts)
+        else:
+            ngenes, ntranscripts = 0, 0
+
+        if extra_info:
+            extra_info = re.sub("\t", ";", extra_info)
+        options.stdout.write("\t".join(
+            map(str, (contig, start, end,
+                      ngenes, ntranscripts,
+                      n1, l1,
+                      n2, l2,
+                      score,
+                      extra_info))) + "\n")
+
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-g", "--gnom-i", s"gnom_i", yp"sring",
-        hp"inm wih gnom (inx).")
+    parser.add_argument(
+        "-g", "--genome-file", dest="genome_file", type="string",
+        help="filename with genome (indexed).")
 
-    prsr._rgmn(
-        "-w", "--winows-b-i", s"inm_winows", yp"sring",
-        hp"g i wih winows o s.")
+    parser.add_argument(
+        "-w", "--windows-bed-file", dest="filename_windows", type="string",
+        help="gff file with windows to use.")
 
-    prsr._rgmn(
-        "-", "--inm-", s"inm_", yp"sring",
-        hp"g i wih  o s.")
+    parser.add_argument(
+        "-d", "--filename-data", dest="filename_data", type="string",
+        help="gff file with data to use.")
 
-    prsr._rgmn("--is-g", s"is_g", cion"sor_r",
-                      hp"inm- is g i [.")
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
+                      help="filename-data is gtf file [default=%default.")
 
-    prsr._rgmn(
-        "-", "--rs", s"rs", yp"choic", cion"ppn",
-        choics("GC", ),
-        hp"rs o comp.")
+    parser.add_argument(
+        "-f", "--features", dest="features", type="choice", action="append",
+        choices=("GC", ),
+        help="features to compute.")
 
-    prsr._rgmn(
-        "-c", "--coror", s"coror", yp"choic",
-        choics("cons", "gc", "gc3", "mn-ngh", "min-ngh",
-                 "prcn-covrg",
-                 "min-scor", "mn-scor", "sv-scor", "min-scor",
-                 "mx-scor"),
-        hp"corors o s.")
+    parser.add_argument(
+        "-c", "--decorator", dest="decorator", type="choice",
+        choices=("counts", "gc", "gc3", "mean-length", "median-length",
+                 "percent-coverage",
+                 "median-score", "mean-score", "stddev-score", "min-score",
+                 "max-score"),
+        help="decorators to use.")
 
-    prsr._rgmn(
-        "-", "--skip-mpy", s"skip_mpy", cion"sor_r",
-        hp"skip mpy winows.")
+    parser.add_argument(
+        "-e", "--skip-empty", dest="skip_empty", action="store_true",
+        help="skip empty windows.")
 
-    prsr._rgmn(
-        "-", "--rnsorm", s"rnsorm", yp"choic",
-        choics(
-            "non", "ovrp", "compmn", "hir_coon"),
-        hp"rnsorm o s whn mpping ovrpping rgions ono winow.")
+    parser.add_argument(
+        "-t", "--transform=", dest="transform", type="choice",
+        choices=(
+            "none", "overlap", "complement", "third_codon"),
+        help="transform to use when mapping overlapping regions onto window.")
 
-    prsr.s_s(
-        gnom_iNon,
-        inm_winowsNon,
-        inm_Non,
-        rs[],
-        skip_mpyFs,
-        coror"cons",
-        rnsorm"non",
-        is_gFs,
+    parser.set_defaults(
+        genome_file=None,
+        filename_windows=None,
+        filename_data=None,
+        features=[],
+        skip_empty=False,
+        decorator="counts",
+        transform="none",
+        is_gtf=False,
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    #    s_rnsorm_hir_coon()
+    #    test_transform_third_codon()
 
-    i no opions.inm_winows:
-        ris VError("ps sppy  g i wih winow inormion.")
+    if not options.filename_windows:
+        raise ValueError("please supply a gff file with window information.")
 
-    i opions.ogv > 1:
-        opions.sog.wri("# ring winows...")
-        opions.sog.sh()
+    if options.loglevel >= 1:
+        options.stdlog.write("# reading windows...")
+        options.stdlog.flush()
 
-    winows  GTF.rAsInrvs(
-        GTF.iror(iooos.opn_i(opions.inm_winows, "r")))
+    windows = GTF.readAsIntervals(
+        GTF.iterator(iotools.open_file(options.filename_windows, "r")))
 
-    i opions.ogv > 1:
-        opions.sog.wri("on\n")
-        opions.sog.sh()
+    if options.loglevel >= 1:
+        options.stdlog.write("done\n")
+        options.stdlog.flush()
 
-    i opions.inm_:
-        i opions.ogv > 1:
-            opions.sog.wri("# ring ...")
-            opions.sog.sh()
+    if options.filename_data:
+        if options.loglevel >= 1:
+            options.stdlog.write("# reading data...")
+            options.stdlog.flush()
 
-        i opions.is_g:
-            g_  GTF.rFromFi(
-                iooos.opn_i(opions.inm_, "r"))
-        s:
-            g_  GTF.rFromFi(
-                IOTOos.opn_i(opions.inm_, "r"))
+        if options.is_gtf:
+            gff_data = GTF.readFromFile(
+                iotools.open_file(options.filename_data, "r"))
+        else:
+            gff_data = GTF.readFromFile(
+                IOTOols.open_file(options.filename_data, "r"))
 
-        i opions.ogv > 1:
-            opions.sog.wri("on\n")
-            opions.sog.sh()
+        if options.loglevel >= 1:
+            options.stdlog.write("done\n")
+            options.stdlog.flush()
 
-        _rngs  GTF.SorPrConig(g_)
-    s:
-        # s winows o comp propris
-        # by sppying no  n sking or h compmn  origin winow
-        g_  Non
-        _rngs  Non
-        opions.rnsorm  "compmn"
+        data_ranges = GTF.SortPerContig(gff_data)
+    else:
+        # use windows to compute properties
+        # by supplying no data and asking for the complement = original window
+        gff_data = None
+        data_ranges = None
+        options.transform = "complement"
 
-    mp_conig2siz  {}
+    map_contig2size = {}
 
-    i opions.gnom_i:
-        s  InxFs.InxFs(opions.gnom_i)
-        mp_conig2siz  s.gConigSizs()
-    s:
-        or conig, vs in is(winows.ims()):
-            mp_conig2siz[conig]  mx(mb x: x[1], vs)
-        s  Non
+    if options.genome_file:
+        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+        map_contig2size = fasta.getContigSizes()
+    else:
+        for contig, values in list(windows.items()):
+            map_contig2size[contig] = max(lambda x: x[1], values)
+        fasta = None
 
-    conigs  is(mp_conig2siz.kys())
-    conigs.sor()
+    contigs = list(map_contig2size.keys())
+    contigs.sort()
 
-    # proc conig wis
-    nop_conigs, nconigs_skipp_winows, nconigs_skipp_  0, 0, 0
+    # proceed contig wise
+    noutput_contigs, ncontigs_skipped_windows, ncontigs_skipped_data = 0, 0, 0
 
-    opions.so.wri("\".join(
-        mp(sr, ("conig", "sr", "n",
-                  "ngns", "nrnscrips",
-                  "n1", "1",
-                  "n2", "2",
-                  "scor",
-                  "xr_ino"))) + "\n")
+    options.stdout.write("\t".join(
+        map(str, ("contig", "start", "end",
+                  "ngenes", "ntranscripts",
+                  "n1", "l1",
+                  "n2", "l2",
+                  "score",
+                  "extra_info"))) + "\n")
 
-    or conig in conigs:
+    for contig in contigs:
 
-        skip  Fs
-        i conig no in winows:
-            nconigs_skipp_winows + 1
-            skip  Tr
+        skip = False
+        if contig not in windows:
+            ncontigs_skipped_windows += 1
+            skip = True
 
-        i _rngs n conig no in _rngs:
-            nconigs_skipp_ + 1
-            skip  Tr
+        if data_ranges and contig not in data_ranges:
+            ncontigs_skipped_data += 1
+            skip = True
 
-        i skip:
-            conin
+        if skip:
+            continue
 
-        nop_conigs + 1
-        i _rngs:
-            nnoWinows(conig,
-                            winows[conig],
-                            g_[
-                                _rngs[conig][0]:_rngs[conig][1]],
-                            s,
-                            opions)
-        s:
-            nnoWinows(conig,
-                            winows[conig],
+        noutput_contigs += 1
+        if data_ranges:
+            annotateWindows(contig,
+                            windows[contig],
+                            gff_data[
+                                data_ranges[contig][0]:data_ranges[contig][1]],
+                            fasta,
+                            options)
+        else:
+            annotateWindows(contig,
+                            windows[contig],
                             [],
-                            s,
-                            opions)
+                            fasta,
+                            options)
 
-    E.ino("ninp_winowsi, nop_conigsi, ninp_conigsi, nskipp_winowsi, nskipp_i" 
-           (n(winows), nop_conigs, n(conigs), nconigs_skipp_winows, nconigs_skipp_))
+    E.info("ninput_windows=%i, noutput_contigs=%i, ninput_contigs=%i, nskipped_windows=%i, nskipped_data=%i" %
+           (len(windows), noutput_contigs, len(contigs), ncontigs_skipped_windows, ncontigs_skipped_data))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

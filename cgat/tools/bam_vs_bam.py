@@ -1,146 +1,146 @@
 """
-bm_vs_bm.py - comp covrg corrion bwn bm is
+bam_vs_bam.py - compute coverage correlation between bam files
+==============================================================
 
+:Tags: Genomics NGS BAM Comparison
 
-:Tgs: Gnomics NGS BAM Comprison
-
-Prpos
+Purpose
 -------
 
-Compr pr bs covrg bwn wo :rm:`bm` orm is.
+Compare per base coverage between two :term:`bam` formatted files.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon bm_vs_bm.py in1.bm in2.bm
+   python bam_vs_bam.py in1.bam in2.bam
 
-This commn gnrs  b imi op wih comns chromosom,
-bs coorin, nmbr o ovrpping rs in in1.bm, n nmbr o
-ovrpping rs in in2.bm.
+This command generates a tab delimited output with columns chromosome,
+base coordinate, number of overlapping reads in in1.bam, and number of
+overlapping reads in in2.bam.
 
-Typ::
+Type::
 
-   pyhon bm_vs_bm.py --hp
+   python bam_vs_bam.py --help
 
-or commn in hp.
+for command line help.
 
-Docmnion
+Documentation
 -------------
 
-This oos ows srs o compr h pr bs covrg bwn
-wo BAM is. Th op incs  bss in h sppi rrnc
-s xcp hos wih no covrg in h inp BAMs.
+This tools allows users to compare the per base coverage between
+two BAM files. The output includes all bases in the supplied reference
+fasta except those with no coverage in the input BAMs.
 
-A prsn h --inrv or -i opion hs no bn impmn.
+At present the --interval or -i option has not been implemented.
 
-Commn in opions
+Command line options
 --------------------
 
-``--rgx-iniir``
-    sppy  rgx o xrc n iniir rom h inms.
-    s o sing h inm
+``--regex-identifier``
+    supply a regex to extract an identifier from the filenames.
+    defualts to using the filename
 
 """
 
-impor sys
-impor r
-impor pysm
-impor cgcor.xprimn s E
+import sys
+import re
+import pysam
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn("-i", "--inrvs-b-i", s"inm_inrvs",
-                      yp"sring",
-                      hp"inm wih inrvs o s "
-                      "[].")
+    parser.add_argument("-i", "--intervals-bed-file", dest="filename_intervals",
+                      type="string",
+                      help="filename with intervals to use "
+                      "[%default].")
 
-    prsr._rgmn("-", "--rgx-iniir", s"rgx_iniir",
-                      yp"sring",
-                      hp"rgr xprssion o xrc iniir rom "
-                      "inm [].")
+    parser.add_argument("-e", "--regex-identifier", dest="regex_identifier",
+                      type="string",
+                      help="regular expression to extract identifier from "
+                      "filename [%default].")
 
-    prsr.s_s(
-        inm_inrvsNon,
-        rgx_iniir"(.*)",
+    parser.set_defaults(
+        filename_intervals=None,
+        regex_identifier="(.*)",
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i n(rgs) < 1:
-        ris VError("ps sppy  s wo BAM is.")
+    if len(args) < 1:
+        raise ValueError("please supply at least two BAM files.")
 
-    smis  []
-    or  in rgs:
-        smis.ppn(pysm.AignmnFi(, "rb"))
+    samfiles = []
+    for f in args:
+        samfiles.append(pysam.AlignmentFile(f, "rb"))
 
-    i opions.inm_inrvs:
-        ris NoImpmnError(
-            "I is no y possib o spciy inrvs o inrs.\
-            Rp commn wiho inrvs opion.")
+    if options.filename_intervals:
+        raise NotImplementedError(
+            "It is not yet possible to specify intervals of interest.\
+            Repeat command without intervals option.")
 
-    is  [r.srch(opions.rgx_iniir, x).grops()[0] or x in rgs]
+    titles = [re.search(options.regex_identifier, x).groups()[0] for x in args]
 
-    opions.so.wri("conig\pos\s\n"  "\".join(is))
+    options.stdout.write("contig\tpos\t%s\n" % "\t".join(titles))
 
-    ninp, nskipp, nop  0, 0, 0
-    conigs  smis[0].rrncs
+    ninput, nskipped, noutput = 0, 0, 0
+    contigs = samfiles[0].references
 
-    or conig in conigs:
+    for contig in contigs:
 
-        missing_conig  Fs
+        missing_contig = False
 
-        posiions  {}
+        positions = {}
 
-        # zy wy: s icionry
-        or x,  in nmr(smis):
-            ry:
-                i  .pip(conig)
-            xcp VError:
-                missing_conig  Tr
-                brk
+        # lazy way: use dictionary
+        for x, f in enumerate(samfiles):
+            try:
+                i = f.pileup(contig)
+            except ValueError:
+                missing_contig = True
+                break
 
-            or v in i:
-                vp  v.pos
-                i vp in posiions:
-                    posiions[vp].ppn(v.n)
-                s:
-                    posiions[vp]  [0] * x + [v.n]
+            for v in i:
+                vp = v.pos
+                if vp in positions:
+                    positions[vp].append(v.n)
+                else:
+                    positions[vp] = [0] * x + [v.n]
 
-            # i wih 0 hos no och in his i
-            or p in is(posiions.kys()):
-                i n(posiions[p]) < x:
-                    posiions[p].ppn(0)
+            # fill with 0 those not touched in this file
+            for p in list(positions.keys()):
+                if len(positions[p]) <= x:
+                    positions[p].append(0)
 
-        i missing_conig:
-            nskipp + 1
-            conin
+        if missing_contig:
+            nskipped += 1
+            continue
 
-        nop + 1
-        or pos in sor(posiions.kys()):
-            vs  posiions[pos]
-            opions.so.wri("s\i\s\n"  (conig, pos,
-                                                   "\".join(mp(sr, vs))))
+        noutput += 1
+        for pos in sorted(positions.keys()):
+            vals = positions[pos]
+            options.stdout.write("%s\t%i\t%s\n" % (contig, pos,
+                                                   "\t".join(map(str, vals))))
 
-    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
+    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

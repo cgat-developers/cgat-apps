@@ -1,212 +1,212 @@
-"""bm2b.py - convr bm orm i o b orm i
+"""bam2bed.py - convert bam formatted file to bed formatted file
+================================================================
 
+:Tags: Genomics NGS Intervals BAM BED Conversion
 
-:Tgs: Gnomics NGS Inrvs BAM BED Convrsion
-
-Prpos
+Purpose
 -------
 
-This oo convrs BAM is ino BED is sppying h inrvs
-or ch r in h BAM i.  BAM is ms hv  corrsponing
-inx i i. xmp.bm n xmp.bm.bi
+This tool converts BAM files into BED files supplying the intervals
+for each read in the BAM file.  BAM files must have a corresponding
+index file ie. example.bam and example.bam.bai
 
-For xmp::
+For example::
 
-   smoos viw xmp.bm
+   samtools view example.bam
 
-   READ1    163    1      13040   15     76M          13183   219     ...
-   READ1    83     1      13183   7      76M          13040   -219    ...
-   READ2    147    1      13207   0      76M          13120   -163    ...
+   READ1    163    1      13040   15     76M    =      13183   219     ...
+   READ1    83     1      13183   7      76M    =      13040   -219    ...
+   READ2    147    1      13207   0      76M    =      13120   -163    ...
 
-   pyhon bm2b.py xmp.bm
+   python bam2bed.py example.bam
 
    1       13039   13115   READ1     15      +
    1       13119   13195   READ2     0       +
    1       13182   13258   READ1     7       -
    1       13206   13282   READ2     0       -
 
-By , bm2b ops ch r s  spr inrv.  Wih
-h opion ``--mrg-pirs`` pir-n rs r mrg n op s
- sing inrv. Th srn is s ccoring o h irs r in 
-pir.
+By default, bam2bed outputs each read as a separate interval.  With
+the option ``--merge-pairs`` paired-end reads are merged and output as
+a single interval. The strand is set according to the first read in a
+pair.
 
-Usg
+Usage
 -----
 
 ::
 
-   cg bm2b BAMFILE [--mrg-pirs] [opions]
+   cgat bam2bed BAMFILE [--merge-pairs] [options]
 
-oprs on h i BAMFILE::
+operates on the file BAMFILE::
 
-   cg bm2b [--mrg-pirs] [opions]
+   cgat bam2bed [--merge-pairs] [options]
 
-oprs on h sin s os::
+operates on the stdin as does::
 
-   cg bm2b -I BAMFILE [--mrg-pirs] [opions]
+   cgat bam2bed -I BAMFILE [--merge-pairs] [options]
 
 
-To mrg pir-n rs n op rgmn inrv i. mos
-mpp bs o righmos mpp bs::
+To merge paired-end reads and output fragment interval ie. leftmost
+mapped base to rightmost mapped base::
 
-   c xmp.bm | cg bm2b --mrg-pirs
+   cat example.bam | cgat bam2bed --merge-pairs
 
    1       13119   13282   READ2     0       +
    1       13039   13258   READ1     7       +
 
-To s mrg pirs on ony  rgion o h gnom s smoos viw::
+To use merge pairs on only a region of the genome use samtools view::
 
-   smoos viw -b xmp.bm 1:13000:13100 | cg bm2b --mrg-pirs
+   samtools view -ub example.bam 1:13000:13100 | cgat bam2bed --merge-pairs
 
-No h his wi sc rgmns wr h irs r-in-pir is in
-h rgion.
+Note that this will select fragments were the first read-in-pair is in
+the region.
 
-Opions
+Options
 -------
 
--m, --mrg-pirs
-    Op on rgion pr rgmn rhr hn on rgion pr r,
-    hs  sing rgion is cr srching rom h sr o h
-    ris r in pir o h n o h scon.
+-m, --merge-pairs
+    Output one region per fragment rather than one region per read,
+    thus a single region is create stretching from the start of the
+    frist read in pair to the end of the second.
 
-    R pirs h m h oowing criri r rmov:
+    Read pairs that meet the following criteria are removed:
 
-    * Rs whr on o h pir is nmpp
-    * Rs h r no pir
-    * Rs whr h pirs r mpp o irn chromosoms
-    * Rs whr h h insr siz is no bwn h mx n
-      min (s bow)
+    * Reads where one of the pair is unmapped
+    * Reads that are not paired
+    * Reads where the pairs are mapped to different chromosomes
+    * Reads where the the insert size is not between the max and
+      min (see below)
 
-.. wrning::
+.. warning::
 
-    Mrg rgmns r wys rrn on h +v srn.
-    Frgmn n poin is sim s h ignmn sr posiion
-    o h scon-in-pir r + h ngh o h irs-in-pir
-    r. This my  o inccrcy i yo hv n inron-wr
-    ignr.
+    Merged fragements are always returned on the +ve strand.
+    Fragement end point is estimated as the alignment start position
+    of the second-in-pair read + the length of the first-in-pair
+    read. This may lead to inaccuracy if you have an intron-aware
+    aligner.
 
---mx-insr-siz, --min-insr-siz
-    Th mximm n minimm siz o h insr h is ow whn
-    sing h --mrg-pirs opion. R pirs cosr o ghr or hr
-    pr hn h min n mx rpscivy r skipp.
+--max-insert-size, --min-insert-size
+    The maximum and minimum size of the insert that is allowed when
+    using the --merge-pairs option. Read pairs closer to gether or futher
+    apart than the min and max repsectively are skipped.
 
--b, --b-orm
-    Wh orm o op h rss in. Th irs n comns o h b
-    i wi b op.
+-b, --bed-format
+    What format to output the results in. The first n columns of the bed
+    file will be output.
 
 
 
-Typ::
+Type::
 
-   pyhon bm2b.py --hp
+   python bam2bed.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 """
 
-impor sys
-impor pysm
-impor cgcor.xprimn s E
-rom cg.BmToos.bmoos impor mrg_pirs
+import sys
+import pysam
+import cgatcore.experiment as E
+from cgat.BamTools.bamtools import merge_pairs
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$", sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(
+        version="%prog version: $Id$", usage=globals()["__doc__"])
 
-    prsr._rgmn("-m", "--mrg-pirs", s"mrg_pirs",
-                      cion"sor_r",
-                      hp"mrg pir-n rs n op inrv "
-                      "or nir rgmn []. ")
+    parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
+                      action="store_true",
+                      help="merge paired-ended reads and output interval "
+                      "for entire fragment [default=%default]. ")
 
-    prsr._rgmn("--mx-insr-siz", s"mx_insr_siz", yp"in",
-                      hp"ony mrg pir-n rs i hy r ss hn "
-                      "# bss pr. "
-                      " 0 rns o his ir []. ")
+    parser.add_argument("--max-insert-size", dest="max_insert_size", type="int",
+                      help="only merge paired-end reads if they are less than "
+                      "# bases apart. "
+                      " 0 turns off this filter [default=%default]. ")
 
-    prsr._rgmn("--min-insr-siz", s"min_insr_siz", yp"in",
-                      hp"ony mrg pir-n rs i hy r  "
-                      "s # bss pr. "
-                      " 0 rns o his ir []. ")
+    parser.add_argument("--min-insert-size", dest="min_insert_size", type="int",
+                      help="only merge paired-end reads if they are at "
+                      "least # bases apart. "
+                      " 0 turns off this filter [default=%default]. ")
 
-    prsr._rgmn("--b-orm", s"b_orm", yp"choic",
-                      choics('3', '4', '5', '6'),
-                      hp"b orm o op. "
-                      " []")
+    parser.add_argument("--bed-format", dest="bed_format", type="choice",
+                      choices=('3', '4', '5', '6'),
+                      help="bed format to output. "
+                      " [default=%default]")
 
-    prsr.s_s(
-        rgionNon,
-        c_pksNon,
-        mrg_pirsNon,
-        min_insr_siz0,
-        mx_insr_siz0,
-        b_orm'6',
+    parser.set_defaults(
+        region=None,
+        call_peaks=None,
+        merge_pairs=None,
+        min_insert_size=0,
+        max_insert_size=0,
+        bed_format='6',
     )
 
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    (options, args) = E.start(parser, argv=argv)
 
-    i n(rgs)  0:
-        rgs.ppn("-")
+    if len(args) == 0:
+        args.append("-")
 
-    smi  pysm.AignmnFi(rgs[0], "rb")
+    samfile = pysam.AlignmentFile(args[0], "rb")
 
-    opions.b_orm  in(opions.b_orm)
+    options.bed_format = int(options.bed_format)
 
-    i opions.mrg_pirs is no Non:
-        conr  mrg_pirs(smi,
-                              opions.so,
-                              min_insr_sizopions.min_insr_siz,
-                              mx_insr_sizopions.mx_insr_siz,
-                              b_ormopions.b_orm)
+    if options.merge_pairs is not None:
+        counter = merge_pairs(samfile,
+                              options.stdout,
+                              min_insert_size=options.min_insert_size,
+                              max_insert_size=options.max_insert_size,
+                              bed_format=options.bed_format)
 
-        E.ino("cgory\cons\ns\n"  conr.sTb())
+        E.info("category\tcounts\n%s\n" % counter.asTable())
 
-    s:
-        # s ni_o. Fis rom sin hv no inx
-        i  smi.ch(ni_oTr)
+    else:
+        # use until_eof. Files from stdin have no index
+        it = samfile.fetch(until_eof=True)
 
-        # mor comorb cigr prsing wi
-        # com wih h nx pysm rs
-        BAM_CMATCH  0
-        BAM_CDEL  2
-        BAM_CREF_SKIP  3
-        k  (BAM_CMATCH, BAM_CDEL, BAM_CREF_SKIP)
-        oi  opions.so
+        # more comfortable cigar parsing will
+        # come with the next pysam release
+        BAM_CMATCH = 0
+        BAM_CDEL = 2
+        BAM_CREF_SKIP = 3
+        take = (BAM_CMATCH, BAM_CDEL, BAM_CREF_SKIP)
+        outfile = options.stdout
 
-        or r in i:
-            i r.is_nmpp:
-                conin
+        for read in it:
+            if read.is_unmapped:
+                continue
 
-              0
-            or op,  in r.cigr:
-                i op in k:
-                     + 
+            t = 0
+            for op, l in read.cigar:
+                if op in take:
+                    t += l
 
-            i r.is_rvrs:
-                srn  "-"
-            s:
-                srn  "+"
-            oi.wri("s\\\s\\c\n" 
-                          (r.rrnc_nm,
-                           r.pos,
-                           r.pos + ,
-                           r.qnm,
-                           r.mpq,
-                           srn))
+            if read.is_reverse:
+                strand = "-"
+            else:
+                strand = "+"
+            outfile.write("%s\t%d\t%d\t%s\t%d\t%c\n" %
+                          (read.reference_name,
+                           read.pos,
+                           read.pos + t,
+                           read.qname,
+                           read.mapq,
+                           strand))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

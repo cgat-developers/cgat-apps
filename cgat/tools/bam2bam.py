@@ -1,698 +1,698 @@
-'''bm2bm.py - moiy bm is
+'''bam2bam.py - modify bam files
+=============================
 
-
-Prpos
+Purpose
 -------
 
-This scrip rs  :rm:`bm` orm i rom sin, prorms n
-cion (s mhos bow) hn ops  moii :rm:`bm`
-orm i on so.
+This script reads a :term:`bam` formatted file from stdin, performs an
+action (see methods below) then outputs a modified :term:`bam`
+formatted file on stdout.
 
-.. no::
-   Yo n o rirc ogging inormion o  i (vi -L) or rn i o
-   vi -v 0 in orr o g  vi sm/bm i.
+.. note::
+   You need to redirect logging information to a file (via -L) or turn it off
+   via -v 0 in order to get a valid sam/bam file.
 
-Docmnion
+Documentation
 -------------
 
-Th scrip impmns h oowing mhos:
+The script implements the following methods:
 
-``s-nh``
+``set-nh``
 
-   s h NH g. Som oos (bowi, bw) o no s h NH g.
-   I s, his opion wi s h NH g (or mpp rs).
-   This opion rqirs h bm/sm i o b sor by r nm.
+   set the NH flag. Some tools (bowtie, bwa) do not set the NH flag.
+   If set, this option will set the NH flag (for mapped reads).
+   This option requires the bam/sam file to be sorted by read name.
 
-``ns-nmpp_mpq``
+``unset-unmapped_mapq``
 
-   som oos s h mpping qiy o nmpp rs. This
-   css  vioion in h Picr oos.
+   some tools set the mapping quality of unmapped reads. This
+   causes a violation in the Picard tools.
 
-``ir``
+``filter``
 
-   rmov ignmns bs on  vriy o gs. Th iring mho
-   is rmin by h ``--ir-mho`` opion. Ths my b
-   ``niq``, ``non-niq``, ``mpp``, ``NM`` or ``CM``.  I
-   ``niq`` is s, ony niqy mpping rs wi b op. I
-   ``non-niq`` is s hn ony mi-mpping rs wi b
-   op. This mho irs chcks or h NH g - i s,  niq
-   mch sho hv  mos NH1 his.  I no s, h mho chcks
-   or BWA gs. Crrny i chcks i X0 is s (X0Nmbr o bs
-   his on by BWA).  I ``mpp`` is givn, nmpp rs wi b
-   rmov. I ``NM`` or ``CM`` is s, h ignmn o rs in wo
-   sm is (inp n rrnc) is compr n ony rs wih 
-   owr nmbr o mismchs in h inp compr o h rrnc
-   sm i wi b kp. I ``CM`` is s, h coorspc mismch
-   g (or ABI Soi rs) wi b s o con irncs o h
-   rrnc sm i. By , h ``NM`` (nmbr o mismchs)
-   g is s. Th g h is s ns o prsn in boh inp
-   sm i n h rrnc sm i. I ``niq`` is givn his
-   wi NOT rmov ny nmpp rs.  This cn b chiv by
-   proviing h ``ir`` opion wic, onc ch wih ``mpp``
-   n ``niq``.
+   remove alignments based on a variety of flags. The filtering method
+   is determined by the ``--filter-method`` option. These may be
+   ``unique``, ``non-unique``, ``mapped``, ``NM`` or ``CM``.  If
+   ``unique`` is set, only uniquely mapping reads will be output. If
+   ``non-unique`` is set then only multi-mapping reads will be
+   output. This method first checks for the NH flag - if set, a unique
+   match should have at most NH=1 hits.  If not set, the method checks
+   for BWA flags. Currently it checks if X0 is set (X0=Number of best
+   hits found by BWA).  If ``mapped`` is given, unmapped reads will be
+   removed. If ``NM`` or ``CM`` is set, the alignment of reads in two
+   sam files (input and reference) is compared and only reads with a
+   lower number of mismatches in the input compared to the reference
+   sam file will be kept. If ``CM`` is set, the colourspace mismatch
+   tag (for ABI Solid reads) will be used to count differences to the
+   reference sam file. By default, the ``NM`` (number of mismatches)
+   tag is used. The tag that is used needs to present in both input
+   sam file and the reference sam file. If ``unique`` is given this
+   wil NOT remove any unmapped reads.  This can be achieved by
+   providing the ``filter`` option twice, once each with ``mapped``
+   and ``unique``.
 
-   .. no::
+   .. note::
 
-      Th ir mhos cn' crrny combin wih ny o
-      h ohr mhos - his is work in progrss.
+      The filter methods can't currently combined with any of
+      the other methods - this is work in progress.
 
-``srip-sqnc``
+``strip-sequence``
 
-   rmov h sqnc rom  rs in  bm-i. No h
-   sripping h sqnc wi so rmov h qiy scors.
-   Sripping is no rvrsib i h r nms r no niq.
+   remove the sequence from all reads in a bam-file. Note that
+   stripping the sequence will also remove the quality scores.
+   Stripping is not reversible if the read names are not unique.
 
-``srip-qiy``
+``strip-quality``
 
-   rmov h qiy scors rom  rs in  bm-i.
-   Sripping is no rvrsib i h r nms r no niq.
+   remove the quality scores from all reads in a bam-file.
+   Stripping is not reversible if the read names are not unique.
 
-``s-sqnc``
+``set-sequence``
 
-   s h sqnc n qiy scors in h bm i o som mmy
-   vs ('A' or sqnc, 'F' or qiy which is  vi scor in
-   mos sq ncoings. Ncssry or som oos h cn no work
-   wih bm-is wiho sqnc.
+   set the sequence and quality scores in the bam file to some dummy
+   values ('A' for sequence, 'F' for quality which is a valid score in
+   most fastq encodings. Necessary for some tools that can not work
+   with bam-files without sequence.
 
-``nsrip``
+``unstrip``
 
-    sqnc n qiy scors bck o  bm i. Rqirs 
-   :rm:`sq` orm i wih h sqncs n qiy scors
-   o insr.
+   add sequence and quality scores back to a bam file. Requires a
+   :term:`fastq` formatted file with the sequences and quality scores
+   to insert.
 
-``ns-nmpp-mpq``
+``unset-unmapped-mapq``
 
-   ss h mpping qiy o nmpp rs o 0.
+   sets the mapping quality of unmapped reads to 0.
 
-``kp-irs-bs``
+``keep-first-base``
 
-   kp ony h irs bs o rs so h r coning oos wi
-   ony consir h irs bs in h cons
+   keep only the first base of reads so that read counting tools will
+   only consider the first base in the counts
 
-``ownsmp-sing``
+``downsample-single``
 
-   gnrs  ownsmp :rm:`bm` i by rnomy sbsmping
-   rs rom  sing n :rm:`bm` i. Th ownsmping
-   rins mimpping rs. Th s o his rqirs ownsmping
-   prmr o b s n opiony rnoms.
+   generates a downsampled :term:`bam` file by randomly subsampling
+   reads from a single ended :term:`bam` file. The downsmpling
+   retains multimapping reads. The use of this requires downsampling
+   parameter to be set and optionally randomseed.
 
-``ownsmp-pir``
+``downsample-paired``
 
-   gnrs  ownsmp :rm:`bm` i by rnomy sbsmping
-   rs rom  pir n :rm:`bm` i. Th ownsmping
-   rins mimpping rs. Th s o his rqirs ownsmping
-   prmr o b s n opiony rnoms.
+   generates a downsampled :term:`bam` file by randomly subsampling
+   reads from a paired ended :term:`bam` file. The downsampling
+   retains multimapping reads. The use of this requires downsampling
+   parameter to be set and optionally randomseed.
 
-``-sqnc-rror``
+``add-sequence-error``
 
-     crin mon o rnom rror o r sqncs. This mho
-   picks  crin proporion o posiions wihin  r's sqnc
-   n rs h ncoi o  rnomy chosn rniv. Th
-   mo is niv n ppis niorm probbiiis or posiions n
-   ncois. Th mho os no p bs qiis, h
-   ignmn n h NM g. As  rs, rror rs h r
-   comp vi h NM g wi b nc. Th rror r is s
-   by --rror-r.
+   add a certain amount of random error to read sequences. This method
+   picks a certain proportion of positions within a read's sequence
+   and alters the nucleotide to a randomly chosen alternative. The
+   model is naive and applies uniform probabilities for positions and
+   nucleotides. The method does not update base qualities, the
+   alignment and the NM flag. As a result, error rates that are
+   computed via the NM flag will be unaffected. The error rate is set
+   by --error-rate.
 
-By , h scrip works rom sin n ops o so.
+By default, the script works from stdin and outputs to stdout.
 
-Usg
+Usage
 -----
 
-For xmp::
+For example::
 
-   cg bm2bm --mhoir --ir-mhompp < in.bm > o.bm
+   cgat bam2bam --method=filter --filter-method=mapped < in.bam > out.bam
 
-wi rmov  nmpp rs rom h bm-i.
+will remove all unmapped reads from the bam-file.
 
-Exmp or rnning ownsmp::
+Example for running downsample::
 
-cg bm2bm --mhoownsmp-pir --ownsmp30000
---rnoms1 -L o.og < Pir.bm > o.bm
+cgat bam2bam --method=downsample-paired --downsample=30000
+--randomseed=1 -L out.log < Paired.bam > out.bam
 
-Typ::
+Type::
 
-   cg bm2bm --hp
+   cgat bam2bam --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor os
-impor sys
-impor mpi
-impor shi
-impor rnom
-impor pysm
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor iroos
-impor mh
+import os
+import sys
+import tempfile
+import shutil
+import random
+import pysam
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import itertools
+import math
 
-rom cg.BmToos.bmoos impor bm2bm_ir_bm, SNH
+from cgat.BamTools.bamtools import bam2bam_filter_bam, SetNH
 
 
-css SbsBm(objc):
+class SubsetBam(object):
 
-    ''' bs css or prorming ownsmping on sing n
-    pir bm i
+    ''' base class for performing downsampling on single and
+    paired bam file
 
-    A icionry o h r nms is m n hn n
-    rry mching h nmbrs o rs in h icionry wi b
-    cr. This rry conins 1s h mch h nmbr o rs
-    o b ownsmp o n 0s o i o h rs o h rry.
+    A dictionary of the read names is made and then an
+    array matching the numbers of reads in the dictionary will be
+    created. This array contains 1s that match the number of reads
+    to be downsampled to and 0s to fill out the rest of the array.
 
-    Th r is kp i h v in h icionry mchs 1. Th
-    r is yi n ir ovr o proc h op bm.
+    The read is kept if the value in the dictionary matches 1. The
+    read is yielded and iterated over to produce the output bam.
 
-    Th scrip wi hn mimpping rs.
+    The script will handle multimapping reads.
     '''
 
-     __ini__(s, ini, ownsmp, pir_nNon,
-                 sing_nNon, rnom_sNon):
+    def __init__(self, infile, downsample, paired_end=None,
+                 single_end=None, random_seed=None):
 
-        s.pysm_in1, s.pysm_in2  iroos.(ini)
-        s.ownsmp  ownsmp
-        s.pir_n  pir_n
-        s.sing_n  sing_n
-        s.rnom_s  rnom_s
+        self.pysam_in1, self.pysam_in2 = itertools.tee(infile)
+        self.downsample = downsample
+        self.paired_end = paired_end
+        self.single_end = single_end
+        self.random_seed = random_seed
 
-     is_o_rs(s, pirNon):
-
-        '''
-        This wi cr  icionry o niq rs in h bm
-        '''
-        r_is  []
-
-        or r in s.pysm_in1:
-            i pir is Tr:
-                i r.is_propr_pir:
-                    r_is.ppn(r.qnm)
-            s:
-                r_is.ppn(r.qnm)
-
-        rrn sor(s(r_is))
-
-     ownsmp_pir(s):
+    def list_of_reads(self, paired=None):
 
         '''
-        This ncion wi ownsmp  pir bm i.
-        I wi rin mimpping rs i hy hv no bn
-        pr-ir
+        This will create a dictionary of uniqe reads in the bam
         '''
-        i s.rnom_s is no Non:
-            rnom.s(s.rnom_s)
+        read_list = []
 
-        coc_is  s.is_o_rs(pirTr)
-        r_is  rnom.smp(coc_is, s.ownsmp)
+        for read in self.pysam_in1:
+            if paired is True:
+                if read.is_proper_pair:
+                    read_list.append(read.qname)
+            else:
+                read_list.append(read.qname)
 
-        i s.ownsmp  n(coc_is):
-            E.wrn('''Th ownsmp rs is q o h
-            nmbr o niq rs''')
-            or r in s.pysm_in2:
-                yi r
+        return sorted(set(read_list))
 
-        # yi r i i is in r_is, i h r is mimpp
-        # hn  mimpping rs wi b yi
-        s:
-            E.wrn('''Mimping rs hv bn c n hs wi
-            b op o h in bm i''')
-            or r in s.pysm_in2:
-                i r.qnm in r_is:
-                    yi r
-
-     ownsmp_sing(s):
+    def downsample_paired(self):
 
         '''
-        This ncion wi ownsmp  sing bm i.
-        I wi rin mimpping rs i no pr-ir
+        This function will downsample a paired bam file.
+        It will retain multimapping reads if they have not been
+        pre-filtered
         '''
-        i s.rnom_s is no Non:
-            rnom.s(s.rnom_s)
+        if self.random_seed is not None:
+            random.seed(self.random_seed)
 
-        coc_is  s.is_o_rs(pirFs)
-        r_is  rnom.smp(coc_is, s.ownsmp)
+        collect_list = self.list_of_reads(paired=True)
+        read_list = random.sample(collect_list, self.downsample)
 
-        i s.ownsmp  n(coc_is):
-            E.wrn('''Th ownsmp rs is q o h
-            nmbr o niq rs''')
-            or r in s.pysm_in2:
-                yi r
+        if self.downsample == len(collect_list):
+            E.warn('''The downsample reads is equal to the
+            number of unique reads''')
+            for read in self.pysam_in2:
+                yield read
 
-        # yi r i i is in r_is, i h rs is mimpp
-        # hn  mimpping rs wi b yi
-        s:
-            E.wrn('''Mimping rs hv bn c n hs wi
-            b op o h in bm i''')
-            or r in s.pysm_in2:
-                i r.qnm in r_is:
-                    yi r
+        # yield read if it is in read_list, if the read is multimapped
+        # then all multimapping reads will be yielded
+        else:
+            E.warn('''Multimaping reads have been detected and these will
+            be output to the final bam file''')
+            for read in self.pysam_in2:
+                if read.qname in read_list:
+                    yield read
+
+    def downsample_single(self):
+
+        '''
+        This function will downsample a single bam file.
+        It will retain multimapping reads if not pre-filtered
+        '''
+        if self.random_seed is not None:
+            random.seed(self.random_seed)
+
+        collect_list = self.list_of_reads(paired=False)
+        read_list = random.sample(collect_list, self.downsample)
+
+        if self.downsample == len(collect_list):
+            E.warn('''The downsample reads is equal to the
+            number of unique reads''')
+            for read in self.pysam_in2:
+                yield read
+
+        # yield read if it is in read_list, if the reads is multimapped
+        # then all multimapping reads will be yielded
+        else:
+            E.warn('''Multimaping reads have been detected and these will
+            be output to the final bam file''')
+            for read in self.pysam_in2:
+                if read.qname in read_list:
+                    yield read
 
 
- procss_bm(ini, oi, opions):
+def process_bam(infile, outfile, options):
     
-    i "ir" in opions.mhos:
-        i "rmov-is" in opions.ir_mhos or "kp-is" in opions.ir_mhos:
+    if "filter" in options.methods:
+        if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
 
-            i  ini.ch(ni_oTr)
-            c  E.Conr()
-            i "rmov-is" in opions.ir_mhos:
-                or r in i:
-                    c.inp + 1
-                    i r.qry_nm in ir_qry_nms:
-                        c.skipp + 1
-                        conin
-                    oi.wri(r)
-                    c.op + 1
-            i "kp-is" in opions.ir_mhos:
-                or r in i:
-                    c.inp + 1
-                    i r.qry_nm no in ir_qry_nms:
-                        c.skipp + 1
-                        conin
-                    oi.wri(r)
-                    c.op + 1
+            it = infile.fetch(until_eof=True)
+            c = E.Counter()
+            if "remove-list" in options.filter_methods:
+                for read in it:
+                    c.input += 1
+                    if read.query_name in filter_query_names:
+                        c.skipped += 1
+                        continue
+                    outfile.write(read)
+                    c.output += 1
+            elif "keep-list" in options.filter_methods:
+                for read in it:
+                    c.input += 1
+                    if read.query_name not in filter_query_names:
+                        c.skipped += 1
+                        continue
+                    outfile.write(read)
+                    c.output += 1
 
-            E.ino("cgory\cons\ns\n"  c.sTb())
-        s:
-            rmov_mismchs, coor_mismchs  Fs, Fs
+            E.info("category\tcounts\n%s\n" % c.asTable())
+        else:
+            remove_mismatches, colour_mismatches = False, False
 
-            i "NM" in opions.ir_mhos:
-                rmov_mismchs  Tr
+            if "NM" in options.filter_methods:
+                remove_mismatches = True
 
-            i "CM" in opions.ir_mhos:
-                rmov_mismchs  Tr
-                coor_mismchs  Tr
+            elif "CM" in options.filter_methods:
+                remove_mismatches = True
+                colour_mismatches = True
 
-            i "min-ngh" in opions.ir_mhos n opions.minimm_r_ngh  0:
-                ris VError("ps spciy --minimm-r-ngh whn sing "
-                                 "--ir-mhomin-r-ngh")
+            if "min-length" in options.filter_methods and options.minimum_read_length == 0:
+                raise ValueError("please specify --minimum-read-length when using "
+                                 "--filter-method=min-read-length")
 
-            i "min-vrg-bs-qiy" in opions.ir_mhos n opions.minimm_vrg_bs_qiy  0:
-                ris VError("ps spciy --min-vrg-bs-qiy whn "
-                                 "sing --ir-mhomin-vrg-bs-qiy")
+            if "min-average-base-quality" in options.filter_methods and options.minimum_average_base_quality == 0:
+                raise ValueError("please specify --min-average-base-quality when "
+                                 "using --filter-method=min-average-base-quality")
 
-            i rmov_mismchs:
-                i no opions.rrnc_bm:
-                    ris VError(
-                        "rqiring rrnc bm i or rmoving by "
-                        "mismchs")
+            if remove_mismatches:
+                if not options.reference_bam:
+                    raise ValueError(
+                        "requiring reference bam file for removing by "
+                        "mismatches")
 
-                pysm_r  pysm.AignmnFi(opions.rrnc_bm, "rb")
-            s:
-                pysm_r  Non
+                pysam_ref = pysam.AlignmentFile(options.reference_bam, "rb")
+            else:
+                pysam_ref = None
 
-            # ir n gs r h opposi wy ron
-            c  bm2bm_ir_bm(
-                ini, oi, pysm_r,
-                rmov_nonniq"niq" in opions.ir_mhos,
-                rmov_niq"non-niq" in opions.ir_mhos,
-                rmov_conigsNon,
-                rmov_nmpp"mpp" in opions.ir_mhos,
-                rmov_mismchsrmov_mismchs,
-                ir_rror_ropions.rror_r,
-                coor_mismchscoor_mismchs,
-                minimm_r_nghopions.minimm_r_ngh,
-                minimm_vrg_bs_qiyopions.minimm_vrg_bs_qiy)
+            # filter and flags are the opposite way around
+            c = bam2bam_filter_bam(
+                infile, outfile, pysam_ref,
+                remove_nonunique="unique" in options.filter_methods,
+                remove_unique="non-unique" in options.filter_methods,
+                remove_contigs=None,
+                remove_unmapped="mapped" in options.filter_methods,
+                remove_mismatches=remove_mismatches,
+                filter_error_rate=options.error_rate,
+                colour_mismatches=colour_mismatches,
+                minimum_read_length=options.minimum_read_length,
+                minimum_average_base_quality=options.minimum_average_base_quality)
 
-            opions.sog.wri("cgory\cons\ns\n"  c.sTb())
-    s:
+            options.stdlog.write("category\tcounts\n%s\n" % c.asTable())
+    else:
 
-        # s p h moiying irors
-        i  ini.ch(ni_oTr)
+        # set up the modifying iterators
+        it = infile.fetch(until_eof=True)
 
-         nop(x):
-            rrn Non
-        # ncion o chck i procssing sho sr
-        pr_chck_  nop
+        def nop(x):
+            return None
+        # function to check if processing should start
+        pre_check_f = nop
 
-        i "ns-nmpp-mpq" in opions.mhos:
-             ns_nmpp_mpq(i):
-                or r in i:
-                    i r.is_nmpp:
-                        r.mpq  0
-                    yi r
-            i  ns_nmpp_mpq(i)
+        if "unset-unmapped-mapq" in options.methods:
+            def unset_unmapped_mapq(i):
+                for read in i:
+                    if read.is_unmapped:
+                        read.mapq = 0
+                    yield read
+            it = unset_unmapped_mapq(it)
 
-        i "s-sqnc" in opions.mhos:
-             s_sqnc(i):
-                or r in i:
-                    # cn' g  ngh o nmpp rs
-                    i r.is_nmpp:
-                        r.sq  "A"
-                        r.q  "F"
-                    s:
-                        r.sq  "A" * r.inrr_ngh
-                        r.q  "F" * r.inrr_ngh
+        if "set-sequence" in options.methods:
+            def set_sequence(i):
+                for read in i:
+                    # can't get at length of unmapped reads
+                    if read.is_unmapped:
+                        read.seq = "A"
+                        read.qual = "F"
+                    else:
+                        read.seq = "A" * read.inferred_length
+                        read.qual = "F" * read.inferred_length
 
-                    yi r
-            i  s_sqnc(i)
+                    yield read
+            it = set_sequence(it)
 
-        i "srip-sqnc" in opions.mhos or "srip-qiy" in \
-           opions.mhos:
-             srip_sqnc(i):
-                or r in i:
-                    r.sq  Non
-                    yi r
+        if "strip-sequence" in options.methods or "strip-quality" in \
+           options.methods:
+            def strip_sequence(i):
+                for read in i:
+                    read.seq = None
+                    yield read
 
-             chck_sqnc(rs):
-                i rs[0].sq is Non:
-                    rrn 'no sqnc prsn'
-                rrn Non
+            def check_sequence(reads):
+                if reads[0].seq is None:
+                    return 'no sequence present'
+                return None
 
-             srip_qiy(i):
-                or r in i:
-                    r.q  Non
-                    yi r
+            def strip_quality(i):
+                for read in i:
+                    read.qual = None
+                    yield read
 
-             chck_qiy(rs):
-                i rs[0].q is Non:
-                    rrn 'no qiy inormion prsn'
-                rrn Non
+            def check_quality(reads):
+                if reads[0].qual is None:
+                    return 'no quality information present'
+                return None
 
-             srip_mch(i):
-                or r in i:
-                    ry:
-                        nm  r.op('NM')
-                    xcp KyError:
-                        nm  1
-                    i nm  0:
-                        r.sq  Non
-                    yi r
+            def strip_match(i):
+                for read in i:
+                    try:
+                        nm = read.opt('NM')
+                    except KeyError:
+                        nm = 1
+                    if nm == 0:
+                        read.seq = None
+                    yield read
 
-            i opions.srip_mho  "":
-                i "srip-sqnc" in opions.mhos:
-                    i  srip_sqnc(i)
-                    pr_chck_  chck_sqnc
-                i "srip-qiy" in opions.mhos:
-                    i  srip_qiy(i)
-                    pr_chck_  chck_qiy
-            i opions.srip_mho  "mch":
-                i  srip_mch(i)
+            if options.strip_method == "all":
+                if "strip-sequence" in options.methods:
+                    it = strip_sequence(it)
+                    pre_check_f = check_sequence
+                elif "strip-quality" in options.methods:
+                    it = strip_quality(it)
+                    pre_check_f = check_quality
+            elif options.strip_method == "match":
+                it = strip_match(it)
 
-        i "nsrip" in opions.mhos:
-             biRDicionry(inm):
-                i no os.ph.xiss(inm):
-                    ris OSError("i no on: s"  inm)
-                sqi  pysm.FsxFi(inm)
-                sq2sqnc  {}
-                or x in sqi:
-                    i x.nm in sq2sqnc:
-                        ris VError(
-                            "r s pic - cn no nsrip"  x.nm)
+        if "unstrip" in options.methods:
+            def buildReadDictionary(filename):
+                if not os.path.exists(filename):
+                    raise OSError("file not found: %s" % filename)
+                fastqfile = pysam.FastxFile(filename)
+                fastq2sequence = {}
+                for x in fastqfile:
+                    if x.name in fastq2sequence:
+                        raise ValueError(
+                            "read %s duplicate - can not unstrip" % x.name)
 
-                    sq2sqnc[x.nm]  (x.sqnc, x.qiy)
-                rrn sq2sqnc
+                    fastq2sequence[x.name] = (x.sequence, x.quality)
+                return fastq2sequence
 
-            i no opions.sq_pir1:
-                ris VError(
-                    "ps sppy sq i(s) or nsripping")
-            sq2sqnc1  biRDicionry(opions.sq_pir1)
-            i opions.sq_pir2:
-                sq2sqnc2  biRDicionry(opions.sq_pir2)
+            if not options.fastq_pair1:
+                raise ValueError(
+                    "please supply fastq file(s) for unstripping")
+            fastq2sequence1 = buildReadDictionary(options.fastq_pair1)
+            if options.fastq_pair2:
+                fastq2sequence2 = buildReadDictionary(options.fastq_pair2)
 
-             nsrip_npir(i):
-                or r in i:
-                    r.sq, r.q  sq2sqnc1[r.qnm]
-                    yi r
+            def unstrip_unpaired(i):
+                for read in i:
+                    read.seq, read.qual = fastq2sequence1[read.qname]
+                    yield read
 
-             nsrip_pir(i):
-                or r in i:
-                    i r.is_r1:
-                        r.sq, r.q  sq2sqnc1[r.qnm]
-                    s:
-                        r.sq, r.q  sq2sqnc2[r.qnm]
-                    yi r
+            def unstrip_pair(i):
+                for read in i:
+                    if read.is_read1:
+                        read.seq, read.qual = fastq2sequence1[read.qname]
+                    else:
+                        read.seq, read.qual = fastq2sequence2[read.qname]
+                    yield read
 
-            i opions.sq_pir2:
-                i  nsrip_pir(i)
-            s:
-                i  nsrip_npir(i)
+            if options.fastq_pair2:
+                it = unstrip_pair(it)
+            else:
+                it = unstrip_unpaired(it)
 
-        i "s-nh" in opions.mhos:
-            i  SNH(i)
+        if "set-nh" in options.methods:
+            it = SetNH(it)
 
-        # kp irs bs o rs by chnging h cigrsring o
-        # '1M' n, in rs mpping o h rvrs srn,
-        # chngs h pos o n - 1
-        # Ns o b rcor o mk i mor gnr
-        # (s bs, mipoin, ..)
-        i "kp_irs_bs" in opions.mhos:
-             kp_irs_bs(i):
-                or r in i:
-                    i r.is_rvrs:
-                        r.pos  r.n - 1
-                        r.cigrsring  '1M'
-                    i no r.is_nmpp:
-                        r.cigrsring  '1M'
-                    yi r
-            i  kp_irs_bs(i)
+        # keep first base of reads by changing the cigarstring to
+        # '1M' and, in reads mapping to the reverse strand,
+        # changes the pos to aend - 1
+        # Needs to be refactored to make it more general
+        # (last base, midpoint, ..)
+        if "keep_first_base" in options.methods:
+            def keep_first_base(i):
+                for read in i:
+                    if read.is_reverse:
+                        read.pos = read.aend - 1
+                        read.cigarstring = '1M'
+                    elif not read.is_unmapped:
+                        read.cigarstring = '1M'
+                    yield read
+            it = keep_first_base(it)
 
-        # r irs r n chck i procssing sho conin
-        # ony possib whn no working rom sin
-        # Rcoring: s cch o so o  pr-chck or
-        # sin inp.
-        i no ini.is_srm:
-            # g irs r or chcking pr-coniions
-            irs_rs  is(ini.h(1))
+        # read first read and check if processing should continue
+        # only possible when not working from stdin
+        # Refactoring: use cache to also do a pre-check for
+        # stdin input.
+        if not infile.is_stream:
+            # get first read for checking pre-conditions
+            first_reads = list(infile.head(1))
 
-            msg  pr_chck_(irs_rs)
-            i msg is no Non:
-                i opions.orc:
-                    E.wrn('proccssing conins, hogh: s'  msg)
-                s:
-                    E.wrn('procssing no sr: s'  msg)
-                    rrn
+            msg = pre_check_f(first_reads)
+            if msg is not None:
+                if options.force:
+                    E.warn('proccessing continues, though: %s' % msg)
+                else:
+                    E.warn('processing not started: %s' % msg)
+                    return
 
-        i "ownsmp-sing" in opions.mhos:
+        if "downsample-single" in options.methods:
 
-            i no opions.ownsmp:
-                ris VError("Ps provi ownsmp siz")
+            if not options.downsample:
+                raise ValueError("Please provide downsample size")
 
-            s:
-                own  SbsBm(inii,
-                                 ownsmpopions.ownsmp,
-                                 pir_nNon,
-                                 sing_nTr,
-                                 rnom_sopions.rnom_s)
-                i  own.ownsmp_sing()
+            else:
+                down = SubsetBam(infile=it,
+                                 downsample=options.downsample,
+                                 paired_end=None,
+                                 single_end=True,
+                                 random_seed=options.random_seed)
+                it = down.downsample_single()
 
-        i "ownsmp-pir" in opions.mhos:
+        if "downsample-paired" in options.methods:
 
-            i no opions.ownsmp:
-                ris VError("Ps provi ownsmp siz")
+            if not options.downsample:
+                raise ValueError("Please provide downsample size")
 
-            s:
-                own  SbsBm(inii,
-                                 ownsmpopions.ownsmp,
-                                 pir_nTr,
-                                 sing_nNon,
-                                 rnom_sopions.rnom_s)
-                i  own.ownsmp_pir()
+            else:
+                down = SubsetBam(infile=it,
+                                 downsample=options.downsample,
+                                 paired_end=True,
+                                 single_end=None,
+                                 random_seed=options.random_seed)
+                it = down.downsample_paired()
 
-        i "-sqnc-rror" in opions.mhos:
-             _sqnc_rror(i):
-                rror_r  opions.rror_r
-                mp_nc2vr  {"A": "CGT",
+        if "add-sequence-error" in options.methods:
+            def add_sequence_error(i):
+                error_rate = options.error_rate
+                map_nuc2var = {"A": "CGT",
                                "C": "AGT",
                                "G": "ACT",
                                "T": "ACG"}
-                or r in i:
-                    sqnc  is(r.qry_sqnc)
-                    qs  r.qry_qiis
-                    npos  in(mh.oor(n(sqnc) * rror_r))
-                    posiions  rnom.smp(rng(n(sqnc)), npos)
-                    or pos in posiions:
-                        ry:
-                              mp_nc2vr[sqnc[pos]]
-                        xcp KyError:
-                            conin
-                        sqnc[pos]  [rnom.rnin(0, n() - 1)]
+                for read in i:
+                    sequence = list(read.query_sequence)
+                    quals = read.query_qualities
+                    npos = int(math.floor(len(sequence) * error_rate))
+                    positions = random.sample(range(len(sequence)), npos)
+                    for pos in positions:
+                        try:
+                            alt = map_nuc2var[sequence[pos]]
+                        except KeyError:
+                            continue
+                        sequence[pos] = alt[random.randint(0, len(alt) - 1)]
 
-                    r.qry_sqnc  "".join(sqnc)
-                    r.qry_qiis  qs
-                    yi r
+                    read.query_sequence = "".join(sequence)
+                    read.query_qualities = quals
+                    yield read
 
-            i  _sqnc_rror(i)
+            it = add_sequence_error(it)
 
-        # conin procssing i n
-        or r in i:
-            oi.wri(r)
+        # continue processing till end
+        for read in it:
+            outfile.write(read)
 
                     
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-m", "--mhos", s"mhos", yp"choic",
-                      cion"ppn",
-                      choics("ir",
-                               "kp-irs-bs",
-                               "s-nh",
-                               "s-sqnc",
-                               "srip-sqnc",
-                               "srip-qiy",
-                               "nsrip",
-                               "ns-nmpp-mpq",
-                               "ownsmp-sing",
-                               "ownsmp-pir",
-                               "-sqnc-rror"),
-                      hp"mhos o ppy []")
+    parser.add_argument("-m", "--methods", dest="methods", type="choice",
+                      action="append",
+                      choices=("filter",
+                               "keep-first-base",
+                               "set-nh",
+                               "set-sequence",
+                               "strip-sequence",
+                               "strip-quality",
+                               "unstrip",
+                               "unset-unmapped-mapq",
+                               "downsample-single",
+                               "downsample-paired",
+                               "add-sequence-error"),
+                      help="methods to apply [%default]")
 
-    prsr._rgmn("--srip-mho", s"srip_mho", yp"choic",
-                      choics("", "mch"),
-                      hp"in which sqncs/qiis o srip. "
-                      "mch mns h sripping ony ppis o nris "
-                      "wiho mismchs (rqirs NM g o b prsn). "
-                      "[]")
+    parser.add_argument("--strip-method", dest="strip_method", type="choice",
+                      choices=("all", "match"),
+                      help="define which sequences/qualities to strip. "
+                      "match means that stripping only applies to entries "
+                      "without mismatches (requires NM tag to be present). "
+                      "[%default]")
 
-    prsr._rgmn("--ir-mho", s"ir_mhos",
-                      cion"ppn", yp"choic",
-                      choics('NM', 'CM',
-                               "mpp", "niq", "non-niq",
-                               "rmov-is",
-                               "kp-is",
-                               "rror-r",
-                               "min-r-ngh",
-                               "min-vrg-bs-qiy"),
-                      hp"ir mho o ppy o rmov ignmns "
-                      "rom  bm i. Mip mhos cn b sppi "
-                      "[]")
+    parser.add_argument("--filter-method", dest="filter_methods",
+                      action="append", type="choice",
+                      choices=('NM', 'CM',
+                               "mapped", "unique", "non-unique",
+                               "remove-list",
+                               "keep-list",
+                               "error-rate",
+                               "min-read-length",
+                               "min-average-base-quality"),
+                      help="filter method to apply to remove alignments "
+                      "from a bam file. Multiple methods can be supplied "
+                      "[%default]")
 
-    prsr._rgmn("--rrnc-bm-i", s"rrnc_bm",
-                      yp"sring",
-                      hp"bm-i o ir wih []")
+    parser.add_argument("--reference-bam-file", dest="reference_bam",
+                      type="string",
+                      help="bam-file to filter with [%default]")
 
-    prsr._rgmn("--orc-op", s"orc", cion"sor_r",
-                      hp"orc procssing. Som mhos sch "
-                      "s srip/nsrip wi sop procssing i "
-                      "hy hink i no ncssry "
-                      "[]")
+    parser.add_argument("--force-output", dest="force", action="store_true",
+                      help="force processing. Some methods such "
+                      "as strip/unstrip will stop processing if "
+                      "they think it not necessary "
+                      "[%default]")
 
-    prsr._rgmn("--op-sm", s"op_sm", cion"sor_r",
-                      hp"op in sm orm []")
+    parser.add_argument("--output-sam", dest="output_sam", action="store_true",
+                      help="output in sam format [%default]")
 
-    prsr._rgmn(
-        "--irs-sq-i", "-1", s"sq_pir1", yp"sring",
-        hp"sq i wih r inormion or irs "
-        "in pir or npir. Us or nsripping sqnc "
-        "n qiy scors []")
+    parser.add_argument(
+        "--first-fastq-file", "-1", dest="fastq_pair1", type="string",
+        help="fastq file with read information for first "
+        "in pair or unpaired. Used for unstripping sequence "
+        "and quality scores [%default]")
 
-    prsr._rgmn(
-        "--scon-sq-i", "-2", s"sq_pir2", yp"sring",
-        hp"sq i wih r inormion or scon "
-        "in pir. Us or nsripping sqnc "
-        "n qiy scors  []")
+    parser.add_argument(
+        "--second-fastq-file", "-2", dest="fastq_pair2", type="string",
+        help="fastq file with read information for second "
+        "in pair. Used for unstripping sequence "
+        "and quality scores  [%default]")
 
-    prsr._rgmn(
-        "--ownsmp", s"ownsmp",
-        yp"in",
-        hp"Nmbr o rs o ownsmp o")
+    parser.add_argument(
+        "--downsample", dest="downsample",
+        type="int",
+        help="Number of reads to downsample to")
 
-    prsr._rgmn(
-        "--inm-r-is", s"inm_r_is",
-        yp"sring",
-        hp"Finm wih is o rs o ir i 'kp-is' or 'rmov-is' "
-        "ir mho is chosn []")
+    parser.add_argument(
+        "--filename-read-list", dest="filename_read_list",
+        type="string",
+        help="Filename with list of reads to filter if 'keep-list' or 'remove-list' "
+        "filter method is chosen [%default]")
 
-    prsr._rgmn(
-        "--rror-r", s"rror_r",
-        yp"o",
-        hp"rror r o s s ir. Rs wih n rror r "
-        "highr hn h hrsho wi b rmov []")
+    parser.add_argument(
+        "--error-rate", dest="error_rate",
+        type="float",
+        help="error rate to use as filter. Reads with an error rate "
+        "higher than the threshold will be removed [%default]")
 
-    prsr._rgmn(
-        "--minimm-r-ngh", s"minimm_r_ngh",
-        yp"in",
-        hp"minimm r ngh whn iring []")
+    parser.add_argument(
+        "--minimum-read-length", dest="minimum_read_length",
+        type="int",
+        help="minimum read length when filtering [%default]")
 
-    prsr._rgmn(
-        "--minimm-vrg-bs-qiy", s"minimm_vrg_bs_qiy",
-        yp"o",
-        hp"minimm vrg bs qiy whn iring []")
+    parser.add_argument(
+        "--minimum-average-base-quality", dest="minimum_average_base_quality",
+        type="float",
+        help="minimum average base quality when filtering [%default]")
 
-    prsr.s_s(
-        mhos[],
-        op_smFs,
-        rrnc_bmNon,
-        ir_mhos[],
-        srip_mho"",
-        orcFs,
-        sq_pir1Non,
-        sq_pir2Non,
-        ownsmpNon,
-        rnom_sNon,
-        inm_r_isNon,
-        rror_rNon,
-        minimm_r_ngh0,
-        minimm_vrg_bs_qiy0,
+    parser.set_defaults(
+        methods=[],
+        output_sam=False,
+        reference_bam=None,
+        filter_methods=[],
+        strip_method="all",
+        force=False,
+        fastq_pair1=None,
+        fastq_pair2=None,
+        downsample=None,
+        random_seed=None,
+        filename_read_list=None,
+        error_rate=None,
+        minimum_read_length=0,
+        minimum_average_base_quality=0,
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i opions.sin ! sys.sin:
-        bmi  opions.sin.nm
-    i rgs:
-        bmi  rgs[0]
-        i n(rgs) > 1:
-            ris VError("mip bm is provi in rgmns")
-    s:
-        bmi  "-"
+    if options.stdin != sys.stdin:
+        bamfile = options.stdin.name
+    elif args:
+        bamfile = args[0]
+        if len(args) > 1:
+            raise ValueError("multiple bam files provided in arguments")
+    else:
+        bamfile = "-"
         
-    i "rmov-is" in opions.ir_mhos or "kp-is" in opions.ir_mhos:
-        i "rmov-is" in opions.ir_mhos n "kp-is" in opions.ir_mhos:
-            ris VError("i is no possib o spciy rmov-is n kp-is")
+    if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
+        if "remove-list" in options.filter_methods and "keep-list" in options.filter_methods:
+            raise ValueError("it is not possible to specify remove-list and keep-list")
 
-        wih iooos.opn_i(opions.inm_r_is) s in:
-            ir_qry_nms  s([x.srip() or x in in.rins() i no x.srswih("#")])
-        E.ino("r qry_sqnc ir is wih {} r nms".orm(n(ir_qry_nms)))
+        with iotools.open_file(options.filename_read_list) as inf:
+            filter_query_names = set([x.strip() for x in inf.readlines() if not x.startswith("#")])
+        E.info("read query_sequence filter list with {} read names".format(len(filter_query_names)))
 
-    i "rror-r" in opions.ir_mhos n no opions.rror_r:
-        ris VError("iring by rror-r rqirs --rror-r o b s")
+    if "error-rate" in options.filter_methods and not options.error_rate:
+        raise ValueError("filtering by error-rate requires --error-rate to be set")
 
-    i "-sqnc-rror" in opions.mhos n no opions.rror_r:
-        ris VError("---rror-r rqirs --rror-r o b s")
+    if "add-sequence-error" in options.methods and not options.error_rate:
+        raise ValueError("--add-error-rate requires --error-rate to be set")
 
-    E.ino('procssing s'  bmi)
-    i bmi ! "-" n iooos.is_mpy(bmi):
-        E.wrn('ignoring mpy i s'  bmi)
-        E.sop()
-        rrn
+    E.info('processing %s' % bamfile)
+    if bamfile != "-" and iotools.is_empty(bamfile):
+        E.warn('ignoring empty file %s' % bamfile)
+        E.stop()
+        return
 
-    i opions.so ! sys.so:
-        op_bmi  opions.so.nm
-    s:
-        op_bmi  "-"
-        i opions.sog  sys.so:
-            ris VError("rirc og-srm o i (--og) i oping o so")
+    if options.stdout != sys.stdout:
+        output_bamfile = options.stdout.name
+    else:
+        output_bamfile = "-"
+        if options.stdlog == sys.stdout:
+            raise ValueError("redirect log-stream to file (--log) if outputting to stdout")
         
-    i opions.op_sm:
-        op_mo  "wh"
-    s:
-        op_mo  "wb"
+    if options.output_sam:
+        output_mode = "wh"
+    else:
+        output_mode = "wb"
 
-    # ring bm rom sin os no work wih ony h "r" g
-    wih pysm.AignmnFi(bmi, "rb") s pysm_in:
-        wih pysm.AignmnFi(op_bmi, op_mo,
-                                 mppysm_in) s pysm_o:
-            procss_bm(pysm_in, pysm_o, opions)
+    # reading bam from stdin does not work with only the "r" tag
+    with pysam.AlignmentFile(bamfile, "rb") as pysam_in:
+        with pysam.AlignmentFile(output_bamfile, output_mode,
+                                 template=pysam_in) as pysam_out:
+            process_bam(pysam_in, pysam_out, options)
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

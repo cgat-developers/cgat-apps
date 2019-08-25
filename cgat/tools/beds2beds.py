@@ -1,45 +1,45 @@
-"""bs2bs.py - compos b is
+"""beds2beds.py - decompose bed files
+==================================
 
+:Tags: Genomics Intervals BED Manipulation
 
-:Tgs: Gnomics Inrvs BED Mnipion
-
-Prpos
+Purpose
 -------
 
-This scrip wi compos  cocion o inp bis ino 
-cocion o nions or inrscions.
+This script will decompose a collection of input bedfiles into a
+collection of unions or intersections.
 
-Opions
+Options
 -------
 
-Fis r coc by  rgr xprssion prn givn o h opion
-``--prn-iniir``.
+Files are collected by a regular expression pattern given to the option
+``--pattern-identifier``.
 
-Th scrip bhvior is rmin by h ``--mho`` opion wih ihr o
-h oowing choics:
+The script behaviour is determined by the ``--method`` option with either of
+the following choices:
 
-``mrg-combinions``
-    mrg inrvs cross :rm:`b` is n ony rpor hos
-    h ppr in vry i.
+``merged-combinations``
+    merge intervals across :term:`bed` files and only report those
+    that appear in every file.
 
-``nmrg-combinions``
-    or ch :rm:`b` i, rpor inrvs h ovrp wih inrvs
-    in vry ohr :rm:`b` i.
+``unmerged-combinations``
+    for each :term:`bed` file, report intervals that overlap with intervals
+    in every other :term:`bed` file.
 
-I h ``--xcsiv-ovrp`` opion is s, rpor xcsiv
-ovrp. Ony inrvs wi b rpor h ovrp in  pirwis
-comprison b o no ovrp wih inrvs in ny o h ohr ss.
+If the ``--exclusive-overlap`` option is set, report exclusive
+overlap. Only intervals will be reported that overlap in a pairwise
+comparison but do not overlap with intervals in any of the other sets.
 
-This scrip rqirs b is inx by bix_.
+This script requires bed files indexed by tabix_.
 
-Usg
+Usage
 -----
 
-For xmp, yo hv ChIP-Sq  or PoII n wo rnscripion
-cors 1 n 2. Th oowing smn wi op or
-:rm:`b` is::
+For example, you have ChIP-Seq data for PolII and two transcription
+factors tf1 and tf2. The following statement will output four
+:term:`bed` files::
 
-  zc poii.b.gz | h
+  zcat polii.bed.gz | head
 
   chr17    1    100    8    1
   chr19   -50    50    6    1
@@ -48,9 +48,9 @@ cors 1 n 2. Th oowing smn wi op or
   chr19   150   200    2    1
   chr19   201   300    3    1
 
-  pyhon bs2bs.py poii.b.gz 1.b.gz 2.b.gz
+  python beds2beds.py polii.bed.gz tf1.bed.gz tf2.bed.gz
 
-  zc 1.b.gz | h
+  zcat tf1.bed.gz | head
 
   chr1    35736     40736    ENST000004173240    -
   chr1    60881     65881    ENST000005349900    +
@@ -60,264 +60,264 @@ cors 1 n 2. Th oowing smn wi op or
   chr1    716405    721405   ENST000003585330    +
 
 
-Th or is conin inrvs, h
+The four files contain intervals, that
 
-1. hv PoII n 1 prsn,
-2. hv PoII n 2 prsn,
-3. hv 1 n 2 prsn, or
-4. hv PoII n 1 n 2 prsn.
+1. have PolII and tf1 present,
+2. have PolII and tf2 present,
+3. have tf1 and tf2 present, or
+4. have PolII and tf1 and tf2 present.
 
-I h --xcsiv-ovrp opion is s, hr ss wi b op
-wih inrvs h
+If the --exclusive-overlap option is set, three sets will be output
+with intervals that
 
-1. hv PoII n 1 prsn b no 2,
-2. hv PoII n 2 prsn b no 1,
-3. hv 1 n 2 prsn b no PoII.
+1. have PolII and tf1 present but no tf2,
+2. have PolII and tf2 present but no tf1,
+3. have tf1 and tf2 present but no PolII.
 
-Typ::
+Type::
 
-   pyhon bs2bs.py --hp
+   python beds2beds.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 """
 
-impor sys
-impor r
-impor iroos
-impor cocions
+import sys
+import re
+import itertools
+import collections
 
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor pysm
-impor cg.Inrvs s Inrvs
-
-
- isConinInA(conig, sr, n, bis):
-
-    or bi in bis:
-        ry:
-            i n(is(bi.ch(conig, sr, n)))  0:
-                rrn Fs
-        xcp KyError:
-            rrn Fs
-        xcp VError:
-            rrn Fs
-
-    rrn Tr
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import pysam
+import cgat.Intervals as Intervals
 
 
- isConinInOn(conig, sr, n, bis):
+def isContainedInAll(contig, start, end, bedfiles):
 
-    or bi in bis:
-        ry:
-            i n(is(bi.ch(conig, sr, n))) > 0:
-                rrn Tr
-        xcp KyError:
-            pss
-        xcp VError:
-            pss
+    for bedfile in bedfiles:
+        try:
+            if len(list(bedfile.fetch(contig, start, end))) == 0:
+                return False
+        except KeyError:
+            return False
+        except ValueError:
+            return False
 
-    rrn Fs
-
-
- combinMrgInrvs(bis):
-    '''combin inrvs in  cocion o b is.
-
-    Ovrpping inrvs bwn rcks r mrg.
-
-    Agorihm:
-
-    1. coc  inrvs in  rcks ino  sing rck
-    2. mrg ovrpping inrvs
-    3. rpor  inrvs h ovrp wih n inrv in ch rck.
-
-    '''
-
-    # g  inrvs
-    _pr_conig  cocions.ic(is)
-
-    or bi in bis:
-        or conig in bi.conigs:
-            i  []
-            or b in bi.ch(conig, prsrpysm.sB()):
-                i.ppn((b.sr, b.n))
-            _pr_conig[conig].xn(i)
-
-    # mrg inrvs
-    or conig in is(_pr_conig.kys()):
-        _pr_conig[conig]  Inrvs.combin(_pr_conig[conig])
-
-    # ir inrvs - k ony hos prsn in  bis
-    or conig,  in sor(_pr_conig.ims()):
-        or sr, n in :
-            i isConinInA(conig, sr, n, bis):
-                yi conig, sr, n
+    return True
 
 
- combinUnmrgInrvs(orgron, bckgron):
-    '''combin inrvs in  cocion o b is.
+def isContainedInOne(contig, start, end, bedfiles):
 
-    Ony inrvs in h irs rck r rpor.
+    for bedfile in bedfiles:
+        try:
+            if len(list(bedfile.fetch(contig, start, end))) > 0:
+                return True
+        except KeyError:
+            pass
+        except ValueError:
+            pass
 
-    Agorihm:
+    return False
 
-    1. rpor  inrvs in h irs rck h ovrp wih n
-    inrv in vry ohr rck.
+
+def combineMergedIntervals(bedfiles):
+    '''combine intervals in a collection of bed files.
+
+    Overlapping intervals between tracks are merged.
+
+    Algorithm:
+
+    1. collect all intervals in all tracks into a single track
+    2. merge overlapping intervals
+    3. report all intervals that overlap with an interval in each track.
 
     '''
 
-    c  0
-    or b in orgron.ch(prsrpysm.sB()):
-        c + 1
-        i isConinInA(b.conig, b.sr, b.n, bckgron):
-            yi b
+    # get all intervals
+    data_per_contig = collections.defaultdict(list)
+
+    for bedfile in bedfiles:
+        for contig in bedfile.contigs:
+            i = []
+            for bed in bedfile.fetch(contig, parser=pysam.asBed()):
+                i.append((bed.start, bed.end))
+            data_per_contig[contig].extend(i)
+
+    # merge intervals
+    for contig in list(data_per_contig.keys()):
+        data_per_contig[contig] = Intervals.combine(data_per_contig[contig])
+
+    # filter intervals - take only those present in all bedfiles
+    for contig, data in sorted(data_per_contig.items()):
+        for start, end in data:
+            if isContainedInAll(contig, start, end, bedfiles):
+                yield contig, start, end
 
 
- min(rgvNon):
-    """scrip min.
+def combineUnmergedIntervals(foreground, background):
+    '''combine intervals in a collection of bed files.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    Only intervals in the first track are reported.
+
+    Algorithm:
+
+    1. report all intervals in the first track that overlap with an
+    interval in every other track.
+
+    '''
+
+    c = 0
+    for bed in foreground.fetch(parser=pysam.asBed()):
+        c += 1
+        if isContainedInAll(bed.contig, bed.start, bed.end, background):
+            yield bed
+
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--xcsiv-ovrp", s"xcsiv",
-        cion"sor_r",
-        hp"Inrvs rpor wi b mrg cross h "
-        "posiiv s n o no ovrp ny inrv in ny o h "
-        "ohr ss [].")
+    parser.add_argument(
+        "-e", "--exclusive-overlap", dest="exclusive",
+        action="store_true",
+        help="Intervals reported will be merged across the "
+        "positive set and do not overlap any interval in any of the "
+        "other sets [default=%default].")
 
-    prsr._rgmn(
-        "-p", "--prn-iniir", s"prn_i", yp"sring",
-        hp"prn o convr  inm "
-        "o n i [].")
+    parser.add_argument(
+        "-p", "--pattern-identifier", dest="pattern_id", type="string",
+        help="pattern to convert a filename "
+        "to an id [default=%default].")
 
-    prsr._rgmn(
-        "-m", "--mho", s"mho", yp"choic",
-        choics("mrg-combinions",
-                 "nmrg-combinions"),
-        hp"mho o prorm []")
+    parser.add_argument(
+        "-m", "--method", dest="method", type="choice",
+        choices=("merged-combinations",
+                 "unmerged-combinations"),
+        help="method to perform [default=%default]")
 
-    prsr.s_s(
-        prn_i"(.*).b.gz",
-        xcsivFs,
-        mho"mrg-combinions",
+    parser.set_defaults(
+        pattern_id="(.*).bed.gz",
+        exclusive=False,
+        method="merged-combinations",
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
-    i n(rgs) < 2:
-        ris VError(" s wo rgmns rqir")
+    if len(args) < 2:
+        raise ValueError("at least two arguments required")
 
-    gs, bis  [], []
-    or ini in rgs:
-        bis.ppn(pysm.Tbixi(ini, "r"))
-        gs.ppn(r.srch(opions.prn_i, ini).grops()[0])
+    tags, bedfiles = [], []
+    for infile in args:
+        bedfiles.append(pysam.Tabixfile(infile, "r"))
+        tags.append(re.search(options.pattern_id, infile).groups()[0])
 
-    inics  is(rng(n(bis)))
-    is_xcsiv  opions.xcsiv
+    indices = list(range(len(bedfiles)))
+    is_exclusive = options.exclusive
 
-    i opions.mho  "mrg-combinions":
+    if options.method == "merged-combinations":
 
-        i is_xcsiv:
-            sr  1
-        s:
-            sr  2
+        if is_exclusive:
+            start = 1
+        else:
+            start = 2
 
-        opions.so.wri("combinion\wiho\cons\n")
+        options.stdout.write("combination\twithout\tcounts\n")
 
-        or ncombinns in rng(sr, n(bis) + 1):
-            or combinion in iroos.combinions(inics, ncombinns):
-                ohr  [x or x in inics i x no in combinion]
-                g  ":".join([gs[x] or x in combinion])
-                E.bg("combinion s sr"  g)
-                E.bg("ohr: s"  ":".join([gs[x] or x in ohr]))
+        for ncombinants in range(start, len(bedfiles) + 1):
+            for combination in itertools.combinations(indices, ncombinants):
+                other = [x for x in indices if x not in combination]
+                tag = ":".join([tags[x] for x in combination])
+                E.debug("combination %s started" % tag)
+                E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
-                ohr_b  [bis[x] or x in ohr]
-                o  iooos.opn_i(
-                    E.g_op_i(g), "w", cr_irTr)
-                c  E.Conr()
-                or conig, sr, n in combinMrgInrvs(
-                        [bis[x] or x in combinion]):
-                    c.on + 1
-                    i is_xcsiv n isConinInOn(conig,
-                                                         sr,
-                                                         n,
-                                                         ohr_b):
-                        c.rmov + 1
-                        conin
-                    c.op + 1
-                    o.wri("s\i\i\n"  (conig, sr, n))
+                other_bed = [bedfiles[x] for x in other]
+                outf = iotools.open_file(
+                    E.get_output_file(tag), "w", create_dir=True)
+                c = E.Counter()
+                for contig, start, end in combineMergedIntervals(
+                        [bedfiles[x] for x in combination]):
+                    c.found += 1
+                    if is_exclusive and isContainedInOne(contig,
+                                                         start,
+                                                         end,
+                                                         other_bed):
+                        c.removed += 1
+                        continue
+                    c.output += 1
+                    outf.write("%s\t%i\t%i\n" % (contig, start, end))
 
-                o.cos()
-                E.ino("combinion s inish: s"  (g, c))
+                outf.close()
+                E.info("combination %s finished: %s" % (tag, c))
 
-                opions.so.wri("s\s\i\n"  (
-                    ":".join([gs[x] or x in combinion]),
-                    ":".join([gs[x] or x in ohr]),
-                    c.op))
+                options.stdout.write("%s\t%s\t%i\n" % (
+                    ":".join([tags[x] for x in combination]),
+                    ":".join([tags[x] for x in other]),
+                    c.output))
 
-    i opions.mho  "nmrg-combinions":
-        opions.so.wri("rck\combinion\wiho\cons\n")
+    elif options.method == "unmerged-combinations":
+        options.stdout.write("track\tcombination\twithout\tcounts\n")
 
-        or orgron in inics:
+        for foreground in indices:
 
-            sr  0
+            start = 0
 
-            bckgron  [x or x in inics i x ! orgron]
-            or ncombinns in rng(0, n(bckgron) + 1):
-                or combinion in iroos.combinions(bckgron,
-                                                          ncombinns):
-                    ohr  [x or x in bckgron i x no in combinion]
-                    combinion_b  [bis[x] or x in combinion]
-                    ohr_b  [bis[x] or x in ohr]
-                    g  ":".join([gs[orgron]] + [gs[x]
-                                                         or x in combinion])
+            background = [x for x in indices if x != foreground]
+            for ncombinants in range(0, len(background) + 1):
+                for combination in itertools.combinations(background,
+                                                          ncombinants):
+                    other = [x for x in background if x not in combination]
+                    combination_bed = [bedfiles[x] for x in combination]
+                    other_bed = [bedfiles[x] for x in other]
+                    tag = ":".join([tags[foreground]] + [tags[x]
+                                                         for x in combination])
 
-                    E.bg("gi, combinions, ohrs" 
-                            (orgron, combinion, ohr))
-                    E.bg("combinion s sr"  g)
-                    E.bg("ohr: s"  ":".join([gs[x] or x in ohr]))
+                    E.debug("fg=%i, combination=%s, other=%s" %
+                            (foreground, combination, other))
+                    E.debug("combination %s started" % tag)
+                    E.debug("other: %s" % ":".join([tags[x] for x in other]))
 
-                    o  iooos.opn_i(
-                        E.g_op_i(g), "w", cr_irTr)
-                    c  E.Conr()
-                    or b in combinUnmrgInrvs(
-                            bis[orgron],
-                            combinion_b):
-                        c.on + 1
-                        i is_xcsiv n isConinInOn(b.conig,
-                                                             b.sr,
-                                                             b.n,
-                                                             ohr_b):
-                            c.rmov + 1
-                            conin
-                        c.op + 1
-                        o.wri("s\n"  sr(b))
+                    outf = iotools.open_file(
+                        E.get_output_file(tag), "w", create_dir=True)
+                    c = E.Counter()
+                    for bed in combineUnmergedIntervals(
+                            bedfiles[foreground],
+                            combination_bed):
+                        c.found += 1
+                        if is_exclusive and isContainedInOne(bed.contig,
+                                                             bed.start,
+                                                             bed.end,
+                                                             other_bed):
+                            c.removed += 1
+                            continue
+                        c.output += 1
+                        outf.write("%s\n" % str(bed))
 
-                    o.cos()
-                    E.ino("combinion s inish: s"  (g, c))
+                    outf.close()
+                    E.info("combination %s finished: %s" % (tag, c))
 
-                    opions.so.wri("s\s\s\i\n"  (
-                        gs[orgron],
-                        ":".join([gs[x] or x in combinion]),
-                        ":".join([gs[x] or x in ohr]),
-                        c.op))
+                    options.stdout.write("%s\t%s\t%s\t%i\n" % (
+                        tags[foreground],
+                        ":".join([tags[x] for x in combination]),
+                        ":".join([tags[x] for x in other]),
+                        c.output))
 
-    E.sop()
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

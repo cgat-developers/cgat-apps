@@ -1,147 +1,147 @@
-'''bm2UniqPirs.py - ir/rpor niqy mpp r pirs rom  (bw!) bm-i
+'''bam2UniquePairs.py - filter/report uniquely mapped read pairs from a (bwa!) bam-file
+======================================================================================
 
+:Tags: Genomics NGS
 
-:Tgs: Gnomics NGS
-
-Prpos
+Purpose
 -------
 
-Uiiy scrip o rpor n/or ir o "niqy mpp" propry
-pir rs
+Utility script to report and/or filter out "uniquely mapped" properly
+paired reads
 
-Rpors:
+Reports:
 
-1. Th prcng o propry mpp r pirs wih  s on
-   niqy mpp (XTU) r
+1. The percentage of properly mapped read pairs with at least one
+   uniquely mapped (XT=U) read
 
-2. Th prcng o propry mpp r pirs wih  s on bs
-   mpp (X0-1) r
+2. The percentage of properly mapped read pairs with at least one best
+   mapped (X0-1) read
 
-3. Th prcng o propry mpp r pirs wih  s on
-   niqy or bs mpp (X0-1) r
+3. The percentage of properly mapped read pairs with at least one
+   uniquely or best mapped (X0-1) read
 
-I oi is spcii, rs r mi whn hy r propry
-pir n h pir hs  s on r h is ihr bs or
-niqy mpp.
+If outfile is specified, reads are emitted when they are properly
+paired and the pair has at least one read that is either best or
+uniquely mapped.
 
-Dpicion is ignor.
+Duplication is ignored.
 
-Ony BWA is sppor.
+Only BWA is supported.
 
-TODO: cch n mi rs rhr hn iring ovr h smi wic...
+TODO: cache and emit reads rather than iterating over the samfile twice...
 
 '''
 
-impor sys
-impor cgcor.xprimn s E
-impor pysm
+import sys
+import cgatcore.experiment as E
+import pysam
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: cg_scrip_mp.py 2871 2010-03-03 10:20:44Z nrs $",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-", "--bm-i", "--inm", s"inm", yp"sring",
-                      hp"bmi")
+    parser.add_argument("-f", "--bam-file", "--filename", dest="filename", type="string",
+                      help="bamfile")
 
-    prsr._rgmn("-", "--ignr", s"ignr", yp"sring",
-                      hp"bmi", "bw")
+    parser.add_argument("-a", "--aligner", dest="aligner", type="string",
+                      help="bamfile", default="bwa")
 
-    prsr._rgmn("-r", "--op-rpor", yp"sring", s"rpor",
-                      hp"bmi", "")
+    parser.add_argument("-r", "--output-report", type="string", dest="report",
+                      help="bamfile", default="")
 
-    prsr._rgmn("-o", "--op-inm-bm", "--oi", s"oi", yp"sring",
-                      hp"bmi", "")
+    parser.add_argument("-o", "--output-filename-bam", "--outfile", dest="outfile", type="string",
+                      help="bamfile", default="")
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
-    # Chck h ignr is sppor
-    i opions.ignr ! "bw":
-        ris VError(
-            "Crrny ony bw is sppor s ignr spciic gs r s")
+    # Check the aligner is supported
+    if options.aligner != "bwa":
+        raise ValueError(
+            "Currently only bwa is supported as aligner specific flags are used")
 
-    # Chck h ihr  rpor or oi nm hs bn spcii
-    i opions.rpor  "" n opions.oi  "":
-        ris VError("Nohing o o")
+    # Check that either a report or outfile name has been specified
+    if options.report == "" and options.outfile == "":
+        raise ValueError("Nothing to do")
 
-    # Anys h bmi
-    smi  pysm.AignmnFi(opions.inm, "rb")
-    niq_mp, bs_mp, ORb_mp  {}, {}, {}
-    propry_pir  0
+    # Analyse the bamfile
+    samfile = pysam.AlignmentFile(options.filename, "rb")
+    uniq_map, best_map, uORb_map = {}, {}, {}
+    properly_paired = 0
 
-    or r in smi.ch():
+    for read in samfile.fetch():
 
-        i r.is_propr_pir:
-            g  ic(r.gs)
-            , b, ky  Fs, Fs, r.qnm
+        if read.is_proper_pair:
+            tagd = dict(read.tags)
+            u, b, key = False, False, read.qname
 
-            i g["XT"]  "U":
-                  Tr
-                niq_mp[ky]  1
+            if tagd["XT"] == "U":
+                u = True
+                uniq_map[key] = 1
 
-            i "X0" in g:
-                i g["X0"]  1:
-                    b  Tr
-                    bs_mp[ky]  1
+            if "X0" in tagd:
+                if tagd["X0"] == 1:
+                    b = True
+                    best_map[key] = 1
 
-            i  is Tr or b is Tr:
-                ORb_mp[ky]  1
+            if u is True or b is True:
+                uORb_map[key] = 1
 
-            propry_pir + 1
+            properly_paired += 1
 
-    smi.cos()
+    samfile.close()
 
-    npp  propry_pir / 2
+    npp = properly_paired / 2
 
-    E.ino("No propr pirs: s"  npp)
+    E.info("No proper pairs: %s" % npp)
 
-    # Wri  br rpor i rpor nm givn
-    i opions.rpor ! "":
+    # Write a tabular report if report name given
+    if options.report != "":
 
-        E.ino("Wriing rpor on no. propr pirs wih niq/bs rs")
+        E.info("Writing report on no. proper pairs with unique/best reads")
 
-         _row(x, nppnpp):
-            nm,   x
-            n  n(is(.kys()))
-            pc  o(n) / npp * 100
-            in  "s\i\.2"  (nm, n, pc)
-            rrn(in)
+        def _row(x, npp=npp):
+            name, d = x
+            n = len(list(d.keys()))
+            pc = float(n) / npp * 100
+            line = "%s\t%i\t%.2f" % (name, n, pc)
+            return(line)
 
-        hr  "\".join(["pir_criri", "n_propr_pirs",
-                            "prcn_propr_pirs"])
+        header = "\t".join(["pair_criteria", "n_proper_pairs",
+                            "percent_proper_pairs"])
 
-        wih iooos.opn_i(opions.rpor, "w") s rpor:
-            rpor.wri(hr + "\n")
-            or x in [("niq", niq_mp), ("bs", bs_mp),
-                      ("niq_or_bs", ORb_mp)]:
-                rpor.wri(_row(x) + "\n")
+        with iotools.open_file(options.report, "w") as report:
+            report.write(header + "\n")
+            for x in [("unique", uniq_map), ("best", best_map),
+                      ("unique_or_best", uORb_map)]:
+                report.write(_row(x) + "\n")
 
-    # Cr nw bm conining niqy mpping r pirs
-    # i oi spcii
-    i opions.oi ! "":
+    # Create new bam containing uniquely mapping read pairs
+    # if outfile specified
+    if options.outfile != "":
 
-        E.ino("Wriing propr pirs wih niq or bs r o s" 
-               opions.oi)
+        E.info("Writing proper pairs with unique or best read to %s" %
+               options.outfile)
 
-        smi  pysm.AignmnFi(opions.inm, "rb")
-        obm  pysm.AignmnFi(opions.oi, "wb", mpsmi)
+        samfile = pysam.AlignmentFile(options.filename, "rb")
+        outbam = pysam.AlignmentFile(options.outfile, "wb", template=samfile)
 
-        or r in smi.ch():
-            i r.is_propr_pir:
-                i r.qnm in ORb_mp:
-                    obm.wri(r)
-        smi.cos()
-        obm.cos()
+        for read in samfile.fetch():
+            if read.is_proper_pair:
+                if read.qname in uORb_map:
+                    outbam.write(read)
+        samfile.close()
+        outbam.close()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

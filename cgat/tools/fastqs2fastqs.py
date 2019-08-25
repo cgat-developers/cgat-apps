@@ -1,309 +1,309 @@
-'''sqs2sqs.py - mnip (mrg/rconci) sq is
+'''fastqs2fastqs.py - manipulate (merge/reconcile) fastq files
+=============================================================
 
+:Tags: Genomics NGS FASTQ FASTQ Manipulation
 
-:Tgs: Gnomics NGS FASTQ FASTQ Mnipion
-
-Prpos
+Purpose
 -------
 
-This scrip mnips mip sq is n ops
-nw sq is. Crrny ony h mho ``rconci``
-is impmn.
+This script manipulates multiple fastq files and outputs
+new fastq files. Currently only the method ``reconcile``
+is implemented.
 
-rconci
+reconcile
 +++++++++
 
-Rconci rs rom  pir o sq is.
+Reconcile reads from a pair of fastq files.
 
-This mho ks wo sq is n ops wo sq is sch
-h  rs in h op r prsn in boh op is.
+This method takes two fastq files and outputs two fastq files such
+that all reads in the output are present in both output files.
 
-Th ypic s cs is h wo sq is conining h irs n
-scon pr o  r pir hv bn inpnny ir, or
-xmp by qiy scors, rncion, c. As  consqnc som
-rs migh b missing rom on i b no h ohr. Th rconci
-mho wi op wo is conining ony rs h r common o
-boh is.
+The typical use case is that two fastq files containing the first and
+second part of a read pair have been independently filtered, for
+example by quality scores, truncation, etc. As a consequence some
+reads might be missing from one file but not the other. The reconcile
+method will output two files containing only reads that are common to
+both files.
 
-Th wo is ms b sor by r iniir.
+The two files must be sorted by read identifier.
 
-Exmp inp, r2 n r3 r ony prsn in ihr o h
-is:
+Example input, read2 and read3 are only present in either of the
+files:
 
-   # Fi1        # Fi 2
+   # File1        # File 2
 
-   @r1         @r1
+   @read1         @read1
    AAA            AAA
    +              +
    !!!            !!!
-   @r2         @r3
+   @read2         @read3
    CCC            TTT
    +              +
    !!!            !!!
-   @r4         @r4
+   @read4         @read4
    GGG            GGG
    +              +
    !!!            !!!
 
-Exmp op, ony h rs common o boh is r op::
+Example output, only the reads common to both files are output::
 
-   # Fi1        # Fi 2
+   # File1        # File 2
 
-   @r1         @r1
+   @read1         @read1
    AAA            AAA
    +              +
    !!!            !!!
-   @r4         @r4
+   @read4         @read4
    GGG            GGG
    +              +
    !!!            !!!
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon sqs2sqs.py \
-            --mhorconci \
-            --op-inm-prnmyRs_rconci.s.sq \
-            myRs.1.sq.gz myRs.2.sq.gz
+   python fastqs2fastqs.py \
+            --method=reconcile \
+            --output-filename-pattern=myReads_reconciled.%s.fastq \
+            myReads.1.fastq.gz myReads.2.fastq.gz
 
-In his xmp w k  pir o sq is, rconci by r
-iniir n op 2 nw sq is nm
-``myRs_rconci.1.sq.gz`` n
-``myRs_rconci.2.sq.gz``.
+In this example we take a pair of fastq files, reconcile by read
+identifier and output 2 new fastq files named
+``myReads_reconciled.1.fastq.gz`` and
+``myReads_reconciled.2.fastq.gz``.
 
-Typ::
+Type::
 
-   pyhon sqs2sqs.py --hp
+   python fastqs2fastqs.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor r
-impor pysm
+import sys
+import re
+import pysam
 
-impor cgcor.iooos s iooos
-impor cgcor.xprimn s E
-impor cg.FsqToos s sqoos
-
-
-css PrnGr:
-
-     __ini__(s, prn):
-        s.prn  r.compi(prn)
-
-     __c__(s, i):
-        rrn s.prn.srch(i).grops()[0]
+import cgatcore.iotools as iotools
+import cgatcore.experiment as E
+import cgat.FastqTools as fastqtools
 
 
- pin_gr(i):
-    rrn i
+class PatternGetter:
+
+    def __init__(self, pattern):
+        self.pattern = re.compile(pattern)
+
+    def __call__(self, id):
+        return self.pattern.search(id).groups()[0]
 
 
- min(rgvNon):
-    """scrip min.
+def plain_getter(id):
+    return id
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
-                      choics('rconci', 'ir-by-sqnc'),
-                      hp"mho o ppy [].")
+    parser.add_argument("-m", "--method", dest="method", type="choice",
+                      choices=('reconcile', 'filter-by-sequence'),
+                      help="method to apply [default=%default].")
 
-    prsr._rgmn(
-        "-c", "--chop-iniir", s"chop", cion"sor_r",
-        hp"whhr or no o rim s chrcr o h  "
-        "sqnc nm. For xmp somims is in h irs "
-        "i in h pir wi n wih \1 n h scon "
-        "wih \2. I --chop-iniir is no spcii "
-        "hn h rss wi b wrong [].")
+    parser.add_argument(
+        "-c", "--chop-identifier", dest="chop", action="store_true",
+        help="whether or not to trim last character of the  "
+        "sequence name. For example sometimes ids in the first "
+        "file in the pair will end with \1 and the second "
+        "with \2. If --chop-identifier is not specified "
+        "then the results will be wrong [default=%default].")
 
-    prsr._rgmn(
-        "-", "--npir", s"npir", cion"sor_r",
-        hp"whhr or no o wri o npir rs "
-        "o  spr i")
+    parser.add_argument(
+        "-u", "--unpaired", dest="unpaired", action="store_true",
+        help="whether or not to write out unpaired reads "
+        "to a separate file")
 
-    prsr._rgmn(
-        "--i-prn-1", s"i_prn_1",
-        hp"I spcii wi s h irs grop rom h"
-        "prn o rmin h ID or h irs r",
-        Non)
+    parser.add_argument(
+        "--id-pattern-1", dest="id_pattern_1",
+        help="If specified will use the first group from the"
+        "pattern to determine the ID for the first read",
+        default=None)
 
-    prsr._rgmn(
-        "--i-prn-2", s"i_prn_2",
-        hp"As bov b or r 2",
-        Non)
+    parser.add_argument(
+        "--id-pattern-2", dest="id_pattern_2",
+        help="As above but for read 2",
+        default=None)
 
-    prsr._rgmn(
-        "--inp-inm-s",
-        s"inp_inm_s", yp"sring",
-        hp"inp inm o FASTA orm sqnc "
-        "or mho 'ir-by-sqnc' [].")
+    parser.add_argument(
+        "--input-filename-fasta",
+        dest="input_filename_fasta", type="string",
+        help="input filename of FASTA formatted sequence "
+        "for method 'filter-by-sequence' [default=%default].")
 
-    prsr._rgmn(
-        "--iring-kmr-siz",
-        s"iring_kmr_siz", yp"in",
-        hp"kmr siz or mho 'ir-by-sqnc' [].")
+    parser.add_argument(
+        "--filtering-kmer-size",
+        dest="filtering_kmer_size", type="int",
+        help="kmer size for method 'filter-by-sequence' [default=%default].")
 
-    prsr._rgmn(
-        "--iring-min-kmr-mchs",
-        s"iring_min_kmr_mchs", yp"in",
-        hp"minimm nmbr o mchs 'ir-by-sqnc' [].")
+    parser.add_argument(
+        "--filtering-min-kmer-matches",
+        dest="filtering_min_kmer_matches", type="int",
+        help="minimum number of matches 'filter-by-sequence' [default=%default].")
 
-    prsr.s_s(
-        mho"rconci",
-        chopFs,
-        npirFs,
-        inp_inm_sNon,
-        iring_kmr_siz10,
-        iring_min_kmr_mchs20
+    parser.set_defaults(
+        method="reconcile",
+        chop=False,
+        unpaired=False,
+        input_filename_fasta=None,
+        filtering_kmer_size=10,
+        filtering_min_kmer_matches=20
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
-    i n(rgs) ! 2:
-        ris VError(
-            "ps sppy  s wo sq is on h commnin")
+    if len(args) != 2:
+        raise ValueError(
+            "please supply at least two fastq files on the commandline")
 
-    n1, n2  rgs
-    conr  E.Conr()
+    fn1, fn2 = args
+    counter = E.Counter()
 
-    i opions.i_prn_1:
-        i1_gr  PrnGr(opions.i_prn_1)
-    s:
-        i1_gr  pin_gr
+    if options.id_pattern_1:
+        id1_getter = PatternGetter(options.id_pattern_1)
+    else:
+        id1_getter = plain_getter
 
-    i opions.i_prn_2:
-        i2_gr  PrnGr(opions.i_prn_2)
-    s:
-        i2_gr  pin_gr
+    if options.id_pattern_2:
+        id2_getter = PatternGetter(options.id_pattern_2)
+    else:
+        id2_getter = plain_getter
 
-    i opions.mho  "rconci":
+    if options.method == "reconcile":
 
-        # IMS: swiching o no sor scon s o r nms n ony s
-        # ziy. Sinc gnrors on' hv  siz ms kp rck
-        i_nghs  {n1: 0, n2: 0}
+        # IMS: switching to no store second set of read names and only use
+        # lazily. Since generators don't have a size must keep track
+        id_lengths = {fn1: 0, fn2: 0}
 
-         gIs(ini, i_grpin_gr):
-            '''rrn is in ini.'''
-            r  ini.rin
-            whi Tr:
-                  [r().rsrip("\r\n") or i in rng(4)]
-                i no [0]:
-                    brk
-                r  i_gr([0].spi()[0])
-                # ci i o chop r nmbr o
-                i_nghs[ini.nm] + 1
-                i opions.chop:
-                    yi r[:-1]
-                s:
-                    yi r
+        def getIds(infile, id_getter=plain_getter):
+            '''return ids in infile.'''
+            aread = infile.readline
+            while True:
+                l = [aread().rstrip("\r\n") for i in range(4)]
+                if not l[0]:
+                    break
+                r = id_getter(l[0].split()[0])
+                # decide if to chop read number off
+                id_lengths[infile.name] += 1
+                if options.chop:
+                    yield r[:-1]
+                else:
+                    yield r
 
-         wri(oi, ini, k, npir_iNon,
-                  i_grpin_gr):
-            '''ir sq is wih is in k.'''
-            r  ini.rin
-            whi Tr:
-                  [r().rsrip("\r\n") or i in rng(4)]
-                i no [0]:
-                    brk
-                r  i_gr([0].spi()[0])
-                i opions.chop:
-                    r  r[:-1]
-                i r no in k:
-                    i npir_i is Non:
-                        conin
-                    s:
-                        npir_i.wri("\n".join() + "\n")
-                s:
-                    oi.wri("\n".join() + "\n")
+        def write(outfile, infile, take, unpaired_file=None,
+                  id_getter=plain_getter):
+            '''filter fastq files with ids in take.'''
+            aread = infile.readline
+            while True:
+                l = [aread().rstrip("\r\n") for i in range(4)]
+                if not l[0]:
+                    break
+                r = id_getter(l[0].split()[0])
+                if options.chop:
+                    r = r[:-1]
+                if r not in take:
+                    if unpaired_file is None:
+                        continue
+                    else:
+                        unpaired_file.write("\n".join(l) + "\n")
+                else:
+                    outfile.write("\n".join(l) + "\n")
 
-        E.ino("ring irs in pir")
-        in1  iooos.opn_i(n1)
-        is1  s(gIs(in1, i1_gr))
+        E.info("reading first in pair")
+        inf1 = iotools.open_file(fn1)
+        ids1 = set(getIds(inf1, id1_getter))
 
-        E.ino("ring scon in pir")
-        in2  iooos.opn_i(n2)
-        # IMS: No ongr kp s  s, b ziy v ino inrscion
-        # s o rg mmory sving or rg in2, pricry i
-        # in1 is sm.
-        is2  gIs(in2, i2_gr)
-        k  is1.inrscion(is2)
+        E.info("reading second in pair")
+        inf2 = iotools.open_file(fn2)
+        # IMS: No longer keep as a set, but lazily evaluate into intersection
+        # leads to large memory saving for large inf2, particularly if
+        # inf1 is small.
+        ids2 = getIds(inf2, id2_getter)
+        take = ids1.intersection(ids2)
 
-        E.ino("irs pir: i rs, scon pir: i rs, "
-               "shr: i rs" 
-               (i_nghs[n1],
-                i_nghs[n2],
-                n(k)))
+        E.info("first pair: %i reads, second pair: %i reads, "
+               "shared: %i reads" %
+               (id_lengths[fn1],
+                id_lengths[fn2],
+                len(take)))
 
-        i opions.npir:
-            npir_inm  E.opn_op_i(
-                "npir.sq.gz", "w")
-        s:
-            npir_inm  Non
+        if options.unpaired:
+            unpaired_filename = E.open_output_file(
+                "unpaired.fastq.gz", "w")
+        else:
+            unpaired_filename = None
 
-        wih E.opn_op_i("1", "w") s o:
-            in  iooos.opn_i(n1)
-            E.ino("wriing irs in pir")
-            wri(o, in, k, npir_inm, i1_gr)
+        with E.open_output_file("1", "w") as outf:
+            inf = iotools.open_file(fn1)
+            E.info("writing first in pair")
+            write(outf, inf, take, unpaired_filename, id1_getter)
 
-        wih E.opn_op_i("2", "w") s o:
-            in  iooos.opn_i(n2)
-            E.ino("wriing scon in pir")
-            wri(o, in, k, npir_inm, i2_gr)
+        with E.open_output_file("2", "w") as outf:
+            inf = iotools.open_file(fn2)
+            E.info("writing second in pair")
+            write(outf, inf, take, unpaired_filename, id2_getter)
 
-        conr.op  n(k)
+        counter.output = len(take)
         
-        i opions.npir:
-            npir_inm.cos()
+        if options.unpaired:
+            unpaired_filename.close()
 
-    i opions.mho  "ir-by-sqnc":
+    elif options.method == "filter-by-sequence":
 
-        wih pysm.FsxFi(opions.inp_inm_s) s in:
-            or rcor in in:
-                qry_sqnc  rcor.sqnc
-                brk
+        with pysam.FastxFile(options.input_filename_fasta) as inf:
+            for record in inf:
+                query_sequence = record.sequence
+                break
 
-        wih pysm.FsxFi(n1, prsisFs) s in1, \
-                pysm.FsxFi(n2, prsisFs) s in2, \
-                E.opn_op_i("mch.sq.1.gz", "w") s o_mch1, \
-                E.opn_op_i("mch.sq.2.gz", "w") s o_mch2, \
-                E.opn_op_i("nmch.sq.1.gz", "w") s o_nmch1, \
-                E.opn_op_i("nmch.sq.2.gz", "w") s o_nmch2:
-            conr  sqoos.ir_by_sqnc(
-                qry_sqnc,
-                in1,
-                in2,
-                o_mch1,
-                o_mch2,
-                o_nmch1,
-                o_nmch2,
-                kmr_sizopions.iring_kmr_siz,
-                min_kmr_mchsopions.iring_min_kmr_mchs)
-        opions.so.wri(
-            "\".join(("inp", "mch", "nmch", "prcn_mch")) + "\n")
+        with pysam.FastxFile(fn1, persist=False) as inf1, \
+                pysam.FastxFile(fn2, persist=False) as inf2, \
+                E.open_output_file("matched.fastq.1.gz", "w") as outf_matched1, \
+                E.open_output_file("matched.fastq.2.gz", "w") as outf_matched2, \
+                E.open_output_file("unmatched.fastq.1.gz", "w") as outf_unmatched1, \
+                E.open_output_file("unmatched.fastq.2.gz", "w") as outf_unmatched2:
+            counter = fastqtools.filter_by_sequence(
+                query_sequence,
+                inf1,
+                inf2,
+                outf_matched1,
+                outf_matched2,
+                outf_unmatched1,
+                outf_unmatched2,
+                kmer_size=options.filtering_kmer_size,
+                min_kmer_matches=options.filtering_min_kmer_matches)
+        options.stdout.write(
+            "\t".join(("input", "matched", "unmatched", "percent_matched")) + "\n")
 
-        opions.so.wri(
-            "\".join(mp(sr, (
-                conr.inp, conr.mch, conr.nmch,
-                100.0 * conr.mch / conr.inp))) + "\n")
+        options.stdout.write(
+            "\t".join(map(str, (
+                counter.input, counter.matched, counter.unmatched,
+                100.0 * counter.matched / counter.input))) + "\n")
         
-    E.ino(sr(conr))
-    E.sop()
+    E.info(str(counter))
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

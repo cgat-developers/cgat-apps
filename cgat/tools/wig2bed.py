@@ -1,200 +1,200 @@
-'''wig2b.py - convr nsiis o inrvs
+'''wig2bed.py - convert densities to intervals
+===========================================
 
-
-Prpos
+Purpose
 -------
 
-in inrvs bs on nsiis wihin  bigwig i.
+define intervals based on densities within a bigwig file.
 
-Th scrip crrny impmns h oowing mhos (``--mho``):
+The script currently implements the following methods (``--method``):
 
-hrsho
-    op winows h conin vs bov  crin
-    hrsho.
+threshold
+    output windows that contain values above a certain
+    threshold.
 
-s-bov-mn
-    op winows h r  crin nmbr o snr
-    viions bov h mn.
+std-above-mean
+    output windows that are a certain number of standard
+    deviations above the mean.
 
-mip-o-mn
-    op winows h r  crin ims bov h mn.
+multiple-of-mean
+    output windows that are a certain times above the mean.
 
-Usg
+Usage
 -----
 
-Bigwig is n o b sppi by h --bigwig-i opions.
+Bigwig files need to be supplied by the --bigwig-file options.
 
-For xmp::
+For example::
 
-    pyhon wig2b.py --hrsho10 --mhohrsho --gnom-imm10 --bigwig-iin.bw > o.b
+    python wig2bed.py --threshold=10 --method=threshold --genome-file=mm10 --bigwig-file=in.bw > out.bed
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor r
-impor cocions
+import sys
+import re
+import collections
 
-impor cgcor.xprimn s E
-impor cg.InxFs s InxFs
-impor cgcor.iooos s iooos
+import cgatcore.experiment as E
+import cgat.IndexedFasta as IndexedFasta
+import cgatcore.iotools as iotools
 
-impor pyBigWig
-
-
- bock_iror(ini, conig, siz, chnk_siz10000000):
-
-    or x in rng(0, siz, chnk_siz):
-        iror  ini.g(conig, x, x + chnk_siz)
-        i iror is Non:
-            ris SopIrion
-        or v in iror:
-            yi v
+import pyBigWig
 
 
- ppyThrsho(ini, s, hrsho, mx_isnc0):
-    '''ppy hrsho o  wig i wriing 
-    b-orm i s op.'''
+def block_iterator(infile, contig, size, chunk_size=10000000):
 
-    c  E.Conr()
-
-    or conig, siz in is(s.gConigSizs(wih_synonymsFs).ims()):
-        c.conigs + 1
-
-        E.bg("procssing s"  conig)
-
-        s_sr, s_n  -1, 0
-
-        or sr, n, v in bock_iror(ini, conig, siz):
-              sr - s_n
-            i ( > 0 or v < hrsho):
-                i s_sr > 0:
-                    yi conig, s_sr, s_n
-                    c.inrvs + 1
-                s_sr  -1
-            i s_sr < 0 n v > hrsho:
-                s_sr  sr
-
-            s_n  n
-
-        i s_sr > 0:
-            yi conig, s_sr, n
-            c.inrvs + 1
-
-        c.op + 1
-
-    E.ino(sr(c))
+    for x in range(0, size, chunk_size):
+        iterator = infile.get(contig, x, x + chunk_size)
+        if iterator is None:
+            raise StopIteration
+        for v in iterator:
+            yield v
 
 
- gBigwigSmmry(bigwig_i):
-    '''rrn smmry o bigwig conns.
+def applyThreshold(infile, fasta, threshold, max_distance=0):
+    '''apply threshold to a wig file writing a
+    bed-formatted file as output.'''
 
-    This mho ss h bigWigIno UCSC iiy
+    c = E.Counter()
+
+    for contig, size in list(fasta.getContigSizes(with_synonyms=False).items()):
+        c.contigs += 1
+
+        E.debug("processing %s" % contig)
+
+        last_start, last_end = -1, 0
+
+        for start, end, value in block_iterator(infile, contig, size):
+            d = start - last_end
+            if (d > 0 or value < threshold):
+                if last_start >= 0:
+                    yield contig, last_start, last_end
+                    c.intervals += 1
+                last_start = -1
+            elif last_start < 0 and value >= threshold:
+                last_start = start
+
+            last_end = end
+
+        if last_start >= 0:
+            yield contig, last_start, end
+            c.intervals += 1
+
+        c.output += 1
+
+    E.info(str(c))
+
+
+def getBigwigSummary(bigwig_file):
+    '''return summary of bigwig contents.
+
+    This method uses the bigWigInfo UCSC utility
     '''
 
-    rss  E.rn("bigWigIno (bigwig_i)s" 
-                    ocs(), rrn_soTr)
+    results = E.run("bigWigInfo %(bigwig_file)s" %
+                    locals(), return_stdout=True)
 
-      [x.spi(":") or x in rss.spi("\n") i x ! ""]
-    is  [x[0] or x in ]
-    Rss  cocions.nmp("BigwigIno", is)
+    data = [x.split(":") for x in results.split("\n") if x != ""]
+    fields = [x[0] for x in data]
+    Results = collections.namedtuple("BigwigInfo", fields)
 
-     conv(v):
-        rrn iooos.sr2v(r.sb(",", "", v.srip()))
+    def conv(v):
+        return iotools.str2val(re.sub(",", "", v.strip()))
 
-    rss  Rss(*[conv(x[1]) or x in ])
-    rrn rss
-
-
- min(rgvsys.rgv):
-
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
-
-    prsr._rgmn("-m", "--mho", s"mhos", yp"choic",
-                      cion"ppn",
-                      choics(
-                          "hrsho", "sv-bov-mn",
-                          "mip-o-mn"),
-                      hp"mho o ppy []")
-
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom.")
-
-    prsr._rgmn("-", "--hrsho", s"hrsho", yp"o",
-                      hp"hrsho o ppy []")
-
-    prsr._rgmn(
-        "-i", "--bigwig-i", s"bigwig_i",
-        yp"sring", mvr"bigwig",
-        hp"inm wih bigwig inormion [].")
-
-    prsr.s_s(mhos[],
-                        gnom_iNon,
-                        hrsho10,
-                        mx_isnc0)
-
-    (opions, rgs)  E.sr(prsr, _pip_opionsTr)
-
-    i opions.bigwig_i:
-        bigwig_i  pyBigWig.opn(opions.bigwig_i)
-    s:
-        bigwig_i  Non
-
-    i opions.gnom_i:
-        gnom_s  InxFs.InxFs(opions.gnom_i)
-        conigs  gnom_s.gConigSizs()
-
-    or mho in opions.mhos:
-        i mho  "hrsho":
-            i no conigs:
-                ris VError("ps sppy conig sizs")
-            i no bigwig_i:
-                ris NoImpmnError(
-                    "hrsho no impmn or wig is")
-            procssor  ppyThrsho(bigwig_i,
-                                       gnom_s,
-                                       hrshoopions.hrsho,
-                                       mx_isncopions.mx_isnc)
-        i mho  "sv-bov-mn":
-            i no conigs:
-                ris VError("ps sppy conig sizs")
-            i no bigwig_i:
-                ris NoImpmnError(
-                    "hrsho no impmn or wig is")
-            smmry  gBigwigSmmry(opions.bigwig_i)
-            hrsho  smmry.mn + opions.hrsho * smmry.s
-            E.ino("ppying hrsho : mn, s" 
-                   (hrsho, smmry.mn, smmry.s))
-            procssor  ppyThrsho(bigwig_i,
-                                       gnom_s,
-                                       hrshohrsho,
-                                       mx_isncopions.mx_isnc)
-
-        i mho  "mip-o-mn":
-            i no conigs:
-                ris VError("ps sppy conig sizs")
-            i no bigwig_i:
-                ris NoImpmnError(
-                    "hrsho no impmn or wig is")
-            smmry  gBigwigSmmry(opions.bigwig_i)
-            hrsho  smmry.mn * opions.hrsho
-            E.ino("ppying hrsho : mn, s" 
-                   (hrsho, smmry.mn, smmry.s))
-            procssor  ppyThrsho(bigwig_i,
-                                       gnom_s,
-                                       hrshohrsho,
-                                       mx_isncopions.mx_isnc)
-
-    oi  opions.so
-
-    oi.wri("".join(["s\i\i\n"  x or x in procssor]))
-    oi.wri("\n")
-
-    E.sop()
+    results = Results(*[conv(x[1]) for x in data])
+    return results
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+def main(argv=sys.argv):
+
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
+
+    parser.add_argument("-m", "--method", dest="methods", type="choice",
+                      action="append",
+                      choices=(
+                          "threshold", "stddev-above-mean",
+                          "multiple-of-mean"),
+                      help="method to apply [default=%default]")
+
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome.")
+
+    parser.add_argument("-t", "--threshold", dest="threshold", type="float",
+                      help="threshold to apply [default=%default]")
+
+    parser.add_argument(
+        "-i", "--bigwig-file", dest="bigwig_file",
+        type="string", metavar="bigwig",
+        help="filename with bigwig information [default=%default].")
+
+    parser.set_defaults(methods=[],
+                        genome_file=None,
+                        threshold=10,
+                        max_distance=0)
+
+    (options, args) = E.start(parser, add_pipe_options=True)
+
+    if options.bigwig_file:
+        bigwig_file = pyBigWig.open(options.bigwig_file)
+    else:
+        bigwig_file = None
+
+    if options.genome_file:
+        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
+        contigs = genome_fasta.getContigSizes()
+
+    for method in options.methods:
+        if method == "threshold":
+            if not contigs:
+                raise ValueError("please supply contig sizes")
+            if not bigwig_file:
+                raise NotImplementedError(
+                    "threshold not implemented for wig files")
+            processor = applyThreshold(bigwig_file,
+                                       genome_fasta,
+                                       threshold=options.threshold,
+                                       max_distance=options.max_distance)
+        elif method == "stddev-above-mean":
+            if not contigs:
+                raise ValueError("please supply contig sizes")
+            if not bigwig_file:
+                raise NotImplementedError(
+                    "threshold not implemented for wig files")
+            summary = getBigwigSummary(options.bigwig_file)
+            threshold = summary.mean + options.threshold * summary.std
+            E.info("applying threshold %f: mean=%f, std=%f" %
+                   (threshold, summary.mean, summary.std))
+            processor = applyThreshold(bigwig_file,
+                                       genome_fasta,
+                                       threshold=threshold,
+                                       max_distance=options.max_distance)
+
+        elif method == "multiple-of-mean":
+            if not contigs:
+                raise ValueError("please supply contig sizes")
+            if not bigwig_file:
+                raise NotImplementedError(
+                    "threshold not implemented for wig files")
+            summary = getBigwigSummary(options.bigwig_file)
+            threshold = summary.mean * options.threshold
+            E.info("applying threshold %f: mean=%f, std=%f" %
+                   (threshold, summary.mean, summary.std))
+            processor = applyThreshold(bigwig_file,
+                                       genome_fasta,
+                                       threshold=threshold,
+                                       max_distance=options.max_distance)
+
+    outfile = options.stdout
+
+    outfile.write("".join(["%s\t%i\t%i\n" % x for x in processor]))
+    outfile.write("\n")
+
+    E.stop()
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

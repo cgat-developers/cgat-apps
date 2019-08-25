@@ -1,129 +1,129 @@
 '''
-rnsc2rnsc.py - ir rnsc moi is
+transfac2transfac.py - filter transfac motif files
+====================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-Fir  rnsc moi i.
+Filter a transfac motif file.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon cg_scrip_mp.py
+   python cgat_script_template.py
 
-Typ::
+Type::
 
-   pyhon cg_scrip_mp.py --hp
+   python cgat_script_template.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
 
-impor sys
-impor r
-impor cgcor.xprimn s E
+import sys
+import re
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--ir-prix", s"ir_prix", Non,
-        hp"ID prix o ir on, g. V or vrbrs")
+    parser.add_argument(
+        "-f", "--filter-prefix", dest="filter_prefix", default=None,
+        help="ID prefix to filter on, eg. V for vertebrates")
 
-    prsr._rgmn(
-        "-p", "--prn-iniir", s"ir_prn", Non,
-        hp"ID prn o ir (ir is cs insnsiiv) g. px6. "
-        "Mip prns sho b spcii s  comm spr is")
+    parser.add_argument(
+        "-p", "--pattern-identifier", dest="filter_pattern", default=None,
+        help="ID pattern to filter (filter is case insensitive) eg. pax6. "
+        "Multiple patterns should be specified as a comma separated list")
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i opions.ir_prn:
-        prns  [x.srip() or x in opions.ir_prn.spi(",")]
-        E.ino("Sppi prns s"  ", ".join(prns))
-    s:
-        prns  Fs
+    if options.filter_pattern:
+        patterns = [x.strip() for x in options.filter_pattern.split(",")]
+        E.info("Supplied patterns %s" % ", ".join(patterns))
+    else:
+        patterns = False
 
-    ir_mois  []
-    n  0
+    filtered_motifs = []
+    n = 0
 
-    inmoi, i, ir_mi, prn_mi  Fs, Fs, Fs, Fs
+    inmotif, tid, filter_emit, pattern_emit = False, False, False, False
 
-    or in in opions.sin:
+    for line in options.stdin:
 
-        # pick p moi sr n ns.
-        i in.srswih("AC") n inmoi is Fs:
-            # prin "in ign"
-            inmoi  Tr
-            moi  in
-            conin
-        i in.srswih("ID") n inmoi is Tr:
-            # prin in
-            i  in.spi("  ")[1]
-            moi + in
-            conin
+        # pick up motif start and ends.
+        if line.startswith("AC") and inmotif is False:
+            # print "in align"
+            inmotif = True
+            motif = line
+            continue
+        elif line.startswith("ID") and inmotif is True:
+            # print line
+            tid = line.split("  ")[1]
+            motif += line
+            continue
 
-        i in.srswih("//") n inmoi is Tr:
+        elif line.startswith("//") and inmotif is True:
 
-            moi + in
+            motif += line
 
-            i i is Fs:
-                ris VError("mrix ID no rmin")
+            if tid is False:
+                raise ValueError("matrix ID not determined")
 
-            i opions.ir_prix:
-                i i.srswih(opions.ir_prix):
-                    ir_mi  Tr
-            s:
-                ir_mi  Tr
+            if options.filter_prefix:
+                if tid.startswith(options.filter_prefix):
+                    filter_emit = True
+            else:
+                filter_emit = True
 
-            i prns is no Fs:
-                or p in prns:
-                    mch  r.srch(p, i, r.IGNORECASE)
-                    i mch is no Non:
-                        prn_mi  Tr
-                        brk
-            s:
-                prn_mi  Tr
+            if patterns is not False:
+                for pat in patterns:
+                    match = re.search(pat, tid, re.IGNORECASE)
+                    if match is not None:
+                        pattern_emit = True
+                        break
+            else:
+                pattern_emit = True
 
-            i ir_mi is Tr n prn_mi is Tr:
-                ir_mois.ppn(moi)
-                n + 1
+            if filter_emit is True and pattern_emit is True:
+                filtered_motifs.append(motif)
+                n += 1
 
-            inmoi, i, ir_mi, prn_mi  (
-                Fs, Fs, Fs, Fs)
-            conin
+            inmotif, tid, filter_emit, pattern_emit = (
+                False, False, False, False)
+            continue
 
-        i inmoi is Tr:
-            moi + in
+        elif inmotif is True:
+            motif += line
 
-        i inmoi is Fs:
-            conin
+        elif inmotif is False:
+            continue
 
-        s:
-            ris VError("nknown prsing s")
+        else:
+            raise ValueError("unknown parsing state")
 
-    opions.so.wri("".join(ir_mois))
+    options.stdout.write("".join(filtered_motifs))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

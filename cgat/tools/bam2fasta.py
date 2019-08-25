@@ -1,444 +1,444 @@
-'''bm2s.py - sqncs ign o  pricr rgion
+'''bam2fasta.py - sequences aligned to a particular region
+==========================================================
 
+:Tags: Genomics NGS Sequences BAM FASTA Conversion
 
-:Tgs: Gnomics NGS Sqncs BAM FASTA Convrsion
-
-Prpos
+Purpose
 -------
 
-This scrip ks  :rm:`bm` orm i n ops  rs
-ovrpping  crin rgion.
+This script takes a :term:`bam` formatted file and outputs all reads
+overlapping a certain region.
 
-Exmp
+Example
 -------
 
-For xmp::
+For example::
 
-   c in.bm | cg bm2s
+   cat in.bam | cgat bam2fasta
 
-This commn convrs h :rm:`bm` orm i in.bm ino
+This command converts the :term:`bam` formatted file in.bam into
 
-Typ::
+Type::
 
-   cg bm2s --hp
+   cgat bam2fasta --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor os
-impor r
-impor sys
-impor cocions
-impor pysm
-impor nmpy
-impor pns
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import os
+import re
+import sys
+import collections
+import pysam
+import numpy
+import pandas
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
-# p rom hr: hps://bibck.org/brnp/bios/src/282b504c9020144923800b20b5b712061/nwign/pirwis.py?&iviwri-viw-
-# rpc wih ignib vrsion
-# gop/gp wo b goo o grop gps
- gob_ign(sqj, sqi, gp-1, mch1, mismch-1, nmch0):
+# adapted from here: https://bitbucket.org/brentp/biostuff/src/282b504ac9020fe1449e23f800b20b5bd7d12061/nwalign/pairwise.py?at=default&fileviewer=file-view-default
+# replace with alignlib version
+# gop/gep would be good to group gaps
+def global_align(seqj, seqi, gap=-1, match=1, mismatch=-1, nmatch=0):
     """
     """
-    ssr "-" no in sqi
-    ssr "-" no in sqj
-    UP, LEFT, DIAG, NONE  rng(4)
-    mx_j  n(sqj)
-    mx_i  n(sqi)
+    assert "-" not in seqi
+    assert "-" not in seqj
+    UP, LEFT, DIAG, NONE = range(4)
+    max_j = len(seqj)
+    max_i = len(seqi)
 
-    scor  nmpy.zros((mx_i + 1, mx_j + 1), yp'')
-    poinr  nmpy.zros((mx_i + 1, mx_j + 1), yp'i')
-    poinr[0, 0]  NONE
-    scor[0, 0]  0.0
-    poinr[0, 1:]  LEFT
-    poinr[1:, 0]  UP
+    score = numpy.zeros((max_i + 1, max_j + 1), dtype='f')
+    pointer = numpy.zeros((max_i + 1, max_j + 1), dtype='i')
+    pointer[0, 0] = NONE
+    score[0, 0] = 0.0
+    pointer[0, 1:] = LEFT
+    pointer[1:, 0] = UP
 
-    scor[0, 1:]  gp * nmpy.rng(mx_j)
-    scor[1:, 0]  gp * nmpy.rng(mx_i)
+    score[0, 1:] = gap * numpy.arange(max_j)
+    score[1:, 0] = gap * numpy.arange(max_i)
 
-    or i in rng(1, mx_i + 1):
-        ci  sqi[i - 1]
-        or j in rng(1, mx_j + 1):
-            cj  sqj[j - 1]
+    for i in range(1, max_i + 1):
+        ci = seqi[i - 1]
+        for j in range(1, max_j + 1):
+            cj = seqj[j - 1]
 
-            i cj  ci:
-                ig_scor  scor[i - 1, j - 1] + mch
-            i cj  'N' or ci  'N':
-                ig_scor  scor[i - 1, j - 1] + nmch
-            s:
-                ig_scor  scor[i - 1, j - 1] + mismch
-            p_scor  scor[i - 1, j] + gp
-            _scor  scor[i, j - 1] + gp
-            i ig_scor > p_scor:
-                i ig_scor > _scor:
-                    scor[i, j]  ig_scor
-                    poinr[i, j]  DIAG
-                s:
-                    scor[i, j]  _scor
-                    poinr[i, j]  LEFT
-            s:
-                i p_scor > _scor:
-                    scor[i, j]  p_scor
-                    poinr[i, j]  UP
-                s:
-                    scor[i, j]  _scor
-                    poinr[i, j]  LEFT
+            if cj == ci:
+                diag_score = score[i - 1, j - 1] + match
+            elif cj == 'N' or ci == 'N':
+                diag_score = score[i - 1, j - 1] + nmatch
+            else:
+                diag_score = score[i - 1, j - 1] + mismatch
+            up_score = score[i - 1, j] + gap
+            left_score = score[i, j - 1] + gap
+            if diag_score >= up_score:
+                if diag_score >= left_score:
+                    score[i, j] = diag_score
+                    pointer[i, j] = DIAG
+                else:
+                    score[i, j] = left_score
+                    pointer[i, j] = LEFT
+            else:
+                if up_score > left_score:
+                    score[i, j] = up_score
+                    pointer[i, j] = UP
+                else:
+                    score[i, j] = left_score
+                    pointer[i, j] = LEFT
 
-    ign_j  ""
-    ign_i  ""
-    whi Tr:
-        p  poinr[i, j]
-        i p  NONE:
-            brk
-        s  scor[i, j]
-        i p  DIAG:
-            ign_j + sqj[j - 1]
-            ign_i + sqi[i - 1]
-            i - 1
-            j - 1
-        i p  LEFT:
-            ign_j + sqj[j - 1]
-            ign_i + "-"
-            j - 1
-        i p  UP:
-            ign_j + "-"
-            ign_i + sqi[i - 1]
-            i - 1
-        s:
-            ris Excpion('w!')
+    align_j = ""
+    align_i = ""
+    while True:
+        p = pointer[i, j]
+        if p == NONE:
+            break
+        s = score[i, j]
+        if p == DIAG:
+            align_j += seqj[j - 1]
+            align_i += seqi[i - 1]
+            i -= 1
+            j -= 1
+        elif p == LEFT:
+            align_j += seqj[j - 1]
+            align_i += "-"
+            j -= 1
+        elif p == UP:
+            align_j += "-"
+            align_i += seqi[i - 1]
+            i -= 1
+        else:
+            raise Exception('wtf!')
 
-    rrn ign_j[::-1], ign_i[::-1]
+    return align_j[::-1], align_i[::-1]
 
 
- g_consnss(sqncs, ignor_gpsFs, min_gp_proporion0):
-    """i *ignor_gps* is Fs, ony rpor  gp s h consnss i i
-    consis  s *min_gp_proporion*  sis.
+def get_consensus(sequences, ignore_gaps=False, min_gap_proportion=0):
+    """if *ignore_gaps* is False, only report a gap as the consensus if it
+    constitutes at least *min_gap_proportion* at sites.
     """
-    posiions  is(zip(*sqncs))
-    cons_  pns.DFrm([cocions.Conr(x) or x in posiions]).in(0)
-    i "-" in cons_.comns:
-        i ignor_gps:
-            cons_.rop(["-"], xis1, inpcTr)
-        s:
-            # rs  gp-cons whr gp is ss hn min_gp_proporion
-            i min_gp_proporion > 0:
-                hrsho  min_gp_proporion * o(n(sqncs))
-                cons_.oc[cons_["-"] < hrsho, ["-"]]  0
+    positions = list(zip(*sequences))
+    counts_df = pandas.DataFrame([collections.Counter(x) for x in positions]).fillna(0)
+    if "-" in counts_df.columns:
+        if ignore_gaps:
+            counts_df.drop(["-"], axis=1, inplace=True)
+        else:
+            # reset all gap-counts where gap is less than min_gap_proportion
+            if min_gap_proportion > 0:
+                threshold = min_gap_proportion * float(len(sequences))
+                counts_df.loc[counts_df["-"] < threshold, ["-"]] = 0
 
-    consnss  "".join(cons_.ixmx(xis1)).ppr()
-    rrn consnss
-
-
- g_nchor_consnss(sqncs):
-    # ir sqncs, rmoving nyhing wih non-mjoriy ngh
-    nghs  [n(x) or x in sqncs i n(x) > 0]
-    min_ngh  nmpy.min(nghs)
-    s  [x or x in sqncs i n(x)  min_ngh]
-    rrn g_consnss(s)
+    consensus = "".join(counts_df.idxmax(axis=1)).upper()
+    return consensus
 
 
- ir_b(b_i, mrg_inrvs):
-    i mrg_inrvs:
-        conig, sr, n  Non, Non, Non
-        or b in b_i.ch(prsrpysm.sB()):
-            i conig ! b.conig:
-                i conig is no Non:
-                    yi conig, sr, n
-                conig  b.conig
-                sr, n  b.sr, b.n
-            n  b.n
-        yi conig, sr, n
-    s:
-        or b in b_i.ch(prsrpysm.sB()):
-            yi b.conig, b.sr, b.n
+def get_anchor_consensus(sequences):
+    # filter sequences, removing anything with non-majority length
+    lengths = [len(x) for x in sequences if len(x) > 0]
+    median_length = numpy.median(lengths)
+    s = [x for x in sequences if len(x) == median_length]
+    return get_consensus(s)
 
 
- min(rgvNon):
-    """scrip min.
+def iterate_bed(bed_file, merge_intervals):
+    if merge_intervals:
+        contig, start, end = None, None, None
+        for bed in bed_file.fetch(parser=pysam.asBed()):
+            if contig != bed.contig:
+                if contig is not None:
+                    yield contig, start, end
+                contig = bed.contig
+                start, end = bed.start, bed.end
+            end = bed.end
+        yield contig, start, end
+    else:
+        for bed in bed_file.fetch(parser=pysam.asBed()):
+            yield bed.contig, bed.start, bed.end
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--inp-b-i", s"inp_b_i", yp"sring",
-        hp"inp i wih inrvs. Tb-imi i o inrvs "
-        "in b orm o rsric nysis o. []")
+    parser.add_argument(
+        "-e", "--input-bed-file", dest="input_bed_file", type="string",
+        help="input file with intervals. Tab-delimited file of intervals "
+        "in bed format to restrict analysis to. [%default]")
 
-    prsr._rgmn(
-        "-m", "--mrg-inrvs", s"mrg_inrvs", cion"sor_r",
-        hp"mrg inrvs in b i. Us i yo hv  si b-i "
-        "[]")
+    parser.add_argument(
+        "-m", "--merge-intervals", dest="merge_intervals", action="store_true",
+        help="merge intervals in bed file. Useful if you have a site bed-file "
+        "[%default]")
 
-    prsr._rgmn(
-        "-", "--rrnc-s-i", s"rrnc_s_i",
-        hp"rrnc gnomic sqnc in s orm. "
-        "[]")
+    parser.add_argument(
+        "-f", "--reference-fasta-file", dest="reference_fasta_file",
+        help="reference genomic sequence in fasta format. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-c", "--brco-s-i", s"brco_s_i",
-        hp"brco sqnc in s orm. Vrib posiions "
-        "sho b mrk by N "
-        "[]")
+    parser.add_argument(
+        "-c", "--barcode-fasta-file", dest="barcode_fasta_file",
+        help="barcode sequence in fasta format. Variable positions "
+        "should be marked by N "
+        "[%default]")
 
-    prsr.s_s(
-        rrnc_s_iNon,
-        brco_s_iNon,
-        mrg_inrvsFs,
-        inp_b_iNon,
-        nchor5,
+    parser.set_defaults(
+        reference_fasta_file=None,
+        barcode_fasta_file=None,
+        merge_intervals=False,
+        input_bed_file=None,
+        anchor=5,
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
-    i opions.sin ! sys.sin:
-        bmi  opions.sin.nm
-    i rgs:
-        i n(rgs) > 1:
-            ris VError("mip bm is provi in rgmns")
-        bmi  rgs[0]
-    s:
-        bmi  "-"
+    if options.stdin != sys.stdin:
+        bamfile = options.stdin.name
+    elif args:
+        if len(args) > 1:
+            raise ValueError("multiple bam files provided in arguments")
+        bamfile = args[0]
+    else:
+        bamfile = "-"
 
-    i opions.brco_s_i:
-        wih pysm.FsxFi(opions.brco_s_i) s in:
-            brco_sqnc  nx(in).sqnc
-    s:
-        brco_sqnc  Non
+    if options.barcode_fasta_file:
+        with pysam.FastxFile(options.barcode_fasta_file) as inf:
+            barcode_sequence = next(inf).sequence
+    else:
+        barcode_sequence = None
 
-    i no os.ph.xiss(opions.rrnc_s_i):
-        ris OSError("rrnc s i {} os no xis".orm(
-            opions.rrnc_s_i))
+    if not os.path.exists(options.reference_fasta_file):
+        raise OSError("reference fasta file {} does not exist".format(
+            options.reference_fasta_file))
 
-    i no os.ph.xiss(opions.inp_b_i):
-        ris OSError("inp b i {} os no xis".orm(
-            opions.inp_b_i))
+    if not os.path.exists(options.input_bed_file):
+        raise OSError("input bed file {} does not exist".format(
+            options.input_bed_file))
 
-    b_in  pysm.TbixFi(opions.inp_b_i)
-    pysm_in  pysm.AignmnFi(bmi)
-    nchor  opions.nchor
+    bed_in = pysam.TabixFile(options.input_bed_file)
+    pysam_in = pysam.AlignmentFile(bamfile)
+    anchor = options.anchor
 
-    or rgion_ix, vs in nmr(ir_b(b_in, opions.mrg_inrvs)):
+    for region_idx, vals in enumerate(iterate_bed(bed_in, options.merge_intervals)):
 
-        i rgion_ix > 0:
-            ris NoImpmnError("op or mip rgions no y impmn")
+        if region_idx > 0:
+            raise NotImplementedError("output for multiple regions not yet implemented")
 
-        conig, rgion_sr, rgion_n  vs
-        psrm_nchors, ownsrm_nchors  [], []
-        conr  E.Conr()
+        contig, region_start, region_end = vals
+        upstream_anchors, downstream_anchors = [], []
+        counter = E.Counter()
 
-        nign_n  E.g_op_i("nign_{}.s".orm(rgion_ix))
-        wih iooos.opn_i(nign_n, "w") s o:
-            or r in pysm_in.ch(conig, rgion_sr, rgion_n):
-                conr.ovrpping_rs + 1
-                ry:
-                    pirs  r.g_ign_pirs(wih_sqTr)
-                xcp VError:
-                    conr.no_m_g + 1
-                    conin
+        unaligned_fn = E.get_output_file("unaligned_{}.fasta".format(region_idx))
+        with iotools.open_file(unaligned_fn, "w") as outf:
+            for read in pysam_in.fetch(contig, region_start, region_end):
+                counter.overlapping_reads += 1
+                try:
+                    pairs = read.get_aligned_pairs(with_seq=True)
+                except ValueError:
+                    counter.no_md_tag += 1
+                    continue
 
-                mp_r2r_pos  ic((x[1], x[0]) or x in pirs i x[0] is no Non)
-                mp_r2r_bs  ic((x[1], x[2]) or x in pirs i x[0] is no Non)
+                map_ref2read_pos = dict((x[1], x[0]) for x in pairs if x[0] is not None)
+                map_ref2ref_base = dict((x[1], x[2]) for x in pairs if x[0] is not None)
 
-                psrm_nchor  "".join(
-                    mp_r2r_bs.g(x, "") or x in rng(rgion_sr - nchor, rgion_sr))
+                upstream_anchor = "".join(
+                    map_ref2ref_base.get(x, "") for x in range(region_start - anchor, region_start))
 
-                ownsrm_nchor  "".join(
-                    mp_r2r_bs.g(x, "") or x in rng(rgion_n, rgion_n + nchor))
+                downstream_anchor = "".join(
+                    map_ref2ref_base.get(x, "") for x in range(region_end, region_end + anchor))
 
-                # chck i  s on nchor is ign
-                psrm_mchs  sm([x.isppr() or x in psrm_nchor])
-                ownsrm_mchs  sm([x.isppr() or x in ownsrm_nchor])
+                # check if at least one anchor is aligned
+                upstream_matches = sum([x.isupper() for x in upstream_anchor])
+                downstream_matches = sum([x.isupper() for x in downstream_anchor])
 
-                i psrm_mchs < nchor n ownsrm_mchs < nchor:
-                    conr.no_nchor + 1
-                    conin
-                sq  r.qry_ignmn_sqnc
+                if upstream_matches < anchor and downstream_matches < anchor:
+                    counter.no_anchor += 1
+                    continue
+                seq = read.query_alignment_sequence
 
-                # coc  ngh nchors
-                psrm_nchor_sr, psrm_nchor_n  rgion_sr - nchor, rgion_sr
-                ownsrm_nchor_sr, ownsrm_nchor_n  rgion_n, rgion_n + nchor
+                # collect full length anchors
+                upstream_anchor_start, upstream_anchor_end = region_start - anchor, region_start
+                downstream_anchor_start, downstream_anchor_end = region_end, region_end + anchor
 
-                i psrm_nchor_sr in mp_r2r_pos n psrm_nchor_n in mp_r2r_pos:
-                    psrm_nchors.ppn(
-                        sq[mp_r2r_pos[psrm_nchor_sr]:mp_r2r_pos[psrm_nchor_n]])
-                i ownsrm_nchor_sr in mp_r2r_pos n ownsrm_nchor_n in mp_r2r_pos:
-                    ownsrm_nchors.ppn(
-                        sq[mp_r2r_pos[ownsrm_nchor_sr]:mp_r2r_pos[ownsrm_nchor_n]])
+                if upstream_anchor_start in map_ref2read_pos and upstream_anchor_end in map_ref2read_pos:
+                    upstream_anchors.append(
+                        seq[map_ref2read_pos[upstream_anchor_start]:map_ref2read_pos[upstream_anchor_end]])
+                if downstream_anchor_start in map_ref2read_pos and downstream_anchor_end in map_ref2read_pos:
+                    downstream_anchors.append(
+                        seq[map_ref2read_pos[downstream_anchor_start]:map_ref2read_pos[downstream_anchor_end]])
 
-                # g rgion o ign
-                r_sr  min((mp_r2r_pos.g(x, n(sq))
-                                  or x in rng(rgion_sr - nchor, rgion_sr)))
-                i r_sr  n(sq):
-                    r_sr  0
-                r_n  mx((mp_r2r_pos.g(x, 0) + 1
-                                or x in rng(rgion_n, rgion_n + nchor)))
-                i r_n  1:
-                    r_n  n(sq)
-                conr.coc_rs + 1
-                o.wri(">{}/{}-{}\n{}\n".orm(r.qry_nm,
-                                                    r_sr, r_n,
-                                                    sq[r_sr:r_n]))
-        conr.ownsrm_nchors  n(ownsrm_nchors)
-        conr.psrm_nchors  n(psrm_nchors)
+                # get region to align
+                read_start = min((map_ref2read_pos.get(x, len(seq))
+                                  for x in range(region_start - anchor, region_start)))
+                if read_start == len(seq):
+                    read_start = 0
+                read_end = max((map_ref2read_pos.get(x, 0) + 1
+                                for x in range(region_end, region_end + anchor)))
+                if read_end == 1:
+                    read_end = len(seq)
+                counter.collected_reads += 1
+                outf.write(">{}/{}-{}\n{}\n".format(read.query_name,
+                                                    read_start, read_end,
+                                                    seq[read_start:read_end]))
+        counter.downstream_anchors = len(downstream_anchors)
+        counter.upstream_anchors = len(upstream_anchors)
 
-        E.ino(conr)
+        E.info(counter)
 
-        i conr.ovrpping_rs  0:
-            E.wrn("no sqncs ovrpping rgion")
-            conin
+        if counter.overlapping_reads == 0:
+            E.warn("no sequences overlapping region")
+            continue
 
-        i conr.ownsrm_nchors  0 or conr.psrm_nchors  0:
-            E.wrn(" s on nchor nin")
-            conin
+        if counter.downstream_anchors == 0 or counter.upstream_anchors == 0:
+            E.warn("at least one anchor undefined")
+            continue
 
-        i conr.coc_rs  1:
-            E.wrn("ony sing sqnc, mip igmn skipp")
-            wih iooos.opn_i(nign_n) s in:
-                so  in.r()
-        s:
-            # G-INS-i -> gob ignmn gorihm
-            E.ino("sring m mip ignmn")
-            so  E.rn("m --gobpir --mxir 100 --qi --op 2 --p 0.5 {}".orm(nign_n),
-                           rrn_soTr)
+        if counter.collected_reads == 1:
+            E.warn("only single sequence, multiple aligment skipped")
+            with iotools.open_file(unaligned_fn) as inf:
+                stdout = inf.read()
+        else:
+            # G-INS-i -> global alignment algorithm
+            E.info("starting mafft multiple alignment")
+            stdout = E.run("mafft --globalpair --maxiterate 100 --quiet --op 2 --ep 0.5 {}".format(unaligned_fn),
+                           return_stdout=True)
 
-        ign_n  E.g_op_i("ign_{}.s".orm(rgion_ix))
-        wih iooos.opn_i(ign_n, "w") s o:
-            o.wri(so)
+        aligned_fn = E.get_output_file("aligned_{}.fasta".format(region_idx))
+        with iotools.open_file(aligned_fn, "w") as outf:
+            outf.write(stdout)
 
-        mi  so.spiins()
-        iniirs  [mi[x] or x in rng(0, n(mi), 2)]
-        sqncs  [mi[x].ppr() or x in rng(1, n(mi), 2)]
-        consnss  g_consnss(sqncs)
+        mali = stdout.splitlines()
+        identifiers = [mali[x] for x in range(0, len(mali), 2)]
+        sequences = [mali[x].upper() for x in range(1, len(mali), 2)]
+        consensus = get_consensus(sequences)
 
-        E.ino("r ignmn: consnss{}".orm(consnss))
+        E.info("after alignment: consensus={}".format(consensus))
 
-        # gp iring -> rmov highy gppy comns
-        consnss  g_consnss(sqncs, min_gp_proporion0.9)
+        # gap filtering -> remove highly gappy columns
+        consensus = get_consensus(sequences, min_gap_proportion=0.9)
 
-        E.ino("r nchor rimming: consnss{}".orm(consnss))
+        E.info("after anchor trimming: consensus={}".format(consensus))
 
-        k  [ix or ix, x in nmr(consnss) i x ! "-"]
-        sqncs  ["".join([s[x] or x in k]) or s in sqncs]
-        consnss  g_consnss(sqncs, min_gp_proporion0.9)
+        take = [idx for idx, x in enumerate(consensus) if x != "-"]
+        sequences = ["".join([s[x] for x in take]) for s in sequences]
+        consensus = get_consensus(sequences, min_gap_proportion=0.9)
 
-        E.ino("r gp iring: consnss{}".orm(consnss))
+        E.info("after gap filtering: consensus={}".format(consensus))
 
-        # g nchor consnss n chop i o
-        consnss  g_consnss(sqncs, ignor_gpsTr)
-        psrm_nchor  g_nchor_consnss(psrm_nchors)
-        ownsrm_nchor  g_nchor_consnss(ownsrm_nchors)
+        # get anchor consensus and chop it off
+        consensus = get_consensus(sequences, ignore_gaps=True)
+        upstream_anchor = get_anchor_consensus(upstream_anchors)
+        downstream_anchor = get_anchor_consensus(downstream_anchors)
 
-        psrm_nchor_sr  consnss.in(psrm_nchor)
-        ownsrm_nchor_sr  consnss.rin(ownsrm_nchor)
+        upstream_anchor_start = consensus.find(upstream_anchor)
+        downstream_anchor_start = consensus.rfind(downstream_anchor)
 
-        E.ino("nchor consnss (no gps){}, psrm{}, ownsrm{}, psrm_ix{}, ownsrm_ix{}".orm(
-            consnss, psrm_nchor, ownsrm_nchor, psrm_nchor_sr, ownsrm_nchor_sr))
+        E.info("anchor consensus (no gaps)={}, upstream={}, downstream={}, upstream_idx={}, downstream_idx={}".format(
+            consensus, upstream_anchor, downstream_anchor, upstream_anchor_start, downstream_anchor_start))
 
-        i psrm_nchor_sr < 0 or ownsrm_nchor_sr < 0:
-            E.wrn("cn' oc nchor, no op proc")
-            conin
+        if upstream_anchor_start < 0 or downstream_anchor_start < 0:
+            E.warn("can't locate anchor, no output produced")
+            continue
 
-        psrm_nchor_n  psrm_nchor_sr + n(psrm_nchor)
-        i psrm_nchor_n > ownsrm_nchor_sr:
-            E.wrn("nchor no in corrc orr, no op proc")
-            conin
+        upstream_anchor_end = upstream_anchor_start + len(upstream_anchor)
+        if upstream_anchor_end >= downstream_anchor_start:
+            E.warn("anchor not in correct order, no output produced")
+            continue
 
-        sqncs  [x[psrm_nchor_n:ownsrm_nchor_sr] or x in sqncs]
-        consnss  g_consnss(sqncs)
+        sequences = [x[upstream_anchor_end:downstream_anchor_start] for x in sequences]
+        consensus = get_consensus(sequences)
 
-        E.ino("r nchor rimming: consnss{}".orm(consnss))
+        E.info("after anchor trimming: consensus={}".format(consensus))
 
-        rnc_n  E.g_op_i("ign_rnc_{}.s".orm(rgion_ix))
-        wih iooos.opn_i(rnc_n, "w") s o:
-            o.wri("\n".join(
-                "{}\n{}\n".orm(x, y) or x, y in zip(iniirs, sqncs)))
+        truncated_fn = E.get_output_file("aligned_truncated_{}.fasta".format(region_idx))
+        with iotools.open_file(truncated_fn, "w") as outf:
+            outf.write("\n".join(
+                "{}\n{}\n".format(x, y) for x, y in zip(identifiers, sequences)))
 
-        posiions  is(zip(*sqncs))
-        bss  ["A", "C", "G", "T"]
-          pns.DFrm([cocions.Conr(x) or x in posiions]).in(0)
-        or missing_bs in [x or x in bss i x no in .comns]:
-            [missing_bs]  0
-        ["gpp_ph"]  .sm(xis1)
-        ["ph"]  [bss].sm(xis1)
-        ["consnss"]  [bss].ixmx(xis1)
-        ["consnss_cons"]  .ookp(.inx, .consnss)
-        ["consnss_sppor"]  .consnss_cons / .ph
-        ["oconsnss_cons"]  .ph - .consnss_cons
-        .oc[.consnss_cons  0, "consnss"]  "N"
-        ["rgion_i"]  rgion_ix
+        positions = list(zip(*sequences))
+        bases = ["A", "C", "G", "T"]
+        df = pandas.DataFrame([collections.Counter(x) for x in positions]).fillna(0)
+        for missing_base in [x for x in bases if x not in df.columns]:
+            df[missing_base] = 0
+        df["gapped_depth"] = df.sum(axis=1)
+        df["depth"] = df[bases].sum(axis=1)
+        df["consensus"] = df[bases].idxmax(axis=1)
+        df["consensus_counts"] = df.lookup(df.index, df.consensus)
+        df["consensus_support"] = df.consensus_counts / df.depth
+        df["offconsensus_counts"] = df.depth - df.consensus_counts
+        df.loc[df.consensus_counts == 0, "consensus"] = "N"
+        df["region_id"] = region_idx
 
-        # rpc "gp" consnss posiions wih + chrcr
-        ignmn  gob_ign(r.sb("-", "+", consnss), brco_sqnc)
-        E.ino("ignmn: consnss {}".orm(ignmn[0]))
-        E.ino("ignmn: brco   {}".orm(ignmn[1]))
+        # replace "gap" consensus positions with + character
+        alignment = global_align(re.sub("-", "+", consensus), barcode_sequence)
+        E.info("alignment: consensus {}".format(alignment[0]))
+        E.info("alignment: barcode   {}".format(alignment[1]))
 
-        brco_ix  0
-        _brco_bss  []
-        rows  []
-        or c, b in zip(*ignmn):
-            i c  "-":
-                _brco_bss.ppn(brco_ix)
-                brco_ix + 1
-            i b  "N":
-                rows.ppn((brco_ix, "vrib"))
-                brco_ix + 1
-            i b  "-":
-                rows.ppn(("", "insrion"))
-            i b  c:
-                rows.ppn((brco_ix, "ix-mch"))
-                brco_ix + 1
-            s:
-                rows.ppn((brco_ix, "ix-mismch"))
-                brco_ix + 1
+        barcode_idx = 0
+        deleted_barcode_bases = []
+        rows = []
+        for c, b in zip(*alignment):
+            if c == "-":
+                deleted_barcode_bases.append(barcode_idx)
+                barcode_idx += 1
+            elif b == "N":
+                rows.append((barcode_idx, "variable"))
+                barcode_idx += 1
+            elif b == "-":
+                rows.append(("", "insertion"))
+            elif b == c:
+                rows.append((barcode_idx, "fixed-match"))
+                barcode_idx += 1
+            else:
+                rows.append((barcode_idx, "fixed-mismatch"))
+                barcode_idx += 1
 
-        ignmn_  pns.DFrm.rom_rcors(rows,
-                                                     comns["brco_pos", "brco_css"])
+        alignment_df = pandas.DataFrame.from_records(rows,
+                                                     columns=["barcode_pos", "barcode_class"])
 
-        ssr n(ignmn_)  n()
-          pns.conc([, ignmn_], xis1)
-        wih E.opn_op_i("pip") s o:
-            .o_csv(o, sp"\", inxTr, inx_b"posiion")
+        assert len(alignment_df) == len(df)
+        df = pandas.concat([df, alignment_df], axis=1)
+        with E.open_output_file("pileup") as outf:
+            df.to_csv(outf, sep="\t", index=True, index_label="position")
 
-        obsrv_brco_sqnc  "".join([.brco_css  "vrib"].consnss)
-        hrs  .consnss_sppor.scrib().inx
-        v_  .oc[.brco_css.isin(("vrib", "ix-mch", "ix-mismch")), ]
-        min_consnss_ph  v_.consnss_cons.min()
-        # zro s o i ph is ow
-        i min_consnss_ph < 2:
-            _brco_bss  []
+        observed_barcode_sequence = "".join(df[df.barcode_class == "variable"].consensus)
+        headers = df.consensus_support.describe().index
+        eval_df = df.loc[df.barcode_class.isin(("variable", "fixed-match", "fixed-mismatch")), ]
+        median_consensus_depth = eval_df.consensus_counts.median()
+        # zero stuff out if depth is low
+        if median_consensus_depth <= 2:
+            deleted_barcode_bases = []
 
-        o  opions.so
-        # mos o rcovr pri br-cos
-        o.wri("\".join(mp(sr,
-                                 ["brco", "n_brco_bss", "_brco_bss"] +
-                                 ["sppor_{}".orm(x) or x in hrs] +
-                                 ["cons_{}".orm(x) or x in hrs] +
-                                 ["ocons_{}".orm(x) or x in hrs])) + "\n")
+        outf = options.stdout
+        # modules to recover partial bar-codes
+        outf.write("\t".join(map(str,
+                                 ["barcode", "ndeleted_barcode_bases", "deleted_barcode_bases"] +
+                                 ["support_{}".format(x) for x in headers] +
+                                 ["counts_{}".format(x) for x in headers] +
+                                 ["offcounts_{}".format(x) for x in headers])) + "\n")
 
-        o.wri("\".join(mp(sr, [
-            obsrv_brco_sqnc,
-            n(_brco_bss),
-            ",".join(mp(sr, _brco_bss))] +
-                                 v_.consnss_sppor.scrib().ois() +
-                                 v_.consnss_cons.scrib().ois() +
-                                 v_.oconsnss_cons.scrib().ois())) + "\n")
+        outf.write("\t".join(map(str, [
+            observed_barcode_sequence,
+            len(deleted_barcode_bases),
+            ",".join(map(str, deleted_barcode_bases))] +
+                                 eval_df.consensus_support.describe().tolist() +
+                                 eval_df.consensus_counts.describe().tolist() +
+                                 eval_df.offconsensus_counts.describe().tolist())) + "\n")
 
-    E.sop()
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

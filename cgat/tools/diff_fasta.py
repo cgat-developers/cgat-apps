@@ -1,55 +1,55 @@
-'''i_s.py - compr conns o wo s is
+'''diff_fasta.py - compare contents of two fasta files
+===================================================
 
+:Tags: Genomics Sequences FASTA Comparison
 
-:Tgs: Gnomics Sqncs FASTA Comprison
-
-Prpos
+Purpose
 -------
 
-This scrip ks wo ss o s sqncs n mchs h
-iniirs. I hn comprs h sqncs wih h sm iniirs
-n, pning on h op opions sc, ops
+This script takes two sets of fasta sequences and matches the
+identifiers. It then compares the sequences with the same identifiers
+and, depending on the output options selected, outputs
 
-   * which sqncs r missing
-   * which sqncs r inic
-   * which sqncs r prixs/sixs o ch ohr
+   * which sequences are missing
+   * which sequences are identical
+   * which sequences are prefixes/suffixes of each other
 
-An xpnory i is ppn o op sqnc iniirs.
-An xpnion o h irn i vs is provi in h og.
+An explanatory field is appended to output sequence identifiers.
+An explanation of the different field values is provided in the log.
 
-Opions
+Options
 -------
--s, --corrc-gp-shi
-   This opion wi corrc shis in ignmn gps bwn
-   wo sqncs bing compr
+-s, --correct-gap-shift
+   This option will correct shifts in alignment gaps between
+   two sequences being compared
 
--1, --prn1
-   rgr xprssion prn o xrc iniir rom in sqnc 1
+-1, --pattern1
+   regular expression pattern to extract identifier from in sequence 1
 
--2, --prn2
-   rgr xprssion prn o xrc iniir rom in sqnc 2
+-2, --pattern2
+   regular expression pattern to extract identifier from in sequence 2
 
-Dpning on h opion ``--op-scion`` h oowing r op:
+Depending on the option ``--output-section`` the following are output:
 
-  i
-     iniirs o sqncs h r irn
+  diff
+     identifiers of sequences that are different
 
-  sqi
-     iniirs o sqncs h r irn ps sqnc
+  seqdiff
+     identifiers of sequences that are different plus sequence
 
-  miss
-    iniirs o sqncs h r missing rom on s or h ohr
+  missed
+    identifiers of seqences that are missing from one set or the other
 
-This scrip is o spciiz inrs n hs bn s
-in h ps o chck i ENSEMBL gn mos h bn
-corrcy mpp ino  bs schm.
+This script is of specialized interest and has been used
+in the past to check if ENSEMBL gene models had been
+correctly mapped into a database schema.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   c .s | h
+   cat a.fasta | head
 
    >ENSACAP00000004922
    MRSRNQGGESSSSGKFSKSKPIINTGENQNLQEDAKKKNKSSRKEE ...
@@ -58,252 +58,252 @@ Exmp::
    >ENSACAP00000018122
    LIRSSSMFHIMKHGHYISRFGSKPGLKCIGMHENGIIFNNNPALWK ...
 
-   pyhon i_s.py --op-scionmiss --op-scionsqi .s b.s
+   python diff_fasta.py --output-section=missed --output-section=seqdiff a.fasta b.fasta
 
-   c i.o
+   cat diff.out
 
-   # Lgn:
-   # sqs1:          nmbr o sqncs in s 1
-   # sqs2:          nmbr o sqncs in s 2
-   # sm:           nmbr o inic sqncs
-   # i:           nmbr o sqncs wih irncs
-   # nmiss1:       sqncs in s 1 h r no on in s 2
-   # nmiss2:       sqncs in s 2 h r no on in s 1
-   # Typ o sqnc irncs
-   # irs:          ony h irs rsi is irn
-   # s:           ony h s rsi is irn
-   # prix:         on sqnc is prix o h ohr
-   # snocysin: irnc  o snocysins
-   # msk:         irnc  o msk rsis
-   # ix:          ix irncs
-   # ohr:          ohr irncs
+   # Legend:
+   # seqs1:          number of sequences in set 1
+   # seqs2:          number of sequences in set 2
+   # same:           number of identical sequences
+   # diff:           number of sequences with differences
+   # nmissed1:       sequences in set 1 that are not found in set 2
+   # nmissed2:       sequences in set 2 that are not found in set 1
+   # Type of sequence differences
+   # first:          only the first residue is different
+   # last:           only the last residue is different
+   # prefix:         one sequence is prefix of the other
+   # selenocysteine: difference due to selenocysteines
+   # masked:         difference due to masked residues
+   # fixed:          fixed differences
+   # other:          other differences
 
 
-Typ::
+Type::
 
-   pyhon i_s.py --hp
+   python diff_fasta.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor r
-impor cg.FsIror s FsIror
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import sys
+import re
+import cgat.FastaIterator as FastaIterator
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
- MpIniirs(sqs, prn):
+def MapIdentifiers(seqs, pattern):
 
-    rx  r.compi(prn)
+    rx = re.compile(pattern)
 
-    or k, s in is(sqs.ims()):
-        ry:
-            nk  rx.srch(k).grops()[0]
-        xcp AribError:
-            ris VError(
-                "iniir cn no b prs rom 's' "
-                "prn's'"  (k, prn))
+    for k, s in list(seqs.items()):
+        try:
+            nk = rx.search(k).groups()[0]
+        except AttributeError:
+            raise ValueError(
+                "identifier can not be parsed from '%s' "
+                "pattern='%s'" % (k, pattern))
 
-         sqs[k]
-        sqs[nk]  s
+        del seqs[k]
+        seqs[nk] = s
 
 
- min(rgvNon):
+def main(argv=None):
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-s", "--corrc-gp-shi", s"corrc_shi",
-        cion"sor_r",
-        hp"corrc gp ngh shis in ignmns. "
-        "Rqirs ignib_i.py []")
+    parser.add_argument(
+        "-s", "--correct-gap-shift", dest="correct_shift",
+        action="store_true",
+        help="correct gap length shifts in alignments. "
+        "Requires alignlib_lite.py [%default]")
 
-    prsr._rgmn(
-        "-1", "--prn1", s"prn1", yp"sring",
-        hp"prn o xrc iniir rom in iniirs1. "
-        "[]")
+    parser.add_argument(
+        "-1", "--pattern1", dest="pattern1", type="string",
+        help="pattern to extract identifier from in identifiers1. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-2", "--prn2", s"prn2", yp"sring",
-        hp"prn o xrc iniir rom in iniirs2. "
-        "[]")
+    parser.add_argument(
+        "-2", "--pattern2", dest="pattern2", type="string",
+        help="pattern to extract identifier from in identifiers2. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-o", "--op-scion", s"op", yp"choic",
-        cion"ppn",
-        choics("i", "miss", "sqi"),
-        hp"wh o op []")
+    parser.add_argument(
+        "-o", "--output-section", dest="output", type="choice",
+        action="append",
+        choices=("diff", "missed", "seqdiff"),
+        help="what to output [%default]")
 
-    prsr.s_s(corrc_shiFs,
-                        prn1"(\S+)",
-                        prn2"(\S+)",
-                        op[])
+    parser.set_defaults(correct_shift=False,
+                        pattern1="(\S+)",
+                        pattern2="(\S+)",
+                        output=[])
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i n(rgs) ! 2:
-        ris VError("wo is n o compr.")
+    if len(args) != 2:
+        raise ValueError("two files needed to compare.")
 
-    i opions.corrc_shi:
-        ry:
-            impor ignib_i
-        xcp ImporError:
-            ris ImporError(
-                "opion --corrc-shi rqirs ignib_i.py_ "
-                "b ignib no on")
+    if options.correct_shift:
+        try:
+            import alignlib_lite
+        except ImportError:
+            raise ImportError(
+                "option --correct-shift requires alignlib_lite.py_ "
+                "but alignlib not found")
 
-    sqs1  ic([
-        (x.i, x.sqnc) or x in FsIror.ir(
-            iooos.opn_i(rgs[0], "r"))])
-    sqs2  ic([
-        (x.i, x.sqnc) or x in FsIror.ir(
-            iooos.opn_i(rgs[1], "r"))])
+    seqs1 = dict([
+        (x.title, x.sequence) for x in FastaIterator.iterate(
+            iotools.open_file(args[0], "r"))])
+    seqs2 = dict([
+        (x.title, x.sequence) for x in FastaIterator.iterate(
+            iotools.open_file(args[1], "r"))])
 
-    i no sqs1:
-        ris VError("irs i s is mpy."  (rgs[0]))
-    i no sqs2:
-        ris VError("scon i s is mpy."  (rgs[1]))
+    if not seqs1:
+        raise ValueError("first file %s is empty." % (args[0]))
+    if not seqs2:
+        raise ValueError("second file %s is empty." % (args[1]))
 
-    MpIniirs(sqs1, opions.prn1)
-    MpIniirs(sqs2, opions.prn2)
+    MapIdentifiers(seqs1, options.pattern1)
+    MapIdentifiers(seqs2, options.pattern2)
 
-    nsm  0
-    nmiss1  0
-    nmiss2  0
-    ni  0
-    ni_irs  0
-    ni_s  0
-    ni_prix  0
-    ni_snocysin  0
-    ni_msk  0
-    nix  0
-    on2  {}
+    nsame = 0
+    nmissed1 = 0
+    nmissed2 = 0
+    ndiff = 0
+    ndiff_first = 0
+    ndiff_last = 0
+    ndiff_prefix = 0
+    ndiff_selenocysteine = 0
+    ndiff_masked = 0
+    nfixed = 0
+    found2 = {}
 
-    wri_miss1  "miss" in opions.op
-    wri_miss2  "miss" in opions.op
-    wri_sqi  "sqi" in opions.op
-    wri_i  "i" in opions.op or wri_sqi
+    write_missed1 = "missed" in options.output
+    write_missed2 = "missed" in options.output
+    write_seqdiff = "seqdiff" in options.output
+    write_diff = "diff" in options.output or write_seqdiff
 
-    or k in sor(sqs1):
-        i k no in sqs2:
-            nmiss1 + 1
-            i wri_miss1:
-                opions.so.wri("---- s ---- s\n"  (k, "miss1"))
-            conin
+    for k in sorted(seqs1):
+        if k not in seqs2:
+            nmissed1 += 1
+            if write_missed1:
+                options.stdout.write("---- %s ---- %s\n" % (k, "missed1"))
+            continue
 
-        on2[k]  1
+        found2[k] = 1
 
-        s1  sqs1[k].ppr()
-        s2  sqs2[k].ppr()
-        m  min(n(s1), n(s2))
+        s1 = seqs1[k].upper()
+        s2 = seqs2[k].upper()
+        m = min(len(s1), len(s2))
 
-        i s1  s2:
-            nsm + 1
-        s:
-            ss  "ohr"
+        if s1 == s2:
+            nsame += 1
+        else:
+            status = "other"
 
-            ni + 1
+            ndiff += 1
 
-            i s1[1:]  s2[1:]:
-                ni_irs + 1
-                ss  "irs"
-            i s1[:m]  s2[:m]:
-                ni_prix + 1
-                ss  "prix"
-            i s1[:-1]  s2[:-1]:
-                ni_s + 1
-                ss  "s"
-            s:
-                i n(s1)  n(s2):
-                    # g  irncs: h irs n s rsis
-                    # cn b irn or ppi sqncs whn
-                    # compring my rnsions wih nsmb ppis.
-                    irncs  []
-                    or x in rng(1, n(s1) - 1):
-                        i s1[x] ! s2[x]:
-                            irncs.ppn((s1[x], s2[x]))
+            if s1[1:] == s2[1:]:
+                ndiff_first += 1
+                status = "first"
+            elif s1[:m] == s2[:m]:
+                ndiff_prefix += 1
+                status = "prefix"
+            elif s1[:-1] == s2[:-1]:
+                ndiff_last += 1
+                status = "last"
+            else:
+                if len(s1) == len(s2):
+                    # get all differences: the first and last residues
+                    # can be different for peptide sequences when
+                    # comparing my translations with ensembl peptides.
+                    differences = []
+                    for x in range(1, len(s1) - 1):
+                        if s1[x] != s2[x]:
+                            differences.append((s1[x], s2[x]))
 
-                      n(irncs)
-                    # chck or Snocysins
-                    i n([x or x in irncs i x[0]  "U" or x[1]  "U"])  :
-                        ni_snocysin + 1
-                        ss  "snocysin"
+                    l = len(differences)
+                    # check for Selenocysteins
+                    if len([x for x in differences if x[0] == "U" or x[1] == "U"]) == l:
+                        ndiff_selenocysteine += 1
+                        status = "selenocysteine"
 
-                    # chck or msk rsis
-                    i n([x or x in irncs i x[0] in "NX" or x[1] in "NX"])  :
-                        ni_msk + 1
-                        ss  "msk"
+                    # check for masked residues
+                    elif len([x for x in differences if x[0] in "NX" or x[1] in "NX"]) == l:
+                        ndiff_masked += 1
+                        status = "masked"
 
-            # corrc or irn gp nghs
-            i opions.corrc_shi:
+            # correct for different gap lengths
+            if options.correct_shift:
 
-                mp_2b  ignib_i.py_mkAignmnVcor()
+                map_a2b = alignlib_lite.py_makeAlignmentVector()
 
-                , b  0, 0
-                kp  Fs
+                a, b = 0, 0
+                keep = False
 
-                x  0
-                whi x < m n no (  n(s1) n b  n(s2)):
-                    ry:
-                        i s1[] ! s2[b]:
-                            whi s1[]  "N" n s2[b] ! "N":
-                                 + 1
-                            whi s1[] ! "N" n s2[b]  "N":
-                                b + 1
+                x = 0
+                while x < m and not (a == len(s1) and b == len(s2)):
+                    try:
+                        if s1[a] != s2[b]:
+                            while s1[a] == "N" and s2[b] != "N":
+                                a += 1
+                            while s1[a] != "N" and s2[b] == "N":
+                                b += 1
 
-                            i s1[] ! s2[b]:
-                                brk
-                    xcp InxError:
-                        prin("# inx rror or s: xi, i, bi, 1i, 2i"  (k, x, , b, n(s1), n(s2)))
-                        brk
+                            if s1[a] != s2[b]:
+                                break
+                    except IndexError:
+                        print("# index error for %s: x=%i, a=%i, b=%i, l1=%i, l2=%i" % (k, x, a, b, len(s1), len(s2)))
+                        break
 
-                     + 1
-                    b + 1
-                    mp_2b.PirExpici(, b, 0.0)
-                    # chck i w hv rch h n:
-                s:
-                    kp  Tr
-                    nix + 1
-                      ignib_i.py_AignmnFormEmissions(mp_2b)
-                    prin("ix\s\s"  (k, sr()))
+                    a += 1
+                    b += 1
+                    map_a2b.addPairExplicit(a, b, 0.0)
+                    # check if we have reached the end:
+                else:
+                    keep = True
+                    nfixed += 1
+                    f = alignlib_lite.py_AlignmentFormatEmissions(map_a2b)
+                    print("fix\t%s\t%s" % (k, str(f)))
 
-                i no kp:
-                    prin("# wrning: no ixb: s"  k)
+                if not keep:
+                    print("# warning: not fixable: %s" % k)
 
-            i wri_i:
-                opions.so.wri("---- s ---- s\n"  (k, ss))
+            if write_diff:
+                options.stdout.write("---- %s ---- %s\n" % (k, status))
 
-            i wri_sqi:
-                opions.so.wri("< s\n> s\n"  (sqs1[k], sqs2[k]))
+            if write_seqdiff:
+                options.stdout.write("< %s\n> %s\n" % (seqs1[k], seqs2[k]))
 
-    or k in sor(is(sqs2.kys())):
-        i k no in on2:
-            nmiss2 + 1
-            i wri_miss2:
-                opions.so.wri("---- s ---- s\n"  (k, "miss2"))
+    for k in sorted(list(seqs2.keys())):
+        if k not in found2:
+            nmissed2 += 1
+            if write_missed2:
+                options.stdout.write("---- %s ---- %s\n" % (k, "missed2"))
 
-    opions.sog.wri("""# Lgn:
+    options.stdlog.write("""# Legend:
 """)
 
-    E.ino("sqs1i, sqs2i, smi, nii, nmiss1i, nmiss2i" 
-           (n(sqs1), n(sqs2), nsm, ni, nmiss1, nmiss2))
+    E.info("seqs1=%i, seqs2=%i, same=%i, ndiff=%i, nmissed1=%i, nmissed2=%i" %
+           (len(seqs1), len(seqs2), nsame, ndiff, nmissed1, nmissed2))
 
-    E.ino(
-        "nii: irsi, si, prixi, snocysini, mski, ixi, ohri" 
-        (ni, ni_irs, ni_s, ni_prix,
-         ni_snocysin, ni_msk, nix,
-         ni - ni_irs - ni_s - ni_prix -
-         ni_snocysin - ni_msk - nix))
+    E.info(
+        "ndiff=%i: first=%i, last=%i, prefix=%i, selenocysteine=%i, masked=%i, fixed=%i, other=%i" %
+        (ndiff, ndiff_first, ndiff_last, ndiff_prefix,
+         ndiff_selenocysteine, ndiff_masked, nfixed,
+         ndiff - ndiff_first - ndiff_last - ndiff_prefix -
+         ndiff_selenocysteine - ndiff_masked - nfixed))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

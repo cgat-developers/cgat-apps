@@ -1,28 +1,28 @@
-'''g2b.py - nno gns/rnscrips
+'''gtf2table.py - annotate genes/transcripts
+============================================
 
+:Tags: Genomics Genesets GTF Annotation
 
-:Tgs: Gnomics Gnss GTF Annoion
-
-Prpos
+Purpose
 -------
 
-nno gns or rnscrips givn in  :rm:`g` orm i
-n op hm in br orm.
+annotate genes or transcripts given in a :term:`gtf` formatted file
+and output them in tabular format.
 
-Annoions cn b ihr comp pr gn ( xons cross 
-rnscrips) or pr rnscrip. Th inp ns o b sor
-ccoringy.
+Annotations can be either computed per gene (all exons across all
+transcripts) or per transcript. The input needs to be sorted
+accordingly.
 
-Th scrip irs ovr ch gn or rnscrip mo in rn n
-ops  row in  b or ch. Mip nnoions cn b
-comp  h sm im ing iion comns o h b.
+The script iterates over each gene or transcript model in turn and
+outputs a row in a table for each. Multiple annotations can be
+computed at the same time adding additional columns to the table.
 
-For xmp, o op inormion bo xons in gns::
+For example, to output information about exons in genes::
 
-    zc in.g.gz | cg g2b -v 0 --conrngh
+    zcat in.gtf.gz | cgat gtf2table -v 0 --counter=length
 
 +---------------+----+----+----+---------+------+--------+----+----+----+
-|gn_i        |nv|min |mx |mn     |min|sv  |sm |q1  |q3  |
+|gene_id        |nval|min |max |mean     |median|stddev  |sum |q1  |q3  |
 +---------------+----+----+----+---------+------+--------+----+----+----+
 |ENSG00000225373|4   |39  |688 |253.0000 |142.5 |261.5922|1012|58  |688 |
 +---------------+----+----+----+---------+------+--------+----+----+----+
@@ -33,13 +33,13 @@ For xmp, o op inormion bo xons in gns::
 |ENSG00000220978|1   |138 |138 |138.0000 |138.0 |0.0000  |138 |138 |138 |
 +---------------+----+----+----+---------+------+--------+----+----+----+
 
-Th b conins xon ngh sisics o ch gn, h nmbr (nv),
-min, mx, n o ngh(sm) o xons pr gn. To con pr rnscrip::
+The table contains exon length statistics of each gene, the number (nval),
+min, max, and total length(sum) of exons per gene. To count per transcript::
 
-    zc in.g.gz | cg g2b -v 0 --rporrrnscrips --conrngh
+    zcat in.gtf.gz | cgat gtf2table -v 0 --reporter=transcripts --counter=length
 
 +---------------+----+---+---+--------+------+--------+----+---+---+
-|rnscrip_i  |nv|min|mx|mn    |min|sv  |sm |q1 |q3 |
+|transcript_id  |nval|min|max|mean    |median|stddev  |sum |q1 |q3 |
 +---------------+----+---+---+--------+------+--------+----+---+---+
 |ENST00000592209|3   |58 |227|149.6667|164.0 |69.7344 |449 |58 |227|
 +---------------+----+---+---+--------+------+--------+----+---+---+
@@ -50,12 +50,12 @@ min, mx, n o ngh(sm) o xons pr gn. To con pr rnscrip::
 |ENST00000587045|1   |173|173|173.0000|173.0 |0.0000  |173 |173|173|
 +---------------+----+---+---+--------+------+--------+----+---+---+
 
-To  so inormion bo cpg-composiion,  nohr conr::
+To add also information about cpg-composition, add another counter::
 
-    zc in.g.gz | cg g2b -v 0 --gnomhg19 --rporrrnscrips --conrngh --conrcomposiion-cpg
+    zcat in.gtf.gz | cgat gtf2table -v 0 --genome=hg19 --reporter=transcripts --counter=length --counter=composition-cpg
 
 +---------------+----+---+---+--------+------+--------+----+---+---+----------+------------+-----------+
-|rnscrip_i  |nv|min|mx|mn    |min|sv  |sm |q1 |q3 |CpG_con |CpG_nsiy |CpG_ObsExp |
+|transcript_id  |nval|min|max|mean    |median|stddev  |sum |q1 |q3 |CpG_count |CpG_density |CpG_ObsExp |
 +---------------+----+---+---+--------+------+--------+----+---+---+----------+------------+-----------+
 |ENST00000592209|3   |58 |227|149.6667|164.0 |69.7344 |449 |58 |227|4         |0.01781     |0.13946    |
 +---------------+----+---+---+--------+------+--------+----+---+---+----------+------------+-----------+
@@ -66,880 +66,880 @@ To  so inormion bo cpg-composiion,  nohr conr::
 |ENST00000587045|1   |173|173|173.0000|173.0 |0.0000  |173 |173|173|1         |0.01156     |0.11396    |
 +---------------+----+---+---+--------+------+--------+----+---+---+----------+------------+-----------+
 
-No h w h o s h ``--gnom-i`` opion o sppy h
-gnomic sqnc.
+Note that we had to use the ``--genome-file`` option to supply the
+genomic sequence.
 
-Aiion swichs prmi coning inrons ins o xons (opion
-``--scion``).
+Additional switches permit counting introns instead of exons (option
+``--section``).
 
-Annoions
+Annotations
 -----------
 
-Th nnoions migh b riv rom  propry o h rnscrip or
-gn mo is (sch s ngh, nmbr o xons, c), h gnomic
-sqnc (sch s composiion, c) or rqir iion  ss.
-For xmp, o comp h covrg wih rs,  :rm:`bm` orm
-i is rqir (s opion ``--bm-i``). Or o comp h ovrp
-wih gnomic nsiis,  :rm:`bigwig` orm i is rqir (s
-opion ``--bigwig-i``).
+The annotations might be derived from a property of the transcript or
+gene model itself (such as length, number of exons, etc), the genomic
+sequence (such as composition, etc) or require additional data sets.
+For example, to compute the coverage with reads, a :term:`bam` formatted
+file is required (see option ``--bam-file``). Or to compute the overlap
+with genomic densities, a :term:`bigwig` formatted file is required (see
+option ``--bigwig-file``).
 
-This scion iss h conrs vib. Thy r grop by  sorcs
-hy rqir.
+This section lists the counters available. They are grouped by data sources
+they require.
 
-Gnric nnoions
+Generic annotations
 +++++++++++++++++++
 
-Gnric nnoions rqir no iion  sorc o nno 
-rnscrip or gn.
+Generic annotations require no additional data source to annotate a
+transcript or gene.
 
-ngh
-   op xon ngh smmry o rnscrip/gn. This conr ops h
-   nmbr o xons in ch rnscrip/gn oghr wih xon ngh smmry
-   sisics (minim xon ngh, mxim xon ngh, o xon ngh).
+length
+   output exon length summary of transcript/gene. This counter outputs the
+   number of exons in each transcript/gene together with exon length summary
+   statistics (minimal exon length, maximal exon length, total exon length).
 
-posiion
-   op gnomic coorins o rnscrip/gn (chromosom, sr, n).
+position
+   output genomic coordinates of transcript/gene (chromosome, start, end).
 
-Sqnc riv nnoions
+Sequence derived annotations
 ++++++++++++++++++++++++++++
 
-Sqnc riv nnoions rqir h gnomic sqnc o comp
-propris o h gn/rnscrip mo (s opion ``--gnom-i``).
+Sequence derived annotations require the genomic sequence to compute
+properties of the gene/transcript model (see option ``--genome-file``).
 
-composiion-n
-   op ncoi composiion o rnscrip/gn
+composition-na
+   output nucleotide composition of transcript/gene
 
-composiion-cgp
-   op CpG con, CpG nsiy n CpG obsrv / xpc or
-   ch rnscrip/gn.
+composition-cgp
+   output CpG count, CpG density and CpG observed / expected for
+   each transcript/gene.
 
-spic
-   op spicing smmry o rnscrip/gn. Ops h nmbr o
-   cnonic n non-cnonic spic sis.
+splice
+   output splicing summary of transcript/gene. Outputs the number of
+   canonical and non-canonical splice sites.
 
-qiy
-   op bs-qiy inormion smmry o gn. Ns qiy scors.
+quality
+   output base-quality information summary of gene. Needs quality scores.
 
-Inrv riv nnoions
+Interval derived annotations
 ++++++++++++++++++++++++++++
 
-Annoions in h is bow r  gn or rnscrip o  s o
-inrvs givn s  scon i. Th scon s o inrvs is givn
-by h opion ``inm-g``. By , h inrvs r xpc
-o b givn s  :rm:`g` orm i, b rniv orms
-(:rm:`g` n :rm:`b`) r possib (s opion
-``--inm-orm``)
+Annotations in the list below relate a gene or transcript to a set of
+intervals given as a second file. The second set of intervals is given
+by the option ``filename-gff``. By default, the intervals are expected
+to be given as a :term:`gff` formatted file, but alternative formats
+(:term:`gtf` and :term:`bed`) are possible (see option
+``--filename-format``)
 
-ovrp
-    comp ovrp o gns in inp wih rs in scon srm.
-    Rqirs  :rm:`g` orm i wih gn rrioris.
+overlap
+    compute overlap of genes in input with features in second stream.
+    Requires a :term:`gff` formatted file with gene territories.
 
-ovrp-srn
-    con ovrp wih gnomic rs in scon nohr i. Ops
-    h nmbr o ovrpping xons. Rcors h ircion o ovrp
-    (sns/nisns). Rqirs  :rm:`g` orm i wih
-    rs.
+overlap-stranded
+    count overlap with genomic features in second another file. Outputs
+    the number of overlapping exons. Records the direction of overlap
+    (sense/antisense). Requires a :term:`gff` formatted file with
+    features.
 
-rrioris
-    comp ovrp o rnscrips/gns wih rrioris. Trrioris
-    r gnomic, non-ovrpping inrvs. For ch rnscrip h
-    conr ops h ss (Uniq mch, Ambigos mch
-    (ovrp wih mip rrioris, 0no mch), h nmbr o
-    rrioris i ovrps n h rrioris i ovrps.
+territories
+    compute overlap of transcripts/genes with territories. Territories
+    are genomic, non-overlapping intervals. For each transcript the
+    counter outputs the status (U=unique match, A=ambiguous match
+    (overlap with multiple territories, 0=no match), the number of
+    territories it overlaps and the territories it overlaps.
 
-covrg
+coverage
 
-   comp h covrg - pr ncoi - o h gn/rnscrip
-   mos wih inrvs givn in ``--g-i``.  Covrg vs
-   r op in 5' o 3' oghr wih smmry sisics (bss
-   covr, minimm, mximm covrg, c.). By sing h opions
-   ``--rsric-r`` or ``--rsric-sorc`` h coning cn b
-   rscric o pricr rs or sorcs in h :rm:`g` i.
+   compute the coverage - per nucleotide - of the gene/transcript
+   models with intervals given in ``--gff-file``.  Coverage values
+   are output in 5' to 3' together with summary statistics (bases
+   covered, minimum, maximum coverage, etc.). By using the options
+   ``--restrict-feature`` or ``--restrict-source`` the counting can be
+   rescricted to particular features or sources in the :term:`gff` file.
 
-isnc
+distance
 
-   comp isnc o gns o rs in  scon i. Rqirs 
-   scon :rm:`g` orm i. Th srn inormion o h
-   rs is ignor.
+   compute distance of genes to features in a second file. Requires a
+   second :term:`gff` formatted file. The strand information of the
+   features is ignored.
 
-bining-prn
+binding-pattern
 
-   givn  is o inrvs, rmin h bining prn wihin n
-   srroning h gn. For ch gn, inrvs ovrpping h CDS,
-   inrons, UTRs n h nk r coc n rcor. Th bining
-   is smmriz wih  bining prn,  binry prn inicing
-   ovrp/no ovrp wih 5' nk, 5' UTR, CDS, Inrons, 3' UTR, 3'
-   nk. This mho is s o chck whr rnscripion cor bining
-   sis r oc ron  gn/rnscrip mo.
+   given a list of intervals, determine the binding pattern within and
+   surrounding the gene. For each gene, intervals overlapping the CDS,
+   introns, UTRs and the flank are collected and recorded. The binding
+   is summarized with a binding pattern, a binary pattern indicating
+   overlap/no overlap with 5' flank, 5' UTR, CDS, Introns, 3' UTR, 3'
+   flank. This method is useful to check where transcription factor binding
+   sites are located aronud a gene/transcript model.
 
-proximiy
+proximity
 
-   rpor smmry ss (nghs, vs) o rs in proximiy o
-   gns inp gn s. Rqirs  :rm:`g` orm i wih
-   gnomic rs. This r is s whn iming o normiz 
-   v, sch s  sbsiion r o  rnscrip mo, by
-   sbsiion rs o sgmns in h nighborhoo sch s
-   ncsr rps. Th vs r givn in h ``scor`` i o
-   h :rm:`g` orm i. Th ris or proximiy is conro
-   by h opion ``--proxim-isnc``.
+   report summary stats (lengths, values) of features in proximity to
+   genes input gene set. Requires a :term:`gff` formatted file with
+   genomic features. This feature is useful when aiming to normalize a
+   value, such as a substitution rate of a transcript model, by
+   substitution rates of segments in the neighbourhood such as
+   ancestral repeats. The values are given in the ``score`` field of
+   the :term:`gff` formatted file. The radius for proximity is controlled
+   by the option ``--proximal-distance``.
 
-proximiy-xcsiv
+proximity-exclusive
 
-   s proximiy, b xc ny rngs in h :rm:`g` orm i h
-   ovrp h rnscrip/gn mo.
+   as proximity, but exclude any ranges in the :term:`gff` formatted file that
+   overlap the transcript/gene model.
 
-proximiy-nghmch
+proximity-lengthmatched
 
-   s proximiy-xcsiv, b ngh-mch rs wih
-   gns. Sgmns r cr q in ngh i hy r wihin
-   10 o h origin sgmns ngh.
+   as proximity-exclusive, but length-match features with
+   genes. Segments are declared equal in length if they are within
+   10% of the original segments length.
 
-nighbors
-    op rs in scon srm h r in proximiy o gns
-    in inp. This is simir o h ``proximiy`` conrs, b so
-    ops h rs h r in proximiy.
+neighbours
+    output features in second stream that are in proximity to genes
+    in input. This is similar to the ``proximity`` counters, but also
+    outputs the features that are in proximity.
 
-Gn s riv nnoions
+Gene set derived annotations
 ++++++++++++++++++++++++++++
 
-isnc-gns
-   comp isnc o gns o gns in  scon i. Rqirs 
-   scon :rm:`g` orm i wih gns. Th conr isingishs
-    vriy o css (coss psrm/ownsrm).
+distance-genes
+   compute distance of genes to genes in a second file. Requires a
+   second :term:`gtf` formatted file with genes. The counter distinguishes
+   a variety of cases (closest upstream/downstream).
 
-isnc-ss
-   comp isnc o gns o rnscripion sr sis. Rqirs 
-   scon :rm:`g` orm i wih gns.
+distance-tss
+   compute distance of genes to transcription start sites. Requires a
+   second :term:`gtf` formatted file with genes.
 
-ovrp-rnscrips
-    con ovrp o gns wih rnscrips in nohr s.
-    Rqirs  :rm:`g` orm i.
+overlap-transcripts
+    count overlap of genes with transcripts in another set.
+    Requires a :term:`gtf` formatted file.
 
-ovrrn
-   op inron ovrrn, xons in h inp gn s xning
-   ino h inrons o  rrnc gn s. Rqris  :rm:`g`
-   orm i wih  rrnc gn s.
+overrun
+   output intron overrun, exons in the input gene set extending
+   into the introns of a reference gene set. Requries a :term:`gtf`
+   formatted file with a reference gene set.
 
-spic-comprison
-   Compr how spic si sg comprs bwn  gn/rnscrip
-   wih rnscrips in  rrnc gn s. Ops on, miss,
-   prc, pri, incomp spic sis n xon-skipping vns.
+splice-comparison
+   Compare how splice site usage compares between a gene/transcript
+   with transcripts in a reference gene set. Outputs found, missed,
+   perfect, partial, incomplete splice sites and exon-skipping events.
 
 
-Shor-r riv nnoions
+Short-read derived annotations
 ++++++++++++++++++++++++++++++
 
-Shor-r riv nnoions con h ovrp o rs givn
-in  :rm:`bm` orm i (s opion ``--bm-i``) wih
-gn or rnscrip mos.
+Short-read derived annotations count the overlap of reads given
+in a :term:`bam` formatted file (see option ``--bam-file``) with
+gene or transcript models.
 
-r-ovrp
+read-overlap
 
-   op nmbr o rs ovrpping  rnscrip/gn mo.
-   Ops h nmbr o rs ovrpping h rnscrip/gn mo.
-   Rs r con spry or sns n nisns ovrp.
+   output number of reads overlapping a transcript/gene model.
+   Outputs the number of reads overlapping the transcript/gene model.
+   Reads are counted separately for sense and antisense overlap.
 
-r-covrg
+read-coverage
 
-   op r covrg smmry sisics o rnscrip/gn mo.
-   Ops h nmbr o rs ovrpping h rnscrip/gn mo,
-   h nmbr o bss ovrpp by rs n smmry sisics o
-   h minimimm, mximm, c. covrg pr ps. Rs r con
-   spry or sns n nisns ovrp. Th conr os no
-   k ino ccon spic sis. As i os pr-bs coning,
-   i is sowr hn ``r-ovrp`` n hr is no n o
-   s boh  h sm im.
+   output read coverage summary statistics of transcript/gene model.
+   Outputs the number of reads overlapping the transcript/gene model,
+   the number of bases overlapped by reads and summary statistics of
+   the minimimum, maximum, etc. coverage per pase. Reads are counted
+   separately for sense and antisense overlap. The counter does not
+   take into account splice sites. As it does per-base counting,
+   it is slower than ``read-overlap`` and there is no need to
+   use both at the same time.
 
-r-xnsion
+read-extension
 
-   Conr o spci inrs. This conr ops h r nsiy
-   in bins psrm, wihin n ownsrm o rnscrip mos. Th
-   conr cn b s o pric h ngh o h 3' n 5' UTR.
+   Counter of special interest. This counter outputs the read density
+   in bins upstream, within and downstream of transcript models. The
+   counter can be used to predict the length of the 3' and 5' UTR.
 
-r-cons
+read-fullcounts
 
-   con nmbr o rs ovrpping  gn or rnscrip. Rs
-   r cssii ccoring o h yp o ovrp (sns/nisns),
-    or pri mch o xon, spic ss (spic/nspic).
-   S bow or mor inormion.
+   count number of reads overlapping a gene or transcript. Reads
+   are classified according to the type of overlap (sense/antisense),
+   full or partial match to exon, splice status (spliced/unspliced).
+   See below for more information.
 
-   Uniq n non-niq mchs r con (by ignmn sr
-   posiion).
+   Unique and non-unique matches are counted (by alignment start
+   position).
 
-r-cons
+read-counts
 
-   con nmbr o rs ovrpping  gn or rnscrip. Smmrizs
-   h op o r-cons.
+   count number of reads overlapping a gene or transcript. Summarizes
+   the output of read-fullcounts.
 
-rpir-cons
+readpair-fullcounts
 
-   con nmbr o r pirs ovrpping  gn or rnscrip. Pirs
-   r con ccoring o  vriy o ribs (xonic
-   ovrp/r pir ss/spic ss/...). S bow or mor
-   inormion.
+   count number of read pairs overlapping a gene or transcript. Pairs
+   are counted according to a variety of attributes (exonic
+   overlap/read pair status/splice status/...). See below for more
+   information.
 
-rpir-cons
+readpair-counts
 
-   con nmbr o r pirs ovrpping  gn or
-   rnscrip. Smmrizs h op o rpir-cons.
+   count number of read pairs overlapping a gene or
+   transcript. Summarizes the output of readpair-fullcounts.
 
 
-Cssiirs
+Classifiers
 -----------
 
-Cssiirs no ony nno h rnscrips or gn mo, b so
-im o provi som cssiicion bs on hs nnoions. Thy
-rqir  sconry i (s opion ``--g-i``) or h
-cssiicion.
+Classifiers not only annotate the transcripts or gene model, but also
+aim to provide some classification based on these annotations. They
+require a secondary file (see option ``--gff-file``) for the
+classification.
 
-cssiir
+classifier
 
-   cssiy rnscrips ccoring o gnomic nnoion.  Rqirs 
-   :rm:`g` i wih gnomic nnoions (s :oc:`g2g`)
-   ining gnomic rgions s inronic, inrgnic, xonic,
-   c. This is s or  rogh cssiicion o rnscrips s
-   inrgnic, inronic, c.
+   classify transcripts according to genomic annotation.  Requires a
+   :term:`gff` file with genomic annotations (see :doc:`gtf2gff`)
+   delineating genomic regions as intronic, intergenic, exonic,
+   etc. This is useful for a rough classification of transcripts as
+   intergenic, intronic, etc.
 
-   Bs s or ChIP-Sq  ss (ch pk is  "rnscrip"). Th
-   mho is  i o o pc in his scrip, b is hr s i
-   ss mch o h co impmn hr.
+   Best used for ChIP-Seq data sets (each peak is a "transcript"). The
+   method is a little out of place in this script, but is here as it
+   uses much of the code implemented here.
 
-cssiir-rnsq
+classifier-rnaseq
 
-   cssiy rnscrips wih rspc o  rrnc gns. Th
-   cssiirs ims o mch  rnscrip p wih h "mos simir"
-   rnscrip in h rrnc gn s n pnning on
-   ribs, cssiis i s  goo mch, rniv rnscrip,
-   rgmn, c. Th cssiir ks ino ccon srn n prrs
-   sns mchs o nisns mchs.
+   classify transcripts with respect to a reference geneset. The
+   classifiers aims to match a transcript up with the "most similar"
+   transcript in the reference gene set and dependending on
+   attributes, classifies it as a good match, alternative transcript,
+   fragment, etc. The classifier takes into account strand and prefers
+   sense matches to antisense matches.
 
-cssiir-poii
+classifier-polii
 
-   cssiy ccoring o PoII rnscrips. A gn/rnscrip is
-   rnscrib, i i is covr by rg PoII inrvs ovr 80 o
-   is ngh. A gn/rnsrip is prim i is promoor/UTR is
-   covr by 50 o is ngh, whi h rs o h gn boy
-   isn'.
+   classify according to PolII transcripts. A gene/transcript is
+   transcribed, if it is covered by large PolII intervals over 80% of
+   its length. A gene/transript is primed if its promotor/UTR is
+   covered by 50% of its length, while the rest of the gene body
+   isn't.
 
-Ohr nnoions
+Other annotations
 ++++++++++++++++++
 
-Th oowing mhos (s opion ``--conr``) r vib:
+The following methods (see option ``--counter``) are available:
 
-bigwig-cons
+bigwig-counts
 
-   coc nsiy vs rom  :rm:`bigwig` orm i n op
-   smmry sisics n prcng o bss covr (``pcovr``)
-   by v in bigwig i. Rqirs opion ``--bigwig-i``.
+   collect density values from a :term:`bigwig` formatted file and output
+   summary statistics and percentage of bases covered (``pcovered``)
+   by value in bigwig file. Requires option ``--bigwig-file``.
 
 
-R coning
+Read counting
 -------------
 
-Th mhos ``r-cons`` n ``rpir-cons`` con h nmbr
-o rs insi  :rm:`bm` orm i h mp insi 
-rnscrip or gn.
+The methods ``read-counts`` and ``readpair-counts`` count the number
+of reads inside a :term:`bam` formatted file that map inside a
+transcript or gene.
 
-Ths conrs proc on  pr-gn or pr-rnscrip bsis pning
-on h ``--rporr`` opion. A rs ovrpping h xons or
-inrons o  rnscrip r coc n con ihr iniviy
-(``r-cons``) or s pirs (``rpir-cons``).
+These counters proceed on a per-gene or per-transcript basis depending
+on the ``--reporter`` option. All reads overlapping the exons or
+introns of a transcript are collected and counted either individually
+(``read-counts``) or as pairs (``readpair-counts``).
 
-For pir-r coning, ch pir is cssii n con
-ccoring o h oowing or xs:
+For paired-read counting, each pair is classified and counted
+according to the following for axes:
 
-1. Pir ss: propr pir, nmpp r in pir, ...
-2. Dircion: or srn proocos, sns, nisns, ...
-3. Ovrp ss: Pir ovrps xons ony, inrons ony, ...
-4. Spic ss: Rs r nspic, spic consisny wih
-   rnscrip mo, or inconsisny wih rnscrip mo
+1. Pair status: proper pair, unmapped read in pair, ...
+2. Direction: for stranded protocols, sense, antisense, ...
+3. Overlap status: Pair overlaps exons only, introns only, ...
+4. Splice status: Reads are unspliced, spliced consistently with
+   transcript model, or inconsistently with transcript model
 
-Cons r hn co ino  smr s o smmris or convninc:
+Counts are then collated into a smaller set of summaries for convenience:
 
 +--------------------+----------------------------------------------------+
-|Comn              |Nmbr o r pirs                                |
+|Column              |Number of read pairs                                |
 +--------------------+----------------------------------------------------+
-|con_         |consir o b corrc: hy r sns, ovrp   |
-|                    |wih xons y.                                   |
+|counted_all         |considered to be correct: they are sense, overlap   |
+|                    |with exons fully.                                   |
 +--------------------+----------------------------------------------------+
-|con_spic     |in sns ircion n xonic, spic n spic  |
-|                    |corrcy.                                          |
+|counted_spliced     |in sense direction and exonic, spliced and spliced  |
+|                    |correctly.                                          |
 |                    |                                                    |
 +--------------------+----------------------------------------------------+
-|con_nspic   |in sns ircion n xonic, no spic.         |
+|counted_unspliced   |in sense direction and exonic, not spliced.         |
 +--------------------+----------------------------------------------------+
-|sns_inronic      |inronic n sns ircion.                       |
+|sense_intronic      |intronic and sense direction.                       |
 +--------------------+----------------------------------------------------+
-|sns_inconsisn  |in sns ircion, b ovrp boh inrons n    |
-|                    |xons or xn byon h rnscrip mos       |
+|sense_inconsistent  |in sense direction, but overlap both introns and    |
+|                    |exons or extend beyond the transcript modelse       |
 +--------------------+----------------------------------------------------+
-|sns_ohr         |in sns ircion, b no con, inronic or    |
-|                    |inconsisn.                                       |
+|sense_other         |in sense direction, but not counted, intronic or    |
+|                    |inconsistent.                                       |
 +--------------------+----------------------------------------------------+
-|nisns           |in nisns ircion.                             |
+|antisense           |in antisense direction.                             |
 +--------------------+----------------------------------------------------+
-|nonsns            |in nxpc orinion                           |
+|nonsense            |in unexpected orientation                           |
 +--------------------+----------------------------------------------------+
-|nopropr           |h r no propr pirs                           |
+|notproper           |that are not proper pairs                           |
 +--------------------+----------------------------------------------------+
-|qiy_pirs       |c by  h rmov o  ow-qiy r     |
+|quality_pairs       |affected by a the removal of a low-quality read     |
 +--------------------+----------------------------------------------------+
-|qiy_rs       |Nmbr o ow qiy rs rmov                 |
+|quality_reads       |Number of low quality reads removed                 |
 +--------------------+----------------------------------------------------+
-|o               |To nmbr o pirs consir                    |
+|total               |Total number of pairs considered                    |
 +--------------------+----------------------------------------------------+
 
-Th Conr ``rpir-cons`` provis h i cons
-or ch rnscrip mo ccoring o h or xs. Th op
-cn b s o impmn csom coning schms.
+The Counter ``readpair-fullcounts`` provides the detailed counts
+for each transcript model according to the four axes. The output
+can be used to implement custom counting schemes.
 
-Rs bow  minimm qiy scor wi b ignor
-(``--min-r-qiy``). By ,  rs wi b con.
+Reads below a minimum quality score will be ignored
+(``--min-read-quality``). By default, all reads will be counted.
 
-Rs mpping o mip ocions wi b ownwigh i
-h ``--wigh-mi-mpping`` opion is s. This rqirs
-h prsnc o h ``NH`` g in h :rm:`bm` i.
+Reads mapping to multiple locations will be downweighted if
+the ``--weight-multi-mapping`` option is set. This requires
+the presence of the ``NH`` flag in the :term:`bam` file.
 
-For pir r coning, h ibrry yp cn b spcii wih h
-``--ibrry-yp`` opion o mk s o srn inormion. Librry
-yps r b ccoring o h oph_ n cinks_
-convnion. A smmry is `hr
-<hp://www.nr.com/npro/jorn/v7/n3/ig_b/npro.2012.016_T1.hm>`_.
+For paired read counting, the library type can be specified with the
+``--library-type`` option to make use of strand information. Library
+types are labelled according to the tophat_ and cufflinks_
+convention. A summary is `here
+<http://www.nature.com/nprot/journal/v7/n3/fig_tab/nprot.2012.016_T1.html>`_.
 
 +--------------------+--------------------+------------------------------+
-|Librry yp        |RNA-sq prooco    |Expnion                   |
+|Library type        |RNA-seq protocol    |Explanation                   |
 +--------------------+--------------------+------------------------------+
-|r-nsrn       |Imin TrSq     |Rs rom h mos n o|
-| ()          |                    |h rgmn (in rnscrip   |
-|                    |                    |coorins) mp o h       |
-|                    |                    |rnscrip srn, n h    |
-|                    |                    |righmos n mps o h     |
-|                    |                    |opposi srn           |
+|fr-unstranded       |Illumina TruSeq     |Reads from the leftmost end of|
+| (default)          |                    |the fragment (in transcript   |
+|                    |                    |coordinates) map to the       |
+|                    |                    |transcript strand, and the    |
+|                    |                    |rightmost end maps to the     |
+|                    |                    |opposite strand left          |
 |                    |                    |                              |
 +--------------------+--------------------+------------------------------+
-|r-irssrn      |UTP, NSR, NNSR39   |Sm s bov xcp w       |
-|                    |                    |norc h r h h     |
-|                    |                    |righmos n o h rgmn |
-|                    |                    |(in rnscrip coorins) is|
-|                    |                    |h irs sqnc (or ony  |
-|                    |                    |sqnc or sing-n      |
-|                    |                    |rs). Eqivny, i is   |
-|                    |                    |ssm h ony h srn  |
-|                    |                    |gnr ring irs srn |
-|                    |                    |synhsis is sqnc        |
+|fr-firststrand      |dUTP, NSR, NNSR39   |Same as above except we       |
+|                    |                    |enforce the rule that the     |
+|                    |                    |rightmost end of the fragment |
+|                    |                    |(in transcript coordinates) is|
+|                    |                    |the first sequenced (or only  |
+|                    |                    |sequenced for single-end      |
+|                    |                    |reads). Equivalently, it is   |
+|                    |                    |assumed that only the strand  |
+|                    |                    |generated during first strand |
+|                    |                    |synthesis is sequenced        |
 +--------------------+--------------------+------------------------------+
-|r-sconsrn     |Dircion Imin|Sm s bov                 |
-|                    |(Ligion)          |xcp TopH/Cinks       |
-|                    |Snr SOLiD      |norc h r h h     |
-|                    |                    |mos n o h rgmn  |
-|                    |                    |(in rnscrip coorins) is|
-|                    |                    |h irs sqnc (or ony  |
-|                    |                    |sqnc or sing-n      |
-|                    |                    |rs). Eqivny, i is   |
-|                    |                    |ssm h ony h srn  |
-|                    |                    |gnr ring scon srn|
-|                    |                    |synhsis is sqnc        |
+|fr-secondstrand     |Directional Illumina|Same as above                 |
+|                    |(Ligation)          |except TopHat/Cufflinks       |
+|                    |Standard SOLiD      |enforce the rule that the     |
+|                    |                    |leftmost end of the fragment  |
+|                    |                    |(in transcript coordinates) is|
+|                    |                    |the first sequenced (or only  |
+|                    |                    |sequenced for single-end      |
+|                    |                    |reads). Equivalently, it is   |
+|                    |                    |assumed that only the strand  |
+|                    |                    |generated during second strand|
+|                    |                    |synthesis is sequenced        |
 +--------------------+--------------------+------------------------------+
 
-For nsrn proocos,  rs n pirs r consir o mching
-in h sns ircion.
+For unstranded protocols, all reads and pairs are considered to matching
+in the sense direction.
 
-Usg
+Usage
 -----
 
-Typ::
+Type::
 
-   pyhon g2b.py --hp
+   python gtf2table.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor pysm
+import sys
+import pysam
 
-impor cgcor.xprimn s E
-impor cg.GTF s GTF
-impor cg.InxFs s InxFs
-impor cg.GnMoAnysis s GnMoAnysis
+import cgatcore.experiment as E
+import cgat.GTF as GTF
+import cgat.IndexedFasta as IndexedFasta
+import cgat.GeneModelAnalysis as GeneModelAnalysis
 
-impor pyBigWig
+import pyBigWig
 
 
- min(rgvNon):
+def main(argv=None):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom [].")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome [default=%default].")
 
-    prsr._rgmn("-q", "--qiy-i",
-                      s"qiy_i",
-                      yp"sring",
-                      hp"inm wih gnomic bs qiy "
-                      "inormion [].")
+    parser.add_argument("-q", "--quality-file",
+                      dest="quality_file",
+                      type="string",
+                      help="filename with genomic base quality "
+                      "information [default=%default].")
 
-    prsr._rgmn("-b", "--bm-i", s"bm_is",
-                      yp"sring", mvr"bm",
-                      hp"inm wih r mpping inormion. "
-                      "Mip is cn b sbmi in  "
-                      "comm-spr is [].")
+    parser.add_argument("-b", "--bam-file", dest="bam_files",
+                      type="string", metavar="bam",
+                      help="filename with read mapping information. "
+                      "Multiple files can be submitted in a "
+                      "comma-separated list [default=%default].")
 
-    prsr._rgmn("-i", "--bigwig-i", s"bigwig_i",
-                      yp"sring", mvr"bigwig",
-                      hp"inm wih bigwig inormion "
-                      "[].")
+    parser.add_argument("-i", "--bigwig-file", dest="bigwig_file",
+                      type="string", metavar="bigwig",
+                      help="filename with bigwig information "
+                      "[default=%default].")
 
-    prsr._rgmn("-", "--g-i", s"inm_g",
-                      yp"sring", cion"ppn", mvr'b',
-                      hp"inm wih xr g is. Th orr "
-                      "is imporn [].")
+    parser.add_argument("-f", "--gff-file", dest="filename_gff",
+                      type="string", action="append", metavar='bed',
+                      help="filename with extra gff files. The order "
+                      "is important [default=%default].")
 
-    prsr._rgmn("--inm-orm", s"inm_orm",
-                      yp"choic",
-                      choics("b", "g", "g"),
-                      hp"orm o sconry srm [].")
+    parser.add_argument("--filename-format", dest="filename_format",
+                      type="choice",
+                      choices=("bed", "gff", "gtf"),
+                      help="format of secondary stream [default=%default].")
 
-    prsr._rgmn("--rsric-sorc", s"g_sorcs", yp"sring",
-                      cion"ppn",
-                      hp"rsric inp o his 'sorc' in xr "
-                      "g i (or conr: ovrp) [].")
+    parser.add_argument("--restrict-source", dest="gff_sources", type="string",
+                      action="append",
+                      help="restrict input to this 'source' in extra "
+                      "gff file (for counter: overlap) [default=%default].")
 
-    prsr._rgmn("--rsric-r", s"g_rs", yp"sring",
-                      cion"ppn",
-                      hp"rsric inp o his 'r' in xr g "
-                      "i (or conr: ovrp) [].")
+    parser.add_argument("--restrict-feature", dest="gff_features", type="string",
+                      action="append",
+                      help="restrict input to this 'feature' in extra gff "
+                      "file (for counter: overlap) [default=%default].")
 
-    prsr._rgmn("-r", "--rporr", s"rporr", yp"choic",
-                      choics("gns", "rnscrips"),
-                      hp"rpor rss or 'gns' or 'rnscrips' "
-                      "[].")
+    parser.add_argument("-r", "--reporter", dest="reporter", type="choice",
+                      choices=("genes", "transcripts"),
+                      help="report results for 'genes' or 'transcripts' "
+                      "[default=%default].")
 
-    prsr._rgmn("-s", "--scion", s"scions",
-                      yp"choic",
-                      cion"ppn",
-                      choics("xons", "inrons"),
-                      hp"sc rng on which conrs wi opr "
-                      "[].")
+    parser.add_argument("-s", "--section", dest="sections",
+                      type="choice",
+                      action="append",
+                      choices=("exons", "introns"),
+                      help="select range on which counters will operate "
+                      "[default=%default].")
 
-    prsr._rgmn("-c", "--conr", s"conrs",
-                      yp"choic",
-                      cion"ppn",
-                      choics(	"bigwig-cons",
-                                "bining-prn",
-                                "cssiir",
-                                "cssiir-rnsq",
-                                "cssiir-rnsq-spicing",
-                                "cssiir-poii",
-                                "composiion-n",
-                                "composiion-cpg",
-                                "covrg",
-                                "isnc",
-                                "isnc-gns",
-                                "isnc-ss",
-                                "ngh",
-                                'nighbors',
-                                "ovrp",
-                                "ovrp-srn",
-                                "ovrp-rnscrips",
-                                "ovrrn",
-                                "posiion",
-                                "proximiy",
-                                "proximiy-xcsiv",
-                                "proximiy-nghmch",
-                                "qiy",
-                                "r-covrg",
-                                "r-xnsion",
-                                "r-ovrp",
-                                "r-cons",
-                                "r-cons",
-                                "rpir-cons",
-                                "rpir-cons",
-                                "spic",
-                                "spic-comprison",
-                                "rrioris"),
-                      hp"sc conrs o ppy o inp "
-                      "[].")
+    parser.add_argument("-c", "--counter", dest="counters",
+                      type="choice",
+                      action="append",
+                      choices=(	"bigwig-counts",
+                                "binding-pattern",
+                                "classifier",
+                                "classifier-rnaseq",
+                                "classifier-rnaseq-splicing",
+                                "classifier-polii",
+                                "composition-na",
+                                "composition-cpg",
+                                "coverage",
+                                "distance",
+                                "distance-genes",
+                                "distance-tss",
+                                "length",
+                                'neighbours',
+                                "overlap",
+                                "overlap-stranded",
+                                "overlap-transcripts",
+                                "overrun",
+                                "position",
+                                "proximity",
+                                "proximity-exclusive",
+                                "proximity-lengthmatched",
+                                "quality",
+                                "read-coverage",
+                                "read-extension",
+                                "read-overlap",
+                                "read-counts",
+                                "read-fullcounts",
+                                "readpair-counts",
+                                "readpair-fullcounts",
+                                "splice",
+                                "splice-comparison",
+                                "territories"),
+                      help="select counters to apply to input "
+                      "[default=%default].")
 
-    prsr._rgmn("---g-sorc", s"_g_sorc",
-                      cion"sor_r",
-                      hp" g i o sorc o op "
-                      "[].")
+    parser.add_argument("--add-gtf-source", dest="add_gtf_source",
+                      action="store_true",
+                      help="add gtf field of source to output "
+                      "[default=%default].")
 
-    prsr._rgmn("--proxim-isnc", s"proxim_isnc",
-                      yp"in",
-                      hp"isnc o b consir proxim o "
-                      "n inrv [].")
+    parser.add_argument("--proximal-distance", dest="proximal_distance",
+                      type="int",
+                      help="distance to be considered proximal to "
+                      "an interval [default=%default].")
 
-    prsr._rgmn("--mi-mpping-mho",
-                      s"mi_mpping",
-                      yp"choic",
-                      choics('', 'ignor', 'wigh'),
-                      hp"how o r mi-mpping rs in "
-                      "bm-is. Rqirs "
-                      "h NH g o b s by h mppr "
-                      "[].")
+    parser.add_argument("--multi-mapping-method",
+                      dest="multi_mapping",
+                      type="choice",
+                      choices=('all', 'ignore', 'weight'),
+                      help="how to treat multi-mapping reads in "
+                      "bam-files. Requires "
+                      "the NH flag to be set by the mapper "
+                      "[default=%default].")
 
-    prsr._rgmn("--s-brcos",
-                      s"s_brcos",
-                      cion"sor_r",
-                      hp"Us brcos o con niq mi's. "
-                      "UMI's r spcii in h r iniir "
-                      "s h s i, whr is r spr "
-                      "by nrscors, .g. "
+    parser.add_argument("--use-barcodes",
+                      dest="use_barcodes",
+                      action="store_true",
+                      help="Use barcodes to count unique umi's. "
+                      "UMI's are specified in the read identifier "
+                      "as the last field, where fields are separated "
+                      "by underscores, e.g. "
                       "@READ:ILLUMINA:STUFF_NAMINGSTUFF_UMI. "
-                      "Whn r, niq cons r rrn. "
-                      "Crrny ony compib wih con-rs")
+                      "When true, unique counts are returned. "
+                      "Currently only compatible with count-reads")
 
-    prsr._rgmn("--smp-probbiiy",
-                      s"smp_probbiiy",
-                      yp"o",
-                      hp"Spciy h probbiiy o whhr ny"
-                      "givn r or r pir in  i bm is con"
-                      "Crrny ony compib wih con-rs")
+    parser.add_argument("--sample-probability",
+                      dest="sample_probability",
+                      type="float",
+                      help="Specify the probability of whether any"
+                      "given read or read pair in a file bam is counted"
+                      "Currently only compatible with count-reads")
 
-    prsr._rgmn("--comn-prix", s"prixs",
-                      yp"sring",
-                      cion"ppn",
-                      hp" prix o comn hrs - prixs "
-                      "r s in h sm orr s h conrs "
-                      "[].")
+    parser.add_argument("--column-prefix", dest="prefixes",
+                      type="string",
+                      action="append",
+                      help="add prefix to column headers - prefixes "
+                      "are used in the same order as the counters "
+                      "[default=%default].")
 
-    prsr._rgmn("--ibrry-yp",
-                      s"ibrry_yp",
-                      yp"choic",
-                      choics("nsrn",
-                               "irssrn",
-                               "sconsrn",
-                               "r-nsrn",
-                               "r-irssrn",
-                               "r-sconsrn"),
-                      hp"ibrry yp o rs in bm i. "
-                      "[]")
+    parser.add_argument("--library-type",
+                      dest="library_type",
+                      type="choice",
+                      choices=("unstranded",
+                               "firststrand",
+                               "secondstrand",
+                               "fr-unstranded",
+                               "fr-firststrand",
+                               "fr-secondstrand"),
+                      help="library type of reads in bam file. "
+                      "[default=%default]")
 
-    prsr._rgmn("--min-mpping-qiy",
-                      s"minimm_mpping_qiy",
-                      yp"o",
-                      hp"minimm mpping qiy. Rs wih  qiy "
-                      "scor o ss wi b ignor. "
-                      "[]")
+    parser.add_argument("--min-mapping-quality",
+                      dest="minimum_mapping_quality",
+                      type="float",
+                      help="minimum mapping quality. Reads with a quality "
+                      "score of less will be ignored. "
+                      "[default=%default]")
 
-    prsr.s_s(
-        gnom_iNon,
-        rporr"gns",
-        wih_vsTr,
-        scions[],
-        conrs[],
-        inm_g[],
-        inm_ormNon,
-        g_rs[],
-        g_sorcs[],
-        _g_sorcFs,
-        proxim_isnc10000,
-        bm_isNon,
-        mi_mpping'',
-        ibrry_yp'r-nsrn',
-        prixs[],
-        minimm_mpping_qiy0,
-        s_brcosFs,
-        smp_probbiiy1.0
+    parser.set_defaults(
+        genome_file=None,
+        reporter="genes",
+        with_values=True,
+        sections=[],
+        counters=[],
+        filename_gff=[],
+        filename_format=None,
+        gff_features=[],
+        gff_sources=[],
+        add_gtf_source=False,
+        proximal_distance=10000,
+        bam_files=None,
+        multi_mapping='all',
+        library_type='fr-unstranded',
+        prefixes=[],
+        minimum_mapping_quality=0,
+        use_barcodes=False,
+        sample_probability=1.0
     )
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    (opions, rgs)  E.sr(prsr, _op_opionsTr, rgvrgv)
+    (options, args) = E.start(parser, add_output_options=True, argv=argv)
 
-    i opions.prixs:
-        i n(opions.prixs) ! n(opions.conrs):
-            ris VError(
-                "i ny prix is givn, h nmbr o prixs "
-                "ms b h sm s h nmbr o conrs")
+    if options.prefixes:
+        if len(options.prefixes) != len(options.counters):
+            raise ValueError(
+                "if any prefix is given, the number of prefixes "
+                "must be the same as the number of counters")
 
-    # g is
-    i opions.gnom_i:
-        s  InxFs.InxFs(opions.gnom_i)
-    s:
-        s  Non
+    # get files
+    if options.genome_file:
+        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    else:
+        fasta = None
 
-    i opions.qiy_i:
-        qiy  InxFs.InxFs(opions.qiy_i)
-        qiy.sTrnsor(InxFs.TrnsorBys())
-    s:
-        qiy  Non
+    if options.quality_file:
+        quality = IndexedFasta.IndexedFasta(options.quality_file)
+        quality.setTranslator(IndexedFasta.TranslatorBytes())
+    else:
+        quality = None
 
-    i opions.bm_is:
-        bm_is  []
-        or bmi in opions.bm_is.spi(","):
-            bm_is.ppn(pysm.AignmnFi(bmi, "rb"))
-    s:
-        bm_is  Non
+    if options.bam_files:
+        bam_files = []
+        for bamfile in options.bam_files.split(","):
+            bam_files.append(pysam.AlignmentFile(bamfile, "rb"))
+    else:
+        bam_files = None
 
-    i opions.bigwig_i:
-        bigwig_i  pyBigWig.opn(opions.bigwig_i)
-    s:
-        bigwig_i  Non
+    if options.bigwig_file:
+        bigwig_file = pyBigWig.open(options.bigwig_file)
+    else:
+        bigwig_file = None
 
-    conrs  []
+    counters = []
 
-    i no opions.scions:
-        E.ino("conrs wi s h  scion (xons)")
-        opions.scions.ppn(Non)
+    if not options.sections:
+        E.info("counters will use the default section (exons)")
+        options.sections.append(None)
 
-    i no opions.g_sorcs:
-        opions.g_sorcs.ppn(Non)
-    i no opions.g_rs:
-        opions.g_rs.ppn(Non)
+    if not options.gff_sources:
+        options.gff_sources.append(None)
+    if not options.gff_features:
+        options.gff_features.append(None)
 
-    cc  E.Conr()
+    cc = E.Counter()
 
-    or n, c in nmr(opions.conrs):
-        i opions.prixs:
-            prix  opions.prixs[n]
-        s:
-            prix  Non
+    for n, c in enumerate(options.counters):
+        if options.prefixes:
+            prefix = options.prefixes[n]
+        else:
+            prefix = None
 
-        i c  "posiion":
-            or scion in opions.scions:
-                conrs.ppn(
-                    GnMoAnysis.ConrPosiion(
-                        scionscion,
-                        opionsopions,
-                        prixprix))
-        i c  "ngh":
-            or scion in opions.scions:
-                conrs.ppn(
-                    GnMoAnysis.ConrLnghs(
-                        scionscion,
-                        opionsopions,
-                        prixprix))
-        i c  "spic":
-            i s is Non:
-                ris VError('spic rqirs  gnomic sqnc')
-            conrs.ppn(GnMoAnysis.ConrSpicSis(ss, prixprix))
-        i c  "qiy":
-            i s is Non:
-                ris VError('qiy rqirs  qiy scor sqnc')
-            conrs.ppn(GnMoAnysis.ConrQiy(sqiy, prixprix))
-        i c  "ovrrn":
-            conrs.ppn(GnMoAnysis.ConrOvrrn(
-                inm_gopions.inm_g,
-                opionsopions,
-                prixprix))
-        i c  "r-covrg":
-            conrs.ppn(GnMoAnysis.ConrRCovrg(
-                bm_is,
-                opionsopions,
-                prixprix))
-        i c  "r-xnsion":
-            conrs.ppn(GnMoAnysis.ConrRExnsion(
-                bm_is,
-                inm_gopions.inm_g,
-                opionsopions,
-                prixprix))
-        i c  "r-ovrp":
-            conrs.ppn(GnMoAnysis.ConrROvrp(
-                bm_is,
-                mi_mppingopions.mi_mpping,
-                minimm_mpping_qiyopions.minimm_mpping_qiy,
-                opionsopions,
-                prixprix))
-        i c  "r-cons":
-            conrs.ppn(GnMoAnysis.ConrRCons(
-                bm_is,
-                mi_mppingopions.mi_mpping,
-                s_brcosopions.s_brcos,
-                smp_probbiiyopions.smp_probbiiy,
-                minimm_mpping_qiyopions.minimm_mpping_qiy,
-                opionsopions,
-                prixprix))
-        i c  "r-cons":
-            conrs.ppn(GnMoAnysis.ConrRConsF(
-                bm_is,
-                mi_mppingopions.mi_mpping,
-                smp_probbiiyopions.smp_probbiiy,
-                minimm_mpping_qiyopions.minimm_mpping_qiy,
-                opionsopions,
-                prixprix))
-        i c  "rpir-cons":
-            conrs.ppn(GnMoAnysis.ConrRPirCons(
-                bm_is,
-                mi_mppingopions.mi_mpping,
-                smp_probbiiyopions.smp_probbiiy,
-                ibrry_ypopions.ibrry_yp,
-                minimm_mpping_qiyopions.minimm_mpping_qiy,
-                opionsopions,
-                prixprix))
-        i c  "rpir-cons":
-            conrs.ppn(GnMoAnysis.ConrRPirConsF(
-                bm_is,
-                mi_mppingopions.mi_mpping,
-                smp_probbiiyopions.smp_probbiiy,
-                minimm_mpping_qiyopions.minimm_mpping_qiy,
-                opionsopions,
-                prixprix))
-        i c  "bigwig-cons":
-            conrs.ppn(GnMoAnysis.ConrBigwigCons(
-                bigwig_i,
-                opionsopions, prixprix))
-        i c  "spic-comprison":
-            i s is Non:
-                ris VError('spic-comprison rqirs  gnomic '
-                                 'sqnc')
-            conrs.ppn(GnMoAnysis.ConrSpicSiComprison(
-                ss,
-                inm_gopions.inm_g,
-                rNon,
-                sorcNon,
-                opionsopions, prixprix))
-        i c  "composiion-n":
-            i s is Non:
-                ris VError('composiion-n rqirs  gnomic sqnc')
-            or scion in opions.scions:
-                conrs.ppn(GnMoAnysis.ConrComposiionNcois(
-                    ss,
-                    scionscion,
-                    opionsopions,
-                    prixprix))
-        i c  "composiion-cpg":
-            i s is Non:
-                ris VError('composiion-cpg rqirs  gnomic sqnc')
-            or scion in opions.scions:
-                conrs.ppn(GnMoAnysis.ConrComposiionCpG(
-                    ss,
-                    scionscion,
-                    opionsopions, prixprix))
+        if c == "position":
+            for section in options.sections:
+                counters.append(
+                    GeneModelAnalysis.CounterPosition(
+                        section=section,
+                        options=options,
+                        prefix=prefix))
+        elif c == "length":
+            for section in options.sections:
+                counters.append(
+                    GeneModelAnalysis.CounterLengths(
+                        section=section,
+                        options=options,
+                        prefix=prefix))
+        elif c == "splice":
+            if fasta is None:
+                raise ValueError('splice requires a genomic sequence')
+            counters.append(GeneModelAnalysis.CounterSpliceSites(fasta=fasta, prefix=prefix))
+        elif c == "quality":
+            if fasta is None:
+                raise ValueError('quality requires a quality score sequence')
+            counters.append(GeneModelAnalysis.CounterQuality(fasta=quality, prefix=prefix))
+        elif c == "overrun":
+            counters.append(GeneModelAnalysis.CounterOverrun(
+                filename_gff=options.filename_gff,
+                options=options,
+                prefix=prefix))
+        elif c == "read-coverage":
+            counters.append(GeneModelAnalysis.CounterReadCoverage(
+                bam_files,
+                options=options,
+                prefix=prefix))
+        elif c == "read-extension":
+            counters.append(GeneModelAnalysis.CounterReadExtension(
+                bam_files,
+                filename_gff=options.filename_gff,
+                options=options,
+                prefix=prefix))
+        elif c == "read-overlap":
+            counters.append(GeneModelAnalysis.CounterReadOverlap(
+                bam_files,
+                multi_mapping=options.multi_mapping,
+                minimum_mapping_quality=options.minimum_mapping_quality,
+                options=options,
+                prefix=prefix))
+        elif c == "read-counts":
+            counters.append(GeneModelAnalysis.CounterReadCounts(
+                bam_files,
+                multi_mapping=options.multi_mapping,
+                use_barcodes=options.use_barcodes,
+                sample_probability=options.sample_probability,
+                minimum_mapping_quality=options.minimum_mapping_quality,
+                options=options,
+                prefix=prefix))
+        elif c == "read-fullcounts":
+            counters.append(GeneModelAnalysis.CounterReadCountsFull(
+                bam_files,
+                multi_mapping=options.multi_mapping,
+                sample_probability=options.sample_probability,
+                minimum_mapping_quality=options.minimum_mapping_quality,
+                options=options,
+                prefix=prefix))
+        elif c == "readpair-counts":
+            counters.append(GeneModelAnalysis.CounterReadPairCounts(
+                bam_files,
+                multi_mapping=options.multi_mapping,
+                sample_probability=options.sample_probability,
+                library_type=options.library_type,
+                minimum_mapping_quality=options.minimum_mapping_quality,
+                options=options,
+                prefix=prefix))
+        elif c == "readpair-fullcounts":
+            counters.append(GeneModelAnalysis.CounterReadPairCountsFull(
+                bam_files,
+                multi_mapping=options.multi_mapping,
+                sample_probability=options.sample_probability,
+                minimum_mapping_quality=options.minimum_mapping_quality,
+                options=options,
+                prefix=prefix))
+        elif c == "bigwig-counts":
+            counters.append(GeneModelAnalysis.CounterBigwigCounts(
+                bigwig_file,
+                options=options, prefix=prefix))
+        elif c == "splice-comparison":
+            if fasta is None:
+                raise ValueError('splice-comparison requires a genomic '
+                                 'sequence')
+            counters.append(GeneModelAnalysis.CounterSpliceSiteComparison(
+                fasta=fasta,
+                filename_gff=options.filename_gff,
+                feature=None,
+                source=None,
+                options=options, prefix=prefix))
+        elif c == "composition-na":
+            if fasta is None:
+                raise ValueError('composition-na requires a genomic sequence')
+            for section in options.sections:
+                counters.append(GeneModelAnalysis.CounterCompositionNucleotides(
+                    fasta=fasta,
+                    section=section,
+                    options=options,
+                    prefix=prefix))
+        elif c == "composition-cpg":
+            if fasta is None:
+                raise ValueError('composition-cpg requires a genomic sequence')
+            for section in options.sections:
+                counters.append(GeneModelAnalysis.CounterCompositionCpG(
+                    fasta=fasta,
+                    section=section,
+                    options=options, prefix=prefix))
 
-        i c in ("ovrp",
-                   "ovrp-srn",
-                   "ovrp-rnscrips",
-                   "proximiy",
-                   "proximiy-xcsiv",
-                   "proximiy-nghmch",
-                   "nighbors",
-                   "rrioris",
-                   "isnc",
-                   "isnc-gns",
-                   "isnc-ss",
-                   "bining-prn",
-                   "covrg"):
-            i c  "ovrp":
-                mp  GnMoAnysis.ConrOvrp
-            i c  "ovrp-srn":
-                mp  GnMoAnysis.ConrOvrpSrn
-            i c  "ovrp-rnscrips":
-                mp  GnMoAnysis.ConrOvrpTrnscrips
-            i c  "proximiy":
-                mp  GnMoAnysis.ConrProximiy
-            i c  "nighbors":
-                mp  GnMoAnysis.ConrNighbors
-            i c  "proximiy-xcsiv":
-                mp  GnMoAnysis.ConrProximiyExcsiv
-            i c  "proximiy-nghmch":
-                mp  GnMoAnysis.ConrProximiyLnghMch
-            i c  "rrioris":
-                mp  GnMoAnysis.ConrTrrioris
-            i c  "isnc":
-                mp  GnMoAnysis.ConrDisnc
-            i c  "isnc-gns":
-                mp  GnMoAnysis.ConrDisncGns
-            i c  "isnc-ss":
-                mp  GnMoAnysis.ConrDisncTrnscripionSrSis
-            i c  "covrg":
-                mp  GnMoAnysis.ConrCovrg
-            i c  "bining-prn":
-                mp  GnMoAnysis.ConrBiningPrn
+        elif c in ("overlap",
+                   "overlap-stranded",
+                   "overlap-transcripts",
+                   "proximity",
+                   "proximity-exclusive",
+                   "proximity-lengthmatched",
+                   "neighbours",
+                   "territories",
+                   "distance",
+                   "distance-genes",
+                   "distance-tss",
+                   "binding-pattern",
+                   "coverage"):
+            if c == "overlap":
+                template = GeneModelAnalysis.CounterOverlap
+            if c == "overlap-stranded":
+                template = GeneModelAnalysis.CounterOverlapStranded
+            elif c == "overlap-transcripts":
+                template = GeneModelAnalysis.CounterOverlapTranscripts
+            elif c == "proximity":
+                template = GeneModelAnalysis.CounterProximity
+            elif c == "neighbours":
+                template = GeneModelAnalysis.CounterNeighbours
+            elif c == "proximity-exclusive":
+                template = GeneModelAnalysis.CounterProximityExclusive
+            elif c == "proximity-lengthmatched":
+                template = GeneModelAnalysis.CounterProximityLengthMatched
+            elif c == "territories":
+                template = GeneModelAnalysis.CounterTerritories
+            elif c == "distance":
+                template = GeneModelAnalysis.CounterDistance
+            elif c == "distance-genes":
+                template = GeneModelAnalysis.CounterDistanceGenes
+            elif c == "distance-tss":
+                template = GeneModelAnalysis.CounterDistanceTranscriptionStartSites
+            elif c == "coverage":
+                template = GeneModelAnalysis.CounterCoverage
+            elif c == "binding-pattern":
+                template = GeneModelAnalysis.CounterBindingPattern
 
-            or scion in opions.scions:
-                or sorc in opions.g_sorcs:
-                    or r in opions.g_rs:
-                        conrs.ppn(mp(
-                            inm_gopions.inm_g,
-                            rr,
-                            sorcsorc,
-                            ss,
-                            scionscion,
-                            opionsopions,
-                            prixprix))
+            for section in options.sections:
+                for source in options.gff_sources:
+                    for feature in options.gff_features:
+                        counters.append(template(
+                            filename_gff=options.filename_gff,
+                            feature=feature,
+                            source=source,
+                            fasta=fasta,
+                            section=section,
+                            options=options,
+                            prefix=prefix))
 
-        i c  "cssiir":
-            conrs.ppn(GnMoAnysis.Cssiir(
-                inm_gopions.inm_g,
-                ss,
-                opionsopions, prixprix))
+        elif c == "classifier":
+            counters.append(GeneModelAnalysis.Classifier(
+                filename_gff=options.filename_gff,
+                fasta=fasta,
+                options=options, prefix=prefix))
 
-        i c  "cssiir-rnsq":
-            conrs.ppn(GnMoAnysis.CssiirRNASq(
-                inm_gopions.inm_g,
-                ss,
-                opionsopions, prixprix))
-        i c  "cssiir-rnsq-spicing":
-            conrs.ppn(GnMoAnysis.CssiirRNASqSpicing(
-                inm_gopions.inm_g,
-                ss,
-                opionsopions,
-                prixprix))
-        i c  "cssiir-poii":
-            conrs.ppn(GnMoAnysis.CssiirPoII(
-                inm_gopions.inm_g,
-                rNon,
-                sorcNon,
-                ss,
-                opionsopions,
-                prixprix))
-        i c  "bining-prn":
-            conrs.ppn(GnMoAnysis.ConrBiningPrn(
-                inm_gopions.inm_g,
-                rNon,
-                sorcNon,
-                ss,
-                opionsopions,
-                prixprix))
+        elif c == "classifier-rnaseq":
+            counters.append(GeneModelAnalysis.ClassifierRNASeq(
+                filename_gff=options.filename_gff,
+                fasta=fasta,
+                options=options, prefix=prefix))
+        elif c == "classifier-rnaseq-splicing":
+            counters.append(GeneModelAnalysis.ClassifierRNASeqSplicing(
+                filename_gff=options.filename_gff,
+                fasta=fasta,
+                options=options,
+                prefix=prefix))
+        elif c == "classifier-polii":
+            counters.append(GeneModelAnalysis.ClassifierPolII(
+                filename_gff=options.filename_gff,
+                feature=None,
+                source=None,
+                fasta=fasta,
+                options=options,
+                prefix=prefix))
+        elif c == "binding-pattern":
+            counters.append(GeneModelAnalysis.CounterBindingPattern(
+                filename_gff=options.filename_gff,
+                feature=None,
+                source=None,
+                fasta=fasta,
+                options=options,
+                prefix=prefix))
 
-    i opions.rporr  "gns":
-        iror  GTF._gn_iror
-        hr  ["gn_i"]
-        hr  mb x: [x[0].gn_i]
-    i opions.rporr  "rnscrips":
-        iror  GTF.rnscrip_iror
-        hr  ["rnscrip_i"]
-        hr  mb x: [x[0].rnscrip_i]
+    if options.reporter == "genes":
+        iterator = GTF.flat_gene_iterator
+        header = ["gene_id"]
+        fheader = lambda x: [x[0].gene_id]
+    elif options.reporter == "transcripts":
+        iterator = GTF.transcript_iterator
+        header = ["transcript_id"]
+        fheader = lambda x: [x[0].transcript_id]
 
-    i opions._g_sorc:
-        hr.ppn("sorc")
-        is  mb x: [x[0].sorc]
-    s:
-        is  mb x: []
+    if options.add_gtf_source:
+        header.append("source")
+        ffields = lambda x: [x[0].source]
+    else:
+        ffields = lambda x: []
 
-    opions.so.wri("\".join(
-        hr + [x.gHr() or x in conrs]) + "\n")
+    options.stdout.write("\t".join(
+        header + [x.getHeader() for x in counters]) + "\n")
 
-    or gs in iror(GTF.iror(opions.sin)):
-        cc.inp + 1
+    for gffs in iterator(GTF.iterator(options.stdin)):
+        cc.input += 1
 
-        or conr in conrs:
-            conr.p(gs)
+        for counter in counters:
+            counter.update(gffs)
 
-        skip  n([x or x in conrs i x.skip])  n(conrs)
-        i skip:
-            cc.skipp + 1
-            conin
+        skip = len([x for x in counters if x.skip]) == len(counters)
+        if skip:
+            cc.skipped += 1
+            continue
 
-        opions.so.wri("\".join(
-            hr(gs) +
-            is(gs) +
-            [sr(conr) or conr in conrs]) + "\n")
+        options.stdout.write("\t".join(
+            fheader(gffs) +
+            ffields(gffs) +
+            [str(counter) for counter in counters]) + "\n")
 
-        cc.op + 1
+        cc.output += 1
 
-    E.ino("s"  sr(cc))
-    or conr in conrs:
-        E.ino("s\s"  (rpr(conr), sr(conr.conr)))
-    E.sop()
+    E.info("%s" % str(cc))
+    for counter in counters:
+        E.info("%s\t%s" % (repr(counter), str(counter.counter)))
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

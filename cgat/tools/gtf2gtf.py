@@ -1,1424 +1,1424 @@
-'''g2g.py - mnip rnscrip mos
+'''gtf2gtf.py - manipulate transcript models
+============================================
 
+:Tags: Genomics Genesets GTF Manipulation
 
-:Tgs: Gnomics Gnss GTF Mnipion
-
-Prpos
+Purpose
 -------
 
-This scrip rs  gn s in :rm:`g` orm rom sin, ppis som
-rnsormion, n ops  nw gn s in :rm:`g` orm o so.
-Th rnsormion is chosn by h ``--mho`` commn in opion.
+This script reads a gene set in :term:`gtf` format from stdin, applies some
+transformation, and outputs a new gene set in :term:`gtf` format to stdout.
+The transformation is chosen by the ``--method`` command line option.
 
-Trnsormions vib or s in his scrip cn broy b
-cssii ino or cgoris:
+Transformations available for use in this script can broadly be
+classified into four categories:
 
-1. soring gn ss
-2. mniping gn mos
-3. iring gn ss
-4. sing/rsing is wihin  g i
+1. sorting gene sets
+2. manipulating gene models
+3. filtering gene sets
+4. setting/resetting fields within a gtf file
 
-Frhr opions or working wih g is r vib in g2g.py,
-which cn b rn wih h spciicion --is-g
+Further options for working with gtf files are available in gff2gff.py,
+which can be run with the specification --is-gtf
 
 
-Soring gn ss
+Sorting gene sets
 +++++++++++++++++
 
-``sor``
+``sort``
 
-   Sors nris in g i by on or mor is
+   Sorts entries in gtf file by one or more fields
 
    +-----------------+---------------------------------------+
-   | opion          | orr in which is r sor      |
+   | option          | order in which fields are sorted      |
    +-----------------|---------------------------------------+
-   | gn            | gn_i, conig, sr                |
+   | gene            | gene_id, contig, start                |
    +-----------------+---------------------------------------+
-   | gn+rnscrip | gn_i, rnscrip_i, conig, sr |
+   | gene+transcript | gene_id, transcript_id, contig, start |
    +-----------------+---------------------------------------+
-   | conig+gn     | conig, gn_i, rnscrip_i, sr |
+   | contig+gene     | contig, gene_id, transcript_id, start |
    +-----------------+---------------------------------------+
-   | rnscrip      | rnscrip_i, conig, sr          |
+   | transcript      | transcript_id, contig, start          |
    +-----------------+---------------------------------------+
-   | posiion        | conig, sr                         |
+   | position        | contig, start                         |
    +-----------------+---------------------------------------+
-   | posiion+gn   | conig( gn_i, sr )              |
+   | position+gene   | contig( gene_id, start )              |
    +-----------------+---------------------------------------+
-   | gn+posiion   | gn_i, conig, sr                |
+   | gene+position   | gene_id, contig, start                |
    +-----------------+---------------------------------------+
-   | gn+xon       | gn_i, xon_i                      |
+   | gene+exon       | gene_id, exon_id                      |
    +-----------------+---------------------------------------+
 
-   N.B. posiion+gn sors by gn_i, sr, hn sbsqny sors
-   n gn iss by conig, sr
+   N.B. position+gene sorts by gene_id, start, then subsequently sorts
+   flattened gene lists by contig, start
 
 
-Mniping gn-mos
+Manipulating gene-models
 ++++++++++++++++++++++++
 
-Opions h cn b s o r h rs rprsn in  :rm:`g`
-i. Ony on mho cn b spcii  onc.
+Options that can be used to alter the features represented in a :term:`gtf`
+file. Only one method can be specified at once.
 
-Inp gs n o b sor so h rs or  gn or rnscrip
-ppr conscivy wihin h i. This cn b chvi sing
-``--mhosor``.
+Input gtfs need to be sorted so that features for a gene or transcript
+appear consecutively within the file. This can be achevied using
+``--method=sort``.
 
 
-``gns-o-niq-chnks```
-    Divi h comp ngh o  gn p ino chnks h rprsn
-    rngs o bss h r  prsn in h sm s o rnscrips.
-    E.g. or wo ovrpping xons n nry wi b op rprsning
-    h ovrp n  spr nry ch or h sqncs ony prsn
-    in on. Rngs which r bwn h irs TSS n s TTS b no
-    prsn in ny rnscrip (i.. mrg inrons) r so op.
-    Us or DEXSq ik spicing nysis
+``genes-to-unique-chunks```
+    Divide the complete length of a gene up into chunks that represent
+    ranges of bases that are all present in the same set of transcripts.
+    E.g. for two overlapping exons an entry will be output representing
+    the overlap and a seperate entry each for the sequences only present
+    in one. Ranges which are between the first TSS and last TTS but not
+    present in any transcript (i.e. merged introns) are also output.
+    Useful for DEXSeq like splicing analysis
 
-``in-rin-inrons``
-    Fins inrvs wihin  rnscrip h rprsn rin-inrons,
-    hr  rin inron is consir o b n inron in on rnscrip
-    h is niry conin wihin h xon o nohr. Th rin
-    inron wi b ssign o h rnscrip wih h conining xon. Whr
-    mip, ovrpping inrons r conin wihin  sing xon o 
-    rnscrip, h nion o h inrons wi b op. Ths whn consiring
-    n invi rnscrip, ops wi b non-ovrpping. Howvr,
-    ovrpping, or vn inic r cn b op i hy bong o
-    irn rnscrips.
+``find-retained-introns``
+    Finds intervals within a transcript that represent retained-introns,
+    here a retained intron is considered to be an intron in one transcript
+    that is entirely contianed within the exon of another. The retained
+    intron will be assigned to the transcript with the containing exon. Where
+    multiple, overlapping introns are contained within a single exon of a
+    transcript, the union of the introns will be output. Thus when considering
+    an indevidual transcript, outputs will be non-overlapping. However,
+    overlapping, or even identical feature can be output if they belong to
+    different transcripts.
 
-``mrg-xons``
-    Mrgs ovrpping xons or  rnscrips o  gn, oping
-    h mrg xons. Cn b s in conjncion wih
-    ``mrg-xons-isnc`` o s h minimm isnc h my
-    ppr bwn wo xons bor hy r mrg.I
-    ``--mrk-r`` is s, h UTR rgions wi b op spry.
+``merge-exons``
+    Merges overlapping exons for all transcripts of a gene, outputting
+    the merged exons. Can be used in conjunction with
+    ``merge-exons-distance`` to set the minimum distance that may
+    appear between two exons before they are merged.If
+    ``--mark-utr`` is set, the UTR regions will be output separately.
 
-``mrg-rnscrips``
-    Mrgs  rnscrips o  gn. Ops conins  sing inrv h
-    spns h origin gn (boh inrons n xons). I ``--wih-r`` is
-    s, h op inrv wi so conin UTR.
+``merge-transcripts``
+    Merges all transcripts of a gene. Outputs contains a single interval that
+    spans the original gene (both introns and exons). If ``--with-utr`` is
+    set, the output interval will also contain UTR.
 
-``mrg-gns``
+``merge-genes``
 
-    Mrgs gns h hv ovrpping xons, oping  sing
-    gn_i n rnscrip_i or  xons o ovrpping gns. Th
-    inp ns  sor by rnscrip " (Dos no mrg inrvs on
-    irn srns).
+    Merges genes that have overlapping exons, outputting a single
+    gene_id and transcript_id for all exons of overlapping genes. The
+    input needs te sorted by transcript " (Does not merge intervals on
+    different strands).
 
-``join-xons``
-    Joins oghr  xons o  rnscrip, oping  sing
-    inrv h spns h origin rnscrip (boh inrons n
-    xons). Inp ns o b sor by rnscrip.
+``join-exons``
+    Joins together all exons of a transcript, outputting a single
+    interval that spans the original transcript (both introns and
+    exons). Input needs to be sorted by transcript.
 
-``inrsc-rnscrips``
-    Fins rgions rprsning h inrscion o  rnscrips o  gn.
-    Op wi conin inrvs spnning ony hos bss covr by 
-    rnscrips. I ``--wih-r`` is s, h UTR wi so b inc in h
-    inrsc. This mho ony ss ``xon`` or ``CDS`` rs.
+``intersect-transcripts``
+    Finds regions representing the intersection of all transcripts of a gene.
+    Output will contain intervals spanning only those bases covered by all
+    transcripts. If ``--with-utr`` is set, the UTR will also be included in the
+    intersect. This method only uses ``exon`` or ``CDS`` features.
 
-``mrg-inrons``
-    Ops  sing inrv h spns h rgion bwn h sr
-    o h irs inron n h n o s inron. Sing xons gns
-    wi no b op. Th inp ns o b sor by gn
+``merge-introns``
+    Outputs a single interval that spans the region between the start
+    of the first intron and the end of last intron. Single exons genes
+    will not be output. The input needs to be sorted by gene
 
-``xons2inrons``
-    Mrgs ovrpping inrons or  rnscrips o  gn,
-    oping h mrg inrons. Us ``--inron-min-ngh`` o
-    ignor mrg inrons bow  spcii ngh. Us
-    ``--inron-borr`` o spciy  nmbr o rsis o rmov 
-    ihr n o op inrons (rsis r rmov prior o
-    iring on siz whn s in conjncion wih
-    ``--inron-min-ngh``).
+``exons2introns``
+    Merges overlapping introns for all transcripts of a gene,
+    outputting the merged introns. Use ``--intron-min-length`` to
+    ignore merged introns below a specified length. Use
+    ``--intron-border`` to specify a number of residues to remove at
+    either end of output introns (residues are removed prior to
+    filtering on size when used in conjunction with
+    ``--intron-min-length``).
 
-``rnscrips2gns``
-    Csr rnscrips ino gns by xon ovrp ignoring ny
-    gn_is in h :rm:`g` i. My b s in conjncion wih
-    ``rs-srn``
+``transcripts2genes``
+    Cluster transcripts into genes by exon overlap ignoring any
+    gene_ids in the :term:`gtf` file. May be used in conjunction with
+    ``reset-strand``
 
-Th opion ``prmi-pics`` my b spcii in orr o
-ow gn-is o b pic wihin h inp :rm:`g` i
-(i.. or h sm gn-i o ppr non-conscivy wihin h
-inp i). Howvr, his opion crrny ony works or
-``mrg-xons``, ``mrg-rnscrips``, ``mrg-inrons``, n
-``inrsc-rnscrips``. I DOES NOT work or ``mrg-gns``,
-``join-xons``, or ``xons-i2inrons``.
+The option ``permit-duplicates`` may be specified in order to
+allow gene-ids to be duplicated within the input :term:`gtf` file
+(i.e. for the same gene-id to appear non-consecutively within the
+input file). However, this option currently only works for
+``merge-exons``, ``merge-transcripts``, ``merge-introns``, and
+``intersect-transcripts``. It DOES NOT work for ``merge-genes``,
+``join-exons``, or ``exons-file2introns``.
 
-Firing gn ss
+Filtering gene sets
 +++++++++++++++++++
 
-Opions h cn b s o ir :rm:`g` is. For rhr
-i s commn in opions.
+Options that can be used to filter :term:`gtf` files. For further
+detail see command line options.
 
-Inp gs n o b sor so h rs or  gn or rnscrip
-ppr conscivy wihin h i. This cn b chvi sing
-``--mhosor --sor-orr``.
+Input gtfs need to be sorted so that features for a gene or transcript
+appear consecutively within the file. This can be achevied using
+``--method=sort --sort-order``.
 
-``ir``
-    Whn iring on h bsis o 'gn-i' or 'rnscrip-i' 
-    inm conining is o b rmov my provi sing
-    ``--mp-sv-i``. Arnivy,  rnom sbsmp o
-    gns/rnscrips my b rin sing
-    ``--sm-ip-siz``. Us ``--min-xons-ngh`` in conjncion
-    wih ``--sm-ip-siz`` o spciy  minimm ngh or
-    gns/rnscrips o b rin. Us ``--ignor-srn`` o s
-    srn o '.' in op.
+``filter``
+    When filtering on the basis of 'gene-id' or 'transcript-id' a
+    filename containing ids to be removed may provided using
+    ``--map-tsv-file``. Alternatively, a random subsample of
+    genes/transcripts may be retained using
+    ``--sam-fileple-size``. Use ``--min-exons-length`` in conjunction
+    with ``--sam-fileple-size`` to specify a minimum length for
+    genes/transcripts to be retained. Use ``--ignore-strand`` to set
+    strand to '.' in output.
 
-    Ohr ir opions inc ongs-gn, ongs-rnscrip,
-    or rprsniv-rnscrip.
+    Other filter options include longest-gene, longest-transcript,
+    or representative-transcript.
 
-    Whn iring on h bsis o gn-i, rnscrip-i or ongs-gn,
-    ``--invr-ir`` my b s o invr h scion.
+    When filtering on the basis of gene-id, transcript-id or longest-gene,
+    ``--invert-filter`` may be used to invert the selection.
 
-``rmov-ovrpping``
-    Givn  scon :rm:`g` orm i (``--i-g``) rmovs
-    ny rs ovrpping. Any rnscrips h inrsc inrvs
-    in h sppi i r rmov.  (Dos no ccon or srn.)
+``remove-overlapping``
+    Given a second :term:`gff` formatted file (``--file-gff``) removes
+    any features overlapping. Any transcripts that intersect intervals
+    in the supplied file are removed.  (Does not account for strand.)
 
-``rmov-pics``
-    Rmov pic rs rom :rm:`g` i. Th yp o
-    r o b rmov is s by h opion ``-pic-r``.
-    Sing ``--pic-r`` o 'gn', 'rnscrip', or
-    'coorins' wi rmov ny inrv or which non-consciv
-    occrrncs o spcii rm ppr in inp :rm:`g` i.
-    Sing o 'csc', wi rmov ny inrv or which
-    rnscrip-i conins '_p'.
+``remove-duplicates``
+    Remove duplicate features from :term:`gtf` file. The type of
+    feature to be removed is set by the option ``-duplicate-feature``.
+    Setting ``--duplicate-feature`` to 'gene', 'transcript', or
+    'coordinates' will remove any interval for which non-consecutive
+    occurrances of specified term appear in input :term:`gtf` file.
+    Setting to 'ucsc', will remove any interval for which
+    transcript-id contains '_dup'.
 
 
-Sing is
+Setting fields
 ++++++++++++++
 
-Opions or ring is wihin :rm:`g`.
+Options for altering fields within :term:`gtf`.
 
-``rnm-gns``
-    Wih  mpping i is provi sing ``--mp-sv-i``, rnms
-    h gn_i o h on sppi. Ops  :rm:`g` i wih
-    i rnm. Any nry in inp :rm:`g` no ppring in
-    mpping i is iscr.
+``rename-genes``
+    With a mapping file is provided using ``--map-tsv-file``, renames
+    the gene_id to the one supplied. Outputs a :term:`gtf` file with
+    field renamed. Any entry in input :term:`gtf` not appearing in
+    mapping file is discarded.
 
-``rnm-rnscrips``
-    s ``rnm-gns``, b rnms h rnscrip_i.
+``rename-transcripts``
+    as ``rename-genes``, but renames the transcript_id.
 
-``-proin-i``
-    Tks  mp o rnscrip_i o proin_i rom h  sv i
-    (s opion ``--mp-sv-i``) n ppns h proin_i
-    provi o h ribs i.  Any nry wih  rnscrip_i
-    no ppring in h sv i is iscr.
+``add-protein-id``
+    Takes a map of transcript_id to protein_id from the a tsv file
+    (see option ``--map-tsv-file``) and appends the protein_id
+    provided to the attributes field.  Any entry with a transcript_id
+    not appearing in the tsv file is discarded.
 
-``rnmbr-gns``
-    Rnmbr gns rom 1 sing h prn provi in
-    ``--prn-iniir``.
+``renumber-genes``
+    Renumber genes from 1 using the pattern provided in
+    ``--pattern-identifier``.
 
-``rnmbr-rnscrips``
-    Rnmbr rnscrips rom 1 sing h prn provi in
-    ``--prn-iniir``.
+``renumber-transcripts``
+    Renumber transcripts from 1 using the pattern provided in
+    ``--pattern-identifier``.
 
-``ns-gns``
-    Rnmbr gns rom 1 sing h prn provi in
-    ``--prn-iniir``. Trnscrips wih h sm gn-i in h
-    inp :rm:`g` i wi hv irn gn-is in h op
-    :rm:`g` i.
+``unset-genes``
+    Renumber genes from 1 using the pattern provided in
+    ``--pattern-identifier``. Transcripts with the same gene-id in the
+    input :term:`gtf` file will have different gene-ids in the output
+    :term:`gtf` file.
 
-``s-rnscrip-o-gn``
-    Wi s h rnscrip-i o h gn-i or ch r.
+``set-transcript-to-gene``
+    Will set the transcript-id to the gene-id for each feature.
 
-``s-gn-o-rnscrip``
-    Wi s h gn-i o h rnscrip-i or ch ch r.
+``set-gene-to-transcript``
+    Will set the gene-id to the transcript-id for each each feature.
 
-``s-proin-o-rnscrip``
-    Wi ppn rnscrip_i o ribs i s 'proin_i'
+``set-protein-to-transcript``
+    Will append transcript_id to attributes field as 'protein_id'
 
-``s-scor-o-isnc``
-    Wi rs h scor i (i 6) o ch r in inp
-    :rm:`g` o b h isnc rom rnscripion sr si o
-    h sr o h r.  (Assms inp i is sor by
-    rnscrip-i)
+``set-score-to-distance``
+    Will reset the score field (field 6) of each feature in input
+    :term:`gtf` to be the distance from transcription start site to
+    the start of the feature.  (Assumes input file is sorted by
+    transcript-id)
 
-``s-gn_bioyp-o-sorc``
-    Ss h ``gn_bioyp`` rib rom h sorc comn. Wi ony s
-    i bioyp rib is no prsn in h crrn rcor.
+``set-gene_biotype-to-source``
+    Sets the ``gene_biotype`` attribute from the source column. Will only set
+    if biotype attribute is not present in the current record.
 
-``rnm-pics``
-    Rnm pic gn_is n rnscrip_is by iion o
-    nmric six
+``rename-duplicates``
+    Rename duplicate gene_ids and transcript_ids by addition of
+    numerical suffix
 
-``s-sorc-o-rnscrip_bioyp``
-    Ss h sorc rib o h ``rnscrip_bioyp``
-    rib. Wi ony s i ``rnscrip_bioyp`` rib is
-    prsn in h crrn rcor.
+``set-source-to-transcript_biotype``
+    Sets the source attribute to the ``transcript_biotype``
+    attribute. Will only set if ``transcript_biotype`` attribute is
+    present in the current record.
 
-Usg
+Usage
 -----
 
-Th oowing xmp sors h inp gn s by gn
-(``mhosor``) so h i cn b s s inp or
-``mhoinrsc-rnscrips`` h ops gnomic h gnomic
-rgions wihin  gn h is covr by  rnscrips in  gn.
-Finy, h rsn rnscrips r rnm wih h prn
-"MERGED_i"::
+The following example sorts the input gene set by gene
+(``method=sort``) so that it can be used as input for
+``method=intersect-transcripts`` that outputs genomic the genomic
+regions within a gene that is covered by all transcripts in a gene.
+Finally, the resultant transcripts are renamed with the pattern
+"MERGED_%i"::
 
-    cg g2g
-            --mhosor
-            --sor-orrgn \
-    | cg g2g
-               --mhoinrsc-rnscrips
-               --wih-r
-    | cg g2g
-               --mhornmbr-rnscrips
-               --prn-iniirMERGED_i
+    cgat gtf2gtf
+            --method=sort
+            --sort-order=gene \
+    | cgat gtf2gtf
+               --method=intersect-transcripts
+               --with-utr
+    | cgat gtf2gtf
+               --method=renumber-transcripts
+               --pattern-identifier=MERGED_%i
 
-Typ::
+Type::
 
-    cg g2g --hp
+    cgat gtf2gtf --help
 
-or commn in opions.
+for command line options.
 
-Commn in Opions
+Command line Options
 --------------------
 
 '''
-impor sys
-impor r
-impor rnom
-impor cocions
-impor iroos
+import sys
+import re
+import random
+import collections
+import itertools
 
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor cg.GTF s GTF
-impor cg.Gnomics s Gnomics
-impor cg.Inrvs s Inrvs
-
-
- in_rin_inrons(gn):
-    '''Givn  bn o rnscrips, in inrvs mching rin
-    inrons. A rin inron is in s n inrv rom n xon/inron
-    bonry o h nx whr boh bonris r in h sm xon o nohr
-    rnscrip'''
-
-    inron_inrvs  [GTF.oInronInrvs(rnscrip)
-                        or rnscrip in gn]
-    inron_inrvs  is(s(
-        iroos.chin.rom_irb(inron_inrvs)))
-    inron_inrvs.sor()
-
-    or rnscrip in gn:
-        xons  ir(sor(GTF.sRngs(rnscrip)))
-        inrons  ir(inron_inrvs)
-        rin_inrons  []
-        ry:
-            inron  nx(inrons)
-            xon  nx(xons)
-            whi Tr:
-
-                i xon[1] < inron[0]:
-
-                    xon  nx(xons)
-                    conin
-
-                i inron[0] > xon[0] n inron[1] < xon[1]:
-                    E.bg("xon s o rnscrip s conins inron s" 
-                            (xon, rnscrip[0].rnscrip_i, inron))
-                    rin_inrons.ppn(inron)
-                inron  nx(inrons)
-        xcp SopIrion:
-            pss
-
-        rin_inrons  Inrvs.combin(rin_inrons)
-
-        or inron in rin_inrons:
-            nry  GTF.Enry()
-            nry  nry.copy(rnscrip[0])
-            nry.sr  inron[0]
-            nry.n  inron[1]
-            yi nry
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import cgat.GTF as GTF
+import cgat.Genomics as Genomics
+import cgat.Intervals as Intervals
 
 
- gn_o_bocks(gn):
-    '''Givn  bn o  xons in  gn, cr  spr xon
-    or ch nqi pr o  xon, s w s on or inrons. '''
+def find_retained_introns(gene):
+    '''Given a bundle of transcripts, find intervals matching retained
+    introns. A retained intron is defined as an interval from an exon/intron
+    boundary to the next where both boundaries are in the same exon of another
+    transcript'''
 
-    xons  [(.sr, .n)
-             or  in gn i .r  "xon"]
+    intron_intervals = [GTF.toIntronIntervals(transcript)
+                        for transcript in gene]
+    intron_intervals = list(set(
+        itertools.chain.from_iterable(intron_intervals)))
+    intron_intervals.sort()
 
-    xons  is(s(sm(xons, ())))
-    xons.sor()
+    for transcript in gene:
+        exons = iter(sorted(GTF.asRanges(transcript)))
+        introns = iter(intron_intervals)
+        retained_introns = []
+        try:
+            intron = next(introns)
+            exon = next(exons)
+            while True:
 
-    nry  GTF.Enry()
-    nry  nry.copy(gn[0])
-    nry.rnscrip_i  "mrg"
-    nry.r  "xon"
-    nry.sorc  "mrg"
+                if exon[1] < intron[0]:
 
-    or i in rng(n(xons)-1):
-        nry.sr  xons[i]
-        nry.n  xons[i+1]
-        nry.ribs["xon_i"]  sr(i + 1)
-        yi nry
+                    exon = next(exons)
+                    continue
+
+                if intron[0] >= exon[0] and intron[1] <= exon[1]:
+                    E.debug("exon %s of transcript %s contains intron %s" %
+                            (exon, transcript[0].transcript_id, intron))
+                    retained_introns.append(intron)
+                intron = next(introns)
+        except StopIteration:
+            pass
+
+        retained_introns = Intervals.combine(retained_introns)
+
+        for intron in retained_introns:
+            entry = GTF.Entry()
+            entry = entry.copy(transcript[0])
+            entry.start = intron[0]
+            entry.end = intron[1]
+            yield entry
 
 
- min(rgvNon):
+def gene_to_blocks(gene):
+    '''Given a bundle of all exons in a gene, create a seperate exon
+    for each unqiue part of a exon, as well as one for introns. '''
 
-    i no rgv:
-        rgv  sys.rgv
+    exons = [(e.start, e.end)
+             for e in gene if e.feature == "exon"]
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    exons = list(set(sum(exons, ())))
+    exons.sort()
 
-    prsr._rgmn("--mrg-xons-isnc",
-                      s"mrg_xons_isnc",
-                      yp"in",
-                      hp"isnc in ncois bwn "
-                      "xons o b mrg [].")
+    entry = GTF.Entry()
+    entry = entry.copy(gene[0])
+    entry.transcript_id = "merged"
+    entry.feature = "exon"
+    entry.source = "merged"
 
-    prsr._rgmn("--prn-iniir", s"prn", yp"sring",
-                      hp"prn o s or rnming gns/rnscrips. "
-                      "Th prn sho conin  i, or xmp "
-                      "--prn-iniirENSG010i [].")
+    for i in range(len(exons)-1):
+        entry.start = exons[i]
+        entry.end = exons[i+1]
+        entry.attributes["exon_id"] = str(i + 1)
+        yield entry
 
-    prsr._rgmn("--sor-orr",
-                      s"sor_orr",
-                      yp"choic",
-                      choics("gn",
-                               "gn+rnscrip",
-                               "rnscrip",
-                               "posiion",
-                               "conig+gn",
-                               "posiion+gn",
-                               "gn+posiion",
-                               "gn+xon"),
-                      hp"sor inp  [].")
 
-    prsr._rgmn("--mrk-r",
-                      s"mrk_r",
-                      cion"sor_r",
-                      hp"mrk r or mho --mrg-xons. "
-                      "[].")
+def main(argv=None):
 
-    prsr._rgmn(
-        "--wiho-r",
-        s"wih_r",
-        cion"sor_s",
-        hp"xc UTR in mhos --mrg-xons, mrg-rnscrips "
-        "n inrsc-rnsrips. Sing his opion wi rmov "
-        "non-coing rnscrips. "
-        "[].")
+    if not argv:
+        argv = sys.argv
 
-    prsr._rgmn(
-        "--ir-mho", s"ir_mho",
-        yp"choic",
-        choics("gn",
-                 "rnscrip",
-                 "ongs-gn",
-                 "ongs-rnscrip",
-                 "rprsniv-rnscrip",
-                 "proincoing",
-                 "incrn"),
-        hp"Fir mho o ppy. Avib irs r: "
-        "'gn': ir by gn_i givn in ``--mp-sv-i``, "
-        "'rnscrip': ir by rnscrip_i givn in ``--mp-sv-i``, "
-        "'ongs-gn': op h ongs gn or ovrpping gns ,"
-        "'ongs-rnscrip': op h ongs rnscrip pr gn,"
-        "'rprsniv-rnscrip': op h rprsniv rnscrip "
-        "pr gn. Th rprsniv rnscrip is h rnscrip "
-        "h shrs mos xons wih ohr rnscrips in  gn. "
-        "Th inp ns o b sor by gn. "
-        "'proincoing': ony op proin coing rs. "
-        "'incrn': ony op incRNA rs. "
-        "[].")
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-", "--mp-sv-i", s"inm_ir",
-                      yp"sring",
-                      mvr"sv",
-                      hp"inm o is o mp/ir [].")
+    parser.add_argument("--merge-exons-distance",
+                      dest="merge_exons_distance",
+                      type="int",
+                      help="distance in nucleotides between "
+                      "exons to be merged [%default].")
 
-    prsr._rgmn(
-        "--g-i", s"inm_g", yp"sring",
-        mvr"GFF",
-        hp"scon inm o rs (s --rmov-ovrpping) "
-        "[]")
+    parser.add_argument("--pattern-identifier", dest="pattern", type="string",
+                      help="pattern to use for renaming genes/transcripts. "
+                      "The pattern should contain a %i, for example "
+                      "--pattern-identifier=ENSG%010i [%default].")
 
-    prsr._rgmn("--invr-ir",
-                      s"invr_ir",
-                      cion"sor_r",
-                      hp"whn sing --ir, invr scion "
-                      "(ik grp -v). "
-                      "[].")
+    parser.add_argument("--sort-order",
+                      dest="sort_order",
+                      type="choice",
+                      choices=("gene",
+                               "gene+transcript",
+                               "transcript",
+                               "position",
+                               "contig+gene",
+                               "position+gene",
+                               "gene+position",
+                               "gene+exon"),
+                      help="sort input data [%default].")
 
-    prsr._rgmn("--smp-siz", s"smp_siz", yp"in",
-                      hp"xrc  rnom smp o siz # i h opion "
-                      "'--mhoir --ir-mho' is s "
-                      "[].")
+    parser.add_argument("--mark-utr",
+                      dest="mark_utr",
+                      action="store_true",
+                      help="mark utr for method --merge-exons. "
+                      "[%default].")
 
-    prsr._rgmn(
-        "--inron-min-ngh",
-        s"inron_min_ngh", yp"in",
-        hp"minimm ngh or inrons (or --xons-i2inrons) "
-        "[].")
+    parser.add_argument(
+        "--without-utr",
+        dest="with_utr",
+        action="store_false",
+        help="exclude UTR in methods --merge-exons, merge-transcripts "
+        "and intersect-transripts. Setting this option will remove "
+        "non-coding transcripts. "
+        "[%default].")
 
-    prsr._rgmn("--min-xons-ngh",
-                      s"min_xons_ngh",
-                      yp"in",
-                      hp"minimm ngh or gn (sm o xons) "
-                      "(--sm-ip-siz) [].")
+    parser.add_argument(
+        "--filter-method", dest="filter_method",
+        type="choice",
+        choices=("gene",
+                 "transcript",
+                 "longest-gene",
+                 "longest-transcript",
+                 "representative-transcript",
+                 "proteincoding",
+                 "lincrna"),
+        help="Filter method to apply. Available filters are: "
+        "'gene': filter by gene_id given in ``--map-tsv-file``, "
+        "'transcript': filter by transcript_id given in ``--map-tsv-file``, "
+        "'longest-gene': output the longest gene for overlapping genes ,"
+        "'longest-transcript': output the longest transcript per gene,"
+        "'representative-transcript': output the representative transcript "
+        "per gene. The representative transcript is the transcript "
+        "that shares most exons with other transcripts in a gene. "
+        "The input needs to be sorted by gene. "
+        "'proteincoding': only output protein coding features. "
+        "'lincrna': only output lincRNA features. "
+        "[%default].")
 
-    prsr._rgmn(
-        "--inron-borr",
-        s"inron_borr",
-        yp"in",
-        hp"nmbr o rsis o xc  inron  ihr n "
-        "(--xons-i2inrons) [].")
+    parser.add_argument("-a", "--map-tsv-file", dest="filename_filter",
+                      type="string",
+                      metavar="tsv",
+                      help="filename of ids to map/filter [%default].")
 
-    prsr._rgmn("--ignor-srn",
-                      s"ignor_srn",
-                      cion"sor_r",
-                      hp"rmov srnnss o rs (s o '.') whn "
-                      "sing ``rnscrips2gns`` or ``ir``"
-                      "[].")
+    parser.add_argument(
+        "--gff-file", dest="filename_gff", type="string",
+        metavar="GFF",
+        help="second filename of features (see --remove-overlapping) "
+        "[%default]")
 
-    prsr._rgmn("--prmi-pics", s"sric",
-                      cion"sor_s",
-                      hp"prmi pic gns. "
-                      "[]")
+    parser.add_argument("--invert-filter",
+                      dest="invert_filter",
+                      action="store_true",
+                      help="when using --filter, invert selection "
+                      "(like grep -v). "
+                      "[%default].")
 
-    prsr._rgmn(
-        "--pic-r",
-        s"pic_r",
-        yp"choic",
-        choics("gn", "rnscrip", "boh", "csc", "coorins"),
-        hp"rmov pics by gn/rnscrip. "
-        "I ``csc`` is chosn, rnscrips ning on _p# r "
-        "rmov. This is ncssry o rmov pic nris "
-        "h r nx o ch ohr in h sor orr "
-        "[]")
+    parser.add_argument("--sample-size", dest="sample_size", type="int",
+                      help="extract a random sample of size # if the option "
+                      "'--method=filter --filter-method' is set "
+                      "[%default].")
 
-    prsr._rgmn("--s-gn-i", s"s_gni", cion"sor_r",
-                      hp"whn mrging rnscrips, xons or inrons, s "
-                      "h prn gn_i s h rnscrip i.")
+    parser.add_argument(
+        "--intron-min-length",
+        dest="intron_min_length", type="int",
+        help="minimum length for introns (for --exons-file2introns) "
+        "[%default].")
 
-    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
-                      cion"ppn",
-                      choics(
-                          "-proin-i",
-                          "xons2inrons",
-                          "ir",
-                          "in-rin-inrons",
-                          "gns-o-niq-chnks",
-                          "inrsc-rnscrips",
-                          "join-xons",
-                          "mrg-xons",
-                          "mrg-rnscrips",
-                          "mrg-gns",
-                          "mrg-inrons",
-                          "rmov-ovrpping",
-                          "rmov-pics",
-                          "rnm-gns",
-                          "rnm-rnscrips",
-                          "rnm-pics",
-                          "rnmbr-gns",
-                          "rnmbr-rnscrips",
-                          "s-rnscrip-o-gn",
-                          "s-gn-o-rnscrip",
-                          "s-proin-o-rnscrip",
-                          "s-scor-o-isnc",
-                          "s-gn_bioyp-o-sorc",
-                          "s-sorc-o-rnscrip_bioyp",
-                          "sor",
-                          "rnscrip2gns",
-                          "ns-gns"),
-                      hp"Mho o ppy []."
-                      "Ps ony sc on.")
+    parser.add_argument("--min-exons-length",
+                      dest="min_exons_length",
+                      type="int",
+                      help="minimum length for gene (sum of exons) "
+                      "(--sam-fileple-size) [%default].")
 
-    prsr.s_s(
-        sor_orr"gn",
-        ir_mho"gn",
-        prn"i",
-        mrg_xons_isnc0,
-        inm_irNon,
-        inron_borrNon,
-        inron_min_nghNon,
-        smp_siz0,
-        min_xons_ngh0,
-        ignor_srnFs,
-        mrk_rFs,
-        wih_rTr,
-        invr_irFs,
-        pic_rNon,
-        sricTr,
-        mhoNon,
-        s_gniFs,
+    parser.add_argument(
+        "--intron-border",
+        dest="intron_border",
+        type="int",
+        help="number of residues to exclude at intron at either end "
+        "(--exons-file2introns) [%default].")
+
+    parser.add_argument("--ignore-strand",
+                      dest="ignore_strand",
+                      action="store_true",
+                      help="remove strandedness of features (set to '.') when "
+                      "using ``transcripts2genes`` or ``filter``"
+                      "[%default].")
+
+    parser.add_argument("--permit-duplicates", dest="strict",
+                      action="store_false",
+                      help="permit duplicate genes. "
+                      "[%default]")
+
+    parser.add_argument(
+        "--duplicate-feature",
+        dest="duplicate_feature",
+        type="choice",
+        choices=("gene", "transcript", "both", "ucsc", "coordinates"),
+        help="remove duplicates by gene/transcript. "
+        "If ``ucsc`` is chosen, transcripts ending on _dup# are "
+        "removed. This is necessary to remove duplicate entries "
+        "that are next to each other in the sort order "
+        "[%default]")
+
+    parser.add_argument("--use-gene-id", dest="use_geneid", action="store_true",
+                      help="when merging transcripts, exons or introns, use "
+                      "the parent gene_id as the transcript id.")
+
+    parser.add_argument("-m", "--method", dest="method", type="choice",
+                      action="append",
+                      choices=(
+                          "add-protein-id",
+                          "exons2introns",
+                          "filter",
+                          "find-retained-introns",
+                          "genes-to-unique-chunks",
+                          "intersect-transcripts",
+                          "join-exons",
+                          "merge-exons",
+                          "merge-transcripts",
+                          "merge-genes",
+                          "merge-introns",
+                          "remove-overlapping",
+                          "remove-duplicates",
+                          "rename-genes",
+                          "rename-transcripts",
+                          "rename-duplicates",
+                          "renumber-genes",
+                          "renumber-transcripts",
+                          "set-transcript-to-gene",
+                          "set-gene-to-transcript",
+                          "set-protein-to-transcript",
+                          "set-score-to-distance",
+                          "set-gene_biotype-to-source",
+                          "set-source-to-transcript_biotype",
+                          "sort",
+                          "transcript2genes",
+                          "unset-genes"),
+                      help="Method to apply [%default]."
+                      "Please only select one.")
+
+    parser.set_defaults(
+        sort_order="gene",
+        filter_method="gene",
+        pattern="%i",
+        merge_exons_distance=0,
+        filename_filter=None,
+        intron_border=None,
+        intron_min_length=None,
+        sample_size=0,
+        min_exons_length=0,
+        ignore_strand=False,
+        mark_utr=False,
+        with_utr=True,
+        invert_filter=False,
+        duplicate_feature=None,
+        strict=True,
+        method=None,
+        use_geneid=False,
     )
 
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    (options, args) = E.start(parser, argv=argv)
 
-    ninp, nop, nrs, niscr  0, 0, 0, 0
+    ninput, noutput, nfeatures, ndiscarded = 0, 0, 0, 0
 
-    i opions.mho is Non:
-        ris VError("ps spciy  --mho")
+    if options.method is None:
+        raise ValueError("please specify a --method")
 
-    i n(opions.mho) > 1:
-        ris VError("mip --mho rgmns spcii")
-    s:
-        opions.mho  opions.mho[0]
+    if len(options.method) > 1:
+        raise ValueError("multiple --method arguements specified")
+    else:
+        options.method = options.method[0]
 
-    i opions.mho  "s-rnscrip-o-gn":
+    if options.method == "set-transcript-to-gene":
 
-        or g in GTF.iror(opions.sin):
+        for gff in GTF.iterator(options.stdin):
 
-            ninp + 1
+            ninput += 1
 
-            g.rnscrip_i  g.gn_i
-            opions.so.wri("s\n"  sr(g))
+            gff.transcript_id = gff.gene_id
+            options.stdout.write("%s\n" % str(gff))
 
-            nop + 1
-            nrs + 1
+            noutput += 1
+            nfeatures += 1
 
-    i opions.mho  "s-gn_bioyp-o-sorc":
+    elif options.method == "set-gene_biotype-to-source":
 
-        or g in GTF.iror(opions.sin):
+        for gff in GTF.iterator(options.stdin):
 
-            ninp + 1
+            ninput += 1
 
-            i "gn_bioyp" no in g.ribs:
-                g.gn_bioyp  g.sorc
+            if "gene_biotype" not in gff.attributes:
+                gff.gene_biotype = gff.source
 
-            opions.so.wri("s\n"  sr(g))
+            options.stdout.write("%s\n" % str(gff))
 
-            nop + 1
-            nrs + 1
+            noutput += 1
+            nfeatures += 1
 
-    i opions.mho  "s-sorc-o-rnscrip_bioyp":
+    elif options.method == "set-source-to-transcript_biotype":
 
-        or g in GTF.iror(opions.sin):
+        for gff in GTF.iterator(options.stdin):
 
-            ninp + 1
+            ninput += 1
 
-            ry:
-                g.sorc  g.rnscrip_bioyp
-            xcp AribError:
-                pss
+            try:
+                gff.source = gff.transcript_biotype
+            except AttributeError:
+                pass
 
-            opions.so.wri("s\n"  sr(g))
+            options.stdout.write("%s\n" % str(gff))
 
-            nop + 1
-            nrs + 1
+            noutput += 1
+            nfeatures += 1
 
-    i opions.mho  "rmov-pics":
+    elif options.method == "remove-duplicates":
 
-        cons  cocions.ic(in)
+        counts = collections.defaultdict(int)
 
-        i opions.pic_r  "csc":
-            sor  []
-            rmov  s()
-              mb x: x[0].rnscrip_i
+        if options.duplicate_feature == "ucsc":
+            store = []
+            remove = set()
+            f = lambda x: x[0].transcript_id
 
-            gs  GTF.rnscrip_iror(
-                GTF.iror(opions.sin), sricFs)
-            o  mb x: "\n".join([sr(y) or y in x])
+            gffs = GTF.transcript_iterator(
+                GTF.iterator(options.stdin), strict=False)
+            outf = lambda x: "\n".join([str(y) for y in x])
 
-            or nry in gs:
-                ninp + 1
-                sor.ppn(nry)
-                i  (nry)
-                i "_p" in i:
-                    rmov.(r.sb("_p\+", "", i))
-                    rmov.(i)
+            for entry in gffs:
+                ninput += 1
+                store.append(entry)
+                id = f(entry)
+                if "_dup" in id:
+                    remove.add(re.sub("_dup\d+", "", id))
+                    remove.add(id)
 
-            or nry in sor:
-                i  (nry)
-                i i no in rmov:
-                    opions.so.wri(o(nry) + "\n")
-                    nop + 1
-                s:
-                    niscr + 1
-                    E.ino("iscr pics or s"  (i))
-        s:
+            for entry in store:
+                id = f(entry)
+                if id not in remove:
+                    options.stdout.write(outf(entry) + "\n")
+                    noutput += 1
+                else:
+                    ndiscarded += 1
+                    E.info("discarded duplicates for %s" % (id))
+        else:
 
-            i opions.pic_r  "gn":
-                gs  GTF.gn_iror(
-                    GTF.iror(opions.sin), sricFs)
-                  mb x: x[0][0].gn_i
-                o  mb x: "\n".join(
-                    ["\n".join([sr(y) or y in xx]) or xx in x])
-            i opions.pic_r  "rnscrip":
-                gs  GTF.rnscrip_iror(
-                    GTF.iror(opions.sin), sricFs)
-                  mb x: x[0].rnscrip_i
-                o  mb x: "\n".join([sr(y) or y in x])
-            i opions.pic_r  "coorins":
-                gs  GTF.chnk_iror(GTF.iror(opions.sin))
-                  mb x: x[0].conig + "_" + \
-                    sr(x[0].sr) + "-" + sr(x[0].n)
-                o  mb x: "\n".join([sr(y) or y in x])
+            if options.duplicate_feature == "gene":
+                gffs = GTF.gene_iterator(
+                    GTF.iterator(options.stdin), strict=False)
+                f = lambda x: x[0][0].gene_id
+                outf = lambda x: "\n".join(
+                    ["\n".join([str(y) for y in xx]) for xx in x])
+            elif options.duplicate_feature == "transcript":
+                gffs = GTF.transcript_iterator(
+                    GTF.iterator(options.stdin), strict=False)
+                f = lambda x: x[0].transcript_id
+                outf = lambda x: "\n".join([str(y) for y in x])
+            elif options.duplicate_feature == "coordinates":
+                gffs = GTF.chunk_iterator(GTF.iterator(options.stdin))
+                f = lambda x: x[0].contig + "_" + \
+                    str(x[0].start) + "-" + str(x[0].end)
+                outf = lambda x: "\n".join([str(y) for y in x])
 
-            sor  []
+            store = []
 
-            or nry in gs:
-                ninp + 1
-                sor.ppn(nry)
-                i  (nry)
-                cons[i] + 1
+            for entry in gffs:
+                ninput += 1
+                store.append(entry)
+                id = f(entry)
+                counts[id] += 1
 
-            # Assms GTF i sor by conig hn sr
-            s_i  ""
-            i opions.pic_r  "coorins":
-                or nry in sor:
-                    i  (nry)
-                    i i  s_i:
-                        niscr + 1
-                        E.ino("iscr pics or s: i" 
-                               (i, cons[i]))
-                    s:
-                        opions.so.wri(o(nry) + "\n")
-                        nop + 1
-                    s_i  i
+            # Assumes GTF file sorted by contig then start
+            last_id = ""
+            if options.duplicate_feature == "coordinates":
+                for entry in store:
+                    id = f(entry)
+                    if id == last_id:
+                        ndiscarded += 1
+                        E.info("discarded duplicates for %s: %i" %
+                               (id, counts[id]))
+                    else:
+                        options.stdout.write(outf(entry) + "\n")
+                        noutput += 1
+                    last_id = id
 
-            s:
-                or nry in sor:
-                    i  (nry)
-                    i cons[i]  1:
-                        opions.so.wri(o(nry) + "\n")
-                        nop + 1
-                    s:
-                        niscr + 1
-                        E.ino("iscr pics or s: i" 
-                               (i, cons[i]))
+            else:
+                for entry in store:
+                    id = f(entry)
+                    if counts[id] == 1:
+                        options.stdout.write(outf(entry) + "\n")
+                        noutput += 1
+                    else:
+                        ndiscarded += 1
+                        E.info("discarded duplicates for %s: %i" %
+                               (id, counts[id]))
 
-    i "sor"  opions.mho:
+    elif "sort" == options.method:
 
-        or g in GTF.iror_sor(GTF.iror(opions.sin),
-                                       sor_orropions.sor_orr):
-            ninp + 1
-            opions.so.wri("s\n"  sr(g))
-            nop + 1
-            nrs + 1
+        for gff in GTF.iterator_sorted(GTF.iterator(options.stdin),
+                                       sort_order=options.sort_order):
+            ninput += 1
+            options.stdout.write("%s\n" % str(gff))
+            noutput += 1
+            nfeatures += 1
 
-    i "s-gn-o-rnscrip"  opions.mho:
+    elif "set-gene-to-transcript" == options.method:
 
-        or g in GTF.iror(opions.sin):
+        for gff in GTF.iterator(options.stdin):
 
-            ninp + 1
+            ninput += 1
 
-            g.gn_i  g.rnscrip_i
-            opions.so.wri("s\n"  sr(g))
+            gff.gene_id = gff.transcript_id
+            options.stdout.write("%s\n" % str(gff))
 
-            nop + 1
-            nrs + 1
+            noutput += 1
+            nfeatures += 1
 
-    i "s-proin-o-rnscrip"  opions.mho:
+    elif "set-protein-to-transcript" == options.method:
 
-        or g in GTF.iror(opions.sin):
-            ninp + 1
-            g.proin_i  g.rnscrip_i
-            opions.so.wri("s\n"  sr(g))
-            nop + 1
-            nrs + 1
+        for gff in GTF.iterator(options.stdin):
+            ninput += 1
+            gff.protein_id = gff.transcript_id
+            options.stdout.write("%s\n" % str(gff))
+            noutput += 1
+            nfeatures += 1
 
-    i "-proin-i"  opions.mho:
+    elif "add-protein-id" == options.method:
 
-        rnscrip2proin  iooos.r_mp(
-            iooos.opn_i(opions.inm_ir, "r"))
+        transcript2protein = iotools.read_map(
+            iotools.open_file(options.filename_filter, "r"))
 
-        missing  s()
-        or g in GTF.iror(opions.sin):
-            ninp + 1
-            i g.rnscrip_i no in rnscrip2proin:
-                i g.rnscrip_i no in missing:
-                    E.bg(
-                        ("rmoving rnscrip 's'  o "
-                         "missing proin i")  g.rnscrip_i)
-                    missing.(g.rnscrip_i)
-                niscr + 1
-                conin
+        missing = set()
+        for gff in GTF.iterator(options.stdin):
+            ninput += 1
+            if gff.transcript_id not in transcript2protein:
+                if gff.transcript_id not in missing:
+                    E.debug(
+                        ("removing transcript '%s' due to "
+                         "missing protein id") % gff.transcript_id)
+                    missing.add(gff.transcript_id)
+                ndiscarded += 1
+                continue
 
-            g.proin_i  rnscrip2proin[g.rnscrip_i]
-            opions.so.wri("s\n"  sr(g))
-            nop + 1
-            nrs + 1
+            gff.protein_id = transcript2protein[gff.transcript_id]
+            options.stdout.write("%s\n" % str(gff))
+            noutput += 1
+            nfeatures += 1
 
-        E.ino("rnscrips rmov  o missing proin is: i" 
-               n(missing))
+        E.info("transcripts removed due to missing protein ids: %i" %
+               len(missing))
 
-    i "join-xons"  opions.mho:
+    elif "join-exons" == options.method:
 
-        or xons in GTF.rnscrip_iror(GTF.iror(opions.sin)):
-            ninp + 1
-            srn  Gnomics.convrSrn(xons[0].srn)
-            conig  xons[0].conig
-            rnsi  xons[0].rnscrip_i
-            gni  xons[0].gn_i
-            bioyp  xons[0].sorc
-            _sr, _n  min([x.sr or x in xons]), mx(
-                [x.n or x in xons])
-            y  GTF.Enry()
-            y.conig  conig
-            y.sorc  bioyp
-            y.r  "rnscrip"
-            y.sr  _sr
-            y.n  _n
-            y.srn  srn
-            y.rnscrip_i  rnsi
-            y.gn_i  gni
-            opions.so.wri("s\n"  sr(y))
+        for exons in GTF.transcript_iterator(GTF.iterator(options.stdin)):
+            ninput += 1
+            strand = Genomics.convertStrand(exons[0].strand)
+            contig = exons[0].contig
+            transid = exons[0].transcript_id
+            geneid = exons[0].gene_id
+            biotype = exons[0].source
+            all_start, all_end = min([x.start for x in exons]), max(
+                [x.end for x in exons])
+            y = GTF.Entry()
+            y.contig = contig
+            y.source = biotype
+            y.feature = "transcript"
+            y.start = all_start
+            y.end = all_end
+            y.strand = strand
+            y.transcript_id = transid
+            y.gene_id = geneid
+            options.stdout.write("%s\n" % str(y))
 
-    i "mrg-gns"  opions.mho:
-        # mrgs ovrpping gns
+    elif "merge-genes" == options.method:
+        # merges overlapping genes
         #
-        gs  GTF.iror_sor_chnks(
-            GTF._gn_iror(GTF.iror(opions.sin)),
-            sor_by"conig-srn-sr")
+        gffs = GTF.iterator_sorted_chunks(
+            GTF.flat_gene_iterator(GTF.iterator(options.stdin)),
+            sort_by="contig-strand-start")
 
-         ir_chnks(g_chnks):
+        def iterate_chunks(gff_chunks):
 
-            s  nx(g_chnks)
-            o_join  [s]
+            last = next(gff_chunks)
+            to_join = [last]
 
-            or gs in g_chnks:
-                  gs[0].sr - s[-1].n
+            for gffs in gff_chunks:
+                d = gffs[0].start - last[-1].end
 
-                i gs[0].conig  s[0].conig n \
-                   gs[0].srn  s[0].srn:
-                    ssr gs[0].sr > s[0].sr, \
-                        ("inp i sho b sor by conig, srn "
-                         "n posiion: i:\ns\ns\nhis\ns\n")  \
-                        (,
-                         "\n".join([sr(x) or x in s]),
-                         "\n".join([sr(x) or x in gs]))
+                if gffs[0].contig == last[0].contig and \
+                   gffs[0].strand == last[0].strand:
+                    assert gffs[0].start >= last[0].start, \
+                        ("input file should be sorted by contig, strand "
+                         "and position: d=%i:\nlast=\n%s\nthis=\n%s\n") % \
+                        (d,
+                         "\n".join([str(x) for x in last]),
+                         "\n".join([str(x) for x in gffs]))
 
-                i gs[0].conig ! s[0].conig or \
-                        gs[0].srn ! s[0].srn or \
-                         > 0:
-                    yi o_join
-                    o_join  []
+                if gffs[0].contig != last[0].contig or \
+                        gffs[0].strand != last[0].strand or \
+                        d > 0:
+                    yield to_join
+                    to_join = []
 
-                s  gs
-                o_join.ppn(gs)
+                last = gffs
+                to_join.append(gffs)
 
-            yi o_join
-            ris SopIrion
+            yield to_join
+            raise StopIteration
 
-        or chnks in ir_chnks(gs):
-            ninp + 1
-            i n(chnks) > 1:
-                gn_i  "mrg_s"  chnks[0][0].gn_i
-                rnscrip_i  "mrg_s"  chnks[0][0].rnscrip_i
-                ino  ",".join([x[0].gn_i or x in chnks])
-            s:
-                gn_i  chnks[0][0].gn_i
-                rnscrip_i  chnks[0][0].rnscrip_i
-                ino  Non
+        for chunks in iterate_chunks(gffs):
+            ninput += 1
+            if len(chunks) > 1:
+                gene_id = "merged_%s" % chunks[0][0].gene_id
+                transcript_id = "merged_%s" % chunks[0][0].transcript_id
+                info = ",".join([x[0].gene_id for x in chunks])
+            else:
+                gene_id = chunks[0][0].gene_id
+                transcript_id = chunks[0][0].transcript_id
+                info = None
 
-            inrvs  []
-            or c in chnks:
-                inrvs + [(x.sr, x.n) or x in c]
+            intervals = []
+            for c in chunks:
+                intervals += [(x.start, x.end) for x in c]
 
-            inrvs  Inrvs.combin(inrvs)
-            # k sing srn
-            srn  chnks[0][0].srn
+            intervals = Intervals.combine(intervals)
+            # take single strand
+            strand = chunks[0][0].strand
 
-            or sr, n in inrvs:
-                y  GTF.Enry()
-                y.romGTF(chnks[0][0], gn_i, rnscrip_i)
-                y.sr  sr
-                y.n  n
-                y.srn  srn
+            for start, end in intervals:
+                y = GTF.Entry()
+                y.fromGTF(chunks[0][0], gene_id, transcript_id)
+                y.start = start
+                y.end = end
+                y.strand = strand
 
-                i ino:
-                    y.Arib("mrg", ino)
-                opions.so.wri("s\n"  sr(y))
-                nrs + 1
+                if info:
+                    y.addAttribute("merged", info)
+                options.stdout.write("%s\n" % str(y))
+                nfeatures += 1
 
-            nop + 1
+            noutput += 1
 
-    i opions.mho  "rnmbr-gns":
+    elif options.method == "renumber-genes":
 
-        mp_o2nw  {}
-        or g in GTF.iror(opions.sin):
-            ninp + 1
-            i g.gn_i no in mp_o2nw:
-                mp_o2nw[g.gn_i]  opions.prn  (
-                    n(mp_o2nw) + 1)
-            g.gn_i  mp_o2nw[g.gn_i]
-            opions.so.wri("s\n"  sr(g))
-            nop + 1
+        map_old2new = {}
+        for gtf in GTF.iterator(options.stdin):
+            ninput += 1
+            if gtf.gene_id not in map_old2new:
+                map_old2new[gtf.gene_id] = options.pattern % (
+                    len(map_old2new) + 1)
+            gtf.gene_id = map_old2new[gtf.gene_id]
+            options.stdout.write("%s\n" % str(gtf))
+            noutput += 1
 
-    i opions.mho  "ns-gns":
+    elif options.method == "unset-genes":
 
-        mp_o2nw  {}
-        or g in GTF.iror(opions.sin):
-            ninp + 1
-            ky  g.rnscrip_i
-            i ky no in mp_o2nw:
-                mp_o2nw[ky]  opions.prn  (n(mp_o2nw) + 1)
-            g.gn_i  mp_o2nw[ky]
-            opions.so.wri("s\n"  sr(g))
-            nop + 1
+        map_old2new = {}
+        for gtf in GTF.iterator(options.stdin):
+            ninput += 1
+            key = gtf.transcript_id
+            if key not in map_old2new:
+                map_old2new[key] = options.pattern % (len(map_old2new) + 1)
+            gtf.gene_id = map_old2new[key]
+            options.stdout.write("%s\n" % str(gtf))
+            noutput += 1
 
-    i opions.mho  "rnmbr-rnscrips":
+    elif options.method == "renumber-transcripts":
 
-        mp_o2nw  {}
-        or g in GTF.iror(opions.sin):
-            ninp + 1
-            ky  (g.gn_i, g.rnscrip_i)
-            i ky no in mp_o2nw:
-                mp_o2nw[ky]  opions.prn  (
-                    n(mp_o2nw) + 1)
-            g.rnscrip_i  mp_o2nw[ky]
-            opions.so.wri("s\n"  sr(g))
-            nop + 1
+        map_old2new = {}
+        for gtf in GTF.iterator(options.stdin):
+            ninput += 1
+            key = (gtf.gene_id, gtf.transcript_id)
+            if key not in map_old2new:
+                map_old2new[key] = options.pattern % (
+                    len(map_old2new) + 1)
+            gtf.transcript_id = map_old2new[key]
+            options.stdout.write("%s\n" % str(gtf))
+            noutput += 1
 
-    i opions.mho  "rnscrips2gns":
+    elif options.method == "transcripts2genes":
 
-        rnscrips  s()
-        gns  s()
-        ignor_srn  opions.ignor_srn
-        or gs in GTF.iror_rnscrips2gns(
-                GTF.iror(opions.sin)):
+        transcripts = set()
+        genes = set()
+        ignore_strand = options.ignore_strand
+        for gtfs in GTF.iterator_transcripts2genes(
+                GTF.iterator(options.stdin)):
 
-            ninp + 1
-            or g in gs:
-                i ignor_srn:
-                    g.srn  "."
-                opions.so.wri("s\n"  sr(g))
-                rnscrips.(g.rnscrip_i)
-                gns.(g.gn_i)
-                nrs + 1
-            nop + 1
+            ninput += 1
+            for gtf in gtfs:
+                if ignore_strand:
+                    gtf.strand = "."
+                options.stdout.write("%s\n" % str(gtf))
+                transcripts.add(gtf.transcript_id)
+                genes.add(gtf.gene_id)
+                nfeatures += 1
+            noutput += 1
 
-        E.ino("rnscrips2gns: rnscripsi, gnsi" 
-               (n(rnscrips), n(gns)))
+        E.info("transcripts2genes: transcripts=%i, genes=%i" %
+               (len(transcripts), len(genes)))
 
-    i opions.mho in ("rnm-gns", "rnm-rnscrips"):
+    elif options.method in ("rename-genes", "rename-transcripts"):
 
-        mp_o2nw  iooos.r_mp(iooos.opn_i(opions.inm_ir, "r"))
+        map_old2new = iotools.read_map(iotools.open_file(options.filename_filter, "r"))
 
-        i opions.mho  "rnm-rnscrips":
-            is_gn_i  Fs
-        i opions.mho  "rnm-gns":
-            is_gn_i  Tr
+        if options.method == "rename-transcripts":
+            is_gene_id = False
+        elif options.method == "rename-genes":
+            is_gene_id = True
 
-        or g in GTF.iror(opions.sin):
-            ninp + 1
+        for gff in GTF.iterator(options.stdin):
+            ninput += 1
 
-            i is_gn_i:
-                i g.gn_i in mp_o2nw:
-                    g.gn_i  mp_o2nw[g.gn_i]
-                s:
-                    E.bg("rmoving missing gn_i s"  g.gn_i)
-                    niscr + 1
-                    conin
+            if is_gene_id:
+                if gff.gene_id in map_old2new:
+                    gff.gene_id = map_old2new[gff.gene_id]
+                else:
+                    E.debug("removing missing gene_id %s" % gff.gene_id)
+                    ndiscarded += 1
+                    continue
 
-            s:
-                i g.rnscrip_i in mp_o2nw:
-                    g.rnscrip_i  mp_o2nw[g.rnscrip_i]
-                s:
-                    E.bg("rmoving missing rnscrip_i s" 
-                            g.rnscrip_i)
-                    niscr + 1
-                    conin
+            else:
+                if gff.transcript_id in map_old2new:
+                    gff.transcript_id = map_old2new[gff.transcript_id]
+                else:
+                    E.debug("removing missing transcript_id %s" %
+                            gff.transcript_id)
+                    ndiscarded += 1
+                    continue
 
-            nop + 1
-            opions.so.wri("s\n"  sr(g))
+            noutput += 1
+            options.stdout.write("%s\n" % str(gff))
 
-    i opions.mho  "ir":
+    elif options.method == "filter":
 
-        kp_gns  s()
-        i opions.ir_mho  "ongs-gn":
-            iror  GTF._gn_iror(GTF.iror(opions.sin))
-            coors  []
-            gs  []
-            or g in iror:
-                g.sor(kymb x: x.sr)
-                coors.ppn((g[0].conig,
-                               min([x.sr or x in g]),
-                               mx([x.n or x in g]),
-                               g[0].gn_i))
-                gs.ppn(g)
-            coors.sor()
+        keep_genes = set()
+        if options.filter_method == "longest-gene":
+            iterator = GTF.flat_gene_iterator(GTF.iterator(options.stdin))
+            coords = []
+            gffs = []
+            for gff in iterator:
+                gff.sort(key=lambda x: x.start)
+                coords.append((gff[0].contig,
+                               min([x.start for x in gff]),
+                               max([x.end for x in gff]),
+                               gff[0].gene_id))
+                gffs.append(gff)
+            coords.sort()
 
-            s_conig  Non
-            mx_n  0
-            ongs_gn_i  Non
-            ongs_ngh  Non
+            last_contig = None
+            max_end = 0
+            longest_gene_id = None
+            longest_length = None
 
-            or conig, sr, n, gn_i in coors:
-                ninp + 1
-                i conig ! s_conig or sr > mx_n:
-                    i ongs_gn_i:
-                        kp_gns.(ongs_gn_i)
-                    ongs_gn_i  gn_i
-                    ongs_ngh  n - sr
-                    mx_n  n
-                s:
-                    i n - sr > ongs_ngh:
-                        ongs_ngh, ongs_gn_i  n - sr, gn_i
-                s_conig  conig
-                mx_n  mx(mx_n, n)
+            for contig, start, end, gene_id in coords:
+                ninput += 1
+                if contig != last_contig or start >= max_end:
+                    if longest_gene_id:
+                        keep_genes.add(longest_gene_id)
+                    longest_gene_id = gene_id
+                    longest_length = end - start
+                    max_end = end
+                else:
+                    if end - start > longest_length:
+                        longest_length, longest_gene_id = end - start, gene_id
+                last_contig = contig
+                max_end = max(max_end, end)
 
-            kp_gns.(ongs_gn_i)
-            invr  opions.invr_ir
-            or g in gs:
-                kp  g[0].gn_i in kp_gns
+            keep_genes.add(longest_gene_id)
+            invert = options.invert_filter
+            for gff in gffs:
+                keep = gff[0].gene_id in keep_genes
 
-                i (kp n no invr) or (no kp n invr):
-                    nop + 1
-                    or g in g:
-                        nrs + 1
-                        opions.so.wri("s\n"  g)
-                s:
-                    niscr + 1
-        i opions.ir_mho in ("ongs-rnscrip",
-                                       "rprsniv-rnscrip"):
+                if (keep and not invert) or (not keep and invert):
+                    noutput += 1
+                    for g in gff:
+                        nfeatures += 1
+                        options.stdout.write("%s\n" % g)
+                else:
+                    ndiscarded += 1
+        elif options.filter_method in ("longest-transcript",
+                                       "representative-transcript"):
 
-            iror  GTF.gn_iror(GTF.iror(opions.sin))
+            iterator = GTF.gene_iterator(GTF.iterator(options.stdin))
 
-             scLongsTrnscrip(gn):
-                r  []
-                or rnscrip in gn:
-                    rnscrip.sor(kymb x: x.sr)
-                    ngh  rnscrip[-1].n - rnscrip[0].sr
-                    r.ppn((ngh, rnscrip))
-                r.sor()
-                rrn r[-1][1]
+            def selectLongestTranscript(gene):
+                r = []
+                for transcript in gene:
+                    transcript.sort(key=lambda x: x.start)
+                    length = transcript[-1].end - transcript[0].start
+                    r.append((length, transcript))
+                r.sort()
+                return r[-1][1]
 
-             scRprsnivTrnscrip(gn):
-                '''sc  rprsniv rnscrip.
+            def selectRepresentativeTranscript(gene):
+                '''select a representative transcript.
 
-                Th rprsniv rnscrip rprsn h rgs nmbr
-                o xons ovr  rnscrips.
+                The representative transcript represent the largest number
+                of exons over all transcripts.
                 '''
-                _xons  []
-                or rnscrip in gn:
-                    _xons.xn([(x.sr, x.n)
-                                      or x in rnscrip
-                                      i x.r  "xon"])
-                xon_cons  {}
-                or ky, xons in iroos.gropby(_xons):
-                    xon_cons[ky]  n(is(xons))
-                rnscrip_cons  []
-                or rnscrip in gn:
-                    con  sm([xon_cons[(x.sr, x.n)]
-                                 or x in rnscrip i x.r  "xon"])
-                    #  rnscrip i o sor o provi  sb
-                    # sgmnion.
-                    rnscrip_cons.ppn((con,
-                                              rnscrip[0].rnscrip_i,
-                                              rnscrip))
-                rnscrip_cons.sor()
-                rrn rnscrip_cons[-1][-1]
-
-            i opions.ir_mho  "ongs-rnscrip":
-                _sc  scLongsTrnscrip
-            i opions.ir_mho  "rprsniv-rnscrip":
-                _sc  scRprsnivTrnscrip
-
-            or gn in iror:
-                ninp + 1
-                # sor in orr o mk rprocib which
-                # gn is chosn.
-                rnscrip  _sc(sor(gn))
-                nop + 1
-                or g in rnscrip:
-                    nrs + 1
-                    opions.so.wri("s\n"  g)
-
-        i opions.ir_mho in ("gn", "rnscrip"):
-
-            i opions.inm_ir:
-
-                is  iooos.r_is(
-                    iooos.opn_i(opions.inm_ir, "r"))
-                E.ino("r i is"  n(is))
-
-                is  s(is)
-                by_gn  opions.ir_mho  "gn"
-                by_rnscrip  opions.ir_mho  "rnscrip"
-                invr  opions.invr_ir
-
-                ignor_srn  opions.ignor_srn
-                or g in GTF.iror(opions.sin):
-
-                    ninp + 1
-
-                    kp  Fs
-                    i by_gn:
-                        kp  g.gn_i in is
-                    i by_rnscrip:
-                        kp  g.rnscrip_i in is
-                    i (invr n kp) or (no invr n no kp):
-                        conin
-
-                    i ignor_srn:
-                        g.srn  "."
-
-                    opions.so.wri("s\n"  sr(g))
-                    nrs + 1
-                    nop + 1
-
-            i opions.smp_siz:
-
-                i opions.ir_mho  "gn":
-                    iror  GTF._gn_iror(
-                        GTF.iror(opions.sin))
-                i opions.ir_mho  "rnscrip":
-                    iror  GTF.rnscrip_iror(
-                        GTF.iror(opions.sin))
-                i opions.min_xons_ngh:
-                    iror  GTF.iror_min_r_ngh(
-                        iror,
-                        min_nghopions.min_xons_ngh,
-                        r"xon")
-
-                  [x or x in iror]
-                ninp  n()
-                i n() > opions.smp_siz:
-                      rnom.smp(, opions.smp_siz)
-
-                or  in :
-                    nop + 1
-                    or  in :
-                        nrs + 1
-                        opions.so.wri(sr() + "\n")
-
-            s:
-                ssr Fs, "ps sppy ihr  inm "
-                "wih is o ir wih (--mp-sv-i) or  smp-siz."
-
-        i opions.ir_mho in ("proincoing", "incrn",
-                                       "procss-psogn"):
-            # xrc nris by rnscrip/gn bioyp.
-            # This ir ss  s on h sorc i (ENSEMBL pr v78)
-            #  rgr xprssion on h ribs (ENSEMBL > v78).
-            g  {"proincoing": "proin_coing",
-                   "procss-psogn": "procss_psogn",
-                   "incrn": "incRNA"}[opions.ir_mho]
-            rx  r.compi('"s"'  g)
-            i no opions.invr_ir:
-                  mb x: x.sorc  g or rx.srch(x.ribs)
-            s:
-                  mb x: x.sorc ! g n no rx.srch(x.ribs)
-
-            or g in GTF.iror(opions.sin):
-                ninp + 1
-                i (g):
-                    opions.so.wri(sr(g) + "\n")
-                    nop + 1
-                s:
-                    niscr + 1
-
-    i opions.mho  "xons2inrons":
-
-        or gs in GTF._gn_iror(GTF.iror(opions.sin)):
-
-            ninp + 1
-
-            cs_rngs  GTF.sRngs(gs, "CDS")
-            xon_rngs  GTF.sRngs(gs, "xon")
-            inp_rngs  Inrvs.combin(cs_rngs + xon_rngs)
-
-            i n(inp_rngs) > 1:
-                s  inp_rngs[0][1]
-                op_rngs  []
-                or sr, n in inp_rngs[1:]:
-                    op_rngs.ppn((s, sr))
-                    s  n
-
-                i opions.inron_borr:
-                    b  opions.inron_borr
-                    op_rngs  [(x[0] + b, x[1] - b)
-                                     or x in op_rngs]
-
-                i opions.inron_min_ngh:
-                      opions.inron_min_ngh
-                    op_rngs  [
-                        x or x in op_rngs i x[1] - x[0] > ]
-
-                or sr, n in op_rngs:
-
-                    nry  GTF.Enry()
-                    nry.copy(gs[0])
-                    nry.crAribs()
-                    nry.rnscrip_i  "mrg"
-                    nry.r  "inron"
-                    nry.sr  sr
-                    nry.n  n
-                    opions.so.wri("s\n"  sr(nry))
-                    nrs + 1
-                nop + 1
-            s:
-                niscr + 1
-
-    i opions.mho  "s-scor-o-isnc":
-
-        or gs in GTF.rnscrip_iror(GTF.iror(opions.sin)):
-            ninp + 1
-            srn  Gnomics.convrSrn(gs[0].srn)
-            _sr, _n  min([x.sr or x in gs]), mx(
-                [x.n or x in gs])
-
-            i srn ! ".":
-                  0
-                i srn  "-":
-                    gs.rvrs()
-                or g in gs:
-                    g.scor  
-                     + g.n - g.sr
-
-                i srn  "-":
-                    gs.rvrs()
-            or g in gs:
-                opions.so.wri("s\n"  sr(g))
-                nrs + 1
-            nop + 1
-
-    i opions.mho  "rmov-ovrpping":
-
-        inx  GTF.rAnInx(
-            GTF.iror(iooos.opn_i(opions.inm_g, "r")))
-
-        or gs in GTF.rnscrip_iror(GTF.iror(opions.sin)):
-            ninp + 1
-            on  Fs
-            or  in gs:
-                i inx.conins(.conig, .sr, .n):
-                    on  Tr
-                    brk
-
-            i on:
-                niscr + 1
-            s:
-                nop + 1
-                or  in gs:
-                    nrs + 1
-                    opions.so.wri("s\n"  sr())
-
-    i opions.mho  "inrsc-rnscrips":
-
-        or gs in GTF.gn_iror(GTF.iror(opions.sin),
-                                      sricopions.sric):
-
-            ninp + 1
-            r  []
-            or g in gs:
-                i opions.wih_r:
-                    rngs  GTF.sRngs(g, "xon")
-                s:
-                    rngs  GTF.sRngs(g, "CDS")
-                r.ppn(rngs)
-
-            rs  r[0]
-            or x in r[1:]:
-                rs  Inrvs.inrsc(rs, x)
-
-            nry  GTF.Enry()
-            nry.copy(gs[0][0])
-            nry.crAribs()
-            nry.rnscrip_i  "mrg"
-            nry.r  "xon"
-            or sr, n in rs:
-                nry.sr  sr
-                nry.n  n
-                opions.so.wri("s\n"  sr(nry))
-                nrs + 1
-
-            nop + 1
-
-    i "rnm-pics"  opions.mho:
-        # no: his wi ony rnm nris wih "CDS" in r comn
-
-        ssr opions.pic_r in ["gn", "rnscrip", "boh"],\
-            ("or rnming pics, --pic-r ms b s o on "
-             "o 'gn', rnscrip' or 'boh'")
-
-        gn_is  is()
-        rnscrip_is  is()
-        gs  is()
-
-        or g in GTF.iror(opions.sin):
-            gs.ppn(g)
-            i g.r  "CDS":
-                gn_is.ppn(g.gn_i)
-                rnscrip_is.ppn(g.rnscrip_i)
-
-        p_gn  [im or im in s(gn_is) i gn_is.con(im) > 1]
-        p_rnscrip  [im or im in s(rnscrip_is)
-                          i rnscrip_is.con(im) > 1]
-
-        E.ino("Nmbr o pic gn_is: i"  n(p_gn))
-        E.ino("Nmbr o pic rnscrip_is: i"  n(p_rnscrip))
-
-        gn_ic  ic(is(zip(p_gn, ([0] * n(p_gn)))))
-        rnscrip_ic  ic(is(zip(p_rnscrip,
-                                        ([0] * n(p_rnscrip)))))
-
-        or g in gs:
-            i g.r  "CDS":
-                i opions.pic_r in ["boh", "gn"]:
-                    i g.gn_i in p_gn:
-                        gn_ic[g.gn_i]  gn_ic[g.gn_i] + 1
-                        # TS. pch ni pysm.cbixproxis.pyx bgix
-                        g.ribs  g.ribs.srip()
-                        g.gn_i  sr(g.gn_i) + "." + sr(gn_ic[g.gn_i])
-
-                i opions.pic_r in ["boh", "rnscrip"]:
-                    i g.rnscrip_i in p_rnscrip:
-                        rnscrip_ic[g.rnscrip_i]  \
-                            rnscrip_ic[g.rnscrip_i] + 1
-                        # TS. pch ni pysm.cbixproxis.pyx bgix
-                        g.ribs  g.ribs.srip()
-                        g.rnscrip_i  sr(g.rnscrip_i) + "." + sr(rnscrip_ic[g.rnscrip_i])
-
-            opions.so.wri("s\n"  g)
-
-    i opions.mho in ("mrg-xons",
-                            "mrg-inrons",
-                            "mrg-rnscrips"):
-        or gs in GTF._gn_iror(
-                GTF.iror(opions.sin),
-                sricopions.sric):
-            ninp + 1
-
-            cs_rngs  GTF.sRngs(gs, "CDS")
-            xon_rngs  GTF.sRngs(gs, "xon")
-            # sniy chcks
-            srns  s([x.srn or x in gs])
-            conigs  s([x.conig or x in gs])
-            i n(srns) > 1:
-                E.wrn('Skipping gn s on mip srns'  gs[0].gn_i)
-                brk
-                ris VError(
-                    "cn no mrg gn 's' on mip srns: s"  (
-                        gs[0].gn_i, sr(srns)))
-
-            i n(conigs) > 1:
-                ris VError(
-                    "cn no mrg gn 's' on mip conigs: s"  (
-                        gs[0].gn_i, sr(conigs)))
-
-            srn  Gnomics.convrSrn(gs[0].srn)
-            r_rngs  []
-
-            i cs_rngs n opions.mrk_r:
-                cs_sr, cs_n  cs_rngs[0][0], cs_rngs[-1][1]
-                mipoin  (cs_n - cs_sr) / 2 + cs_sr
-
-                r_rngs  []
-                or sr, n in Inrvs.rnc(xon_rngs, cs_rngs):
-                    i n - sr > 3:
-                        i srn  ".":
-                            r  "UTR"
-                        i srn  "+":
-                            i sr < mipoin:
-                                r  "UTR5"
-                            s:
-                                r  "UTR3"
-                        i srn  "-":
-                            i sr < mipoin:
-                                r  "UTR3"
-                            s:
-                                r  "UTR5"
-                        r_rngs.ppn((r, sr, n))
-
-            ry:
-                bioyps  [x["gn_bioyp"] or x in gs]
-                bioyp  ":".join(s(bioyps))
-            xcp (KyError, AribError):
-                bioyp  Non
-
-             op_rngs(rngs, gs, bioypNon,
-                              s_gniFs):
-                rs  []
-                or r, sr, n in rngs:
-                    nry  GTF.Enry()
-                    nry.copy(gs[0])
-                    nry.crAribs()
-                    nry.r  r
-                    i s_gni:
-                        nry.rnscrip_i  nry.gn_i
-                    s:
-                        nry.rnscrip_i  "mrg"
-                    i bioyp:
-                        nry.Arib("gn_bioyp", bioyp)
-                    nry.sr  sr
-                    nry.n  n
-                    rs.ppn(nry)
-                rrn rs
-
-            rs  []
-
-            i opions.mho  "mrg-xons":
-                i opions.wih_r:
-                    i opions.mrk_r:
-                        rs.xn(op_rngs(r_rngs, gs, bioyp,
-                                                    opions.s_gni))
-                        r  [("CDS", x, y) or x, y in
-                             Inrvs.combinADisnc(
-                                 cs_rngs, opions.mrg_xons_isnc)]
-                    s:
-                        r  [("xon", x, y) or x, y in
-                             Inrvs.combinADisnc(
-                                 xon_rngs, opions.mrg_xons_isnc)]
-                s:
-                    r  [("CDS", x, y) or x, y in
-                         Inrvs.combinADisnc(
-                             cs_rngs, opions.mrg_xons_isnc)]
-
-            i opions.mho  "mrg-rnscrips":
-
-                i opions.wih_r:
-                    r  [("xon", xon_rngs[0][0],
-                          xon_rngs[-1][1])]
-                i cs_rngs:
-                    r  [("xon", cs_rngs[0][0],
-                          cs_rngs[-1][1])]
-                s:
-                    niscr + 1
-                    conin
-
-            i opions.mho  "mrg-inrons":
-
-                i n(xon_rngs) > 2:
-                    r  [("xon",
-                          xon_rngs[0][1],
-                          xon_rngs[-1][0])]
-                s:
-                    niscr + 1
-                    conin
-
-            rs.xn(op_rngs(r, gs, bioyp, opions.s_gni))
-
-            rs.sor(kymb x: x.sr)
-
-            or x in rs:
-                opions.so.wri("s\n"  sr(x))
-                nrs + 1
-            nop + 1
-
-    i opions.mho  "in-rin-inrons":
-
-        or gn in GTF.gn_iror(GTF.iror(opions.sin)):
-            ninp + 1
-            on_ny  Fs
-            or inron in in_rin_inrons(gn):
-                on_ny  Tr
-                opions.so.wri("s\n"  sr(inron))
-                nrs + 1
-            i on_ny:
-                nop + 1
-
-    i opions.mho  "gns-o-niq-chnks":
-
-        or gn in GTF._gn_iror(GTF.iror(opions.sin)):
-            ninp + 1
-            or xon in gn_o_bocks(gn):
-                opions.so.wri("s\n"  sr(xon))
-                nrs + 1
-            nop + 1
-
-    s:
-        ris VError("nknown mho 's'"  opions.mho)
-
-    E.ino("ninpi, nopi, nrsi, niscri" 
-           (ninp, nop, nrs, niscr))
-    E.sop()
-
-
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+                all_exons = []
+                for transcript in gene:
+                    all_exons.extend([(x.start, x.end)
+                                      for x in transcript
+                                      if x.feature == "exon"])
+                exon_counts = {}
+                for key, exons in itertools.groupby(all_exons):
+                    exon_counts[key] = len(list(exons))
+                transcript_counts = []
+                for transcript in gene:
+                    count = sum([exon_counts[(x.start, x.end)]
+                                 for x in transcript if x.feature == "exon"])
+                    # add transcript id to sort to provide a stable
+                    # segmentation.
+                    transcript_counts.append((count,
+                                              transcript[0].transcript_id,
+                                              transcript))
+                transcript_counts.sort()
+                return transcript_counts[-1][-1]
+
+            if options.filter_method == "longest-transcript":
+                _select = selectLongestTranscript
+            elif options.filter_method == "representative-transcript":
+                _select = selectRepresentativeTranscript
+
+            for gene in iterator:
+                ninput += 1
+                # sort in order to make reproducible which
+                # gene is chosen.
+                transcript = _select(sorted(gene))
+                noutput += 1
+                for g in transcript:
+                    nfeatures += 1
+                    options.stdout.write("%s\n" % g)
+
+        elif options.filter_method in ("gene", "transcript"):
+
+            if options.filename_filter:
+
+                ids = iotools.read_list(
+                    iotools.open_file(options.filename_filter, "r"))
+                E.info("read %i ids" % len(ids))
+
+                ids = set(ids)
+                by_gene = options.filter_method == "gene"
+                by_transcript = options.filter_method == "transcript"
+                invert = options.invert_filter
+
+                ignore_strand = options.ignore_strand
+                for gff in GTF.iterator(options.stdin):
+
+                    ninput += 1
+
+                    keep = False
+                    if by_gene:
+                        keep = gff.gene_id in ids
+                    if by_transcript:
+                        keep = gff.transcript_id in ids
+                    if (invert and keep) or (not invert and not keep):
+                        continue
+
+                    if ignore_strand:
+                        gff.strand = "."
+
+                    options.stdout.write("%s\n" % str(gff))
+                    nfeatures += 1
+                    noutput += 1
+
+            elif options.sample_size:
+
+                if options.filter_method == "gene":
+                    iterator = GTF.flat_gene_iterator(
+                        GTF.iterator(options.stdin))
+                elif options.filter_method == "transcript":
+                    iterator = GTF.transcript_iterator(
+                        GTF.iterator(options.stdin))
+                if options.min_exons_length:
+                    iterator = GTF.iterator_min_feature_length(
+                        iterator,
+                        min_length=options.min_exons_length,
+                        feature="exon")
+
+                data = [x for x in iterator]
+                ninput = len(data)
+                if len(data) > options.sample_size:
+                    data = random.sample(data, options.sample_size)
+
+                for d in data:
+                    noutput += 1
+                    for dd in d:
+                        nfeatures += 1
+                        options.stdout.write(str(dd) + "\n")
+
+            else:
+                assert False, "please supply either a filename "
+                "with ids to filter with (--map-tsv-file) or a sample-size."
+
+        elif options.filter_method in ("proteincoding", "lincrna",
+                                       "processed-pseudogene"):
+            # extract entries by transcript/gene biotype.
+            # This filter uses a test on the source field (ENSEMBL pre v78)
+            # a regular expression on the attributes (ENSEMBL >= v78).
+            tag = {"proteincoding": "protein_coding",
+                   "processed-pseudogene": "processed_pseudogene",
+                   "lincrna": "lincRNA"}[options.filter_method]
+            rx = re.compile('"%s"' % tag)
+            if not options.invert_filter:
+                f = lambda x: x.source == tag or rx.search(x.attributes)
+            else:
+                f = lambda x: x.source != tag and not rx.search(x.attributes)
+
+            for gff in GTF.iterator(options.stdin):
+                ninput += 1
+                if f(gff):
+                    options.stdout.write(str(gff) + "\n")
+                    noutput += 1
+                else:
+                    ndiscarded += 1
+
+    elif options.method == "exons2introns":
+
+        for gffs in GTF.flat_gene_iterator(GTF.iterator(options.stdin)):
+
+            ninput += 1
+
+            cds_ranges = GTF.asRanges(gffs, "CDS")
+            exon_ranges = GTF.asRanges(gffs, "exon")
+            input_ranges = Intervals.combine(cds_ranges + exon_ranges)
+
+            if len(input_ranges) > 1:
+                last = input_ranges[0][1]
+                output_ranges = []
+                for start, end in input_ranges[1:]:
+                    output_ranges.append((last, start))
+                    last = end
+
+                if options.intron_border:
+                    b = options.intron_border
+                    output_ranges = [(x[0] + b, x[1] - b)
+                                     for x in output_ranges]
+
+                if options.intron_min_length:
+                    l = options.intron_min_length
+                    output_ranges = [
+                        x for x in output_ranges if x[1] - x[0] > l]
+
+                for start, end in output_ranges:
+
+                    entry = GTF.Entry()
+                    entry.copy(gffs[0])
+                    entry.clearAttributes()
+                    entry.transcript_id = "merged"
+                    entry.feature = "intron"
+                    entry.start = start
+                    entry.end = end
+                    options.stdout.write("%s\n" % str(entry))
+                    nfeatures += 1
+                noutput += 1
+            else:
+                ndiscarded += 1
+
+    elif options.method == "set-score-to-distance":
+
+        for gffs in GTF.transcript_iterator(GTF.iterator(options.stdin)):
+            ninput += 1
+            strand = Genomics.convertStrand(gffs[0].strand)
+            all_start, all_end = min([x.start for x in gffs]), max(
+                [x.end for x in gffs])
+
+            if strand != ".":
+                t = 0
+                if strand == "-":
+                    gffs.reverse()
+                for gff in gffs:
+                    gff.score = t
+                    t += gff.end - gff.start
+
+                if strand == "-":
+                    gffs.reverse()
+            for gff in gffs:
+                options.stdout.write("%s\n" % str(gff))
+                nfeatures += 1
+            noutput += 1
+
+    elif options.method == "remove-overlapping":
+
+        index = GTF.readAndIndex(
+            GTF.iterator(iotools.open_file(options.filename_gff, "r")))
+
+        for gffs in GTF.transcript_iterator(GTF.iterator(options.stdin)):
+            ninput += 1
+            found = False
+            for e in gffs:
+                if index.contains(e.contig, e.start, e.end):
+                    found = True
+                    break
+
+            if found:
+                ndiscarded += 1
+            else:
+                noutput += 1
+                for e in gffs:
+                    nfeatures += 1
+                    options.stdout.write("%s\n" % str(e))
+
+    elif options.method == "intersect-transcripts":
+
+        for gffs in GTF.gene_iterator(GTF.iterator(options.stdin),
+                                      strict=options.strict):
+
+            ninput += 1
+            r = []
+            for g in gffs:
+                if options.with_utr:
+                    ranges = GTF.asRanges(g, "exon")
+                else:
+                    ranges = GTF.asRanges(g, "CDS")
+                r.append(ranges)
+
+            result = r[0]
+            for x in r[1:]:
+                result = Intervals.intersect(result, x)
+
+            entry = GTF.Entry()
+            entry.copy(gffs[0][0])
+            entry.clearAttributes()
+            entry.transcript_id = "merged"
+            entry.feature = "exon"
+            for start, end in result:
+                entry.start = start
+                entry.end = end
+                options.stdout.write("%s\n" % str(entry))
+                nfeatures += 1
+
+            noutput += 1
+
+    elif "rename-duplicates" == options.method:
+        # note: this will only rename entries with "CDS" in feature column
+
+        assert options.duplicate_feature in ["gene", "transcript", "both"],\
+            ("for renaming duplicates, --duplicate-feature must be set to one "
+             "of 'gene', transcript' or 'both'")
+
+        gene_ids = list()
+        transcript_ids = list()
+        gtfs = list()
+
+        for gtf in GTF.iterator(options.stdin):
+            gtfs.append(gtf)
+            if gtf.feature == "CDS":
+                gene_ids.append(gtf.gene_id)
+                transcript_ids.append(gtf.transcript_id)
+
+        dup_gene = [item for item in set(gene_ids) if gene_ids.count(item) > 1]
+        dup_transcript = [item for item in set(transcript_ids)
+                          if transcript_ids.count(item) > 1]
+
+        E.info("Number of duplicated gene_ids: %i" % len(dup_gene))
+        E.info("Number of duplicated transcript_ids: %i" % len(dup_transcript))
+
+        gene_dict = dict(list(zip(dup_gene, ([0] * len(dup_gene)))))
+        transcript_dict = dict(list(zip(dup_transcript,
+                                        ([0] * len(dup_transcript)))))
+
+        for gtf in gtfs:
+            if gtf.feature == "CDS":
+                if options.duplicate_feature in ["both", "gene"]:
+                    if gtf.gene_id in dup_gene:
+                        gene_dict[gtf.gene_id] = gene_dict[gtf.gene_id] + 1
+                        # TS. patch until pysam.ctabixproxies.pyx bugfixed
+                        gtf.attributes = gtf.attributes.strip()
+                        gtf.gene_id = str(gtf.gene_id) + "." + str(gene_dict[gtf.gene_id])
+
+                if options.duplicate_feature in ["both", "transcript"]:
+                    if gtf.transcript_id in dup_transcript:
+                        transcript_dict[gtf.transcript_id] = \
+                            transcript_dict[gtf.transcript_id] + 1
+                        # TS. patch until pysam.ctabixproxies.pyx bugfixed
+                        gtf.attributes = gtf.attributes.strip()
+                        gtf.transcript_id = str(gtf.transcript_id) + "." + str(transcript_dict[gtf.transcript_id])
+
+            options.stdout.write("%s\n" % gtf)
+
+    elif options.method in ("merge-exons",
+                            "merge-introns",
+                            "merge-transcripts"):
+        for gffs in GTF.flat_gene_iterator(
+                GTF.iterator(options.stdin),
+                strict=options.strict):
+            ninput += 1
+
+            cds_ranges = GTF.asRanges(gffs, "CDS")
+            exon_ranges = GTF.asRanges(gffs, "exon")
+            # sanity checks
+            strands = set([x.strand for x in gffs])
+            contigs = set([x.contig for x in gffs])
+            if len(strands) > 1:
+                E.warn('Skipping gene %s on multiple strands' % gffs[0].gene_id)
+                break
+                raise ValueError(
+                    "can not merge gene '%s' on multiple strands: %s" % (
+                        gffs[0].gene_id, str(strands)))
+
+            if len(contigs) > 1:
+                raise ValueError(
+                    "can not merge gene '%s' on multiple contigs: %s" % (
+                        gffs[0].gene_id, str(contigs)))
+
+            strand = Genomics.convertStrand(gffs[0].strand)
+            utr_ranges = []
+
+            if cds_ranges and options.mark_utr:
+                cds_start, cds_end = cds_ranges[0][0], cds_ranges[-1][1]
+                midpoint = (cds_end - cds_start) / 2 + cds_start
+
+                utr_ranges = []
+                for start, end in Intervals.truncate(exon_ranges, cds_ranges):
+                    if end - start > 3:
+                        if strand == ".":
+                            feature = "UTR"
+                        elif strand == "+":
+                            if start < midpoint:
+                                feature = "UTR5"
+                            else:
+                                feature = "UTR3"
+                        elif strand == "-":
+                            if start < midpoint:
+                                feature = "UTR3"
+                            else:
+                                feature = "UTR5"
+                        utr_ranges.append((feature, start, end))
+
+            try:
+                biotypes = [x["gene_biotype"] for x in gffs]
+                biotype = ":".join(set(biotypes))
+            except (KeyError, AttributeError):
+                biotype = None
+
+            def output_ranges(ranges, gffs, biotype=None,
+                              use_geneid=False):
+                result = []
+                for feature, start, end in ranges:
+                    entry = GTF.Entry()
+                    entry.copy(gffs[0])
+                    entry.clearAttributes()
+                    entry.feature = feature
+                    if use_geneid:
+                        entry.transcript_id = entry.gene_id
+                    else:
+                        entry.transcript_id = "merged"
+                    if biotype:
+                        entry.addAttribute("gene_biotype", biotype)
+                    entry.start = start
+                    entry.end = end
+                    result.append(entry)
+                return result
+
+            result = []
+
+            if options.method == "merge-exons":
+                if options.with_utr:
+                    if options.mark_utr:
+                        result.extend(output_ranges(utr_ranges, gffs, biotype,
+                                                    options.use_geneid))
+                        r = [("CDS", x, y) for x, y in
+                             Intervals.combineAtDistance(
+                                 cds_ranges, options.merge_exons_distance)]
+                    else:
+                        r = [("exon", x, y) for x, y in
+                             Intervals.combineAtDistance(
+                                 exon_ranges, options.merge_exons_distance)]
+                else:
+                    r = [("CDS", x, y) for x, y in
+                         Intervals.combineAtDistance(
+                             cds_ranges, options.merge_exons_distance)]
+
+            elif options.method == "merge-transcripts":
+
+                if options.with_utr:
+                    r = [("exon", exon_ranges[0][0],
+                          exon_ranges[-1][1])]
+                elif cds_ranges:
+                    r = [("exon", cds_ranges[0][0],
+                          cds_ranges[-1][1])]
+                else:
+                    ndiscarded += 1
+                    continue
+
+            elif options.method == "merge-introns":
+
+                if len(exon_ranges) >= 2:
+                    r = [("exon",
+                          exon_ranges[0][1],
+                          exon_ranges[-1][0])]
+                else:
+                    ndiscarded += 1
+                    continue
+
+            result.extend(output_ranges(r, gffs, biotype, options.use_geneid))
+
+            result.sort(key=lambda x: x.start)
+
+            for x in result:
+                options.stdout.write("%s\n" % str(x))
+                nfeatures += 1
+            noutput += 1
+
+    elif options.method == "find-retained-introns":
+
+        for gene in GTF.gene_iterator(GTF.iterator(options.stdin)):
+            ninput += 1
+            found_any = False
+            for intron in find_retained_introns(gene):
+                found_any = True
+                options.stdout.write("%s\n" % str(intron))
+                nfeatures += 1
+            if found_any:
+                noutput += 1
+
+    elif options.method == "genes-to-unique-chunks":
+
+        for gene in GTF.flat_gene_iterator(GTF.iterator(options.stdin)):
+            ninput += 1
+            for exon in gene_to_blocks(gene):
+                options.stdout.write("%s\n" % str(exon))
+                nfeatures += 1
+            noutput += 1
+
+    else:
+        raise ValueError("unknown method '%s'" % options.method)
+
+    E.info("ninput=%i, noutput=%i, nfeatures=%i, ndiscarded=%i" %
+           (ninput, noutput, nfeatures, ndiscarded))
+    E.stop()
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

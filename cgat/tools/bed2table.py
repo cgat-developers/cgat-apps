@@ -1,52 +1,52 @@
-'''B2b.py - nno inrvs
+'''Bed2table.py - annotate intervals
+=================================
 
+:Tags: Genomics Intervals Summary
 
-:Tgs: Gnomics Inrvs Smmry
-
-Prpos
+Purpose
 -------
 
-This scrip ks  b-orm i s inp n nnos ch inrv.
-Possib nnoors r (s opion '--conr'):
+This script takes a bed-formatted file as input and annotates each interval.
+Possible annotators are (see option '--counter'):
 
-ovrp
+overlap
 
-    comp ovrp wih inrvs in ohr b i. I h ohr b
-    i conins rcks, h ovrp is comp pr rck.
+    compute overlap with intervals in other bed file. If the other bed
+    file contains tracks, the overlap is computed per track.
 
-pks
+peaks
 
-    comp pk ocion in inrvs. Rqirs on or mor
-    bm-is. This conr cn so con wihin n sconry s o
-    bm-is (--conro-bm-i) n  his o h op.
+    compute peak location in intervals. Requires one or more
+    bam-files. This counter can also count within an secondary set of
+    bam-files (--control-bam-file) and add this to the output.
 
-composiion-n
+composition-na
 
-    comp ncoi rqncis in inrvs.
+    compute nucleotide frequencies in intervals.
 
-composiion-cpg
+composition-cpg
 
-    comp CpG nsiis n CpG obsrv / xpc in inrvs.
+    compute CpG densities and CpG observed / expected in intervals.
 
-cssiir-chipsq
+classifier-chipseq
 
-   cssiy chipsq inrvs. Rqirs  :rm:`g`
-   i wih gnomic nnoions (s :oc:`g2g`.)
+   classify chipseq intervals. Requires a :term:`gff`
+   file with genomic annotations (see :doc:`gtf2gff`.)
 
-moi
+motif
 
-   Srch or  spcii moi .g. sing --moi-sqncTTTT.
+   Search for a specified motif e.g. using --motif-sequence=TTTT.
 
 
-Usg
+Usage
 -----
 
-For xmp, h oowing commn wi comp h CpG composiion
-in h inrvs sppi::
+For example, the following command will compute the CpG composition
+in the intervals supplied::
 
-   cg b2b --conrcomposiion-cpg < in.b > o.sv
+   cgat bed2table --counter=composition-cpg < in.bed > out.tsv
 
-I h inp is his :rm:`b` orm i::
+If the input is this :term:`bed` formatted file::
 
   chr19   60118   60120   1       100.0000
   chr19   60171   60173   2       100.0000
@@ -54,13 +54,13 @@ I h inp is his :rm:`b` orm i::
   chr19   60339   60341   4       100.0000
   chr19   60375   60377   5       100.0000
   chr19   60110   60118   noCpG   100.0000
-  chr19   60118   60119   Cony   100.0000
-  chr19   60119   60120   Gony   100.0000
+  chr19   60118   60119   Conly   100.0000
+  chr19   60119   60120   Gonly   100.0000
 
-hn h op is h oowing b:
+then the output is the following table:
 
 +------+-----+-----+-----+--------+---------+-----------+----------+
-|conig|sr|n  |nm |scor   |CpG_con|CpG_nsiy|CpG_ObsExp|
+|contig|start|end  |name |score   |CpG_count|CpG_density|CpG_ObsExp|
 +------+-----+-----+-----+--------+---------+-----------+----------+
 |chr19 |60118|60120|1    |100.0000|1        |1.0        |2.0       |
 +------+-----+-----+-----+--------+---------+-----------+----------+
@@ -74,652 +74,652 @@ hn h op is h oowing b:
 +------+-----+-----+-----+--------+---------+-----------+----------+
 |chr19 |60110|60118|noCpG|100.0000|0        |0.0        |0.0       |
 +------+-----+-----+-----+--------+---------+-----------+----------+
-|chr19 |60118|60119|Cony|100.0000|0        |0.0        |0.0       |
+|chr19 |60118|60119|Conly|100.0000|0        |0.0        |0.0       |
 +------+-----+-----+-----+--------+---------+-----------+----------+
-|chr19 |60119|60120|Gony|100.0000|0        |0.0        |0.0       |
+|chr19 |60119|60120|Gonly|100.0000|0        |0.0        |0.0       |
 +------+-----+-----+-----+--------+---------+-----------+----------+
 
-Typ::
+Type::
 
-   cg b2b.py --hp
+   cgat bed2table.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 ---------------------
 
 '''
-impor r
-impor sys
-impor cocions
-impor cg.GTF s GTF
-impor cg.B s B
-impor cgcor.iooos s iooos
-impor cgcor.xprimn s E
-impor cg.InxFs s InxFs
-impor cg.SqncPropris s SqncPropris
-impor cg.Inrvs s Inrvs
-impor nmpy
-impor pysm
+import re
+import sys
+import collections
+import cgat.GTF as GTF
+import cgat.Bed as Bed
+import cgatcore.iotools as iotools
+import cgatcore.experiment as E
+import cgat.IndexedFasta as IndexedFasta
+import cgat.SequenceProperties as SequenceProperties
+import cgat.Intervals as Intervals
+import numpy
+import pysam
 
-impor cg.GnMoAnysis s GnMoAnysis
-
-
-css Conr(objc):
-
-     __ini__(s, sNon, *rgs, **kwrgs):
-        s.s  s
-
-     p(s, b):
-        s.b  b
-        s.con(b)
-
-     gSgmns(s):
-        rrn [s.b]
-
-     gHr(s):
-        rrn '\'.join(s.hrs)
+import cgat.GeneModelAnalysis as GeneModelAnalysis
 
 
-css ConrLngh(Conr):
-    hrs  ['ngh']
+class Counter(object):
 
-     con(s, b):
-        s.ngh  b.n - b.sr
+    def __init__(self, fasta=None, *args, **kwargs):
+        self.fasta = fasta
 
-     __sr__(s):
-        rrn sr(s.ngh)
+    def update(self, bed):
+        self.bed = bed
+        self.count(bed)
 
+    def getSegments(self):
+        return [self.bed]
 
-css ConrOvrp(Conr):
-
-    '''con ovrp or ch inrv in rcks.'''
-
-     __ini__(s, inm, *rgs, **kwrgs):
-
-        ssr inm is no Non,\
-            "ps sppy inm or ConrOvrp"
-
-        Conr.__ini__(s, *rgs, **kwrgs)
-
-        s.inm  inm
-
-        E.ino("ring inrvs rom s"  s.inm)
-
-        s.inx  B.rAnInx(
-            iooos.opn_i(s.inm, "r"),
-            pr_rckTr)
-
-        E.ino("r inrvs or s rcks"  n(s.inx))
-
-        s.rcks  is(s.inx.kys())
-        s.hrs  []
-        or rck in s.rcks:
-            s.hrs.xn(["s_novr"  rck, "s_bss"  rck])
-
-     con(s, b):
-        '''p inrn cons.'''
-
-        rss  []
-        or rck in s.rcks:
-            ry:
-                ovrps  [(x[0], x[1])
-                            or x in
-                            s.inx[rck][b.conig]
-                            .in(b.sr, b.n)]
-            xcp KyError:
-                ovrps  []
-
-            rss.ppn((n(ovrps),
-                            Inrvs.ccOvrp(
-                                [(b.sr, b.n), ],
-                                Inrvs.combin(ovrps))))
-
-        s.  rss
-
-     __sr__(s):
-        '''op ovrp o inrv in *b*'''
-
-        r  []
-        or rck, rs in zip(s.rcks, s.):
-            r.ppn("\".join((sr(rs[0]), sr(rs[1]))))
-
-        rrn "\".join(r)
-
-ConrPksRs  cocions.nmp(
-    "ConrPksRs", ("ngh nrs vgv pkv npks pkcnr"))
+    def getHeader(self):
+        return '\t'.join(self.headers)
 
 
-css ConrPks(Conr):
+class CounterLength(Counter):
+    headers = ['length']
 
-    '''comp nmbr o xn o pks in n inrv.'''
+    def count(self, bed):
+        self.length = bed.end - bed.start
 
-    hrs  Non
+    def __str__(self):
+        return str(self.length)
 
-     __ini__(s,
-                 bmis,
-                 oss,
-                 conro_bmis,
-                 conro_oss, *rgs, **kwrgs):
-        Conr.__ini__(s, *rgs, **kwrgs)
-        i no bmis:
-            ris VError("sppy --bm-i opions or rcovrg")
 
-        ssr n(oss)  0 or n(bmis)  n(
-            oss), "nmbr o bmis no h sm s nmbr o oss"
-        ssr n(conro_oss)  0 or \
-            n(conro_bmis)  n(conro_oss), \
-            "nmbr o conro bmis no h sm s nmbr o oss"
+class CounterOverlap(Counter):
 
-        s.bmis  bmis
-        s.oss  oss
-        s.conro_bmis  conro_bmis
-        s.conro_oss  conro_oss
+    '''count overlap for each interval in tracks.'''
 
-        s.hrs  is(ConrPksRs._is)
-        i s.conro_bmis:
-            s.hrs.xn(
-                ["conro_s"  x or x in ConrPksRs._is])
+    def __init__(self, filename, *args, **kwargs):
 
-     _con(s, b, bmis, oss):
-        '''con rs in b inrv.'''
+        assert filename is not None,\
+            "please supply filename for CounterOverlap"
 
-        conig, sr, n  b.conig, b.sr, b.n
+        Counter.__init__(self, *args, **kwargs)
 
-        ngh  n - sr
-        ry:
-            cons  nmpy.zros(ngh)
-        xcp VError s msg:
-            ris VError("Error ngiv ngh obin: "
-                             " mssgs conigs, srs, ns" 
-                             (msg, conig, sr, n))
-        nrs  0
+        self.filename = filename
 
-        i oss:
-            # i oss r givn, shi gs.
-            or smi, os in zip(bmis, oss):
+        E.info("reading intervals from %s" % self.filename)
 
-                shi  os // 2
-                # or pk coning I oow h MACS prooco,
-                # s h ncion  __gs_c_pk in PkDc.py
-                # In wors
-                # Ony k h sr o rs (king ino ccon h srn)
-                #  /2os o ch si o pk n sr ccm
-                # cons.
-                # or coning, xn rs by os
-                # on + srn shi gs psrm
-                # i.. ook  h ownsrm winow
-                xsr, xn  mx(0, sr - shi), mx(0, n + shi)
+        self.index = Bed.readAndIndex(
+            iotools.open_file(self.filename, "r"),
+            per_track=True)
 
-                or r in smi.ch(conig, xsr, xn):
-                    nrs + 1
-                    # som rs r ssign o  conig n posiion, b
-                    # r gg s nmpp - hs migh no hv n n
-                    # rib.
-                    i r.is_nmpp:
-                        conin
+        E.info("read intervals for %s tracks" % len(self.index))
 
-                    i r.is_rvrs:
-                        # rsr  r.pos + r.n - os
-                        # os  2 * shi
-                        ry:
-                            rsr  r.pos + r.n - os
-                        xcp TypError s msg:
-                            ris TypError("Error mssg ", msg,
-                                            "r.pos ", r.pos,
-                                            "r.n ", r.n,
-                                            "os ", os,
-                                            "qry nm ", r.qnm,
-                                            "ngh o r ", r.rn)
-                    s:
-                        rsr  r.pos + shi
+        self.tracks = list(self.index.keys())
+        self.headers = []
+        for track in self.tracks:
+            self.headers.extend(["%s_nover" % track, "%s_bases" % track])
 
-                    rn  rsr + shi
-                    rsr  mx(0, rsr - sr)
-                    rn  min(ngh, rn - sr)
-                    cons[rsr:rn] + 1
+    def count(self, bed):
+        '''update internal counts.'''
 
-        s:
-            or smi in bmis:
-                or r in smi.ch(conig, sr, n):
-                    nrs + 1
-                    rsr  mx(0, r.pos - sr)
-                    rn  min(ngh, r.pos - sr + r.rn)
-                    cons[rsr:rn] + 1
+        results = []
+        for track in self.tracks:
+            try:
+                overlaps = [(x[0], x[1])
+                            for x in
+                            self.index[track][bed.contig]
+                            .find(bed.start, bed.end)]
+            except KeyError:
+                overlaps = []
 
-        ngh  n - sr
-        vgv  nmpy.mn(cons)
-        pkv  mx(cons)
+            results.append((len(overlaps),
+                            Intervals.calculateOverlap(
+                                [(bed.start, bed.end), ],
+                                Intervals.combine(overlaps))))
 
-        # s ohr pk prmrs
-        pks  nmpy.rry(is(rng(0, ngh)))[cons > pkv]
-        npks  n(pks)
-        # pkcnr is min coorin bwn pks
-        # sch h i is  vi pk in h mi
-        pkcnr  sr + pks[npks // 2]
+        self.data = results
 
-        rrn ConrPksRs(ngh, nrs, vgv,
-                                  pkv, npks, pkcnr)
+    def __str__(self):
+        '''output overlap of interval in *bed*'''
 
-     con(s, b):
-        '''con rs pr posiion.
+        r = []
+        for track, result in zip(self.tracks, self.data):
+            r.append("\t".join((str(result[0]), str(result[1]))))
 
-        I oss r givn, shi gs by os / 2 n xn
-        by os / 2.
+        return "\t".join(r)
+
+CounterPeaksResult = collections.namedtuple(
+    "CounterPeaksResult", ("length nreads avgval peakval npeaks peakcenter"))
+
+
+class CounterPeaks(Counter):
+
+    '''compute number of extent of peaks in an interval.'''
+
+    headers = None
+
+    def __init__(self,
+                 bamfiles,
+                 offsets,
+                 control_bamfiles,
+                 control_offsets, *args, **kwargs):
+        Counter.__init__(self, *args, **kwargs)
+        if not bamfiles:
+            raise ValueError("supply --bam-file options for readcoverage")
+
+        assert len(offsets) == 0 or len(bamfiles) == len(
+            offsets), "number of bamfiles not the same as number of offsets"
+        assert len(control_offsets) == 0 or \
+            len(control_bamfiles) == len(control_offsets), \
+            "number of control bamfiles not the same as number of offsets"
+
+        self.bamfiles = bamfiles
+        self.offsets = offsets
+        self.control_bamfiles = control_bamfiles
+        self.control_offsets = control_offsets
+
+        self.headers = list(CounterPeaksResult._fields)
+        if self.control_bamfiles:
+            self.headers.extend(
+                ["control_%s" % x for x in CounterPeaksResult._fields])
+
+    def _count(self, bed, bamfiles, offsets):
+        '''count reads in bed interval.'''
+
+        contig, start, end = bed.contig, bed.start, bed.end
+
+        length = end - start
+        try:
+            counts = numpy.zeros(length)
+        except ValueError as msg:
+            raise ValueError("Error negative length obtained: "
+                             " message=%s contig=%s, start=%s, end=%s" %
+                             (msg, contig, start, end))
+        nreads = 0
+
+        if offsets:
+            # if offsets are given, shift tags.
+            for samfile, offset in zip(bamfiles, offsets):
+
+                shift = offset // 2
+                # for peak counting I follow the MACS protocoll,
+                # see the function def __tags_call_peak in PeakDetect.py
+                # In words
+                # Only take the start of reads (taking into account the strand)
+                # add d/2=offset to each side of peak and start accumulate
+                # counts.
+                # for counting, extend reads by offset
+                # on + strand shift tags upstream
+                # i.e. look at the downstream window
+                xstart, xend = max(0, start - shift), max(0, end + shift)
+
+                for read in samfile.fetch(contig, xstart, xend):
+                    nreads += 1
+                    # some reads are assigned to a contig and position, but
+                    # are flagged as unmapped - these might not have an alen
+                    # attribute.
+                    if read.is_unmapped:
+                        continue
+
+                    if read.is_reverse:
+                        # rstart = read.pos + read.alen - offset
+                        # offset = 2 * shift
+                        try:
+                            rstart = read.pos + read.alen - offset
+                        except TypeError as msg:
+                            raise TypeError("Error message =", msg,
+                                            "read.pos =", read.pos,
+                                            "read.alen =", read.alen,
+                                            "offset =", offset,
+                                            "query name =", read.qname,
+                                            "length of read =", read.rlen)
+                    else:
+                        rstart = read.pos + shift
+
+                    rend = rstart + shift
+                    rstart = max(0, rstart - start)
+                    rend = min(length, rend - start)
+                    counts[rstart:rend] += 1
+
+        else:
+            for samfile in bamfiles:
+                for read in samfile.fetch(contig, start, end):
+                    nreads += 1
+                    rstart = max(0, read.pos - start)
+                    rend = min(length, read.pos - start + read.rlen)
+                    counts[rstart:rend] += 1
+
+        length = end - start
+        avgval = numpy.mean(counts)
+        peakval = max(counts)
+
+        # set other peak parameters
+        peaks = numpy.array(list(range(0, length)))[counts >= peakval]
+        npeaks = len(peaks)
+        # peakcenter is median coordinate between peaks
+        # such that it is a valid peak in the middle
+        peakcenter = start + peaks[npeaks // 2]
+
+        return CounterPeaksResult(length, nreads, avgval,
+                                  peakval, npeaks, peakcenter)
+
+    def count(self, bed):
+        '''count reads per position.
+
+        If offsets are given, shift tags by offset / 2 and extend
+        by offset / 2.
         '''
 
-        s.rs  s._con(b, s.bmis, s.oss)
-        i s.conro_bmis:
-            s.conro  s._con(
-                b, s.conro_bmis, s.conro_oss)
+        self.result = self._count(bed, self.bamfiles, self.offsets)
+        if self.control_bamfiles:
+            self.control = self._count(
+                bed, self.control_bamfiles, self.control_offsets)
 
-     __sr__(s):
-        i s.conro_bmis:
-            rrn "\".join(mp(sr, s.rs + s.conro))
-        s:
-            rrn "\".join(mp(sr, s.rs))
-
-
-css ConrComposiionNcois(Conr):
-
-    hrs  SqncPropris.SqncProprisNA().gHrs()
-
-     __ini__(s, *rgs, **kwrgs):
-        Conr.__ini__(s, *rgs, **kwrgs)
-        s.rs_css  SqncPropris.SqncProprisNA
-        ssr s.s, "Conr rqirs  gnomic sqnc"
-
-     con(s, b):
-        s  s.s.gSqnc(b.conig, "+", b.sr, b.n)
-        s.rs  s.rs_css()
-        s.rs.oSqnc(s)
-
-     __sr__(s):
-        rrn sr(s.rs)
+    def __str__(self):
+        if self.control_bamfiles:
+            return "\t".join(map(str, self.result + self.control))
+        else:
+            return "\t".join(map(str, self.result))
 
 
-css ConrMoi(Conr):
+class CounterCompositionNucleotides(Counter):
 
-    hrs  ['moi_cons']
+    headers = SequenceProperties.SequencePropertiesNA().getHeaders()
 
-     __ini__(s, moi, *rgs, **kwrgs):
-        Conr.__ini__(s, *rgs, **kwrgs)
-        s.moi  moi
+    def __init__(self, *args, **kwargs):
+        Counter.__init__(self, *args, **kwargs)
+        self.result_class = SequenceProperties.SequencePropertiesNA
+        assert self.fasta, "Counter requires a genomic sequence"
 
-     con(s, b):
-        s  s.s.gSqnc(b.conig, "+", b.sr, b.n)
-        s.rs  n([x or x in
-                           r.inir(r'(?(s))'  s.moi, s)])
+    def count(self, bed):
+        s = self.fasta.getSequence(bed.contig, "+", bed.start, bed.end)
+        self.result = self.result_class()
+        self.result.loadSequence(s)
 
-     __sr__(s):
-        rrn sr(s.rs)
+    def __str__(self):
+        return str(self.result)
 
 
-css ConrComposiionCpG(ConrComposiionNcois):
+class CounterMotif(Counter):
 
-    '''comp CpG rqncis s w s ncoi rqncis.
+    headers = ['motif_counts']
 
-    No h CpG nsiy is cc cross h mrg xons o 
-    rnscrip. Ths, hr migh b irnc bwn h CpG on 
-    gnomic v n on h rnsrcip v pning on how mny
-    gnomic CpG r os cross n inron-xon bonry or how mny
-    rnscrip CpG r cr by xon sion.
+    def __init__(self, motif, *args, **kwargs):
+        Counter.__init__(self, *args, **kwargs)
+        self.motif = motif
+
+    def count(self, bed):
+        s = self.fasta.getSequence(bed.contig, "+", bed.start, bed.end)
+        self.result = len([x for x in
+                           re.finditer(r'(?=(%s))' % self.motif, s)])
+
+    def __str__(self):
+        return str(self.result)
+
+
+class CounterCompositionCpG(CounterCompositionNucleotides):
+
+    '''compute CpG frequencies as well as nucleotide frequencies.
+
+    Note that CpG density is calculated across the merged exons of a
+    transcript. Thus, there might be difference between the CpG on a
+    genomic level and on the transrcipt level depending on how many
+    genomic CpG are lost across an intron-exon boundary or how many
+    transcript CpG are created by exon fusion.
 
     '''
 
-    hrs  SqncPropris.SqncProprisCpg().gHrs()
+    headers = SequenceProperties.SequencePropertiesCpg().getHeaders()
 
-     __ini__(s, *rgs, **kwrgs):
-        ConrComposiionNcois.__ini__(s, *rgs, **kwrgs)
-        s.rs_css  SqncPropris.SqncProprisCpg
+    def __init__(self, *args, **kwargs):
+        CounterCompositionNucleotides.__init__(self, *args, **kwargs)
+        self.result_class = SequenceProperties.SequencePropertiesCpg
 
-     con(s, b):
+    def count(self, bed):
 
-        s  s.s.gSqnc(b.conig, "+", b.sr, b.n)
-        s.rs  s.rs_css()
-        s.rs.oSqnc(s)
+        s = self.fasta.getSequence(bed.contig, "+", bed.start, bed.end)
+        self.result = self.result_class()
+        self.result.loadSequence(s)
 
 
-css CssiirChIPSq(GnMoAnysis.Cssiir):
+class ClassifierChIPSeq(GeneModelAnalysis.Classifier):
 
-    """cssiy ChIPSq inrvs bs on  rrnc nnoion.
+    """classify ChIPSeq intervals based on a reference annotation.
 
-    This ssms h inp is  gnom nnoion riv rom n
-    ENSEMBL g i cr wih g2g.py.
+    This assumes the input is a genome annotation derived from an
+    ENSEMBL gtf file created with gff2gtf.py.
 
-    In conrs o rnscrips, h inrvs r zzy. Hnc h
-    cssiicion is bs on  mixr o /pri ovrp.
+    In contrast to transcripts, the intervals are fuzzy. Hence the
+    classification is based on a mixture of full/partial overlap.
 
-    An inrv is cssii s:
+    An interval is classified as:
 
-    cs
-       mosy pr o  CDS. Ths wo b inrvs y wihin  CDS xon.
-    r
-       mosy pr o UTR. Ths r inrvs y wihin h UTR o  gn.
-    inrgnic
-       mosy inrgnic. Ths r inrvs y wihin h
-       inrgnic rgion n mor hn 1kb rom h coss xon.
-    psrm
-       no ny o h bov n pry psrm o  gn. Ths r
-       inrvs h migh ovrp pr o h UTR or h 1kb sgmn
-       bor o h 5'-rmin xon o  gn.
-    ownsrm
-       no ny o h bor n pry ownsrm o  gn. Ths r
-       inrvs h migh ovrp pr o h UTR or h 1kb sgmn
-       r o h 3'-rmin xon o  gn.
-    inronic
-       no ny o h bov n pry inronic. No h hs co
-       so inc promoors o shor rniv rnscrips h
-       skip on or mor o h irs xons.
-    mbigos
-       non o h bov
+    cds
+       mostly part of a CDS. These would be intervals fully within a CDS exon.
+    utr
+       mostly part of UTR. These are intervals fully within the UTR of a gene.
+    intergenic
+       mostly intergenic. These are intervals fully within the
+       intergenic region and more than 1kb from the closest exon.
+    upstream
+       not any of the above and partly upstream of a gene. These are
+       intervals that might overlap part of the UTR or the 1kb segment
+       before to the 5'-terminal exon of a gene.
+    downstream
+       not any of the abore and partly downstream of a gene. These are
+       intervals that might overlap part of the UTR or the 1kb segment
+       after to the 3'-terminal exon of a gene.
+    intronic
+       not any of the above and partly intronic. Note that these could
+       also include promotors of short alternative transcripts that
+       skip one or more of the first exons.
+    ambiguous
+       none of the above
 
     """
 
-    hr  ["is_cs", "is_r", "is_psrm", "is_ownsrm",
-              "is_inronic", "is_inrgnic", "is_nk", "is_mbigos"]
+    header = ["is_cds", "is_utr", "is_upstream", "is_downstream",
+              "is_intronic", "is_intergenic", "is_flank", "is_ambiguous"]
 
-    # sorcs o s or cssiicion
-    sorcs  ("", )
+    # sources to use for classification
+    sources = ("", )
 
-    # minimm covrg o  rnscrip o ssign i o  css
-    mThrshoMinCovrg  95
+    # minimum coverage of a transcript to assign it to a class
+    mThresholdMinCoverage = 95
 
-    #  covrg o  rnscrip o ssign i o  css
-    mThrshoFCovrg  99
+    # full coverage of a transcript to assign it to a class
+    mThresholdFullCoverage = 99
 
-    # som covrg o  rnscrip o ssign i o  css
-    mThrshoSomCovrg  10
+    # some coverage of a transcript to assign it to a class
+    mThresholdSomeCoverage = 10
 
-     p(s, b):
+    def update(self, bed):
 
-        # convr o  g nry
-        g  GTF.Enry()
+        # convert to a gtf entry
+        gtf = GTF.Entry()
 
-        g.romB(b)
-        g.r  'xon'
-        GnMoAnysis.Cssiir.p(s, [g])
+        gtf.fromBed(bed)
+        gtf.feature = 'exon'
+        GeneModelAnalysis.Classifier.update(self, [gtf])
 
-     con(s):
+    def count(self):
 
-        or ky in s.mKys:
-            s.mConrs[ky].p(s.mGFFs)
+        for key in self.mKeys:
+            self.mCounters[key].update(self.mGFFs)
 
-         s_min(*rgs):
-            rrn sm([bs(s.mConrs[x].mPOvrp1)
-                        or x in rgs]) > s.mThrshoMinCovrg
+        def s_min(*args):
+            return sum([abs(self.mCounters[x].mPOverlap1)
+                        for x in args]) >= self.mThresholdMinCoverage
 
-         s_xc(*rgs):
-            rrn sm([bs(s.mConrs[x].mPOvrp1)
-                        or x in rgs]) < (100 - s.mThrshoMinCovrg)
+        def s_excl(*args):
+            return sum([abs(self.mCounters[x].mPOverlap1)
+                        for x in args]) < (100 - self.mThresholdMinCoverage)
 
-         s_(*rgs):
-            rrn sm([bs(s.mConrs[x].mPOvrp1)
-                        or x in rgs]) > s.mThrshoFCovrg
+        def s_full(*args):
+            return sum([abs(self.mCounters[x].mPOverlap1)
+                        for x in args]) >= self.mThresholdFullCoverage
 
-         s_som(*rgs):
-            rrn sm([bs(s.mConrs[x].mPOvrp1)
-                        or x in rgs]) > s.mThrshoSomCovrg
+        def s_some(*args):
+            return sum([abs(self.mCounters[x].mPOverlap1)
+                        for x in args]) >= self.mThresholdSomeCoverage
 
-        s.mIsCDS, s.mIsUTR, s.mIsInrgnic  Fs, Fs, Fs
-        s.mIsUpSrm  Fs
-        s.mIsDownSrm  Fs
-        s.mIsInronic  Fs
-        s.mIsFnk, s.mIsAmbigos  Fs, Fs
+        self.mIsCDS, self.mIsUTR, self.mIsIntergenic = False, False, False
+        self.mIsUpStream = False
+        self.mIsDownStream = False
+        self.mIsIntronic = False
+        self.mIsFlank, self.mIsAmbiguous = False, False
 
-        s.mIsCDS  s_(":CDS")
-        s.mIsUTR  s_(":UTR", ":UTR3", ":UTR5")
-        s.mIsInrgnic  s_(":inrgnic", ":omric")
+        self.mIsCDS = s_full(":CDS")
+        self.mIsUTR = s_full(":UTR", ":UTR3", ":UTR5")
+        self.mIsIntergenic = s_full(":intergenic", ":telomeric")
 
-        i no(s.mIsCDS or s.mIsUTR or s.mIsInrgnic):
-            s.mIsUpSrm  s_som(":5nk", ":UTR5")
-            i no s.mIsUpSrm:
-                s.mIsDownSrm  s_som(":3nk", ":UTR3")
-                i no s.mIsDownSrm:
-                    s.mIsInronic  s_som(":inronic")
-                    i no s.mIsInronic:
-                        s.mIsFnk  s_som(":nk")
+        if not(self.mIsCDS or self.mIsUTR or self.mIsIntergenic):
+            self.mIsUpStream = s_some(":5flank", ":UTR5")
+            if not self.mIsUpStream:
+                self.mIsDownStream = s_some(":3flank", ":UTR3")
+                if not self.mIsDownStream:
+                    self.mIsIntronic = s_some(":intronic")
+                    if not self.mIsIntronic:
+                        self.mIsFlank = s_some(":flank")
 
-        s.mIsAmbigos  no(s.mIsUTR or
-                                s.mIsInrgnic or
-                                s.mIsInronic or
-                                s.mIsCDS or
-                                s.mIsUpSrm or
-                                s.mIsDownSrm or
-                                s.mIsFnk)
+        self.mIsAmbiguous = not(self.mIsUTR or
+                                self.mIsIntergenic or
+                                self.mIsIntronic or
+                                self.mIsCDS or
+                                self.mIsUpStream or
+                                self.mIsDownStream or
+                                self.mIsFlank)
 
-     __sr__(s):
+    def __str__(self):
 
-         o(v):
-            i v:
-                rrn "1"
-            s:
-                rrn "0"
+        def to(v):
+            if v:
+                return "1"
+            else:
+                return "0"
 
-        h  [o(x) or x in (s.mIsCDS,
-                             s.mIsUTR,
-                             s.mIsUpSrm,
-                             s.mIsDownSrm,
-                             s.mIsInronic,
-                             s.mIsInrgnic,
-                             s.mIsFnk,
-                             s.mIsAmbigos,
+        h = [to(x) for x in (self.mIsCDS,
+                             self.mIsUTR,
+                             self.mIsUpStream,
+                             self.mIsDownStream,
+                             self.mIsIntronic,
+                             self.mIsIntergenic,
+                             self.mIsFlank,
+                             self.mIsAmbiguous,
                              )]
 
-        or ky in s.mKys:
-            h.ppn(sr(s.mConrs[ky]))
-        rrn "\".join(h)
+        for key in self.mKeys:
+            h.append(str(self.mCounters[key]))
+        return "\t".join(h)
 
 
- min(rgvNon):
+def main(argv=None):
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom [].")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome [default=%default].")
 
-    prsr._rgmn(
-        "-b", "--bm-i", s"bm_is", yp"sring",
-        hp"inm wih r mpping inormion. Mip is cn b "
-        "sbmi in  comm-spr is [].")
+    parser.add_argument(
+        "-b", "--bam-file", dest="bam_files", type="string",
+        help="filename with read mapping information. Multiple files can be "
+        "submitted in a comma-separated list [default=%default].")
 
-    prsr._rgmn(
-        "--conro-bm-i", s"conro_bm_is", yp"sring",
-        hp"inm wih r mpping inormion or inp/conro. "
-        "Mip is cn b sbmi in  comm-spr is "
-        "[].")
+    parser.add_argument(
+        "--control-bam-file", dest="control_bam_files", type="string",
+        help="filename with read mapping information for input/control. "
+        "Multiple files can be submitted in a comma-separated list "
+        "[default=%default].")
 
-    prsr._rgmn(
-        "--inm-orm", s"inm_orm", yp"choic",
-        choics("b", "g", "g"),
-        hp"orm o sconry srm [].")
+    parser.add_argument(
+        "--filename-format", dest="filename_format", type="choice",
+        choices=("bed", "gff", "gtf"),
+        help="format of secondary stream [default=%default].")
 
-    prsr._rgmn(
-        "-c", "--conr", s"conrs", yp"choic", cion"ppn",
-        choics("ngh",
-                 "ovrp",
-                 "pks",
-                 "composiion-n",
-                 "composiion-cpg",
-                 "cssiir-chipsq",
-                 "moi"),
-        hp"sc conrs o ppy [].")
+    parser.add_argument(
+        "-c", "--counter", dest="counters", type="choice", action="append",
+        choices=("length",
+                 "overlap",
+                 "peaks",
+                 "composition-na",
+                 "composition-cpg",
+                 "classifier-chipseq",
+                 "motif"),
+        help="select counters to apply [default=%default].")
 
-    prsr._rgmn(
-        "--moi-sqnc", s"moi_sqnc", yp"sring",
-        hp"spciy  sqnc o srch or"
-        "[].")
+    parser.add_argument(
+        "--motif-sequence", dest="motif_sequence", type="string",
+        help="specify a sequence to search for"
+        "[default=%default].")
 
-    prsr._rgmn(
-        "-o", "--os", s"oss", yp"in", cion"ppn",
-        hp"g oss or g coning - sppy s mny s hr "
-        "r bm-is [].")
+    parser.add_argument(
+        "-o", "--offset", dest="offsets", type="int", action="append",
+        help="tag offsets for tag counting - supply as many as there "
+        "are bam-files [default=%default].")
 
-    prsr._rgmn(
-        "--conro-os", s"conro_oss", yp"in",
-        cion"ppn",
-        hp"conro g oss or g coning - sppy s mny s "
-        "hr r bm-is [].")
+    parser.add_argument(
+        "--control-offset", dest="control_offsets", type="int",
+        action="append",
+        help="control tag offsets for tag counting - supply as many as "
+        "there are bam-files [default=%default].")
 
-    prsr._rgmn(
-        "-", "--op--is", s"_is", cion"sor_r",
-        hp"op  is in origin b i, by  ony "
-        "h irs 4 r op [].")
+    parser.add_argument(
+        "-a", "--output-all-fields", dest="all_fields", action="store_true",
+        help="output all fields in original bed file, by default only "
+        "the first 4 are output [default=%default].")
 
-    prsr._rgmn(
-        "--op-b-hrs", s"b_hrs", yp"sring",
-        hp"sppy ',' spr is o hrs or b componn "
-        "[].")
+    parser.add_argument(
+        "--output-bed-headers", dest="bed_headers", type="string",
+        help="supply ',' separated list of headers for bed component "
+        "[default=%default].")
 
-    prsr._rgmn(
-        "-", "--g-i", s"inm_g", yp"sring",
-        cion"ppn", mvr'b',
-        hp"inm wih xr g is. Th orr is imporn "
-        "[].")
+    parser.add_argument(
+        "-f", "--gff-file", dest="filename_gff", type="string",
+        action="append", metavar='bed',
+        help="filename with extra gff files. The order is important "
+        "[default=%default].")
 
-    prsr._rgmn(
-        "--hs-hr", s"hs_hr", cion"sor_r",
-        hp"b i wih hrs. Hrs n irs comns r "
-        "prsrv []")
+    parser.add_argument(
+        "--has-header", dest="has_header", action="store_true",
+        help="bed file with headers. Headers and first columns are "
+        "preserved [default=%default]")
 
-    prsr.s_s(
-        gnom_iNon,
-        conrs[],
-        bm_isNon,
-        oss[],
-        conro_bm_isNon,
-        conro_oss[],
-        _isFs,
-        inm_ormNon,
-        b_hrsNon,
-        inm_g[],
-        hs_hrFs,
-        moi_sqncNon
+    parser.set_defaults(
+        genome_file=None,
+        counters=[],
+        bam_files=None,
+        offsets=[],
+        control_bam_files=None,
+        control_offsets=[],
+        all_fields=False,
+        filename_format=None,
+        bed_headers=None,
+        filename_gff=[],
+        has_header=False,
+        motif_sequence=None
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i opions.b_hrs is no Non:
-        b_hrs  [x.srip() or x in opions.b_hrs.spi(",")]
-        i n(b_hrs) < 3:
-            ris VError(" b i ns  s hr comns")
-    s:
-        b_hrs  Non
+    if options.bed_headers is not None:
+        bed_headers = [x.strip() for x in options.bed_headers.split(",")]
+        if len(bed_headers) < 3:
+            raise ValueError("a bed file needs at least three columns")
+    else:
+        bed_headers = None
 
-    i opions.hs_hr:
-        whi 1:
-            in  opions.sin.rin()
-            i no in:
-                E.wrn("mpy b i wih no hr")
-                E.sop()
-                rrn
-            i no in.srswih("#"):
-                brk
-        b_hrs  in[:-1].spi("\")
+    if options.has_header:
+        while 1:
+            line = options.stdin.readline()
+            if not line:
+                E.warn("empty bed file with no header")
+                E.stop()
+                return
+            if not line.startswith("#"):
+                break
+        bed_headers = line[:-1].split("\t")
 
-    i "moi" in opions.conrs n no opions.moi_sqnc:
-        ris VError("i sing moi ms spciy  moi-sqnc")
+    if "motif" in options.counters and not options.motif_sequence:
+        raise ValueError("if using motif must specify a motif-sequence")
 
-    # g is
-    i opions.gnom_i:
-        s  InxFs.InxFs(opions.gnom_i)
-    s:
-        s  Non
+    # get files
+    if options.genome_file:
+        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    else:
+        fasta = None
 
-    i opions.bm_is:
-        bm_is  []
-        or bmi in opions.bm_is.spi(","):
-            bm_is.ppn(pysm.AignmnFi(bmi, "rb"))
-    s:
-        bm_is  Non
+    if options.bam_files:
+        bam_files = []
+        for bamfile in options.bam_files.split(","):
+            bam_files.append(pysam.AlignmentFile(bamfile, "rb"))
+    else:
+        bam_files = None
 
-    i opions.conro_bm_is:
-        conro_bm_is  []
-        or bmi in opions.conro_bm_is.spi(","):
-            conro_bm_is.ppn(pysm.AignmnFi(bmi, "rb"))
-    s:
-        conro_bm_is  Non
+    if options.control_bam_files:
+        control_bam_files = []
+        for bamfile in options.control_bam_files.split(","):
+            control_bam_files.append(pysam.AlignmentFile(bamfile, "rb"))
+    else:
+        control_bam_files = None
 
-    conrs  []
+    counters = []
 
-    or c in opions.conrs:
-        i c  "ngh":
-            conrs.ppn(ConrLngh(ss,
-                                          opionsopions))
+    for c in options.counters:
+        if c == "length":
+            counters.append(CounterLength(fasta=fasta,
+                                          options=options))
 
-        i c  "ovrp":
-            conrs.ppn(ConrOvrp(inmopions.inm_g[0],
-                                           ss,
-                                           opionsopions))
-             opions.inm_g[0]
-        i c  "pks":
-            conrs.ppn(ConrPks(bm_is,
-                                         opions.oss,
-                                         conro_bm_is,
-                                         opions.conro_oss,
-                                         opionsopions))
-        i c  "composiion-n":
-            conrs.ppn(ConrComposiionNcois(ss,
-                                                          opionsopions))
-        i c  "composiion-cpg":
-            conrs.ppn(ConrComposiionCpG(ss,
-                                                  opionsopions))
-        i c  "cssiir-chipsq":
-            conrs.ppn(CssiirChIPSq(
-                inm_gopions.inm_g,
-                ss,
-                opionsopions,
-                prixNon))
-             opions.inm_g[0]
+        elif c == "overlap":
+            counters.append(CounterOverlap(filename=options.filename_gff[0],
+                                           fasta=fasta,
+                                           options=options))
+            del options.filename_gff[0]
+        elif c == "peaks":
+            counters.append(CounterPeaks(bam_files,
+                                         options.offsets,
+                                         control_bam_files,
+                                         options.control_offsets,
+                                         options=options))
+        elif c == "composition-na":
+            counters.append(CounterCompositionNucleotides(fasta=fasta,
+                                                          options=options))
+        elif c == "composition-cpg":
+            counters.append(CounterCompositionCpG(fasta=fasta,
+                                                  options=options))
+        elif c == "classifier-chipseq":
+            counters.append(ClassifierChIPSeq(
+                filename_gff=options.filename_gff,
+                fasta=fasta,
+                options=options,
+                prefix=None))
+            del options.filename_gff[0]
 
-        i c  "moi":
-            conrs.ppn(ConrMoi(ss,
-                                         moiopions.moi_sqnc))
+        elif c == "motif":
+            counters.append(CounterMotif(fasta=fasta,
+                                         motif=options.motif_sequence))
 
-    xr_is  Non
+    extra_fields = None
 
-    or b in B.iror(opions.sin):
+    for bed in Bed.iterator(options.stdin):
 
-        i xr_is is Non:
+        if extra_fields is None:
 
-            # op xpiciy givn hrs
-            i b_hrs:
-                i n(b_hrs) > b.comns:
-                    ris VError(
-                        "insicin comns (i, xpc i) in s" 
-                        (b.comns, n(b_hrs), sr(b)))
+            # output explicitely given headers
+            if bed_headers:
+                if len(bed_headers) > bed.columns:
+                    raise ValueError(
+                        "insufficient columns (%i, expected %i) in %s" %
+                        (bed.columns, len(bed_headers), str(bed)))
 
-            s:
-                b_hrs  B.Hrs[:b.comns]
+            else:
+                bed_headers = Bed.Headers[:bed.columns]
 
-            opions.so.wri("\".join(b_hrs))
-            opions.so.wri("\" + "\".join(
-                [x.gHr() or x in conrs]) + "\n")
+            options.stdout.write("\t".join(bed_headers))
+            options.stdout.write("\t" + "\t".join(
+                [x.getHeader() for x in counters]) + "\n")
 
-            xr_is  is(rng(n(b_hrs) - 3))
+            extra_fields = list(range(len(bed_headers) - 3))
 
-        or conr in conrs:
-            conr.p(b)
+        for counter in counters:
+            counter.update(bed)
 
-        i opions._is:
-            opions.so.wri(sr(b))
-        s:
-            opions.so.wri(
-                "\".join([b.conig,
-                           sr(b.sr),
-                           sr(b.n)] + [b.is[x]
-                                            or x in xr_is]))
-        or conr in conrs:
-            opions.so.wri("\s"  sr(conr))
+        if options.all_fields:
+            options.stdout.write(str(bed))
+        else:
+            options.stdout.write(
+                "\t".join([bed.contig,
+                           str(bed.start),
+                           str(bed.end)] + [bed.fields[x]
+                                            for x in extra_fields]))
+        for counter in counters:
+            options.stdout.write("\t%s" % str(counter))
 
-        opions.so.wri("\n")
+        options.stdout.write("\n")
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

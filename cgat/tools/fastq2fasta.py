@@ -1,73 +1,73 @@
-"""Convr sq is o s is
+"""Convert fastq files to fasta files
 
-Impm mhos
+Implemeted methods
+==================
 
-
-on2pcbio
+ont2pacbio
 ----------
 
-Convr ong-r sq is, or xmp rom ONT ,
-o pcbio orm s is h cn b s wih h
-zzr ooki. Pcbio s is hv h oowing
-nming convnion or h sq hr in::
+Convert long-read fastq files, for example from ONT data,
+to pacbio formatted fasta files that can be used with the
+dazzler toolkit. Pacbio fasta files have the following
+naming convention for the fastq header line::
 
-    ><nm>/<w>/<sr>_<n> RQ0.<qv>
+    ><name>/<well>/<start>_<end> RQ=0.<qv>
 
-whr w, sr, n n qv r ingr vs.
+where well, start, end and qv are integer values.
 
-Th qiy v wi b s o h vrg o h bs qiis.
+The quality value will be set to the average of the base qualities.
 
 """
 
-impor sys
-impor pysm
-impor mh
+import sys
+import pysam
+import math
 
-impor cgcor.xprimn s E
+import cgatcore.experiment as E
 
 
- min(rgvsys.rgv):
+def main(argv=sys.argv):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-i", "--inp-sq", s"inp_sq_i", yp"sring",
-        hp"inp sq i")
+    parser.add_argument(
+        "-i", "--input-fastq", dest="input_fastq_file", type="string",
+        help="input fastq file")
 
-    prsr._rgmn(
-        "-m", "--mho", s"mho", yp"choic",
-        choics["on2pcbio"],
-        hp"mhos o ppy []")
+    parser.add_argument(
+        "-m", "--method", dest="method", type="choice",
+        choices=["ont2pacbio"],
+        help="methods to apply [%default]")
 
-    prsr.s_s(
-        inp_sq_iNon,
-        in_wih80,
-        mhoNon,
+    parser.set_defaults(
+        input_fastq_file=None,
+        line_width=80,
+        method=None,
     )
 
-    (opions, rgs)  E.sr(prsr, rgv, _op_opionsTr)
+    (options, args) = E.start(parser, argv, add_output_options=True)
 
-    i n(rgs)  1:
-        opions.inp_sq_i  rgs[0]
+    if len(args) == 1:
+        options.input_fastq_file = args[0]
 
-    i opions.inp_sq_i  "-":
-        opions.inp_sq_i  opions.sin
+    if options.input_fastq_file == "-":
+        options.input_fastq_file = options.stdin
 
-    o  opions.so
-    in_wih  opions.in_wih
-    w_no  0
-    or rcor in pysm.FsqFi(opions.inp_sq_i):
-        w_no + 1
-        qs  rcor.g_qiy_rry()
-        sq  rcor.sqnc
-        qv  in(mh.oor(sm(qs) / n(qs)))
-        o.wri(">{}/{}/{}_{} RQ0.{}\n".orm(
-            "s", w_no, 1, n(sq) + 1, qv))
-        or x in rng(0, n(sq), in_wih):
-            o.wri(sq[x:x + in_wih] + "\n")
+    outf = options.stdout
+    line_width = options.line_width
+    well_no = 0
+    for record in pysam.FastqFile(options.input_fastq_file):
+        well_no += 1
+        quals = record.get_quality_array()
+        seq = record.sequence
+        qv = int(math.floor(sum(quals) / len(quals)))
+        outf.write(">{}/{}/{}_{} RQ=0.{}\n".format(
+            "test", well_no, 1, len(seq) + 1, qv))
+        for x in range(0, len(seq), line_width):
+            outf.write(seq[x:x + line_width] + "\n")
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min())
+if __name__ == "__main__":
+    sys.exit(main())

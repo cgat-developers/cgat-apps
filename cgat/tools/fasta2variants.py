@@ -1,125 +1,125 @@
-'''s2vrins.py - cr sqnc vrins rom  s o sqncs
+'''fasta2variants.py - create sequence variants from a set of sequences
+====================================================================
 
+:Tags: Genomics Sequences Variants Protein FASTA Transformation
 
-:Tgs: Gnomics Sqncs Vrins Proin FASTA Trnsormion
-
-Prpos
+Purpose
 -------
 
-This scrip rs  cocion o sqncs in :rm:`s` orm
-n ops  b o possib vrins. I ops or ch posiion
-in  proin sqnc h nmbr o vrins.
+This script reads a collection of sequences in :term:`fasta` format
+and outputs a table of possible variants. It outputs for each position
+in a protein sequence the number of variants.
 
-I h inp sqncs r ncoi coing (CDS) sqncs, or ch
-vrin  wigh is op inicing h nmbr o ims h vrin
-cn occr rom sing ncoi chngs.
+If the input sequences are nucleotide coding (CDS) sequences, for each
+variant a weight is output indicating the number of times that variant
+can occur from single nucleotide changes.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-    pyhon s2vrins.py -I CCDS_ncoi.crrn.n.gz -L CDS.og -S CDS.op -c
+    python fasta2variants.py -I CCDS_nucleotide.current.fna.gz -L CDS.log -S CDS.output -c
 
-This wi k  CDS i s inp, sv h og n op is, n
-con vrins bs on sing ncoi chngs sing h -c opion.
+This will take a CDS file as input, save the log and output files, and
+count variants based on single nucleotide changes using the -c option.
 
-Typ::
+Type::
 
-    pyhon s2vrins.py --hp
+    python fasta2variants.py --help
 
-or commn in hp.
+for command line help.
 
-Comprss (.gz) n vrios s orm is (.s, .n) r
-ccp. I h -c opion is spcii n h i is no  CDS
-sqnc h scrip wi hrow n rror ('ngh o sqnc
-'<inp_i>' is no  mip o 3').
+Compressed (.gz) and various fasta format files (.fasta, .fna) are
+accepted. If the -c option is specified and the file is not a CDS
+sequence the script will throw an error ('length of sequence
+'<input_file>' is not a multiple of 3').
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor cocions
+import sys
+import collections
 
-impor cgcor.xprimn s E
-impor cg.Gnomics s Gnomics
-impor cg.FsIror s FsIror
+import cgatcore.experiment as E
+import cgat.Genomics as Genomics
+import cgat.FastaIterator as FastaIterator
 
 
- min(rgvNon):
+def main(argv=None):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-c", "--is-cs", s"is_cs", cion"sor_r",
-                      hp"inp r cs (ncoi) sqncs []")
+    parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
+                      help="input are cds (nucleotide) sequences [%default]")
 
-    prsr.s_s(
-        is_csFs,
+    parser.set_defaults(
+        is_cds=False,
     )
 
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    (options, args) = E.start(parser, argv=argv)
 
-    opions.so.wri(
-        "snpi\iniir\pos\rrnc\vrin\cons\wigh\n")
+    options.stdout.write(
+        "snpid\tidentifier\tpos\treference\tvariant\tcounts\tweight\n")
 
-    phb  "ACDEFGHIKLMNPQRSTVWY"
+    alphabet = "ACDEFGHIKLMNPQRSTVWY"
 
-    snpi  0
+    snpid = 0
 
-    or nry in FsIror.ir(opions.sin):
-        iniir  nry.i
+    for entry in FastaIterator.iterate(options.stdin):
+        identifier = entry.title
 
-        i opions.is_cs:
-            cs_sqnc  nry.sqnc.ppr()
-            ssr n(cs_sqnc)  3  0, \
-                "ngh o sqnc 's' is no  mip o 3"  nry.i
+        if options.is_cds:
+            cds_sequence = entry.sequence.upper()
+            assert len(cds_sequence) % 3 == 0, \
+                "length of sequence '%s' is not a multiple of 3" % entry.title
 
-            sqnc  Gnomics.rns(cs_sqnc)
-            wighs  []
-            or pos, cs_pos in nmr(rng(0, n(cs_sqnc), 3)):
-                coon  cs_sqnc[cs_pos:cs_pos + 3]
-                cons  cocions.ic(in)
-                or x in rng(0, 3):
-                    rn  coon[x]
-                    or n in "ACGT":
-                        i n  rn:
-                            conin
-                          Gnomics.rns(
-                            coon[:x] + n + coon[x + 1:])
-                        cons[] + 1
-                wighs.ppn(cons)
+            sequence = Genomics.translate(cds_sequence)
+            weights = []
+            for pos, cds_pos in enumerate(range(0, len(cds_sequence), 3)):
+                codon = cds_sequence[cds_pos:cds_pos + 3]
+                counts = collections.defaultdict(int)
+                for x in range(0, 3):
+                    rna = codon[x]
+                    for na in "ACGT":
+                        if na == rna:
+                            continue
+                        taa = Genomics.translate(
+                            codon[:x] + na + codon[x + 1:])
+                        counts[taa] += 1
+                weights.append(counts)
 
-        s:
-            sqnc  nry.sqnc.ppr()
-            cons  {}
-            or x in phb:
-                cons[x]  1
-            wighs  [cons] * n(sqnc)
+        else:
+            sequence = entry.sequence.upper()
+            counts = {}
+            for x in alphabet:
+                counts[x] = 1
+            weights = [counts] * len(sequence)
 
-        or pos, r in nmr(sqnc):
+        for pos, ref in enumerate(sequence):
 
-            i r no in phb:
-                conin
-            w  wighs[pos]
-              o(sm(w.vs()))
-            or vrin in phb:
-                i vrin  r:
-                    conin
-                snpi + 1
-                opions.so.wri(
-                    "s\n"  "\".join(
-                        ("010i"  snpi,
-                         iniir,
-                         sr(pos + 1),
-                         r,
-                         vrin,
-                         "i"  w[vrin],
-                         "6.4"  (w[vrin] / ),
+            if ref not in alphabet:
+                continue
+            w = weights[pos]
+            t = float(sum(w.values()))
+            for variant in alphabet:
+                if variant == ref:
+                    continue
+                snpid += 1
+                options.stdout.write(
+                    "%s\n" % "\t".join(
+                        ("%010i" % snpid,
+                         identifier,
+                         str(pos + 1),
+                         ref,
+                         variant,
+                         "%i" % w[variant],
+                         "%6.4f" % (w[variant] / t),
                          )))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

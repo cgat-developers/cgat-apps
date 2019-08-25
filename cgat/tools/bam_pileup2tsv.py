@@ -1,274 +1,274 @@
-"""Pr posiion sisics rom  BAM i
+"""Per position statistics from a BAM file
+==========================================
 
+Compute per-position statistics.
 
-Comp pr-posiion sisics.
-
-Mhos
+Methods
 -------
 
-r-vrin:
-    Op or ch posiion h bss o h ign rs.
+read-variant:
+    Output for each position the bases of the aligned reads.
 
-r-is:
-    Op or ch posiion h rs h r ign o his
-    posiion.
+read-list:
+    Output for each position the reads that are aligned to this
+    position.
 
-ph-vc:
-    Bs covrg  posiion (xcing ions). No h
-    h op o his mho is in :rm:`VCF` orm.
+depth-vcf:
+    Base coverage at position (excluding deletions). Note that
+    the output of this method is in :term:`VCF` format.
 
-covrg-vc:
-    R covrg  posiion (incing rs h hv  gp
-     si). No h h op o his mho is in :rm:`VCF`
-    orm.
+coverage-vcf:
+    Read coverage at position (including reads that have a gap
+    at site). Note that the output of this method is in :term:`VCF`
+    format.
 
-brco:
+barcode:
 
 """
 
-impor sys
-impor os
-impor json
-impor r
-impor pns
-impor pysm
-impor cgcor.xprimn s E
+import sys
+import os
+import json
+import re
+import pandas
+import pysam
+import cgatcore.experiment as E
 
 
- gnr_rom_b(bm_i, b_i, **kwrgs):
-    or b in b_i.ch(prsrpysm.sB()):
-        or v in bm_i.pip(b.conig, b.sr, b.n,
-                                 **kwrgs,
-                                 rncTr):
-            yi v
+def generate_from_bed(bam_file, bed_file, **kwargs):
+    for bed in bed_file.fetch(parser=pysam.asBed()):
+        for v in bam_file.pileup(bed.contig, bed.start, bed.end,
+                                 **kwargs,
+                                 truncate=True):
+            yield v
 
 
- gnr_rom_bm(bm_i, **kwrgs):
-    or v in bm_i.pip(**kwrgs):
-        yi v
+def generate_from_bam(bam_file, **kwargs):
+    for v in bam_file.pileup(**kwargs):
+        yield v
 
 
- gnr_rom_rgion(bm_i, rgion, **kwrgs):
-    or v in bm_i.pip(rgionrgion, **kwrgs):
-        yi v
+def generate_from_region(bam_file, region, **kwargs):
+    for v in bam_file.pileup(region=region, **kwargs):
+        yield v
 
 
- min(rgvNon):
+def main(argv=None):
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-i", "--inp-sq-i", s"inp_sq_i", yp"sring",
-        hp"inp sq i. "
-        "[]")
+    parser.add_argument(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        help="input fastq file. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-m", "--mho", s"mho", yp"choic",
-        choics("r-vrin", "ph-vc", "r-is", "covrg-vc", "brco"),
-        hp"mho o ppy []")
+    parser.add_argument(
+        "-m", "--method", dest="method", type="choice",
+        choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf", "barcode"),
+        help="method to apply [%default]")
 
-    prsr._rgmn(
-        "-", "--inp-b", s"inp_b_i", yp"sring",
-        hp"inp i wih inrvs. Tb-imi i o inrvs "
-        "in b orm o rsric nysis o. []")
+    parser.add_argument(
+        "-e", "--input-bed", dest="input_bed_file", type="string",
+        help="input file with intervals. Tab-delimited file of intervals "
+        "in bed format to restrict analysis to. [%default]")
 
-    prsr._rgmn(
-        "-r", "--rgion-sring", s"rgion_sring", yp"sring",
-        hp"rgion sring. Ony ppy mho in spcii rgion. "
-        "[]")
+    parser.add_argument(
+        "-r", "--region-string", dest="region_string", type="string",
+        help="region string. Only apply method in specified region. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-", "--rrnc-s-i", s"rrnc_s_i",
-        hp"rrnc gnomic sqnc in s orm. "
-        "[]")
+    parser.add_argument(
+        "-f", "--reference-fasta-file", dest="reference_fasta_file",
+        help="reference genomic sequence in fasta format. "
+        "[%default]")
 
-    prsr._rgmn(
-        "--min-bs-qiy", s"min_bs_qiy", yp"in",
-        hp"minimm bs qiy or brco nysis. "
-        "[]")
+    parser.add_argument(
+        "--min-base-quality", dest="min_base_quality", type="int",
+        help="minimum base quality for barcode analysis. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-s", "--sppr", s"sppr", yp"choic",
-        choics("noir", "smoos", ""))
+    parser.add_argument(
+        "-s", "--stepper", dest="stepper", type="choice",
+        choices=("nofilter", "samtools", "all"))
 
-    prsr.s_s(
-        mho"r-vrin",
-        rrnc_s_iNon,
-        inp_b_iNon,
-        rgx_smp_nm"([^/]+).bm",
-        sppr"noir",
-        min_bs_qiy13,
-        rgion_sringNon)
+    parser.set_defaults(
+        method="read-variant",
+        reference_fasta_file=None,
+        input_bed_file=None,
+        regex_sample_name="([^/]+).bam",
+        stepper="nofilter",
+        min_base_quality=13,
+        region_string=None)
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv, add_output_options=True)
 
-    pysm_in  pysm.AignmnFi(rgs[0], "rb")
+    pysam_in = pysam.AlignmentFile(args[0], "rb")
 
-    i opions.inp_b_i:
-        i no os.ph.xiss(opions.inp_b_i):
-            ris OSError("inp b i {} os no xis".orm(
-                opions.inp_b_i))
-        b_in  pysm.TbixFi(opions.inp_b_i)
-    s:
-        b_in  Non
+    if options.input_bed_file:
+        if not os.path.exists(options.input_bed_file):
+            raise OSError("input bed file {} does not exist".format(
+                options.input_bed_file))
+        bed_in = pysam.TabixFile(options.input_bed_file)
+    else:
+        bed_in = None
 
-    i opions.rgion_sring is no Non:
-        ir  gnr_rom_rgion(pysm_in, opions.rgion,
-                                   sppropions.sppr,
-                                   min_bs_qiyopions.min_bs_qiy)
-    i b_in is no Non:
-        ir  gnr_rom_b(pysm_in, b_in,
-                                sppropions.sppr,
-                                min_bs_qiyopions.min_bs_qiy)
-    s:
-        ir  gnr_rom_bm(pysm_in,
-                                sppropions.sppr,
-                                min_bs_qiyopions.min_bs_qiy)
+    if options.region_string is not None:
+        itr = generate_from_region(pysam_in, options.region,
+                                   stepper=options.stepper,
+                                   min_base_quality=options.min_base_quality)
+    elif bed_in is not None:
+        itr = generate_from_bed(pysam_in, bed_in,
+                                stepper=options.stepper,
+                                min_base_quality=options.min_base_quality)
+    else:
+        itr = generate_from_bam(pysam_in,
+                                stepper=options.stepper,
+                                min_base_quality=options.min_base_quality)
 
-    rrnc_s  pysm.FsFi(opions.rrnc_s_i)
+    reference_fasta = pysam.FastaFile(options.reference_fasta_file)
 
-    o  opions.so
-    conr  E.Conr()
+    outf = options.stdout
+    counter = E.Counter()
 
-    i opions.mho  "r-vrin":
-        o.wri("chromosom\posiion\r\yps\n")
+    if options.method == "read-variant":
+        outf.write("chromosome\tposition\tref\ttypes\n")
 
-        or pipcomn in ir:
-            conr.posiions_pip + 1
-            rrnc_bs  rrnc_s.ch(
-                pipcomn.rrnc_nm,
-                pipcomn.rrnc_pos,
-                pipcomn.rrnc_pos + 1)
-            mchs  []
-            bss  s()
-            or r in pipcomn.pips:
-                qpos  r.qry_posiion
-                i qpos is no Non:
-                    bs  r.ignmn.qry_sqnc[qpos]
-                s:
-                    bs  "-"
+        for pileupcolumn in itr:
+            counter.positions_pileup += 1
+            reference_base = reference_fasta.fetch(
+                pileupcolumn.reference_name,
+                pileupcolumn.reference_pos,
+                pileupcolumn.reference_pos + 1)
+            matches = []
+            bases = set()
+            for read in pileupcolumn.pileups:
+                qpos = read.query_position
+                if qpos is not None:
+                    base = read.alignment.query_sequence[qpos]
+                else:
+                    base = "-"
 
-                mchs.ppn((bs,
-                                r.ignmn.qry_nm))
-                bss.(bs)
+                matches.append((base,
+                                read.alignment.query_name))
+                bases.add(base)
 
-            bss  is(bss)
-            i n(bss)  1:
-                conr.posiion_noninormiv + 1
-                i bss[0]  rrnc_bs:
-                    conr.posiion_rrnc + 1
-                conin
+            bases = list(bases)
+            if len(bases) == 1:
+                counter.position_noninformative += 1
+                if bases[0] == reference_base:
+                    counter.position_reference += 1
+                continue
 
-            conr.posiion_inormiv + 1
+            counter.position_informative += 1
 
-              {}
-            or bs in bss:
-                [bs]  ",".join([x[1] or x in mchs i x[0]  bs])
+            d = {}
+            for base in bases:
+                d[base] = ",".join([x[1] for x in matches if x[0] == base])
 
-            o.wri("{}\{}\{}\{}\n".orm(
-                pipcomn.rrnc_nm,
-                pipcomn.rrnc_pos,
-                rrnc_bs,
-                json.mps()))
+            outf.write("{}\t{}\t{}\t{}\n".format(
+                pileupcolumn.reference_name,
+                pileupcolumn.reference_pos,
+                reference_base,
+                json.dumps(d)))
 
-    i opions.mho in ("ph-vc", "covrg-vc"):
-        i opions.rgx_smp_nm:
-            smp_nm  r.srch(opions.rgx_smp_nm, rgs[0]).grops()[0]
-        s:
-            smp_nm  "nknown"
+    elif options.method in ("depth-vcf", "coverage-vcf"):
+        if options.regex_sample_name:
+            sample_name = re.search(options.regex_sample_name, args[0]).groups()[0]
+        else:
+            sample_name = "unknown"
 
-        o.wri("##iormVCFv4.1\n")
-        o.wri("##FORMAT<IDGT,Nmbr1,TypSring,"
-                   "Dscripion\"Gnoyp\">\n")
-        o.wri("##FORMAT<IDDP,Nmbr1,TypIngr,"
-                   "Dscripion\"Gnoyp\">\n")
-        o.wri(
-            "#CHROM\POS\ID\REF\ALT\QUAL\"
-            "FILTER\INFO\FORMAT\{}\n".orm(smp_nm))
+        outf.write("##fileformat=VCFv4.1\n")
+        outf.write("##FORMAT=<ID=GT,Number=1,Type=String,"
+                   "Description=\"Genotype\">\n")
+        outf.write("##FORMAT=<ID=DP,Number=1,Type=Integer,"
+                   "Description=\"Genotype\">\n")
+        outf.write(
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\t"
+            "FILTER\tINFO\tFORMAT\t{}\n".format(sample_name))
 
-        is_ph  opions.mho  "ph-vc"
+        is_depth = options.method == "depth-vcf"
 
-        or ix, pipcomn in nmr(ir):
+        for idx, pileupcolumn in enumerate(itr):
 
-            i ix  1000  0:
-                E.ino("procss {} posiions".orm(ix))
+            if idx % 1000 == 0:
+                E.info("processed {} positions".format(idx))
 
-            rrnc_bs  rrnc_s.ch(
-                pipcomn.rrnc_nm,
-                pipcomn.rrnc_pos,
-                pipcomn.rrnc_pos + 1).ppr()
+            reference_base = reference_fasta.fetch(
+                pileupcolumn.reference_name,
+                pileupcolumn.reference_pos,
+                pileupcolumn.reference_pos + 1).upper()
 
-            i rrnc_bs  'A':
-                _bs  'C'
-            s:
-                _bs  'A'
+            if reference_base == 'A':
+                alt_base = 'C'
+            else:
+                alt_base = 'A'
 
-            i is_ph:
-                n  sm([1 or x in pipcomn.pips i no (x.is_ or x.is_rskip)])
-            s:
-                n  pipcomn.n
+            if is_depth:
+                n = sum([1 for x in pileupcolumn.pileups if not (x.is_del or x.is_refskip)])
+            else:
+                n = pileupcolumn.n
 
-            o.wri("{}\{}\.\{}\{}\.\PASS\.\GT:DP\0/1:{}\n".orm(
-                pipcomn.rrnc_nm,
-                pipcomn.rrnc_pos,
-                rrnc_bs,
-                _bs,
+            outf.write("{}\t{}\t.\t{}\t{}\t.\tPASS\t.\tGT:DP\t0/1:{}\n".format(
+                pileupcolumn.reference_name,
+                pileupcolumn.reference_pos,
+                reference_base,
+                alt_base,
                 n))
 
-    i opions.mho  "r-is":
-        o.wri("chromosom\posiion\rrnc_bs\bs\qiy\qry_nm\n")
+    elif options.method == "read-list":
+        outf.write("chromosome\tposition\treference_base\tbase\tquality\tquery_name\n")
 
-        or pipcomn in ir:
-            rrnc_bs  rrnc_s.ch(pipcomn.rrnc_nm,
-                                                   pipcomn.rrnc_pos,
-                                                   pipcomn.rrnc_pos + 1)
-            mchs  []
-            or r in pipcomn.pips:
-                qpos  r.qry_posiion
-                i qpos is no Non:
-                    bs  r.ignmn.qry_sqnc[qpos]
-                    qiy  r.ignmn.qry_qiis[qpos]
-                s:
-                    bs  "-"
-                    qiy  ""
+        for pileupcolumn in itr:
+            reference_base = reference_fasta.fetch(pileupcolumn.reference_name,
+                                                   pileupcolumn.reference_pos,
+                                                   pileupcolumn.reference_pos + 1)
+            matches = []
+            for read in pileupcolumn.pileups:
+                qpos = read.query_position
+                if qpos is not None:
+                    base = read.alignment.query_sequence[qpos]
+                    quality = read.alignment.query_qualities[qpos]
+                else:
+                    base = "-"
+                    quality = ""
 
-                o.wri("{}\{}\{}\{}\{}\{}\n".orm(
-                    pipcomn.rrnc_nm,
-                    pipcomn.rrnc_pos,
-                    rrnc_bs,
-                    bs,
-                    qiy,
-                    r.ignmn.qry_nm))
+                outf.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                    pileupcolumn.reference_name,
+                    pileupcolumn.reference_pos,
+                    reference_base,
+                    base,
+                    quality,
+                    read.alignment.query_name))
 
-    i opions.mho  "brco":
+    elif options.method == "barcode":
 
-        rows  []
-        or c in ir:
-            rows.ppn((c.rrnc_pos,
+        rows = []
+        for c in itr:
+            rows.append((c.reference_pos,
                          c.n,
-                         "".join(c.g_qry_sqncs()),
-                         pysm.qiis_o_qiysring(c.g_qry_qiis())))
-          pns.DFrm.rom_rcors(
+                         "".join(c.get_query_sequences()),
+                         pysam.qualities_to_qualitystring(c.get_query_qualities())))
+        df = pandas.DataFrame.from_records(
             rows,
-            comns["pos", "gpp_ph", "bss", "qiis"])
+            columns=["pos", "gapped_depth", "bases", "qualities"])
 
-        ["ph"]  .bss.sr.n()
-        bss  ["A", "C", "G", "T"]
-        or b in bss:
-            [b]  .bss.sr.ppr().sr.con(b)
-        ["consnss"]  [bss].ixmx(xis1)
-        ["consnss_cons"]  .ookp(.inx, .consnss)
-        ["consnss_sppor"]  .consnss_cons / .ph
-        ["oconsnss_cons"]  .ph - .consnss_cons
-        .oc[.consnss_cons  0, "consnss"]  "N"
+        df["depth"] = df.bases.str.len()
+        bases = ["A", "C", "G", "T"]
+        for b in bases:
+            df[b] = df.bases.str.upper().str.count(b)
+        df["consensus"] = df[bases].idxmax(axis=1)
+        df["consensus_counts"] = df.lookup(df.index, df.consensus)
+        df["consensus_support"] = df.consensus_counts / df.depth
+        df["offconsensus_counts"] = df.depth - df.consensus_counts
+        df.loc[df.consensus_counts == 0, "consensus"] = "N"
 
-        .o_csv(o, sp"\", inxFs)
+        df.to_csv(outf, sep="\t", index=False)
 
-    E.ino(conr)
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    E.info(counter)
+    # write footer and output benchmark information.
+    E.stop()

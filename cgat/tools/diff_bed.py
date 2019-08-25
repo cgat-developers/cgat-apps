@@ -1,358 +1,358 @@
 """
-i_b.py - con irncs bwn svr b is
+diff_bed.py - count differences between several bed files
+=========================================================
 
+:Tags: Genomics Intervals BED Comparison
 
-:Tgs: Gnomics Inrvs BED Comprison
-
-Prpos
+Purpose
 -------
 
-Comp ovrp sisics bwn mip b is. For ch pirwis
-comprison, his scrip ops h nmbr o inrvs (xons) n
-bss ovrpping.
+Compute overlap statistics between multiple bed files. For each pairwise
+comparison, this script outputs the number of intervals (exons) and
+bases overlapping.
 
-Using h ``--p`` opion,  b cn b incrmny p wih
-iion comprisons.
+Using the ``--update`` option, a table can be incrementally updated with
+additional comparisons.
 
-Th srn o inrvs is ignor in comprisons.
+The strand of intervals is ignored in comparisons.
 
 +--------------+----------------------------------+
-|*Comn*      |*Conn*                         |
+|*Column*      |*Content*                         |
 +--------------+----------------------------------+
-|s           |Nm o h s                   |
+|set           |Name of the set                   |
 +--------------+----------------------------------+
-|nxons_o  |nmbr o inrvs in s        |
+|nexons_total  |number of intervals in set        |
 +--------------+----------------------------------+
-|nxons_ov    |nmbr o inrvs ovrpping   |
+|nexons_ovl    |number of intervals overlapping   |
 +--------------+----------------------------------+
-|nxons_niq |nmbr o niq inrvs        |
+|nexons_unique |number of unique intervals        |
 +--------------+----------------------------------+
-|nbss_o  |nmbr o bss in gn s       |
+|nbases_total  |number of bases in gene set       |
 +--------------+----------------------------------+
-|nbss_ov    |nmbr o bss ovrpping       |
+|nbases_ovl    |number of bases overlapping       |
 +--------------+----------------------------------+
-|nbss_niq |nmbr o niq bss            |
+|nbases_unique |number of unique bases            |
 +--------------+----------------------------------+
 
-Usg
+Usage
 -----
 
-For xmp::
+For example::
 
-   pyhon i_b.py *.b.gz > o.sv
+   python diff_bed.py *.bed.gz > out.tsv
 
-To p rss rom  prvios rn, yp::
+To update results from a previous run, type::
 
-   pyhon i_b.py --po.sv *.b.gz > nw.sv
+   python diff_bed.py --update=out.tsv *.bed.gz > new.tsv
 
-Typ::
+Type::
 
-   pyhon i_b.py --hp
+   python diff_bed.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 """
 
-impor sys
-impor r
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor cg.B s B
-impor nmpy
+import sys
+import re
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import cgat.Bed as Bed
+import numpy
 
 
-css Conr:
+class Counter:
 
-    mPrcnForm  "5.2"
+    mPercentFormat = "%5.2f"
 
-     __ini__(s):
-        pss
+    def __init__(self):
+        pass
 
-     gHr(s):
-        h  []
-        or  in ("xons", "bss"):
-            or b in ("o", "ov", "niq"):
-                or c in ("1", "2"):
-                    h.ppn("n" +  + "_" + b + c)
-        or  in ("xons", "bss"):
-            or b in ("ov", "niq"):
-                or c in ("1", "2"):
-                    h.ppn("p" +  + "_" + b + c)
+    def getHeader(self):
+        h = []
+        for a in ("exons", "bases"):
+            for b in ("total", "ovl", "unique"):
+                for c in ("1", "2"):
+                    h.append("n" + a + "_" + b + c)
+        for a in ("exons", "bases"):
+            for b in ("ovl", "unique"):
+                for c in ("1", "2"):
+                    h.append("p" + a + "_" + b + c)
 
-        rrn "\".join(h)
+        return "\t".join(h)
 
-    @E.cch_mho
-     biInx(s, inm):
-        rrn B.rAnInx(iooos.opn_i(inm, "r"))
+    @E.cached_method
+    def buildIndex(self, filename):
+        return Bed.readAndIndex(iotools.open_file(filename, "r"))
 
-     _con(s, inm, ix):
-        '''con inm gins ix.'''
+    def _count(self, filename, idx):
+        '''count filename against idx.'''
 
-        ovrpping_gns  s()
-        gns  s()
+        overlapping_genes = set()
+        genes = set()
 
-        # ir ovr xons
-        ini  iooos.opn_i(inm, "r")
-        i  B.b_iror(ini)
+        # iterate over exons
+        infile = iotools.open_file(filename, "r")
+        it = Bed.bed_iterator(infile)
 
-        nxons, nxons_ovrpping  0, 0
-        nbss, nbss_ovrpping  0, 0
-        or his in i:
-            nxons + 1
-            nbss + his.n - his.sr
+        nexons, nexons_overlapping = 0, 0
+        nbases, nbases_overlapping = 0, 0
+        for this in it:
+            nexons += 1
+            nbases += this.end - this.start
 
-            ry:
-                inrvs  is(
-                    ix[his.conig].in(mx(0, his.sr), his.n))
-            xcp KyError:
-                conin
-            xcp Excpion s msg:
-                ris Excpion(
-                    "rror whi procssing s, msgs"  (inm, msg))
-            i n(inrvs)  0:
-                conin
+            try:
+                intervals = list(
+                    idx[this.contig].find(max(0, this.start), this.end))
+            except KeyError:
+                continue
+            except Exception as msg:
+                raise Exception(
+                    "error while processing %s, msg=%s" % (filename, msg))
+            if len(intervals) == 0:
+                continue
 
-            nxons_ovrpping + 1
-            sr, n  his.sr, his.n
-            cons  nmpy.zros(n - sr, nmpy.in)
-            or ohr_sr, ohr_n, ohr_v in inrvs:
-                or x in rng(mx(sr, ohr_sr) - sr, min(n, ohr_n) - sr):
-                    cons[x] + 1
-            nbss_ovrpping + sm([1 or x in cons i x > 0])
+            nexons_overlapping += 1
+            start, end = this.start, this.end
+            counts = numpy.zeros(end - start, numpy.int)
+            for other_start, other_end, other_value in intervals:
+                for x in range(max(start, other_start) - start, min(end, other_end) - start):
+                    counts[x] += 1
+            nbases_overlapping += sum([1 for x in counts if x > 0])
 
-        ini.cos()
+        infile.close()
 
-        rrn nxons, nxons_ovrpping, nbss, nbss_ovrpping
+        return nexons, nexons_overlapping, nbases, nbases_overlapping
 
-     con(s, inm1, inm2):
-        """con ovrp bwn wo b is."""
+    def count(self, filename1, filename2):
+        """count overlap between two bed files."""
 
-        E.ino("coning sr or s vrss s"  (inm1, inm2))
+        E.info("counting started for %s versus %s" % (filename1, filename2))
 
-        ix2  s.biInx(inm2)
+        idx2 = self.buildIndex(filename2)
 
-        (s.mExons1, s.mExonsOvrpping1,
-         s.mBss1, s.mBssOvrpping1 )  \
-            s._con(inm1, ix2)
+        (self.mExons1, self.mExonsOverlapping1,
+         self.mBases1, self.mBasesOverlapping1 ) = \
+            self._count(filename1, idx2)
 
-        s.mExonsUniq1  s.mExons1 - s.mExonsOvrpping1
-        s.mBssUniq1  s.mBss1 - s.mBssOvrpping1
+        self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
+        self.mBasesUnique1 = self.mBases1 - self.mBasesOverlapping1
 
-        ix1  s.biInx(inm1)
+        idx1 = self.buildIndex(filename1)
 
-        (s.mExons2, s.mExonsOvrpping2,
-         s.mBss2, s.mBssOvrpping2 )  \
-            s._con(inm2, ix1)
+        (self.mExons2, self.mExonsOverlapping2,
+         self.mBases2, self.mBasesOverlapping2 ) = \
+            self._count(filename2, idx1)
 
-        s.mExonsUniq2  s.mExons2 - s.mExonsOvrpping2
-        s.mBssUniq2  s.mBss2 - s.mBssOvrpping2
+        self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
+        self.mBasesUnique2 = self.mBases2 - self.mBasesOverlapping2
 
-     __sr__(s):
+    def __str__(self):
 
-        rrn "\".join(mp(sr, (
-            s.mExons1, s.mExons2,
-            s.mExonsOvrpping1, s.mExonsOvrpping2,
-            s.mExonsUniq1, s.mExonsUniq2,
-            s.mBss1, s.mBss2,
-            s.mBssOvrpping1, s.mBssOvrpping2,
-            s.mBssUniq1, s.mBssUniq2 ) ) ) + "\" +\
-            "\".join([iooos.pry_prcn(*x) or x in (
-                (s.mExonsOvrpping1, s.mExons1),
-                (s.mExonsOvrpping2, s.mExons2),
-                (s.mExonsUniq1, s.mExons1),
-                (s.mExonsUniq2, s.mExons2),
-                (s.mBssOvrpping1, s.mBss1),
-                (s.mBssOvrpping2, s.mBss2),
-                (s.mBssUniq1, s.mBss1),
-                (s.mBssUniq2, s.mBss2))])
-
-
-css ConrTrcks(Conr):
-
-     __ini__(s, inm):
-        s.mInics  B.rAnInx(iooos.opn_i(inm, "r"),
-                                         pr_rckTr)
-
-     gTrcks(s):
-        rrn sor(s.mInics.kys())
-
-     _conInics(s, ix_in, ix):
-        '''con inm gins ix.'''
-
-        ovrpping_gns  s()
-        gns  s()
-
-        # ir ovr xons
-
-        nxons, nxons_ovrpping  0, 0
-        nbss, nbss_ovrpping  0, 0
-        or conig, ix in ix_in.ims():
-
-            # no:   in ncion o nc
-            or sr, n, v in ix.in(0, 1000000000):
-                nxons + 1
-                nbss + n - sr
-
-                ry:
-                    inrvs  is(ix[conig].in(sr, n))
-                xcp KyError:
-                    conin
-
-                i n(inrvs)  0:
-                    conin
-
-                nxons_ovrpping + 1
-                cons  nmpy.zros(n - sr, nmpy.in)
-                or ohr_sr, ohr_n, ohr_v in inrvs:
-                    or x in rng(mx(sr, ohr_sr) - sr, min(n, ohr_n) - sr):
-                        cons[x] + 1
-                nbss_ovrpping + sm([1 or x in cons i x > 0])
-
-        rrn nxons, nxons_ovrpping, nbss, nbss_ovrpping
-
-     con(s, inm, rck):
-        """con ovrp bwn wo g is."""
-
-        E.ino("coning sr or s vrss s"  (inm, rck))
-
-        (s.mExons1, s.mExonsOvrpping1,
-         s.mBss1, s.mBssOvrpping1 )  \
-            s._con(inm, s.mInics[rck])
-
-        s.mExonsUniq1  s.mExons1 - s.mExonsOvrpping1
-        s.mBssUniq1  s.mBss1 - s.mBssOvrpping1
-
-        ix  s.biInx(inm)
-
-        # con inx gins inx
-        (s.mExons2, s.mExonsOvrpping2,
-         s.mBss2, s.mBssOvrpping2 )  \
-            s._conInics(s.mInics[rck], ix)
-
-        s.mExonsUniq2  s.mExons2 - s.mExonsOvrpping2
-        s.mBssUniq2  s.mBss2 - s.mBssOvrpping2
+        return "\t".join(map(str, (
+            self.mExons1, self.mExons2,
+            self.mExonsOverlapping1, self.mExonsOverlapping2,
+            self.mExonsUnique1, self.mExonsUnique2,
+            self.mBases1, self.mBases2,
+            self.mBasesOverlapping1, self.mBasesOverlapping2,
+            self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
+            "\t".join([iotools.pretty_percent(*x) for x in (
+                (self.mExonsOverlapping1, self.mExons1),
+                (self.mExonsOverlapping2, self.mExons2),
+                (self.mExonsUnique1, self.mExons1),
+                (self.mExonsUnique2, self.mExons2),
+                (self.mBasesOverlapping1, self.mBases1),
+                (self.mBasesOverlapping2, self.mBases2),
+                (self.mBasesUnique1, self.mBases1),
+                (self.mBasesUnique2, self.mBases2))])
 
 
- min(rgvNon):
-    """scrip min.
+class CounterTracks(Counter):
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    def __init__(self, filename):
+        self.mIndices = Bed.readAndIndex(iotools.open_file(filename, "r"),
+                                         per_track=True)
+
+    def getTracks(self):
+        return sorted(self.mIndices.keys())
+
+    def _countIndices(self, idx_in, idx):
+        '''count filename against idx.'''
+
+        overlapping_genes = set()
+        genes = set()
+
+        # iterate over exons
+
+        nexons, nexons_overlapping = 0, 0
+        nbases, nbases_overlapping = 0, 0
+        for contig, ix in idx_in.items():
+
+            # note: add a findall function to ncl
+            for start, end, value in ix.find(0, 1000000000):
+                nexons += 1
+                nbases += end - start
+
+                try:
+                    intervals = list(idx[contig].find(start, end))
+                except KeyError:
+                    continue
+
+                if len(intervals) == 0:
+                    continue
+
+                nexons_overlapping += 1
+                counts = numpy.zeros(end - start, numpy.int)
+                for other_start, other_end, other_value in intervals:
+                    for x in range(max(start, other_start) - start, min(end, other_end) - start):
+                        counts[x] += 1
+                nbases_overlapping += sum([1 for x in counts if x > 0])
+
+        return nexons, nexons_overlapping, nbases, nbases_overlapping
+
+    def count(self, filename, track):
+        """count overlap between two gtf files."""
+
+        E.info("counting started for %s versus %s" % (filename, track))
+
+        (self.mExons1, self.mExonsOverlapping1,
+         self.mBases1, self.mBasesOverlapping1 ) = \
+            self._count(filename, self.mIndices[track])
+
+        self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
+        self.mBasesUnique1 = self.mBases1 - self.mBasesOverlapping1
+
+        idx = self.buildIndex(filename)
+
+        # count index against index
+        (self.mExons2, self.mExonsOverlapping2,
+         self.mBases2, self.mBasesOverlapping2 ) = \
+            self._countIndices(self.mIndices[track], idx)
+
+        self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
+        self.mBasesUnique2 = self.mBases2 - self.mBasesOverlapping2
+
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: i_b.py 2866 2010-03-03 10:18:49Z nrs $", sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(
+        version="%prog version: $Id: diff_bed.py 2866 2010-03-03 10:18:49Z andreas $", usage=globals()["__doc__"])
 
-    prsr._rgmn("-", "--p", s"inm_p", yp"sring",
-                      hp"i inm is givn, prvios rss wi b r rom hr n ony chng ss wi b comp [].")
+    parser.add_argument("-u", "--update", dest="filename_update", type="string",
+                      help="if filename is given, previous results will be read from there and only changed sets will be computed [default=%default].")
 
-    prsr._rgmn("-p", "--prn-iniir", s"prn_i", yp"sring",
-                      hp"prn o convr  inm o n i [].")
+    parser.add_argument("-p", "--pattern-identifier", dest="pattern_id", type="string",
+                      help="pattern to convert a filename to an id [default=%default].")
 
-    prsr._rgmn("-", "--rcks", s"rcks", cion"sor_r",
-                      hp"compr is gins  rcks in h irs i []")
+    parser.add_argument("-t", "--tracks", dest="tracks", action="store_true",
+                      help="compare files against all tracks in the first file [default=%default]")
 
-    prsr.s_s(
-        inm_pNon,
-        prn_i"(.*).b",
-        rcksNon,
+    parser.set_defaults(
+        filename_update=None,
+        pattern_id="(.*).bed",
+        tracks=None,
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i n(rgs) < 2:
-        ris VError(" s wo rgmns rqir")
+    if len(args) < 2:
+        raise ValueError("at least two arguments required")
 
-    i opions.inm_p:
-        ini  iooos.opn_i(opions.inm_p, "r")
-        prvios_rss  {}
-        or in in ini:
-            i in.srswih("#"):
-                conin
-            i in.srswih("s1"):
-                conin
-              in[:-1].spi("\")
-            s1, s2  [0], [1]
+    if options.filename_update:
+        infile = iotools.open_file(options.filename_update, "r")
+        previous_results = {}
+        for line in infile:
+            if line.startswith("#"):
+                continue
+            if line.startswith("set1"):
+                continue
+            data = line[:-1].split("\t")
+            set1, set2 = data[0], data[1]
 
-            i s1 no in prvios_rss:
-                prvios_rss[s1]  {}
-            i s2 no in prvios_rss:
-                prvios_rss[s2]  {}
+            if set1 not in previous_results:
+                previous_results[set1] = {}
+            if set2 not in previous_results:
+                previous_results[set2] = {}
 
-            prvios_rss[s1][s2]  "\".join([2:])
-            rv  [([x + 1], [x]) or x in rng(2, n(), 2)]
-            prvios_rss[s2][s1]  "\".join(iooos.n(rv))
-    s:
-        prvios_rss  {}
+            previous_results[set1][set2] = "\t".join(data[2:])
+            rev = [(data[x + 1], data[x]) for x in range(2, len(data), 2)]
+            previous_results[set2][set1] = "\t".join(iotools.flatten(rev))
+    else:
+        previous_results = {}
 
-    prn_i  r.compi(opions.prn_i)
+    pattern_id = re.compile(options.pattern_id)
 
-     gTi(x):
-        ry:
-            rrn prn_i.srch(x).grops()[0]
-        xcp AribError:
-            rrn x
+    def getTitle(x):
+        try:
+            return pattern_id.search(x).groups()[0]
+        except AttributeError:
+            return x
 
-    ncomp, np  0, 0
+    ncomputed, nupdated = 0, 0
 
-    i opions.rcks:
-        conr  ConrTrcks(rgs[0])
-        opions.so.wri("s1\s2\s\n"  conr.gHr())
-        or inm in rgs[1:]:
-            i1  gTi(inm)
-            or i2 in conr.gTrcks():
+    if options.tracks:
+        counter = CounterTracks(args[0])
+        options.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
+        for filename in args[1:]:
+            title1 = getTitle(filename)
+            for title2 in counter.getTracks():
 
-                i prvios_rss:
-                    ry:
-                        prv  prvios_rss[i1][i2]
-                    xcp KyError:
-                        pss
-                    s:
-                        opions.so.wri(
-                            "s\s\s\n"  ((i1, i2, prv)))
-                        np + 1
-                        conin
+                if previous_results:
+                    try:
+                        prev = previous_results[title1][title2]
+                    except KeyError:
+                        pass
+                    else:
+                        options.stdout.write(
+                            "%s\t%s\t%s\n" % ((title1, title2, prev)))
+                        nupdated += 1
+                        continue
 
-                conr.con(inm, i2)
-                opions.so.wri(
-                    "s\s\s\n"  ((i1, i2, sr(conr))))
-                ncomp + 1
-    s:
-        conr  Conr()
-        opions.so.wri("s1\s2\s\n"  conr.gHr())
+                counter.count(filename, title2)
+                options.stdout.write(
+                    "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
+                ncomputed += 1
+    else:
+        counter = Counter()
+        options.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
 
-        or x in rng(n(rgs)):
+        for x in range(len(args)):
 
-            i1  gTi(rgs[x])
+            title1 = getTitle(args[x])
 
-            or y in rng(0, x):
-                i2  gTi(rgs[y])
-                i prvios_rss:
-                    ry:
-                        prv  prvios_rss[i1][i2]
-                    xcp KyError:
-                        pss
-                    s:
-                        opions.so.wri(
-                            "s\s\s\n"  ((i1, i2, prv)))
-                        np + 1
-                        conin
+            for y in range(0, x):
+                title2 = getTitle(args[y])
+                if previous_results:
+                    try:
+                        prev = previous_results[title1][title2]
+                    except KeyError:
+                        pass
+                    else:
+                        options.stdout.write(
+                            "%s\t%s\t%s\n" % ((title1, title2, prev)))
+                        nupdated += 1
+                        continue
 
-                conr.con(rgs[x], rgs[y])
-                opions.so.wri(
-                    "s\s\s\n"  ((i1, i2, sr(conr))))
-                ncomp + 1
+                counter.count(args[x], args[y])
+                options.stdout.write(
+                    "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
+                ncomputed += 1
 
-    E.ino("npi, ncompi"  (np, ncomp))
-    E.sop()
+    E.info("nupdated=%i, ncomputed=%i" % (nupdated, ncomputed))
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,418 +1,418 @@
 '''
-g2s.py - op sqncs rom gnomic rs
+gff2fasta.py - output sequences from genomic features
+=====================================================
 
+:Tags: Genomics Intervals Sequences GFF Fasta Transformation
 
-:Tgs: Gnomics Inrvs Sqncs GFF Fs Trnsormion
-
-Prpos
+Purpose
 -------
 
-This scrip ops h gnomic sqncs or inrvs wihin
- :rm:`g` or :rm: `g` orm i.
+This script outputs the genomic sequences for intervals within
+a :term:`gff` or :term: `gtf` formatted file.
 
-Th op cn b opiony msk n ir.
+The ouput can be optionally masked and filtered.
 
-Usg
+Usage
 -----
 
-I yo wn o convr  ``rs.g`` i wih inrvs inormion
-ino  :rm:`s` i conining h sqnc o ch inrv, s his
-scrip s oows::
+If you want to convert a ``features.gff`` file with intervals information
+into a :term:`fasta` file containing the sequence of each interval, use this
+script as follows::
 
-   pyhon g2s.py --gnom-ihg19 < rs.g > rs.s
+   python gff2fasta.py --genome-file=hg19 < features.gff > features.fasta
 
-Th inp cn so b  :rm:`g` orm i. In h cs, s h
-``--is-g`` opion::
+The input can also be a :term:`gtf` formatted file. In that case, use the
+``--is-gtf`` option::
 
-   pyhon g2s.py --gnom-ihg19 --is-g < rs.g >\
- rs.s
+   python gff2fasta.py --genome-file=hg19 --is-gtf < features.gtf >\
+ features.fasta
 
-I yo wn o   poyA i ono ch rnscrip yo cn s h `xn`
-opions:
+If you want to add a polyA tail onto each transcript you can use the `extend`
+options:
 
-   pyhon g2s.py --gnom-ihg19 --is-g
-   --xn-3 --xn-by125 --xn-wihA
-   < rs.g > rs.s
+   python gff2fasta.py --genome-file=hg19 --is-gtf
+   --extend-at=3 --extend-by=125 --extend-with=A
+   < features.gtf > features.fasta
 
-I yo wn o mrg h sqnc o simir rs oghr, ps s
-``--mrg-ovrpping``::
+If you want to merge the sequence of similar features together, please use
+``--merge-overlapping``::
 
-   pyhon g2s.py --gnom-ihg19 --mrg-ovrpping < rs.g >\
- rs.s
+   python gff2fasta.py --genome-file=hg19 --merge-overlapping < features.gff >\
+ features.fasta
 
-I is possib o ir h op by scing  minimm or mximm nmbr
-o ncois in h rsn s sqnc wih ``--mx-ngh`` or
-``--min-inrv-ngh`` rspcivy::
+It is possible to filter the output by selecting a minimum or maximum number
+of nucleotides in the resultant fasta sequence with ``--max-length`` or
+``--min-interval-length`` respectively::
 
-   pyhon g2s.py --gnom-ihg19 --mx-ngh100\
- < rs.g > rs.s
+   python gff2fasta.py --genome-file=hg19 --max-length=100\
+ < features.gff > features.fasta
 
-Or yo cn so ir h op by rs nm wih h ``--r``
-opion::
+Or you can also filter the output by features name with the ``--feature``
+option::
 
-   pyhon g2s.py --gnom-ihg19 --rxon < rs.g\
- > rs.s
+   python gff2fasta.py --genome-file=hg19 --feature=exon < features.gff\
+ > features.fasta
 
-On h ohr hn, ow-compxiy rgions cn b msk wih h ``--mskr``
-opion n  givn :rm:`g` orm i::
+On the other hand, low-complexity regions can be masked with the ``--masker``
+option and a given :term:`gff` formatted file::
 
-   pyhon g2s.py --gnom-ihg19 --mskrs\
- --mskrgions-b-iinrvs.g < rs.g > rs.s
+   python gff2fasta.py --genome-file=hg19 --masker=dust\
+ --maskregions-bed-file=intervals.gff < features.gff > features.fasta
 
-whr ``--mskr`` cn k h oowing vs: ``s``, ``smskr``,
-n ``somsk``.
+where ``--masker`` can take the following values: ``dust``, ``dustmasker``,
+and ``softmask``.
 
-Opions
+Options
 -------
 
-``--is-g``
-  Ts h scrip o xpc  :rm:`g` orm i
+``--is-gtf``
+  Tells the script to expect a :term:`gtf` format file
 
-``--gnom-i``
-  PATH o Fs i o gnom bi o s
+``--genome-file``
+  PATH to Fasta file of genome build to use
 
-``--mrg-ovrpping``
-  Mrg rs in :rm:`g`/:rm:`g` i h r jcn n shr
-  ribs
+``--merge-overlapping``
+  Merge features in :term:`gtf`/:term:`gff` file that are adjacent and share
+  attributes
 
-``--mhoir --ir-mho``
-  Fir on  :rm:`g` r sch s ``xon`` or ``CDS``
+``--method=filter --filter-method``
+  Filter on a :term:`gff` feature such as ``exon`` or ``CDS``
 
-``--mskrgions-b-i``
-  Msk sqncs in inrvs in :rm:`g` i
+``--maskregions-bed-file``
+  Mask sequences in intervals in :term:`gff` file
 
-``--rmov-msk-rgions``
-  Rmov sqncs in inrvs in :rm:`g` i rhr hn msking hm
+``--remove-masked-regions``
+  Remove sequences in intervals in :term:`gff` file rather than masking them
 
-``--min-inrv-ngh``
-  Minimm op sqnc ngh
+``--min-interval-length``
+  Minimum output sequence length
 
-``--mx-ngh``
-  Mximm op sqnc ngh
+``--max-length``
+  Maximum output sequence length
 
-``--xn-``
-  Exn sqnc  3', 5' or boh n.  Opiony '3ony' or '5ony' wi
-  rrn ony h 3' or 5' xn sqnc
+``--extend-at``
+  Extend sequence at 3', 5' or both end.  Optionally '3only' or '5only' will
+  return only the 3' or 5' extended sequence
 
-``--xn-by``
-  Us in conjncion wih ``--xn-``, h nmbr o ncois o xn
+``--extend-by``
+  Used in conjunction with ``--extend-at``, the number of nucleotides to extend
   by
 
-``--xn-wih``
-  Opion. Us in conjncion wih ``--xn-`` n ``--xn-by``.
-  Ins o xning by h gnomic sqnc, xn by his sring rp
-  n ims, whr n is --nn-by
+``--extend-with``
+  Optional. Used in conjunction with ``--extend-at`` and ``--extend-by``.
+  Instead of extending by the genomic sequence, extend by this string repeated
+  n times, where n is --entend-by
 
 
-``--mskr``
-  Mskr yp o s: s, smskr, so or non
+``--masker``
+  Masker type to use: dust, dustmasker, soft or none
 
-``--o-``
-  Fo h s sqnc vry n bss
+``--fold-at``
+  Fold the fasta sequence every n bases
 
-``--nming-rib``
-  Us his rib o nm h s nris
+``--naming-attribute``
+  Use this attribute to name the fasta entries
 
-Commn in opions
+Command line options
 --------------------
 '''
 
-impor sys
-impor qicksc
-impor cgcor.xprimn s E
-impor cg.GTF s GTF
-impor cg.Gnomics s Gnomics
-impor cgcor.iooos s iooos
-impor cg.InxFs s InxFs
-impor cg.Inrvs s Inrvs
-impor cg.Mskr s Mskr
+import sys
+import quicksect
+import cgatcore.experiment as E
+import cgat.GTF as GTF
+import cgat.Genomics as Genomics
+import cgatcore.iotools as iotools
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Intervals as Intervals
+import cgat.Masker as Masker
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn("--is-g", s"is_g", cion"sor_r",
-                      hp"inp is g ins o g.")
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
+                      help="input is gtf instead of gff.")
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom [].")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome [default=%default].")
 
-    prsr._rgmn(
-        "-m", "--mrg-jcn", s"mrg", cion"sor_r",
-        hp"mrg jcn inrvs wih h sm ribs."
-        " []")
+    parser.add_argument(
+        "-m", "--merge-adjacent", dest="merge", action="store_true",
+        help="merge adjacent intervals with the same attributes."
+        " [default=%default]")
 
-    prsr._rgmn(
-        "-", "--r", s"r", yp"sring",
-        hp"ir by  r, or xmp 'xon', 'CDS'."
-        " I s o h mpy sring,  nris r op "
-        "[].")
+    parser.add_argument(
+        "-e", "--feature", dest="feature", type="string",
+        help="filter by a feature, for example 'exon', 'CDS'."
+        " If set to the empty string, all entries are output "
+        "[%default].")
 
-    prsr._rgmn(
-        "-", "--mskrgions-b-i", s"inm_msks",
-        yp"sring", mvr"g",
-        hp"msk sqncs wih rgions givn in g i "
-        "[].")
+    parser.add_argument(
+        "-f", "--maskregions-bed-file", dest="filename_masks",
+        type="string", metavar="gff",
+        help="mask sequences with regions given in gff file "
+        "[%default].")
 
-    prsr._rgmn(
-        "--rmov-msk-rgions", s"rmov_msk_rgions",
-        cion"sor_r",
-        hp"rmov rgions ins o msking [].")
+    parser.add_argument(
+        "--remove-masked-regions", dest="remove_masked_regions",
+        action="store_true",
+        help="remove regions instead of masking [%default].")
 
-    prsr._rgmn(
-        "--min-inrv-ngh", s"min_ngh", yp"in",
-        hp"s minimm ngh or sqncs op "
-        "[]")
+    parser.add_argument(
+        "--min-interval-length", dest="min_length", type="int",
+        help="set minimum length for sequences output "
+        "[%default]")
 
-    prsr._rgmn(
-        "--mx-ngh", s"mx_ngh", yp"in",
-        hp"s mximm ngh or sqncs op "
-        "[]")
+    parser.add_argument(
+        "--max-length", dest="max_length", type="int",
+        help="set maximum length for sequences output "
+        "[%default]")
 
-    prsr._rgmn(
-        "--xn-", s"xn_", yp"choic",
-        choics("non", "3", "5", "boh", "3ony", "5ony"),
-        hp"xn  no n, 3', 5' or boh ns. I "
-        "3ony or 5ony r s, ony h  sqnc "
-        "is rrn []")
+    parser.add_argument(
+        "--extend-at", dest="extend_at", type="choice",
+        choices=("none", "3", "5", "both", "3only", "5only"),
+        help="extend at no end, 3', 5' or both ends. If "
+        "3only or 5only are set, only the added sequence "
+        "is returned [default=%default]")
 
-    prsr._rgmn(
-        "--hr-ribs", s"hr_r",
-        cion"sor_r",
-        hp" GFF nry ribs o h FASTA rcor"
-        " hr scion")
+    parser.add_argument(
+        "--header-attributes", dest="header_attr",
+        action="store_true",
+        help="add GFF entry attributes to the FASTA record"
+        " header section")
 
-    prsr._rgmn(
-        "--xn-by", s"xn_by", yp"in",
-        hp"xn by # bss []")
+    parser.add_argument(
+        "--extend-by", dest="extend_by", type="int",
+        help="extend by # bases [default=%default]")
 
-    prsr._rgmn(
-        "--xn-wih", s"xn_wih", yp"sring",
-        hp"xn sing bs []")
+    parser.add_argument(
+        "--extend-with", dest="extend_with", type="string",
+        help="extend using base [default=%default]")
 
-    prsr._rgmn(
-        "--mskr", s"mskr", yp"choic",
-        choics("s", "smskr", "somsk", "non"),
-        hp"ppy mskr [].")
+    parser.add_argument(
+        "--masker", dest="masker", type="choice",
+        choices=("dust", "dustmasker", "softmask", "none"),
+        help="apply masker [%default].")
 
-    prsr._rgmn(
-        "--o-", s"o_", yp"in",
-        hp"o sqnc vry n bss[].")
+    parser.add_argument(
+        "--fold-at", dest="fold_at", type="int",
+        help="fold sequence every n bases[%default].")
 
-    prsr._rgmn(
-        "--s-nm-rib", s"nming_rib", yp"sring",
-        hp"s rib o nm s nry. Crrny ony compb"
-        " wih g orm [].")
+    parser.add_argument(
+        "--fasta-name-attribute", dest="naming_attribute", type="string",
+        help="use attribute to name fasta entry. Currently only compatable"
+        " with gff format [%default].")
 
-    prsr.s_s(
-        is_gFs,
-        gnom_iNon,
-        mrgFs,
-        rNon,
-        inm_msksNon,
-        rmov_msk_rgionsFs,
-        min_ngh0,
-        mx_ngh0,
-        xn_Non,
-        xn_by100,
-        xn_wihNon,
-        mskrNon,
-        o_Non,
-        nming_ribFs,
-        hr_rFs,
+    parser.set_defaults(
+        is_gtf=False,
+        genome_file=None,
+        merge=False,
+        feature=None,
+        filename_masks=None,
+        remove_masked_regions=False,
+        min_length=0,
+        max_length=0,
+        extend_at=None,
+        extend_by=100,
+        extend_with=None,
+        masker=None,
+        fold_at=None,
+        naming_attribute=False,
+        header_attr=False,
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i opions.gnom_i:
-        s  InxFs.InxFs(opions.gnom_i)
-        conigs  s.gConigSizs()
+    if options.genome_file:
+        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+        contigs = fasta.getContigSizes()
 
-    i opions.is_g:
-        iror  GTF.rnscrip_iror(GTF.iror(opions.sin))
-    s:
-        gs  GTF.iror(opions.sin)
-        i opions.mrg:
-            iror  GTF.join_iror(gs)
-        s:
-            iror  GTF.chnk_iror(gs)
+    if options.is_gtf:
+        iterator = GTF.transcript_iterator(GTF.iterator(options.stdin))
+    else:
+        gffs = GTF.iterator(options.stdin)
+        if options.merge:
+            iterator = GTF.joined_iterator(gffs)
+        else:
+            iterator = GTF.chunk_iterator(gffs)
 
-    msks  Non
-    i opions.inm_msks:
-        msks  {}
-        wih iooos.opn_i(opions.inm_msks, "r") s ini:
-              GTF.rAsInrvs(GTF.iror(ini))
+    masks = None
+    if options.filename_masks:
+        masks = {}
+        with iotools.open_file(options.filename_masks, "r") as infile:
+            e = GTF.readAsIntervals(GTF.iterator(infile))
 
-        # convr inrvs o inrscors
-        or conig in is(.kys()):
-            inrscor  qicksc.InrvTr()
-            or sr, n in [conig]:
-                inrscor.(sr, n)
-            msks[conig]  inrscor
+        # convert intervals to intersectors
+        for contig in list(e.keys()):
+            intersector = quicksect.IntervalTree()
+            for start, end in e[contig]:
+                intersector.add(start, end)
+            masks[contig] = intersector
 
-    ninp, nop, nmsk, nskipp_msk  0, 0, 0, 0
-    nskipp_ngh  0
-    nskipp_noxons  0
+    ninput, noutput, nmasked, nskipped_masked = 0, 0, 0, 0
+    nskipped_length = 0
+    nskipped_noexons = 0
 
-    r  opions.r
+    feature = options.feature
 
-    # iror is  is conining grops (iss) o rs.
-    # Ech grop o rs hv in common h sm rnscrip ID, in cs o
-    # GTF is.
-    or ichnk in iror:
+    # iterator is a list containing groups (lists) of features.
+    # Each group of features have in common the same transcript ID, in case of
+    # GTF files.
+    for ichunk in iterator:
 
-        ninp + 1
+        ninput += 1
 
-        i r:
-            chnk  [x or x in ichnk i x.r  r]
-        s:
-            chnk  ichnk
+        if feature:
+            chunk = [x for x in ichunk if x.feature == feature]
+        else:
+            chunk = ichunk
 
-        i n(chnk)  0:
-            nskipp_noxons + 1
-            E.ino("no rs in nry rom "
-                   "s:i..i - s"  (ichnk[0].conig,
-                                       ichnk[0].sr,
-                                       ichnk[0].n,
-                                       sr(ichnk[0])))
-            conin
+        if len(chunk) == 0:
+            nskipped_noexons += 1
+            E.info("no features in entry from "
+                   "%s:%i..%i - %s" % (ichunk[0].contig,
+                                       ichunk[0].start,
+                                       ichunk[0].end,
+                                       str(ichunk[0])))
+            continue
 
-        conig, srn  chnk[0].conig, chnk[0].srn
+        contig, strand = chunk[0].contig, chunk[0].strand
         
-        i opions.is_g:
-            nm  chnk[0].rnscrip_i
-        s:
-            i opions.nming_rib:
-                r_ic  {x.spi("")[0]: x.spi("")[1]
-                             or x in chnk[0].ribs.spi(";")}
-                nm  r_ic[opions.nming_rib]
-            s:
-                nm  sr(chnk[0].ribs)
+        if options.is_gtf:
+            name = chunk[0].transcript_id
+        else:
+            if options.naming_attribute:
+                attr_dict = {x.split("=")[0]: x.split("=")[1]
+                             for x in chunk[0].attributes.split(";")}
+                name = attr_dict[options.naming_attribute]
+            else:
+                name = str(chunk[0].attributes)
 
-        conig  conigs[conig]
-        posiiv  Gnomics.IsPosiivSrn(srn)
-        inrvs  [(x.sr, x.n) or x in chnk]
-        inrvs.sor()
+        lcontig = contigs[contig]
+        positive = Genomics.IsPositiveStrand(strand)
+        intervals = [(x.start, x.end) for x in chunk]
+        intervals.sort()
 
-        i msks:
-            i conig in msks:
-                msk_rgions  []
-                or sr, n in inrvs:
-                    msk_rgions + [(x.sr, x.n)
-                                       or x in msks[conig].in(qicksc.Inrv(sr, n))]
+        if masks:
+            if contig in masks:
+                masked_regions = []
+                for start, end in intervals:
+                    masked_regions += [(x.start, x.end)
+                                       for x in masks[contig].find(quicksect.Interval(start, end))]
 
-                msk_rgions  Inrvs.combin(msk_rgions)
-                i n(msk_rgions):
-                    nmsk + 1
+                masked_regions = Intervals.combine(masked_regions)
+                if len(masked_regions):
+                    nmasked += 1
 
-                i opions.rmov_msk_rgions:
-                    inrvs  Inrvs.rnc(inrvs, msk_rgions)
-                s:
-                    ris NoImpmnError("nimpmn")
+                if options.remove_masked_regions:
+                    intervals = Intervals.truncate(intervals, masked_regions)
+                else:
+                    raise NotImplementedError("unimplemented")
 
-                i n(inrvs)  0:
-                    nskipp_msk + 1
-                    i opions.ogv > 1:
-                        opions.sog.wri("# skipp bcs y msk: "
-                                             "s: rgionss mskss\n" 
-                                             (nm,
-                                              sr([(x.sr,
-                                                    x.n) or x in chnk]),
-                                              msk_rgions))
-                    conin
+                if len(intervals) == 0:
+                    nskipped_masked += 1
+                    if options.loglevel >= 1:
+                        options.stdlog.write("# skipped because fully masked: "
+                                             "%s: regions=%s masks=%s\n" %
+                                             (name,
+                                              str([(x.start,
+                                                    x.end) for x in chunk]),
+                                              masked_regions))
+                    continue
 
-        o  inrvs
+        out = intervals
 
-        i opions.xn_ n no opions.xn_wih:
-            i opions.xn_  "5ony":
-                inrvs  [(mx(0, inrvs[0][0] - opions.xn_by),
-                              inrvs[0][0])]
-            i opions.xn_  "3ony":
-                inrvs  [(inrvs[-1][1],
-                              min(conig,
-                                  inrvs[-1][1] + opions.xn_by))]
-            s:
-                i opions.xn_ in ("5", "boh"):
-                    inrvs[0]  (mx(0,
-                                        inrvs[0][0] - opions.xn_by),
-                                    inrvs[0][1])
-                i opions.xn_ in ("3", "boh"):
-                    inrvs[-1]  (inrvs[-1][0],
-                                     min(conig,
-                                         inrvs[-1][1] + opions.xn_by))
+        if options.extend_at and not options.extend_with:
+            if options.extend_at == "5only":
+                intervals = [(max(0, intervals[0][0] - options.extend_by),
+                              intervals[0][0])]
+            elif options.extend_at == "3only":
+                intervals = [(intervals[-1][1],
+                              min(lcontig,
+                                  intervals[-1][1] + options.extend_by))]
+            else:
+                if options.extend_at in ("5", "both"):
+                    intervals[0] = (max(0,
+                                        intervals[0][0] - options.extend_by),
+                                    intervals[0][1])
+                if options.extend_at in ("3", "both"):
+                    intervals[-1] = (intervals[-1][0],
+                                     min(lcontig,
+                                         intervals[-1][1] + options.extend_by))
 
-        i no posiiv:
-            inrvs  [(conig - x[1], conig - x[0])
-                         or x in inrvs[::-1]]
-            o.rvrs()
+        if not positive:
+            intervals = [(lcontig - x[1], lcontig - x[0])
+                         for x in intervals[::-1]]
+            out.reverse()
 
-        s  [s.gSqnc(conig, srn, sr, n)
-             or sr, n in inrvs]
-        # IMS: ow or msking o sqncs
-        s  Mskr.mskSqncs(s, opions.mskr)
-          sm([n(x) or x in s])
-        i ( < opions.min_ngh or
-                (opions.mx_ngh n  > opions.mx_ngh)):
-            nskipp_ngh + 1
-            i opions.ogv > 1:
-                opions.sog.wri("# skipp bcs ngh o o bons "
-                                     "s: rgionss ni\n" 
-                                     (nm, sr(inrvs), ))
-                conin
+        s = [fasta.getSequence(contig, strand, start, end)
+             for start, end in intervals]
+        # IMS: allow for masking of sequences
+        s = Masker.maskSequences(s, options.masker)
+        l = sum([len(x) for x in s])
+        if (l < options.min_length or
+                (options.max_length and l > options.max_length)):
+            nskipped_length += 1
+            if options.loglevel >= 1:
+                options.stdlog.write("# skipped because length out of bounds "
+                                     "%s: regions=%s len=%i\n" %
+                                     (name, str(intervals), l))
+                continue
 
-        i opions.xn_ n opions.xn_wih:
-            xnsion  "".join((opions.xn_wih,) * opions.xn_by)
+        if options.extend_at and options.extend_with:
+            extension = "".join((options.extend_with,) * options.extend_by)
 
-            i opions.xn_ in ("5", "boh"):
-                s[1]  xnsion + s[1]
-            i opions.xn_ in ("3", "boh"):
-                s[-1]  s[-1] + xnsion
+            if options.extend_at in ("5", "both"):
+                s[1] = extension + s[1]
+            if options.extend_at in ("3", "both"):
+                s[-1] = s[-1] + extension
 
-        i opions.o_:
-            n  opions.o_
-            s  "".join(s)
-            sq  "\n".join([s[i:i+n] or i in rng(0, n(s), n)])
-        s:
-            sq  "\n".join(s)
+        if options.fold_at:
+            n = options.fold_at
+            s = "".join(s)
+            seq = "\n".join([s[i:i+n] for i in range(0, len(s), n)])
+        else:
+            seq = "\n".join(s)
 
-        i opions.hr_r:
-            ribs  " ".join([":".join([x, y]) or x, y in chnk[0].sDic().ims()])
-            opions.so.wri(">s s:s:s r:s s\ns\n"  (nm,
-                                                                       conig,
-                                                                       srn,
+        if options.header_attr:
+            attributes = " ".join([":".join([ax, ay]) for ax, ay in chunk[0].asDict().items()])
+            options.stdout.write(">%s %s:%s:%s feature:%s %s\n%s\n" % (name,
+                                                                       contig,
+                                                                       strand,
                                                                        ";".join(
-                                                                           ["i-i" 
-                                                                            x or x in o]),
-                                                                       chnk[0].r,
-                                                                       ribs,
-                                                                       sq))
-        s:
-            opions.so.wri(">s s:s:s\ns\n"  (nm,
-                                                         conig,
-                                                         srn,
+                                                                           ["%i-%i" %
+                                                                            x for x in out]),
+                                                                       chunk[0].feature,
+                                                                       attributes,
+                                                                       seq))
+        else:
+            options.stdout.write(">%s %s:%s:%s\n%s\n" % (name,
+                                                         contig,
+                                                         strand,
                                                          ";".join(
-                                                             ["i-i" 
-                                                              x or x in o]),
-                                                         sq))
+                                                             ["%i-%i" %
+                                                              x for x in out]),
+                                                         seq))
 
-        nop + 1
+        noutput += 1
 
-    E.ino("ninpi, nopi, nmski, nskipp_noxonsi, "
-           "nskipp_mski, nskipp_nghi" 
-           (ninp, nop, nmsk, nskipp_noxons,
-            nskipp_msk, nskipp_ngh))
+    E.info("ninput=%i, noutput=%i, nmasked=%i, nskipped_noexons=%i, "
+           "nskipped_masked=%i, nskipped_length=%i" %
+           (ninput, noutput, nmasked, nskipped_noexons,
+            nskipped_masked, nskipped_length))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

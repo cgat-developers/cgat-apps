@@ -1,70 +1,70 @@
 '''
-rnomiz_ins.py - rnomiz ins rom sin
+randomize_lines.py - randomize lines from stdin
+===============================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip rs ins rom sin n ops hm
-in rnomiz orr.
+This script reads lines from stdin and outputs them
+in randomized order.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   cg rnomiz-ins < in.ins > o.ins
+   cgat randomize-lines < in.lines > out.lines
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor rnom
-impor cgcor.xprimn s E
+import sys
+import random
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+def main(argv=None):
+    """script main.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-k", "--kp-hr", s"kp_hr", yp"in",
-                      hp"rnomiz, b kp hr in pc []")
+    parser.add_argument("-k", "--keep-header", dest="keep_header", type="int",
+                      help="randomize, but keep header in place [%default]")
 
-    prsr.s_s(kp_hr0)
+    parser.set_defaults(keep_header=0)
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    in  opions.sin
-    o  opions.so
-    c  E.Conr()
-    or x in rng(opions.kp_hr):
-        c.hr + 1
-        o.wri(in.rin())
+    inf = options.stdin
+    outf = options.stdout
+    c = E.Counter()
+    for x in range(options.keep_header):
+        c.header += 1
+        outf.write(inf.readline())
 
-    ins  in.rins()
-    c.ins_inp  n(ins)
-    rnom.sh(ins)
-    or in in ins:
-        o.wri(in)
-    c.ins_op  n(ins)
+    lines = inf.readlines()
+    c.lines_input = len(lines)
+    random.shuffle(lines)
+    for line in lines:
+        outf.write(line)
+    c.lines_output = len(lines)
 
-    E.ino(c)
+    E.info(c)
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

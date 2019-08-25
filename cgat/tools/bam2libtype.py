@@ -1,179 +1,179 @@
-"""bm2ibyp.py - rmin h ibrry yp o  bm i
+"""bam2libtype.py - determine the library type of a bam file
+============================================================
 
+Author: Adam Cribbs
 
-Ahor: Am Cribbs
-
-Prpos
+Purpose
 -------
 
-This oo rmins h ibrry yp o  BAM i. Th nming
-convnion s is rom h smon ocmnion:
-hp://smon.rhocs.io/n/s/ibrry_yp.hm.
+This tool determines the library type of a BAM file. The naming
+convention used is from the salmon documentation:
+http://salmon.readthedocs.io/en/latest/library_type.html.
 
-BAM is n o hv  corrsponing inx i i.. xmp.bm
-n xmp.bm.bi
+BAM files need to have a corresponding index file i.e. example.bam
+and example.bam.bai
 
-For sing-n 
+For single-end data
 
-    Drmining which r h srn is on is srighorwr sing pysm
-    ncion .is_rvrs.
+    Determining which read the strand is on is straightforward using pysam
+    function .is_reversed.
 
-For pir-n 
+For paired-end data
 
-    Th riv posiion o r1 n r2 ns o b rmin incing
-    orinion riv o ch ohr.
+    The relative position of read1 and read2 needs to be determined including
+    orientation relative to each other.
 
 
-Usg
+Usage
 -----
 
-    c xmp.bm | cg bm2ibyp > o.sv
+    cat example.bam | cgat bam2libtype > out.tsv
 
-opions
+options
 -------
 
-Thr r no opions or his scrip, js pss h scrip  bm i
-s h sin n n oi s h so.
+There are no options for this script, just pass the script a bam file
+as the stdin and an outfile as the stdout.
 
 
-Typ::
+Type::
 
-   pyhon bm2b.py --hp
+   python bam2bed.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 """
 
-impor sys
-impor pysm
-impor cgcor.xprimn s E
+import sys
+import pysam
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$", sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(
+        version="%prog version: $Id$", usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-i", "--mx-irions", yp"in",
-        hp"mximm nmbr o irions. S o 0 o go hrogh  rs "
-        "[]")
+    parser.add_argument(
+        "-i", "--max-iterations", type="int",
+        help="maximum number of iterations. Set to 0 to go through all reads "
+        "[%default]")
 
-    prsr.s_s(
-        mx_iriors10000
+    parser.set_defaults(
+        max_iteratiors=10000
     )
 
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    (options, args) = E.start(parser, argv=argv)
 
-    smi  pysm.AignmnFi(opions.sin, "rb")
-    oi  opions.so
+    samfile = pysam.AlignmentFile(options.stdin, "rb")
+    outfile = options.stdout
 
-    # iniiis cons or ch ibrry yp
-    MSR  0
-    MSF  0
-    ISF  0
-    ISR  0
-    OSF  0
-    OSR  0
-    SR  0
-    SF  0
+    # initialise counts for each library type
+    MSR = 0
+    MSF = 0
+    ISF = 0
+    ISR = 0
+    OSF = 0
+    OSR = 0
+    SR = 0
+    SF = 0
 
-    rs_procss  s()
+    reads_processed = set()
 
-    or irion, r in nmr(smi):
+    for iteration, read in enumerate(samfile):
 
-        i opions.mx_irions n irion > in(opions.mx_irions):
-            brk
+        if options.max_iterations and iteration > int(options.max_iterations):
+            break
 
-        i r.qnm no in rs_procss:
-            rs_procss.(r.qnm)
-        s:
-            conin
+        if read.qname not in reads_processed:
+            reads_processed.add(read.qname)
+        else:
+            continue
 
-        # o hn pir n rs:
-        i r.is_pir n r.is_propr_pir:
-            # g ribs o r
-            r_sr  r.rrnc_sr
-            r_n  r.rrnc_n
-            r_ng  r.is_rvrs
+        # to handle paired end reads:
+        if read.is_paired and read.is_proper_pair:
+            # get attributes of read
+            read_start = read.reference_start
+            read_end = read.reference_end
+            read_neg = read.is_reverse
 
-            # spciy which r is R1 n which is R2:
-            # spciy which r is R1 n which is R2:
-            i r.is_r1 is Tr:
-                R1_is_rvrs  r.is_rvrs
-                R1_rrnc_sr  r.rrnc_sr
+            # specify which read is R1 and which is R2:
+            # specify which read is R1 and which is R2:
+            if read.is_read1 is True:
+                R1_is_reverse = read.is_reverse
+                R1_reference_start = read.reference_start
 
-                R2_is_rvrs  r.m_is_rvrs
-                R2_rrnc_sr  r.nx_rrnc_sr
-            s:
-                R1_is_rvrs  r.m_is_rvrs
-                R1_rrnc_sr  r.nx_rrnc_sr
+                R2_is_reverse = read.mate_is_reverse
+                R2_reference_start = read.next_reference_start
+            else:
+                R1_is_reverse = read.mate_is_reverse
+                R1_reference_start = read.next_reference_start
 
-                R2_is_rvrs  r.is_rvrs
-                R2_rrnc_sr  r.rrnc_sr
+                R2_is_reverse = read.is_reverse
+                R2_reference_start = read.reference_start
 
-                # Dcision r o spciy srnnss:
-                # poni o convr his o  mchin rning
-                # cision r gorihm in h r:
-            i R1_is_rvrs is Tr:
+                # Decision tree to specify strandness:
+                # potential to convert this to a machine learning
+                # decision tree algorithm in the future:
+            if R1_is_reverse is True:
 
-                i R2_is_rvrs is Tr:
+                if R2_is_reverse is True:
 
-                    MSF + 1
-                s:
-                    i R2_rrnc_sr - R1_rrnc_sr > 0:
-                        OSR + 1
-                    s:
-                        ISR + 1
+                    MSF += 1
+                else:
+                    if R2_reference_start - R1_reference_start >= 0:
+                        OSR += 1
+                    else:
+                        ISR += 1
 
-            s:
+            else:
 
-                i R2_is_rvrs is Tr:
+                if R2_is_reverse is True:
 
-                    i R1_rrnc_sr - R2_rrnc_sr > 0:
+                    if R1_reference_start - R2_reference_start >= 0:
 
-                        OSF + 1
-                    s:
-                        ISF + 1
-                s:
-                    MSR + 1
-        s:
-            i r.is_rvrs:
-                SR + 1
-            s:
-                SF + 1
+                        OSF += 1
+                    else:
+                        ISF += 1
+                else:
+                    MSR += 1
+        else:
+            if read.is_reverse:
+                SR += 1
+            else:
+                SF += 1
 
-    o  MSR + ISR + OSR + ISF + MSF + OSF + SF + SR
+    total = MSR + ISR + OSR + ISF + MSF + OSF + SF + SR
 
-     o_prcn(srn, o):
-        rrn o(srn)/o(o)*100
+    def total_percent(strand, total):
+        return float(strand)/float(total)*100
 
-    MSR_o  o_prcn(MSR, o)
-    ISR_o  o_prcn(ISR, o)
-    OSR_o  o_prcn(OSR, o)
-    ISF_o  o_prcn(ISF, o)
-    MSF_o  o_prcn(MSF, o)
-    OSF_o  o_prcn(OSF, o)
-    SF_o  o_prcn(SF, o)
-    SR_o  o_prcn(SR, o)
+    MSR_total = total_percent(MSR, total)
+    ISR_total = total_percent(ISR, total)
+    OSR_total = total_percent(OSR, total)
+    ISF_total = total_percent(ISF, total)
+    MSF_total = total_percent(MSF, total)
+    OSF_total = total_percent(OSF, total)
+    SF_total = total_percent(SF, total)
+    SR_total = total_percent(SR, total)
 
-    oi.wri("MSR\ISR\OSR\ISF\MSF\OSF\SF\SR\n")
-    oi.wri("s\s\s\s\s\s\s\s\n" 
-                  (in(MSR_o), in(ISR_o), in(OSR_o),
-                   in(ISF_o), in(MSF_o),
-                   in(OSF_o), in(SF_o), in(SR_o)))
+    outfile.write("MSR\tISR\tOSR\tISF\tMSF\tOSF\tSF\tSR\n")
+    outfile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" %
+                  (int(MSR_total), int(ISR_total), int(OSR_total),
+                   int(ISF_total), int(MSF_total),
+                   int(OSF_total), int(SF_total), int(SR_total)))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

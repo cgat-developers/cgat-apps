@@ -1,531 +1,531 @@
 '''
-sq2sq.py - mnip sq is
+fastq2fastq.py - manipulate fastq files
+=============================================
 
+:Tags: Genomics NGS Sequences FASTQ Manipulation
 
-:Tgs: Gnomics NGS Sqncs FASTQ Mnipion
-
-Prpos
+Purpose
 -------
 
-This scrip prorms mnipions on :rm:`sq` orm
-is. For xmp i cn b s o chng h qiy scor orm
-or smp  sbs o rs.
+This script performs manipulations on :term:`fastq` formatted
+files. For example it can be used to change the quality score format
+or sample a subset of reads.
 
-Th scrip prominny is s or mnipion o sing sq
-is. Howvr, or som o is ncioniy i wi k pir 
-sing h ``--pir-sq-i`` n ``--op-inm-prn`` opions.
-This ppis o h ``smp`` n ``sor`` mhos.
+The script predominantly is used for manipulation of single fastq
+files. However, for some of its functionality it will take paired data
+using the ``--pair-fastq-file`` and ``--output-filename-pattern`` options.
+This applies to the ``sample`` and ``sort`` methods.
 
-Usg
+Usage
 -----
 
-Exmp::
-  In his xmp w rnomy smp 50 o rs rom pir  provi in
-  wo :rm:`sq` is.
+Example::
+  In this example we randomly sample 50% of reads from paired data provided in
+  two :term:`fastq` files.
 
-   h in.sq.1
+   head in.fastq.1
 
-   @SRR111956.1 HWUSI-EAS618:7:1:27:1582 ngh36
+   @SRR111956.1 HWUSI-EAS618:7:1:27:1582 length=36
    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-   +SRR111956.1 HWUSI-EAS618:7:1:27:1582 ngh36
-   @A@9@BAB@;@BABA?;@@BB<A@9@;@2>@;??
-   @SRR111956.2 HWUSI-EAS618:7:1:29:1664 ngh36
+   +SRR111956.1 HWUSI-EAS618:7:1:27:1582 length=36
+   =@A@9@BAB@;@BABA?=;@@BB<A@9@;@2>@;??
+   @SRR111956.2 HWUSI-EAS618:7:1:29:1664 length=36
    CCCCCCCCCCCCCCCCCCCCCCCCCCCACCCCCCCC
-   +SRR111956.2 HWUSI-EAS618:7:1:29:1664 ngh36
-   B@9@0>A<BBAAA?;*(@A>(@<*99@BA>7
-   @SRR111956.3 HWUSI-EAS618:7:1:38:878 ngh36
+   +SRR111956.2 HWUSI-EAS618:7:1:29:1664 length=36
+   =B@9@0>A<B=B=AAA?;*(@A>(@<=*9=9@BA>7
+   @SRR111956.3 HWUSI-EAS618:7:1:38:878 length=36
    AGTGAGCAGGGAAACAATGTCTGTCTAAGAATTTGA
 
-   h in.sq.2
+   head in.fastq.2
 
-   +SRR111956.3 HWUSI-EAS618:7:1:38:878 ngh36
-   <?@BA?;A@BA>;@@7###################
-   @SRR111956.4 HWUSI-EAS618:7:1:38:1783 ngh36
+   +SRR111956.3 HWUSI-EAS618:7:1:38:878 length=36
+   <?@BA?;A=@BA>;@@7###################
+   @SRR111956.4 HWUSI-EAS618:7:1:38:1783 length=36
    ATTAGTATTATCCATTTATATAATCAATAAAAATGT
-   +SRR111956.4 HWUSI-EAS618:7:1:38:1783 ngh36
-   ?ABBA2CCBBB2?BB@C>AAC@ACBB#######
-   @SRR111956.5 HWUSI-EAS618:7:1:39:1305 ngh36
+   +SRR111956.4 HWUSI-EAS618:7:1:38:1783 length=36
+   ?ABBA2CCBBB2?=BB@C>=AAC@A=CBB#######
+   @SRR111956.5 HWUSI-EAS618:7:1:39:1305 length=36
    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-   +SRR111956.5 HWUSI-EAS618:7:1:39:1305 ngh36
-   AA>5;A>*91?AAA@@BBA<B?ABA>2>?A<BB@
+   +SRR111956.5 HWUSI-EAS618:7:1:39:1305 length=36
+   AA>5;A>*91?=AAA@@BBA<B=?ABA>2>?A<BB@
 
-   commn-in::
-     c in.sq.1 | pyhon sq2sq.py
-                      --mhosmp --smp-siz 0.5
-                      --pir-sq-i in.sq.2
-                      --op-inm-prn o.sq.2
-                      > o.sq.1
+   command-line::
+     cat in.fastq.1 | python fastq2fastq.py
+                      --method=sample --sample-size 0.5
+                      --pair-fastq-file in.fastq.2
+                      --output-filename-pattern out.fastq.2
+                      > out.fastq.1
 
-   h o.sq.1
-   @SRR111956.1 HWUSI-EAS618:7:1:27:1582 ngh36
+   head out.fastq.1
+   @SRR111956.1 HWUSI-EAS618:7:1:27:1582 length=36
    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
    +
-   @A@9@BAB@;@BABA?;@@BB<A@9@;@2>@;??
-   @SRR111956.2 HWUSI-EAS618:7:1:29:1664 ngh36
+   =@A@9@BAB@;@BABA?=;@@BB<A@9@;@2>@;??
+   @SRR111956.2 HWUSI-EAS618:7:1:29:1664 length=36
    CCCCCCCCCCCCCCCCCCCCCCCCCCCACCCCCCCC
    +
-   B@9@0>A<BBAAA?;*(@A>(@<*99@BA>7
-   @SRR111956.3 HWUSI-EAS618:7:1:38:878 ngh36
+   =B@9@0>A<B=B=AAA?;*(@A>(@<=*9=9@BA>7
+   @SRR111956.3 HWUSI-EAS618:7:1:38:878 length=36
    AGTGAGCAGGGAAACAATGTCTGTCTAAGAATTTGA
    +
-   <?@BA?;A@BA>;@@7###################
-   @SRR111956.4 HWUSI-EAS618:7:1:38:1783 ngh36
+   <?@BA?;A=@BA>;@@7###################
+   @SRR111956.4 HWUSI-EAS618:7:1:38:1783 length=36
    ATTAGTATTATCCATTTATATAATCAATAAAAATGT
    +
-   ?ABBA2CCBBB2?BB@C>AAC@ACBB#######
+   ?ABBA2CCBBB2?=BB@C>=AAC@A=CBB#######
 
-Opions
+Options
 -------
 
-Th oowing mhos r impmn (``--mho``).
+The following methods are implemented (``--method``).
 
-``chng-orm``
+``change-format``
 
-    chng h qiy orm o nw orm givn s
-    rg-orm. Opions r ``sngr``,
-  ``sox``, ``phr64``, ``ingr`` n ``imin-1.8``
+    change the quality format to new format given as
+    target-format. Options are ``sanger``,
+  ``solexa``, ``phred64``, ``integer`` and ``illumina-1.8``
 
-``smp``
+``sample``
 
-    Sb-smp  sq i. Th siz o h smp is s by
-    --smp-siz
+    Sub-sample a fastq file. The size of the sample is set by
+    --sample-size
 
-``niq``
+``unique``
 
-    Rmov pic rs bs on r nm
+    Remove duplicate reads based on read name
 
-``rim3``
+``trim3``
 
-    Trim  ix nmbr o ncois rom h 3' n o rs.
-    (s ``--nm-bss``). No h hr r br oos or
-   rimming.
+    Trim a fixed number of nucleotides from the 3' end of reads.
+    (see ``--num-bases``). Note that there are better tools for
+   trimming.
 
-``rim5``
+``trim5``
 
-    Trim  ix nmbr o ncois rom h 5' n o rs.
-    (s ``--nm-bss``). No h hr r br oos or
-   rimming.
+    Trim a fixed number of nucleotides from the 5' end of reads.
+    (see ``--num-bases``). Note that there are better tools for
+   trimming.
 
-``sor``
+``sort``
 
-    Sor h sq i by r nm.
+    Sort the fastq file by read name.
 
-``rnmbr-rs``
+``renumber-reads``
 
-    Rnm h rs bs on prn givn in ``--prn-iniir``
-    .g. ``--prn-iniir"r_010i"``
+    Rename the reads based on pattern given in ``--pattern-identifier``
+    e.g. ``--pattern-identifier="read_%010i"``
 
-Typ::
+Type::
 
-   pyhon sq2sq.py --hp
+   python fastq2fastq.py --help
 
-or commn in hp.
+for command line help.
 
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor cocions
-impor sys
-impor os
-impor r
-impor rnom
-impor pysm
-impor nmpy
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor cg.Fsq s Fsq
-impor cg.Gnomics s Gnomics
-
-
- procss_cg(opions):
-
-    c  E.Conr()
-
-    ssr opions.inp_sq_i  "-"
-
-    i opions.mho  "chng-orm":
-        or rcor in Fsq.ir_convr(opions.sin,
-                                            ormopions.rg_orm,
-                                            gssopions.gss_orm):
-            c.inp + 1
-            opions.so.wri("s\n"  rcor)
-            c.op + 1
-
-    i opions.mho  "grp":
-        or rcor in Fsq.ir(opions.sin):
-            i r.mch(opions.grp_prn, rcor.sq):
-                opions.so.wri("s\n"  rcor)
-
-    i opions.mho  "rvrs-compmn":
-        or rcor in Fsq.ir(opions.sin):
-            rcor.sq  Gnomics.compmn(rcor.sq)
-            rcor.qs  rcor.qs[::-1]
-            opions.so.wri("s\n"  rcor)
-
-    i opions.mho  "smp":
-        smp_hrsho  min(1.0, opions.smp_siz)
-
-        rnom.s(opions.s)
-
-        i opions.pir:
-            i no opions.op_inm_prn:
-                ris VError(
-                    "ps spciy op inm prn or "
-                    "scon pir (--op-inm-prn)")
-
-            oi1  opions.so
-            oi2  iooos.opn_i(opions.op_inm_prn, "w")
-
-            or rcor1, rcor2 in zip(
-                    Fsq.ir(opions.sin),
-                    Fsq.ir(iooos.opn_i(opions.pir))):
-                c.inp + 1
-                i rnom.rnom() < smp_hrsho:
-                    c.op + 1
-                    oi1.wri("s\n"  rcor1)
-                    oi2.wri("s\n"  rcor2)
-        s:
-            or rcor in Fsq.ir(opions.sin):
-                c.inp + 1
-                i rnom.rnom() < smp_hrsho:
-                    c.op + 1
-                    opions.so.wri("s\n"  rcor)
-
-    i opions.mho  "ppy":
-        is  s(iooos.r_is(iooos.opn_i(opions.ppy)))
-
-        or rcor in Fsq.ir(opions.sin):
-            c.inp + 1
-            i r.sb(" .*", "", rcor.iniir).srip() in is:
-                c.op + 1
-                opions.so.wri("s\n"  rcor)
-
-    i opions.mho  "rim3":
-        rim3  opions.nbss
-        or rcor in Fsq.ir(opions.sin):
-            c.inp + 1
-            rcor.rim(rim3)
-            opions.so.wri("s\n"  rcor)
-            c.op + 1
-
-    i opions.mho  "rim5":
-        rim5  opions.nbss
-        or rcor in Fsq.ir(opions.sin):
-            c.inp + 1
-            rcor.rim5(rim5)
-            opions.so.wri("s\n"  rcor)
-            c.op + 1
-
-    i opions.mho  "niq":
-        kys  s()
-        or rcor in Fsq.ir(opions.sin):
-            c.inp + 1
-            i rcor.iniir in kys:
-                conin
-            s:
-                kys.(rcor.iniir)
-            opions.so.wri("s\n"  rcor)
-            c.op + 1
-
-    # N o chng his o incorpor boh pirs
-    i opions.mho  "sor":
-        i no opions.pir:
-            # This is qickr or  sing sq i
-            smn  "ps - - - - | sor -k1,1 - ' ' | r '\' '\n'"
-            os.sysm(smn)
-        s:
-            i no opions.op_inm_prn:
-                ris VError(
-                    "ps spciy op inm or scon pir "
-                    "(--op-inm-prn)")
-            E.wrn(
-                "consir soring inivi sq is - "
-                "his is mmory innsiv")
-            nris1  {}
-            nris2  {}
-
-            or rcor1, rcor2 in zip(
-                    Fsq.ir(opions.sin),
-                    Fsq.ir(iooos.opn_i(opions.pir))):
-                nris1[
-                    rcor1.iniir[:-2]]  (rcor1.sq, rcor1.qs)
-                nris2[
-                    rcor2.iniir[:-2]]  (rcor2.sq, rcor2.qs)
-
-            oi1  opions.so
-            oi2  iooos.opn_i(opions.op_inm_prn, "w")
-            ssr n(s(nris1.kys()).inrscion(
-                s(nris2.kys())))  n(nris1),\
-                "pir is o no conin h sm rs "\
-                "n o rconci is"
-
-            or nry in sor(nris1):
-                oi1.wri("@s/1\ns\n+\ns\n" 
-                               (nry, nris1[nry][0], nris1[nry][1]))
-                oi2.wri("@s/2\ns\n+\ns\n" 
-                               (nry, nris2[nry][0], nris2[nry][1]))
-
-    i opions.mho  "rnmbr-rs":
-        i_con  1
-        or rcor in Fsq.ir(opions.sin):
-            rcor.iniir  opions.rnmbr_prn  i_con
-            i_con + 1
-            opions.so.wri("@s\ns\n+\ns\n" 
-                                 (rcor.iniir, rcor.sq, rcor.qs))
-    rrn c
-
-
- procss_isy(opions):
-
-    ir_n  "ir-N" in opions.mhos
-
-    ir_on  "ir-ONT" in opions.mhos
-
-    i "ir-iniir" in opions.mhos:
-        i opions.inp_ir_sv is Non:
-            ris VError("ps s --inp-ir-sv or mho ir-iniir")
-        wih iooos.opn_i(opions.inp_ir_sv) s in:
-            ir_iniir  s([x.spi()[0].srip() or x in in.rins()])
-    s:
-        ir_iniir  Fs
-
-    i opions.op_rmov_sv:
-        o_rmov_sv  iooos.opn_i(opions.op_rmov_sv, "w")
-    s:
-        o_rmov_sv  Non
-
-    i opions.op_rmov_sq:
-        o_rmov_sq  iooos.opn_i(opions.op_rmov_sq, "w")
-    s:
-        o_rmov_sq  Non
-
-    i opions.s_prix:
-        prix  "{}".orm(opions.s_prix)
-    s:
-        prix  Non
-
-    qiy_os  opions.qiy_os
-    conr  E.Conr()
-
-    wih pysm.FsxFi(opions.inp_sq_i) s in:
-        or r in in:
-            conr.inp + 1
-            rmov  Fs
-            i ir_n:
-                chrs  cocions.Conr(r.sqnc)
-                i "N" in chrs n \
-                   100.0 * chrs["N"] / n(r.sqnc) > opions.mx_prcn_N:
-                    rmov  Tr
-                    conr.ir_n + 1
-
-            i ir_iniir:
-                i r.nm no in ir_iniir:
-                    conr.ir_iniir + 1
-                    rmov  Tr
-
-            i ir_on:
-                qs  r.g_qiy_rry()
-                n  n(qs)
-                i n < opions.min_sqnc_ngh or \
-                        o(sm(qs)) / n < opions.min_vrg_qiy:
-                    conr.rmov_on + 1
-                    rmov  Tr
-
-            i rmov:
-                conr.rmov + 1
-                i o_rmov_sv:
-                    o_rmov_sv.wri(r.nm + "\n")
-                i o_rmov_sq:
-                    o_rmov_sq.wri(sr(r) + "\n")
-                conin
-
-            i prix:
-                r.nm  prix + r.nm[2:]
-
-            i qiy_os:
-                qs  nmpy.rry(r.g_qiy_rry())
-                qs + qiy_os
-                qs[qs < 0]  0
-                qs + 33
-                # pysm sq is r-ony, so g i:
-                # No: no oping scripion
-                r  "@{}\n{}\n+\n{}".orm(
-                    r.nm,
-                    r.sqnc,
-                    "".join([chr(x) or x in qs]))
-
-            conr.op + 1
-
-            opions.so.wri(sr(r) + "\n")
-
-    i o_rmov_sv:
-        o_rmov_sv.cos()
-
-    i o_rmov_sq:
-        o_rmov_sq.cos()
-
-    i opions.op_ss_sv:
-        wih iooos.opn_i(opions.op_ss_sv, "w") s o:
-            o.wri(conr.sTb(s_rowsFs) + "\n")
-
-    rrn conr
-
-
- min(rgvsys.rgv):
-
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
-
-    prsr._rgmn(
-        "-i", "--inp-sq-i", s"inp_sq_i", yp"sring",
-        hp"inp sq i. "
-        "[]")
-
-    prsr._rgmn(
-        "--op-rmov-sv", s"op_rmov_sv", yp"sring",
-        hp"i givn, sqnc iniirs o rmov sqncs wi "
-        "b sor in his i []")
-
-    prsr._rgmn(
-        "--op-ss-sv", s"op_ss_sv", yp"sring",
-        hp"i givn, op sisics wi b wrin o his i. "
-        "[]")
-
-    prsr._rgmn(
-        "--op-rmov-sq", s"op_rmov_sq", yp"sring",
-        hp"i givn, rmov sq rcors wi "
-        "b sor in his i []")
-
-    prsr._rgmn(
-        "-m", "--mho", s"mhos", cion"ppn", yp"choic",
-        choics("ir-N",
-                 "ir-iniir",
-                 "ir-ONT",
-                 "os-qiy",
-                 "ppy",
-                 "chng-orm",
-                 "rnmbr-rs",
-                 "smp",
-                 "sor",
-                 "rim3",
-                 "rim5",
-                 "niq",
-                 "rvrs-compmn",
-                 "grp"),
-        hp"mhos o ppy []")
-
-    prsr._rgmn(
-        "--s-prix", s"s_prix", yp"sring",
-        hp"s sqnc prix []")
-
-    prsr._rgmn(
-        "--inp-ir-sv", s"inp_ir_sv", yp"sring",
-        hp"is o sqnc is o ir []")
-
-    prsr._rgmn(
-        "--min-vrg-qiy", s"min_vrg_qiy", yp"o",
-        hp"minimm vrg qiy []")
-
-    prsr._rgmn(
-        "--min-sqnc-ngh", s"min_sqnc_ngh", yp"in",
-        hp"minimm sqnc ngh []")
-
-    prsr._rgmn(
-        "--qiy-os", s"qiy_os", yp"in",
-        hp"os o moiy qiy vs wih []")
-
-    prsr._rgmn(
-        "--rg-orm", s"rg_orm", yp"choic",
-        choics('sngr', 'sox', 'phr64', 'ingr', 'imin-1.8'),
-        hp"gss qiy scor orm n s qiy scors "
-        "o orm [].")
-
-    prsr._rgmn(
-        "--gss-orm", s"gss_orm", yp"choic",
-        choics('sngr', 'sox', 'phr64', 'ingr', 'imin-1.8'),
-        hp"qiy scor orm o ssm i mbigos [].")
-
-    prsr._rgmn(
-        "--smp-siz", s"smp_siz", yp"o",
-        hp"proporion o rs o smp. "
-        "Provi  proporion o rs o smp, .g. 0.1 or 10, "
-        "0.5 or 50, c [].")
-
-    prsr._rgmn(
-        "--pir-sq-i", s"pir", yp"sring",
-        hp"i  is pir, inm wih scon pir. "
-        "Impmn or smping [].")
-
-    prsr._rgmn(
-        "--mp-sv-i", s"mp_sv_i", yp"sring",
-        hp"inm wih b-spr iniirs mpping or "
-        "mho ppy [].")
-
-    prsr._rgmn(
-        "--nm-bss", s"nbss", yp"in",
-        hp"nmbr o bss o rim [].")
-
-    prsr._rgmn(
-        "--s", s"s", yp"in",
-        hp"s or rnom nmbr gnror [].")
-
-    prsr._rgmn(
-        "--prn-iniir", s"rnmbr_prn", yp"sring",
-        hp"rnm rs in i by prn []")
-
-    prsr._rgmn(
-        "--grp-prn", s"grp_prn", yp"sring",
-        hp"sbs o rs mching prn []")
-
-    prsr.s_s(
-        inp_sq_i"-",
-        mhos[],
-        chng_ormNon,
-        gss_ormNon,
-        smp_siz0.1,
-        nbss0,
-        pirNon,
-        ppyNon,
-        sNon,
-        rnmbr_prn"r_010i",
-        grp_prn".*",
-        mx_prcn_N10.0,
-        s_prixNon,
-        op_rmov_svNon,
-        op_rmov_sqNon,
-        op_ss_svNon,
-        inp_ir_svNon,
-        min_vrg_qiy0,
-        min_sqnc_ngh0,
-        qiy_os0,
+import collections
+import sys
+import os
+import re
+import random
+import pysam
+import numpy
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import cgat.Fastq as Fastq
+import cgat.Genomics as Genomics
+
+
+def process_cgat(options):
+
+    c = E.Counter()
+
+    assert options.input_fastq_file == "-"
+
+    if options.method == "change-format":
+        for record in Fastq.iterate_convert(options.stdin,
+                                            format=options.target_format,
+                                            guess=options.guess_format):
+            c.input += 1
+            options.stdout.write("%s\n" % record)
+            c.output += 1
+
+    elif options.method == "grep":
+        for record in Fastq.iterate(options.stdin):
+            if re.match(options.grep_pattern, record.seq):
+                options.stdout.write("%s\n" % record)
+
+    elif options.method == "reverse-complement":
+        for record in Fastq.iterate(options.stdin):
+            record.seq = Genomics.complement(record.seq)
+            record.quals = record.quals[::-1]
+            options.stdout.write("%s\n" % record)
+
+    elif options.method == "sample":
+        sample_threshold = min(1.0, options.sample_size)
+
+        random.seed(options.seed)
+
+        if options.pair:
+            if not options.output_filename_pattern:
+                raise ValueError(
+                    "please specify output filename pattern for "
+                    "second pair (--output-filename-pattern)")
+
+            outfile1 = options.stdout
+            outfile2 = iotools.open_file(options.output_filename_pattern, "w")
+
+            for record1, record2 in zip(
+                    Fastq.iterate(options.stdin),
+                    Fastq.iterate(iotools.open_file(options.pair))):
+                c.input += 1
+                if random.random() <= sample_threshold:
+                    c.output += 1
+                    outfile1.write("%s\n" % record1)
+                    outfile2.write("%s\n" % record2)
+        else:
+            for record in Fastq.iterate(options.stdin):
+                c.input += 1
+                if random.random() <= sample_threshold:
+                    c.output += 1
+                    options.stdout.write("%s\n" % record)
+
+    elif options.method == "apply":
+        ids = set(iotools.read_list(iotools.open_file(options.apply)))
+
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            if re.sub(" .*", "", record.identifier).strip() in ids:
+                c.output += 1
+                options.stdout.write("%s\n" % record)
+
+    elif options.method == "trim3":
+        trim3 = options.nbases
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            record.trim(trim3)
+            options.stdout.write("%s\n" % record)
+            c.output += 1
+
+    elif options.method == "trim5":
+        trim5 = options.nbases
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            record.trim5(trim5)
+            options.stdout.write("%s\n" % record)
+            c.output += 1
+
+    elif options.method == "unique":
+        keys = set()
+        for record in Fastq.iterate(options.stdin):
+            c.input += 1
+            if record.identifier in keys:
+                continue
+            else:
+                keys.add(record.identifier)
+            options.stdout.write("%s\n" % record)
+            c.output += 1
+
+    # Need to change this to incorporate both pairs
+    elif options.method == "sort":
+        if not options.pair:
+            # This is quicker for a single fastq file
+            statement = "paste - - - - | sort -k1,1 -t ' ' | tr '\t' '\n'"
+            os.system(statement)
+        else:
+            if not options.output_filename_pattern:
+                raise ValueError(
+                    "please specify output filename for second pair "
+                    "(--output-filename-pattern)")
+            E.warn(
+                "consider sorting individual fastq files - "
+                "this is memory intensive")
+            entries1 = {}
+            entries2 = {}
+
+            for record1, record2 in zip(
+                    Fastq.iterate(options.stdin),
+                    Fastq.iterate(iotools.open_file(options.pair))):
+                entries1[
+                    record1.identifier[:-2]] = (record1.seq, record1.quals)
+                entries2[
+                    record2.identifier[:-2]] = (record2.seq, record2.quals)
+
+            outfile1 = options.stdout
+            outfile2 = iotools.open_file(options.output_filename_pattern, "w")
+            assert len(set(entries1.keys()).intersection(
+                set(entries2.keys()))) == len(entries1),\
+                "paired files do not contain the same reads "\
+                "need to reconcile files"
+
+            for entry in sorted(entries1):
+                outfile1.write("@%s/1\n%s\n+\n%s\n" %
+                               (entry, entries1[entry][0], entries1[entry][1]))
+                outfile2.write("@%s/2\n%s\n+\n%s\n" %
+                               (entry, entries2[entry][0], entries2[entry][1]))
+
+    elif options.method == "renumber-reads":
+        id_count = 1
+        for record in Fastq.iterate(options.stdin):
+            record.identifier = options.renumber_pattern % id_count
+            id_count += 1
+            options.stdout.write("@%s\n%s\n+\n%s\n" %
+                                 (record.identifier, record.seq, record.quals))
+    return c
+
+
+def process_daisy(options):
+
+    filter_n = "filter-N" in options.methods
+
+    filter_ont = "filter-ONT" in options.methods
+
+    if "filter-identifier" in options.methods:
+        if options.input_filter_tsv is None:
+            raise ValueError("please set --input-filter-tsv for method filter-identifier")
+        with iotools.open_file(options.input_filter_tsv) as inf:
+            filter_identifier = set([x.split()[0].strip() for x in inf.readlines()])
+    else:
+        filter_identifier = False
+
+    if options.output_removed_tsv:
+        outf_removed_tsv = iotools.open_file(options.output_removed_tsv, "w")
+    else:
+        outf_removed_tsv = None
+
+    if options.output_removed_fastq:
+        outf_removed_fastq = iotools.open_file(options.output_removed_fastq, "w")
+    else:
+        outf_removed_fastq = None
+
+    if options.set_prefix:
+        prefix = "{}".format(options.set_prefix)
+    else:
+        prefix = None
+
+    quality_offset = options.quality_offset
+    counter = E.Counter()
+
+    with pysam.FastxFile(options.input_fastq_file) as inf:
+        for read in inf:
+            counter.input += 1
+            remove = False
+            if filter_n:
+                chars = collections.Counter(read.sequence)
+                if "N" in chars and \
+                   100.0 * chars["N"] / len(read.sequence) > options.max_percent_N:
+                    remove = True
+                    counter.filter_n += 1
+
+            if filter_identifier:
+                if read.name not in filter_identifier:
+                    counter.filter_identifier += 1
+                    remove = True
+
+            if filter_ont:
+                quals = read.get_quality_array()
+                n = len(quals)
+                if n < options.min_sequence_length or \
+                        float(sum(quals)) / n < options.min_average_quality:
+                    counter.remove_ont += 1
+                    remove = True
+
+            if remove:
+                counter.removed += 1
+                if outf_removed_tsv:
+                    outf_removed_tsv.write(read.name + "\n")
+                if outf_removed_fastq:
+                    outf_removed_fastq.write(str(read) + "\n")
+                continue
+
+            if prefix:
+                read.name = prefix + read.name[2:]
+
+            if quality_offset:
+                quals = numpy.array(read.get_quality_array())
+                quals += quality_offset
+                quals[quals < 0] = 0
+                quals += 33
+                # pysam fastq is read-only, so fudge it:
+                # Note: not outputting description
+                read = "@{}\n{}\n+\n{}".format(
+                    read.name,
+                    read.sequence,
+                    "".join([chr(x) for x in quals]))
+
+            counter.output += 1
+
+            options.stdout.write(str(read) + "\n")
+
+    if outf_removed_tsv:
+        outf_removed_tsv.close()
+
+    if outf_removed_fastq:
+        outf_removed_fastq.close()
+
+    if options.output_stats_tsv:
+        with iotools.open_file(options.output_stats_tsv, "w") as outf:
+            outf.write(counter.asTable(as_rows=False) + "\n")
+
+    return counter
+
+
+def main(argv=sys.argv):
+
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
+
+    parser.add_argument(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        help="input fastq file. "
+        "[%default]")
+
+    parser.add_argument(
+        "--output-removed-tsv", dest="output_removed_tsv", type="string",
+        help="if given, sequence identifiers of removed sequences will "
+        "be stored in this file [%default]")
+
+    parser.add_argument(
+        "--output-stats-tsv", dest="output_stats_tsv", type="string",
+        help="if given, output statistics will be written to this file. "
+        "[%default]")
+
+    parser.add_argument(
+        "--output-removed-fastq", dest="output_removed_fastq", type="string",
+        help="if given, removed fastq records will "
+        "be stored in this file [%default]")
+
+    parser.add_argument(
+        "-m", "--method", dest="methods", action="append", type="choice",
+        choices=("filter-N",
+                 "filter-identifier",
+                 "filter-ONT",
+                 "offset-quality",
+                 "apply",
+                 "change-format",
+                 "renumber-reads",
+                 "sample",
+                 "sort",
+                 "trim3",
+                 "trim5",
+                 "unique",
+                 "reverse-complement",
+                 "grep"),
+        help="methods to apply [%default]")
+
+    parser.add_argument(
+        "--set-prefix", dest="set_prefix", type="string",
+        help="set sequence prefix [%default]")
+
+    parser.add_argument(
+        "--input-filter-tsv", dest="input_filter_tsv", type="string",
+        help="list of sequence ides to filter [%default]")
+
+    parser.add_argument(
+        "--min-average-quality", dest="min_average_quality", type="float",
+        help="minimum average quality [%default]")
+
+    parser.add_argument(
+        "--min-sequence-length", dest="min_sequence_length", type="int",
+        help="minimum sequence length [%default]")
+
+    parser.add_argument(
+        "--quality-offset", dest="quality_offset", type="int",
+        help="offset to modify quality values with [%default]")
+
+    parser.add_argument(
+        "--target-format", dest="target_format", type="choice",
+        choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
+        help="guess quality score format and set quality scores "
+        "to format [default=%default].")
+
+    parser.add_argument(
+        "--guess-format", dest="guess_format", type="choice",
+        choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
+        help="quality score format to assume if ambiguous [default=%default].")
+
+    parser.add_argument(
+        "--sample-size", dest="sample_size", type="float",
+        help="proportion of reads to sample. "
+        "Provide a proportion of reads to sample, e.g. 0.1 for 10%, "
+        "0.5 for 50%, etc [default=%default].")
+
+    parser.add_argument(
+        "--pair-fastq-file", dest="pair", type="string",
+        help="if data is paired, filename with second pair. "
+        "Implemented for sampling [default=%default].")
+
+    parser.add_argument(
+        "--map-tsv-file", dest="map_tsv_file", type="string",
+        help="filename with tab-separated identifiers mapping for "
+        "method apply [default=%default].")
+
+    parser.add_argument(
+        "--num-bases", dest="nbases", type="int",
+        help="number of bases to trim [default=%default].")
+
+    parser.add_argument(
+        "--seed", dest="seed", type="int",
+        help="seed for random number generator [default=%default].")
+
+    parser.add_argument(
+        "--pattern-identifier", dest="renumber_pattern", type="string",
+        help="rename reads in file by pattern [default=%default]")
+
+    parser.add_argument(
+        "--grep-pattern", dest="grep_pattern", type="string",
+        help="subset to reads matching pattern [default=%default]")
+
+    parser.set_defaults(
+        input_fastq_file="-",
+        methods=[],
+        change_format=None,
+        guess_format=None,
+        sample_size=0.1,
+        nbases=0,
+        pair=None,
+        apply=None,
+        seed=None,
+        renumber_pattern="read_%010i",
+        grep_pattern=".*",
+        max_percent_N=10.0,
+        set_prefix=None,
+        output_removed_tsv=None,
+        output_removed_fastq=None,
+        output_stats_tsv=None,
+        input_filter_tsv=None,
+        min_average_quality=0,
+        min_sequence_length=0,
+        quality_offset=0,
     )
 
-    (opions, rgs)  E.sr(prsr, rgv, _op_opionsTr)
+    (options, args) = E.start(parser, argv, add_output_options=True)
 
-    i n(rgs)  1:
-        opions.inp_sq_i  rgs[0]
+    if len(args) == 1:
+        options.input_fastq_file = args[0]
 
-    i n(opions.mhos)  0:
-        ris VError("no mho spcii, ps s --mho")
+    if len(options.methods) == 0:
+        raise ValueError("no method specified, please use --method")
 
-    # his scrip combins wo scrips wih irn ncioniis
-    # TODO: o b sniiz
-    i opions.mhos[0] in ["ppy",
-                              "chng-orm",
-                              "rnmbr-rs",
-                              "smp",
-                              "sor",
-                              "rim3",
-                              "rim5",
-                              "niq",
-                              "rvrs-compmn",
-                              "grp"]:
-        opions.mho  opions.mhos[0]
-        conr  procss_cg(opions)
-    s:
-        conr  procss_isy(opions)
+    # this script combines two scripts with different functionalities
+    # TODO: to be sanitized
+    if options.methods[0] in ["apply",
+                              "change-format",
+                              "renumber-reads",
+                              "sample",
+                              "sort",
+                              "trim3",
+                              "trim5",
+                              "unique",
+                              "reverse-complement",
+                              "grep"]:
+        options.method = options.methods[0]
+        counter = process_cgat(options)
+    else:
+        counter = process_daisy(options)
 
-    E.ino(conr)
-    E.sop()
+    E.info(counter)
+    E.stop()

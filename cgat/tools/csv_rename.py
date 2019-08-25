@@ -1,102 +1,102 @@
 '''
-csv_rnm.py - rnm comns in  b
+csv_rename.py - rename columns in a table
+=========================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-rnm comns in  csv i
+rename columns in a csv file
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   csv_rnm.py gni < sin
+   csv_rename.py gene=id < stdin
 
-Typ::
+Type::
 
-   pyhon csv_rnm.py --hp
+   python csv_rename.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor cgcor.xprimn s E
+import sys
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: csv_rnm.py 2782 2009-09-10 11:40:29Z nrs $")
+    parser = E.OptionParser(
+        version="%prog version: $Id: csv_rename.py 2782 2009-09-10 11:40:29Z andreas $")
 
-    prsr._rgmn("-r", "--rmov", s"rmov", cion"sor_r",
-                      hp"rmov spcii comns, kp  ohrs.")
+    parser.add_argument("-r", "--remove", dest="remove", action="store_true",
+                      help="remove specified columns, keep all others.")
 
-    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
-                      hp"op rows r niq.")
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
+                      help="output rows are uniq.")
 
-    prsr._rgmn("-", "--inm-is", s"inm_is", yp"sring",
-                      hp"inm wih i inormion.")
+    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type="string",
+                      help="filename with field information.")
 
-    prsr.s_s(
-        inm_isNon,
+    parser.set_defaults(
+        filename_fields=None,
     )
 
-    (opions, rgs)  E.sr(prsr,
-                              _csv_opionsTr)
-    mppr  {}
-    or x in rgs:
-        , b  x.spi("")
-        mppr[.srip()]  b.srip()
+    (options, args) = E.start(parser,
+                              add_csv_options=True)
+    mapper = {}
+    for x in args:
+        a, b = x.split("=")
+        mapper[a.strip()] = b.strip()
 
-    whi 1:
-        in  opions.sin.rin()
+    while 1:
+        line = options.stdin.readline()
 
-        i no in:
-            E.sop()
-            sys.xi(0)
+        if not line:
+            E.stop()
+            sys.exit(0)
 
-        i in[0]  "#":
-            opions.so.wri(in)
-            conin
+        if line[0] == "#":
+            options.stdout.write(line)
+            continue
 
-        brk
+        break
 
-    hr  []
-    nrpc  0
-    or x in in[:-1].spi():
-        i x in mppr:
-            nrpc + 1
-            hr.ppn(mppr[x])
-        s:
-            hr.ppn(x)
+    header = []
+    nreplaced = 0
+    for x in line[:-1].split():
+        if x in mapper:
+            nreplaced += 1
+            header.append(mapper[x])
+        else:
+            header.append(x)
 
-    opions.so.wri("\".join(hr) + "\n")
-    nins  0
-    or in in opions.sin:
-        nins + 1
-        opions.so.wri(in)
+    options.stdout.write("\t".join(header) + "\n")
+    nlines = 0
+    for line in options.stdin:
+        nlines += 1
+        options.stdout.write(line)
 
-    i opions.ogv > 1:
-        ninp  n(hr)
-        nop  ninp
-        opions.so.wri("# ninpi, nopi, nrpci, ninsi\n"  (
-            ninp, nop, nrpc, nins))
+    if options.loglevel >= 1:
+        ninput = len(header)
+        noutput = ninput
+        options.stdout.write("# ninput=%i, noutput=%i, nreplaced=%i, nlines=%i\n" % (
+            ninput, noutput, nreplaced, nlines))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

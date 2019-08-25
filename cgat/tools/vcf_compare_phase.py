@@ -1,254 +1,254 @@
-"""Compr phsing inormion in wo VCF is.
+"""Compare phasing information in two VCF files.
 
 """
 
-impor sys
-impor os
-impor pysm
-impor cocions
-impor sring
-impor cgcor.xprimn s E
+import sys
+import os
+import pysam
+import collections
+import string
+import cgatcore.experiment as E
 
 
- min(rgvsys.rgv):
+def main(argv=sys.argv):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-i", "--inp-vc", s"inp_vc_i", yp"sring",
-        hp"inp vc i")
+    parser.add_argument(
+        "-i", "--input-vcf", dest="input_vcf_file", type="string",
+        help="input vcf file")
 
-    prsr._rgmn(
-        "-", "--rh-vc", s"rh_vc_i", yp"sring",
-        hp"rh vc i")
+    parser.add_argument(
+        "-t", "--truth-vcf", dest="truth_vcf_file", type="string",
+        help="truth vcf file")
 
-    prsr._rgmn(
-        "-", "--inp-s", s"inp_s_i", yp"sring",
-        hp"inp s i. ix inx rrnc sqnc i o "
-        "rmin INDEL conx []")
+    parser.add_argument(
+        "-f", "--input-fasta", dest="input_fasta_file", type="string",
+        help="input fasta file. faidx indexed reference sequence file to "
+        "determine INDEL context [%default]")
 
-    prsr._rgmn(
-        "-", "--inp-b", s"inp_b_i", yp"sring",
-        hp"inp i wih inrvs. Tb-imi i o inrvs "
-        "in b orm o rsric nysis o. []")
+    parser.add_argument(
+        "-e", "--input-bed", dest="input_bed_file", type="string",
+        help="input file with intervals. Tab-delimited file of intervals "
+        "in bed format to restrict analysis to. [%default]")
 
-    prsr._rgmn(
-        "-m", "--mho", s"mhos", cion"ppn", yp"choic",
-        choics("mion-signr", "kinship"),
-        hp"mhos o ppy []")
+    parser.add_argument(
+        "-m", "--method", dest="methods", action="append", type="choice",
+        choices=("mutational-signature", "kinship"),
+        help="methods to apply [%default]")
 
-    prsr.s_s(
-        mhos[],
-        inp_vc_iNon,
-        inp_b_iNon,
-        inp_s_iNon,
-        rh_vc_iNon,
+    parser.set_defaults(
+        methods=[],
+        input_vcf_file=None,
+        input_bed_file=None,
+        input_fasta_file=None,
+        truth_vcf_file=None,
     )
 
-    (opions, rgs)  E.sr(prsr, rgv, _op_opionsTr)
+    (options, args) = E.start(parser, argv, add_output_options=True)
 
-    i n(rgs)  1:
-        opions.inp_vc_i  rgs[0]
+    if len(args) == 1:
+        options.input_vcf_file = args[0]
 
-    i opions.inp_vc_i is Non:
-        ris VError("ps sppy  VCF i")
+    if options.input_vcf_file is None:
+        raise ValueError("please supply a VCF file")
 
-    i opions.rh_vc_i is Non:
-        ris VError("ps sppy  VCF i wih rh ")
+    if options.truth_vcf_file is None:
+        raise ValueError("please supply a VCF file with truth data")
 
-    i opions.inp_s_i is Non:
-        ris VError("ps sppy  s i wih h rrnc gnom")
+    if options.input_fasta_file is None:
+        raise ValueError("please supply a fasta file with the reference genome")
 
-    i no os.ph.xiss(opions.inp_vc_i):
-        ris OSError("inp vc i {} os no xis".orm(
-            opions.inp_vc_i))
+    if not os.path.exists(options.input_vcf_file):
+        raise OSError("input vcf file {} does not exist".format(
+            options.input_vcf_file))
 
-    i no os.ph.xiss(opions.inp_vc_i + ".bi"):
-        ris OSError("inp vc i {} ns o b inx".orm(
-            opions.inp_vc_i))
+    if not os.path.exists(options.input_vcf_file + ".tbi"):
+        raise OSError("input vcf file {} needs to be indexed".format(
+            options.input_vcf_file))
 
-    i no os.ph.xiss(opions.rh_vc_i):
-        ris OSError("rh vc i {} os no xis".orm(
-            opions.rh_vc_i))
+    if not os.path.exists(options.truth_vcf_file):
+        raise OSError("truth vcf file {} does not exist".format(
+            options.truth_vcf_file))
 
-    i no os.ph.xiss(opions.rh_vc_i + ".bi"):
-        ris OSError("rh vc i {} ns o b inx".orm(
-            opions.rh_vc_i))
+    if not os.path.exists(options.truth_vcf_file + ".tbi"):
+        raise OSError("truth vcf file {} needs to be indexed".format(
+            options.truth_vcf_file))
 
-    i no os.ph.xiss(opions.inp_s_i):
-        ris OSError("inp s i {} os no xis".orm(
-            opions.inp_s_i))
+    if not os.path.exists(options.input_fasta_file):
+        raise OSError("input fasta file {} does not exist".format(
+            options.input_fasta_file))
 
-    i no os.ph.xiss(opions.inp_s_i + ".i"):
-        ris OSError("inp s i {} ns o b inx".orm(
-            opions.inp_s_i))
+    if not os.path.exists(options.input_fasta_file + ".fai"):
+        raise OSError("input fasta file {} needs to be indexed".format(
+            options.input_fasta_file))
 
-    # p phs o bso
-    opions.inp_s_i  os.ph.bsph(opions.inp_s_i)
-    opions.inp_vc_i  os.ph.bsph(opions.inp_vc_i)
-    opions.rh_vc_i  os.ph.bsph(opions.rh_vc_i)
+    # update paths to absolute
+    options.input_fasta_file = os.path.abspath(options.input_fasta_file)
+    options.input_vcf_file = os.path.abspath(options.input_vcf_file)
+    options.truth_vcf_file = os.path.abspath(options.truth_vcf_file)
 
-    s_vc  pysm.VrinFi(opions.inp_vc_i)
-    rh_vc  pysm.VrinFi(opions.rh_vc_i)
-    conigs  s_vc.hr.conigs
-    rh_conigs  s(rh_vc.hr.conigs)
+    test_vcf = pysam.VariantFile(options.input_vcf_file)
+    truth_vcf = pysam.VariantFile(options.truth_vcf_file)
+    contigs = test_vcf.header.contigs
+    truth_contigs = set(truth_vcf.header.contigs)
 
-    s_vc_smps  s(s_vc.hr.smps)
-    rh_vc_smps  s(rh_vc.hr.smps)
+    test_vcf_samples = set(test_vcf.header.samples)
+    truth_vcf_samples = set(truth_vcf.header.samples)
 
-    common_smps  s_vc_smps.inrscion(rh_vc_smps)
-    i n(common_smps)  0:
-        ris VError("no common smps in s/rh VCFs")
+    common_samples = test_vcf_samples.intersection(truth_vcf_samples)
+    if len(common_samples) == 0:
+        raise ValueError("no common samples in test/truth VCFs")
 
-     pir_iror(s_vc, rh_vc, conig):
-        conr  E.Conr()
-        s_ir  s_vc.ch(conig)
-        rh_ir  rh_vc.ch(conig)
+    def pair_iterator(test_vcf, truth_vcf, contig):
+        counter = E.Counter()
+        test_iter = test_vcf.fetch(contig)
+        truth_iter = truth_vcf.fetch(contig)
 
-        s_rcor  nx(s_ir)
-        rh_rcor  nx(rh_ir)
-        ry:
-            whi 1:
-                i s_rcor.pos < rh_rcor.pos:
-                    s_rcor  nx(s_ir)
-                    conin
+        test_record = next(test_iter)
+        truth_record = next(truth_iter)
+        try:
+            while 1:
+                if test_record.pos < truth_record.pos:
+                    test_record = next(test_iter)
+                    continue
 
-                i s_rcor.pos > rh_rcor.pos:
-                    rh_rcor  nx(rh_ir)
-                    conin
+                elif test_record.pos > truth_record.pos:
+                    truth_record = next(truth_iter)
+                    continue
 
-                i n(s_rcor.s) > 1:
-                    conr.skip_s_rh + 1
-                    s_rcor  nx(s_ir)
-                    conin
+                elif len(test_record.alts) > 1:
+                    counter.skip_test_truth += 1
+                    test_record = next(test_iter)
+                    continue
 
-                i n(rh_rcor.s) > 1:
-                    conr.skip_miic_rh + 1
-                    rh_rcor  nx(rh_ir)
-                    conin
+                elif len(truth_record.alts) > 1:
+                    counter.skip_multiallelic_truth += 1
+                    truth_record = next(truth_iter)
+                    continue
 
-                i s_rcor.s ! rh_rcor.s:
-                    conr.skip_gnoyp_irnc + 1
-                    s_rcor  nx(s_ir)
-                    rh_rcor  nx(rh_ir)
-                    conin
+                elif test_record.alts != truth_record.alts:
+                    counter.skip_genotype_difference += 1
+                    test_record = next(test_iter)
+                    truth_record = next(truth_iter)
+                    continue
 
-                i s_rcor.r ! rh_rcor.r:
-                    # oo:  wih ins
-                    ris VError(
-                        "mismching rrnc bss  posiion "
-                        "{}:{}".orm(s_rcor.chrom, s_rcor.pos))
+                if test_record.ref != truth_record.ref:
+                    # todo: deal with indels
+                    raise ValueError(
+                        "mismatching reference bases at position "
+                        "{}:{}".format(test_record.chrom, test_record.pos))
 
-                yi s_rcor, rh_rcor
-                s_rcor  nx(s_ir)
-                rh_rcor  nx(rh_ir)
+                yield test_record, truth_record
+                test_record = next(test_iter)
+                truth_record = next(truth_iter)
 
-        xcp SopIrion:
-            pss
+        except StopIteration:
+            pass
 
-        E.bg(sr(conr))
+        E.debug(str(counter))
 
-    conrs_pr_conig  {}
+    counters_per_contig = {}
 
-    or conig in conigs:
-        conr_conig  cocions.ic(E.Conr)
-        conrs_pr_conig[conig]  conr_conig
+    for contig in contigs:
+        counter_contig = collections.defaultdict(E.Counter)
+        counters_per_contig[contig] = counter_contig
 
-        E.ino("procssing conig {}".orm(conig))
+        E.info("processing contig {}".format(contig))
 
-        i conig no in rh_conigs:
-            E.wrn(
-                "skipping conig {} s i is no in rh ".orm(conig))
-            conin
+        if contig not in truth_contigs:
+            E.warn(
+                "skipping contig {} as it is not in truth data".format(contig))
+            continue
 
-        swich  Fs
-        s_is_nphs  Tr
+        switch = False
+        last_is_unphased = True
 
-        or s_rcor, rh_rcor in pir_iror(s_vc, rh_vc, conig):
+        for test_record, truth_record in pair_iterator(test_vcf, truth_vcf, contig):
 
-            or smp in common_smps:
-                conr  conr_conig[smp]
+            for sample in common_samples:
+                counter = counter_contig[sample]
 
-                rh_phs  rh_rcor.smps[smp].phs
-                s_phs  s_rcor.smps[smp].phs
-                rh_gnoyp  rh_rcor.smps[smp]["GT"]
-                s_gnoyp  s_rcor.smps[smp]["GT"]
-                rh_s  s(rh_gnoyp)
-                s_s  s(s_gnoyp)
+                truth_phased = truth_record.samples[sample].phased
+                test_phased = test_record.samples[sample].phased
+                truth_genotype = truth_record.samples[sample]["GT"]
+                test_genotype = test_record.samples[sample]["GT"]
+                truth_alleles = set(truth_genotype)
+                test_alleles = set(test_genotype)
 
-                ignor  Fs
-                i no rh_phs:
-                    conr.rh_nphs + 1
-                    ignor  Tr
-                i no s_phs:
-                    conr.s_nphs + 1
-                    ignor  Tr
-                    s_is_nphs  Tr
-                s:
-                    s_is_nphs  Fs
+                ignore = False
+                if not truth_phased:
+                    counter.truth_unphased += 1
+                    ignore = True
+                if not test_phased:
+                    counter.test_unphased += 1
+                    ignore = True
+                    last_is_unphased = True
+                else:
+                    last_is_unphased = False
 
-                i n(s_s)  1:
-                    conr.s_homozygos + 1
-                    ignor  Tr
-                s:
-                    i no s_phs:
-                        conr.s_nphs_hs + 1
+                if len(test_alleles) == 1:
+                    counter.test_homozygous += 1
+                    ignore = True
+                else:
+                    if not test_phased:
+                        counter.test_unphased_hets += 1
 
-                i n(rh_s)  1:
-                    conr.rh_homozygos + 1
-                    ignor  Tr
+                if len(truth_alleles) == 1:
+                    counter.truth_homozygous += 1
+                    ignore = True
 
-                i ignor:
-                    conr.ignor + 1
-                    conin
+                if ignore:
+                    counter.ignore += 1
+                    continue
 
-                E.bg("compring: {}:{} {} -> {}: {} {}".orm(
-                    s_rcor.chrom, s_rcor.pos,
-                    s_rcor.r, s_rcor.s,
-                    s_gnoyp,
-                    rh_gnoyp))
+                E.debug("comparing: {}:{} {} -> {}: {} {}".format(
+                    test_record.chrom, test_record.pos,
+                    test_record.ref, test_record.alts,
+                    test_genotype,
+                    truth_genotype))
 
-                i swich:
-                    rh_gnoyp  rh_gnoyp[::-1]
+                if switch:
+                    truth_genotype = truth_genotype[::-1]
 
-                conr.s_phs_hs + 1
+                counter.test_phased_hets += 1
 
-                i rh_gnoyp ! s_gnoyp:
-                    i no s_is_nphs:
-                        E.bg("SWITCH: {}".orm(swich))
-                        conr.swich + 1
-                    swich  no swich
+                if truth_genotype != test_genotype:
+                    if not last_is_unphased:
+                        E.debug("SWITCH: {}".format(switch))
+                        counter.switch += 1
+                    switch = not switch
 
-    o  opions.so
-    o.wri("\".join(("conig",
-                          "smp",
-                          "swich_rror_prcn",
-                          "s_ngiv_r",
-                          "swichs",
-                          "s_phs_hs",
-                          "s_nphs_hs",
-                          "s_nphs",
-                          "rh_nphs",
-                          "s_homozygos",
-                          "rh_homozygos")) + "\n")
+    outf = options.stdout
+    outf.write("\t".join(("contig",
+                          "sample",
+                          "switch_error_percent",
+                          "false_negative_rate",
+                          "switches",
+                          "test_phased_hets",
+                          "test_unphased_hets",
+                          "test_unphased",
+                          "truth_unphased",
+                          "test_homozygous",
+                          "truth_homozygous")) + "\n")
 
-    or conig, conig_ic in is(conrs_pr_conig.ims()):
-        or smp, c in is(conig_ic.ims()):
-            o.wri("\".join(
-                mp(sr, (
-                    conig,
-                    smp,
-                    "{:6.4}".orm(100.0 * c.swich / (c.s_phs_hs + 1)),
-                    "{:6.4}".orm(100.0 * c.s_nphs_hs /
-                                     (c.s_phs_hs + c.s_nphs_hs)),
-                    c.swich,
-                    c.s_phs_hs,
-                    c.s_nphs_hs,
-                    c.s_nphs,
-                    c.rh_nphs,
-                    c.s_homozygos,
-                    c.rh_homozygos))) + "\n")
+    for contig, contig_dict in list(counters_per_contig.items()):
+        for sample, c in list(contig_dict.items()):
+            outf.write("\t".join(
+                map(str, (
+                    contig,
+                    sample,
+                    "{:6.4f}".format(100.0 * c.switch / (c.test_phased_hets + 1)),
+                    "{:6.4f}".format(100.0 * c.test_unphased_hets /
+                                     (c.test_phased_hets + c.test_unphased_hets)),
+                    c.switch,
+                    c.test_phased_hets,
+                    c.test_unphased_hets,
+                    c.test_unphased,
+                    c.truth_unphased,
+                    c.test_homozygous,
+                    c.truth_homozygous))) + "\n")
 
-    E.sop()
-    # TODO: ggrg ss pr smps
+    E.stop()
+    # TODO: aggregate stats per samples

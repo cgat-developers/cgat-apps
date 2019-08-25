@@ -1,480 +1,480 @@
-"""i_chins.py - compr o chin orm is
+"""diff_chains.py - compare to chain formatted files
+=================================================
 
+:Tags: Genomics GenomeAlignment CHAIN Comparison
 
-:Tgs: Gnomics GnomAignmn CHAIN Comprison
-
-Prpos
+Purpose
 -------
 
-Compr wo gnomic ignmn is n cc sisics rom h
-comprison.
+Compare two genomic alignment files and calculate statistics from the
+comparison.
 
-Docmnion
+Documentation
 --------------
 
-Oprs on wo `chin
-<hps://gnom.csc./gonPh/hp/chin.hm>`_ orm
-is.
+Operates on two `chain
+<https://genome.ucsc.edu/goldenPath/help/chain.html>`_ formatted
+files.
 
-Ops  b wih h oowing comns:
+Outputs a table with the following columns:
 
 +-----------+-------------------------------+
-|*Comn*   |*Conn*                      |
+|*Column*   |*Content*                      |
 +-----------+-------------------------------+
-|conig1    |conig nm                    |
+|contig1    |contig name                    |
 +-----------+-------------------------------+
-|conig2    |conig nm                    |
+|contig2    |contig name                    |
 +-----------+-------------------------------+
-|srn     |srn                         |
+|strand     |strand                         |
 +-----------+-------------------------------+
-|mpp1    |mpp rsis                |
+|mapped1    |mapped residues                |
 +-----------+-------------------------------+
-|inic1 |inicy mpp rsis    |
+|identical1 |identically mapped residues    |
 +-----------+-------------------------------+
-|irn1 |irny mpp rsis    |
+|different1 |differently mapped residues    |
 +-----------+-------------------------------+
-|niq1    |rsis mpp ony rom s1 |
+|unique1    |residues mapped only from set1 |
 +-----------+-------------------------------+
-|pmpp1   |prcng o mpp rsis  |
+|pmapped1   |percentage of mapped residues  |
 +-----------+-------------------------------+
-|pinic1|prcng o inicy      |
-|           |mpp rsis                |
+|pidentical1|percentage of identically      |
+|           |mapped residues                |
 +-----------+-------------------------------+
-|pirn1|prcng o irny      |
-|           |mpp rsis                |
+|pdifferent1|percentage of differently      |
+|           |mapped residues                |
 +-----------+-------------------------------+
 
-Simir comns xis or  s 2
+Similar columns exist for data set 2
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   cg i_chins.py hg19ToMm10v1.chin.ovr.gz hg19ToMm10v2.chin.ovr.gz
+   cgat diff_chains.py hg19ToMm10v1.chain.over.gz hg19ToMm10v2.chain.over.gz
 
-This wi compr h ocions h rgions wihin h gnom hg19
-mp o bwn wo irn mppings o h gnom mm10.
+This will compare the locations that regions within the genome hg19
+map to between two different mappings to the genome mm10.
 
-Typ::
+Type::
 
-   pyhon i_chins.py --hp
+   python diff_chains.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 """
 
-impor sys
-impor cocions
+import sys
+import collections
 
-impor cgcor.iooos s iooos
-impor cgcor.xprimn s E
-impor ignib_i
-
-
- chin_iror(ini):
-    ins  []
-    or in in ini:
-
-        i in.srswih("#"):
-            conin
-        i in.srip()  "":
-            conin
-        i in.srswih("chin"):
-            i ins:
-                yi ins
-            ins  []
-        ins.ppn(in)
-
-    yi ins
+import cgatcore.iotools as iotools
+import cgatcore.experiment as E
+import alignlib_lite
 
 
- viChin(ini):
-    '''vi  chin i.
+def chain_iterator(infile):
+    lines = []
+    for line in infile:
 
-    No ovrpping rg coorins.
+        if line.startswith("#"):
+            continue
+        if line.strip() == "":
+            continue
+        if line.startswith("chain"):
+            if lines:
+                yield lines
+            lines = []
+        lines.append(line)
+
+    yield lines
+
+
+def validateChain(infile):
+    '''validate a chain file.
+
+    No overlapping target coordinates.
     '''
 
-    pirs_2q  cocions.ic(ignib_i.py_mkAignmnBocks)
-    pirs_q2  cocions.ic(ignib_i.py_mkAignmnBocks)
+    pairs_t2q = collections.defaultdict(alignlib_lite.py_makeAlignmentBlocks)
+    pairs_q2t = collections.defaultdict(alignlib_lite.py_makeAlignmentBlocks)
 
-    or ins in chin_iror(ini):
+    for lines in chain_iterator(infile):
 
         (_,
          _,
-         rg_conig,
-         rg_ngh,
-         rg_srn,
-         rg_sr,
-         rg_n,
-         qry_conig,
-         qry_ngh,
-         qry_srn,
-         qry_sr,
-         qry_n,
-         ignmn_i)  ins[0][:-1].spi()
+         target_contig,
+         target_length,
+         target_strand,
+         target_start,
+         target_end,
+         query_contig,
+         query_length,
+         query_strand,
+         query_start,
+         query_end,
+         alignment_id) = lines[0][:-1].split()
 
-        (qry_sr,
-         qry_n,
-         qry_ngh,
-         rg_sr,
-         rg_n,
-         rg_ngh)  \
-            [in(x) or x in
-             (qry_sr,
-              qry_n,
-              qry_ngh,
-              rg_sr,
-              rg_n,
-              rg_ngh)]
+        (query_start,
+         query_end,
+         query_length,
+         target_start,
+         target_end,
+         target_length) = \
+            [int(x) for x in
+             (query_start,
+              query_end,
+              query_length,
+              target_start,
+              target_end,
+              target_length)]
 
-        # rg_srn is wys posiiv
-        ssr(rg_srn  "+")
+        # target_strand is always positive
+        assert(target_strand == "+")
 
-        mp_rg2qry  pirs_2q[rg_conig]
-        mp_qry2rg  pirs_q2[qry_conig]
+        map_target2query = pairs_t2q[target_contig]
+        map_query2target = pairs_q2t[query_contig]
 
-        qsr, sr  qry_sr, rg_sr
+        qstart, tstart = query_start, target_start
 
-        or in in ins[1:-1]:
-            siz, , q  [in(x) or x in in[:-1].spi()]
-            mp_rg2qry.Digon(sr,
-                                         sr + siz,
+        for line in lines[1:-1]:
+            size, dt, dq = [int(x) for x in line[:-1].split()]
+            map_target2query.addDiagonal(tstart,
+                                         tstart + size,
                                          0)
-            mp_qry2rg.Digon(qsr,
-                                         qsr + siz,
+            map_query2target.addDiagonal(qstart,
+                                         qstart + size,
                                          0)
 
-            qsr + siz + q
-            sr + siz + 
+            qstart += size + dq
+            tstart += size + dt
 
-        siz  in(ins[-1][:-1])
-        mp_rg2qry.Digon(sr,
-                                     sr + siz,
+        size = int(lines[-1][:-1])
+        map_target2query.addDiagonal(tstart,
+                                     tstart + size,
                                      0)
-        mp_qry2rg.Digon(qsr,
-                                     qsr + siz,
+        map_query2target.addDiagonal(qstart,
+                                     qstart + size,
                                      0)
 
-    ry:
-        x  mp_qry2rg.mpRowToCo(0)
-    xcp RnimError:
-        E.ino("qry is no niq - his is ok.")
+    try:
+        x = map_query2target.mapRowToCol(0)
+    except RuntimeError:
+        E.info("query is not unique - this is ok.")
 
-    ry:
-        x  mp_rg2qry.mpRowToCo(0)
-    xcp RnimError:
-        E.ino("rg is no niq")
-        rrn Fs
+    try:
+        x = map_target2query.mapRowToCol(0)
+    except RuntimeError:
+        E.info("target is not unique")
+        return False
 
-    rrn Tr
+    return True
 
 
- biPirs(ini):
-    '''r  chin i.
+def buildPairs(infile):
+    '''read a chain file.
 
-    bi rg2qry ignmns.
-    Th rg is wys on h posiiv srn.
+    build target2query alignments.
+    The target is always on the positive strand.
     '''
-    pirs  cocions.ic(ignib_i.py_mkAignmnBocks)
+    pairs = collections.defaultdict(alignlib_lite.py_makeAlignmentBlocks)
 
-     chin_iror(ini):
-        ins  []
-        or in in ini:
+    def chain_iterator(infile):
+        lines = []
+        for line in infile:
 
-            i in.srswih("#"):
-                conin
-            i in.srip()  "":
-                conin
-            i in.srswih("chin"):
-                i ins:
-                    yi ins
-                ins  []
-            ins.ppn(in)
+            if line.startswith("#"):
+                continue
+            if line.strip() == "":
+                continue
+            if line.startswith("chain"):
+                if lines:
+                    yield lines
+                lines = []
+            lines.append(line)
 
-        yi ins
+        yield lines
 
-    or ins in chin_iror(ini):
+    for lines in chain_iterator(infile):
 
         (_,
          _,
-         rg_conig,
-         rg_ngh,
-         rg_srn,
-         rg_sr,
-         rg_n,
-         qry_conig,
-         qry_ngh,
-         qry_srn,
-         qry_sr,
-         qry_n,
-         ignmn_i)  ins[0][:-1].spi()
+         target_contig,
+         target_length,
+         target_strand,
+         target_start,
+         target_end,
+         query_contig,
+         query_length,
+         query_strand,
+         query_start,
+         query_end,
+         alignment_id) = lines[0][:-1].split()
 
-        (qry_sr,
-         qry_n,
-         qry_ngh,
-         rg_sr,
-         rg_n,
-         rg_ngh)  \
-            [in(x) or x in
-             (qry_sr,
-              qry_n,
-              qry_ngh,
-              rg_sr,
-              rg_n,
-              rg_ngh)]
+        (query_start,
+         query_end,
+         query_length,
+         target_start,
+         target_end,
+         target_length) = \
+            [int(x) for x in
+             (query_start,
+              query_end,
+              query_length,
+              target_start,
+              target_end,
+              target_length)]
 
-        # rg_srn is wys posiiv
-        ssr(rg_srn  "+")
+        # target_strand is always positive
+        assert(target_strand == "+")
 
-        mp_rg2qry  pirs[(rg_conig, qry_conig, qry_srn)]
+        map_target2query = pairs[(target_contig, query_contig, query_strand)]
 
-        qsr, sr  qry_sr, rg_sr
+        qstart, tstart = query_start, target_start
 
-        or in in ins[1:-1]:
-            siz, , q  [in(x) or x in in[:-1].spi()]
-            mp_rg2qry.Digon(sr,
-                                         sr + siz,
-                                         qsr - sr)
-            qsr + siz + q
-            sr + siz + 
+        for line in lines[1:-1]:
+            size, dt, dq = [int(x) for x in line[:-1].split()]
+            map_target2query.addDiagonal(tstart,
+                                         tstart + size,
+                                         qstart - tstart)
+            qstart += size + dq
+            tstart += size + dt
 
-        siz  in(ins[-1][:-1])
+        size = int(lines[-1][:-1])
 
-        mp_rg2qry.Digon(sr,
-                                     sr + siz,
-                                     qsr - sr)
+        map_target2query.addDiagonal(tstart,
+                                     tstart + size,
+                                     qstart - tstart)
 
-    rrn pirs
+    return pairs
 
-DiRs  cocions.nmp(
-    "DiRs", "o sm irn niq")
-
-
- comprChins(pirs1, pirs2):
-    '''compr chins in pirs1 vrss hos in pirs2'''
-
-    rs  {}
-    or ky1, chin1 in pirs1.ims():
-        E.bg("compring s"  sr(ky1))
-
-        no  chin1.gNmAign()
-
-        i ky1 no in pirs2:
-            rs[ky1]  DiRs._mk((no, 0, 0, no))
-            conin
-
-        chin2  pirs2[ky1]
-        nsm  ignib_i.py_gAignmnIniy(
-            chin1, chin2, ignib_i.py_RR)
-        novrp  ignib_i.py_gAignmnOvrp(
-            chin1, chin2, ignib_i.py_RR)
-        nirn  novrp - nsm
-        nniq  no - novrp
-
-        rs[ky1]  DiRs._mk((no, nsm, nirn, nniq))
-
-    rrn rs
+DiffResult = collections.namedtuple(
+    "DiffResult", "total same different unique")
 
 
- opMismchs(pirs1, pirs2,
-                     op_mismchsFs,
-                     op_niqFs,
-                     op_mchsFs):
-    '''op mismchs.
+def compareChains(pairs1, pairs2):
+    '''compare chains in pairs1 versus those in pairs2'''
 
-    This is  vry sow oprion.
+    result = {}
+    for key1, chain1 in pairs1.items():
+        E.debug("comparing %s" % str(key1))
+
+        ntotal = chain1.getNumAligned()
+
+        if key1 not in pairs2:
+            result[key1] = DiffResult._make((ntotal, 0, 0, ntotal))
+            continue
+
+        chain2 = pairs2[key1]
+        nsame = alignlib_lite.py_getAlignmentIdentity(
+            chain1, chain2, alignlib_lite.py_RR)
+        noverlap = alignlib_lite.py_getAlignmentOverlap(
+            chain1, chain2, alignlib_lite.py_RR)
+        ndifferent = noverlap - nsame
+        nunique = ntotal - noverlap
+
+        result[key1] = DiffResult._make((ntotal, nsame, ndifferent, nunique))
+
+    return result
+
+
+def outputMismatches(pairs1, pairs2,
+                     output_mismatches=False,
+                     output_unique=False,
+                     output_matches=False):
+    '''output mismatches.
+
+    This is a very slow operation.
     '''
 
-    oi  sys.so
+    outfile = sys.stdout
 
-    or ky1, chin1 in pirs1.ims():
-        E.bg("compring s"  sr(ky1))
+    for key1, chain1 in pairs1.items():
+        E.debug("comparing %s" % str(key1))
 
-        i ky1 no in pirs2:
-            oi.wri("s\s\s\i\i\-1\n" 
-                          (ky1 + (chin1.gRowFrom(), chin2.gRowTo())))
-            conin
+        if key1 not in pairs2:
+            outfile.write("%s\t%s\t%s\t%i\t%i\t-1\n" %
+                          (key1 + (chain1.getRowFrom(), chain2.getRowTo())))
+            continue
 
-        chin2  pirs2[ky1]
-        rg_sr  chin1.gRowFrom()
-        or pos in rng(chin1.gRowFrom(), chin2.gRowTo()):
-            x  chin1.mpRowToCo(pos)
-            y  chin2.mpRowToCo(pos)
+        chain2 = pairs2[key1]
+        reg_start = chain1.getRowFrom()
+        for pos in range(chain1.getRowFrom(), chain2.getRowTo()):
+            x = chain1.mapRowToCol(pos)
+            y = chain2.mapRowToCol(pos)
 
-            i x  y:
-                i op_mchs:
-                    oi.wri("s\s\s\i\i\i\s\n" 
-                                  (ky1 + (pos, x, y, "")))
-                conin
+            if x == y:
+                if output_matches:
+                    outfile.write("%s\t%s\t%s\t%i\t%i\t%i\t%s\n" %
+                                  (key1 + (pos, x, y, "=")))
+                continue
 
-            mismch  x ! -1 n y ! -1
+            mismatch = x != -1 and y != -1
 
-            i mismch:
-                i op_mismchs:
-                    oi.wri("s\s\s\i\i\i\i\n" 
-                                  (ky1 + (pos, x, y, x - y)))
-            s:
-                i op_niq:
-                    oi.wri("s\s\s\i\i\i\s\n" 
-                                  (ky1 + (pos, x, y, "-")))
+            if mismatch:
+                if output_mismatches:
+                    outfile.write("%s\t%s\t%s\t%i\t%i\t%i\t%i\n" %
+                                  (key1 + (pos, x, y, x - y)))
+            else:
+                if output_unique:
+                    outfile.write("%s\t%s\t%s\t%i\t%i\t%i\t%s\n" %
+                                  (key1 + (pos, x, y, "-")))
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: chin2ps.py 2899 2010-04-13 14:37:37Z nrs $",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id: chain2psl.py 2899 2010-04-13 14:37:37Z andreas $",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-m", "--op-mismchs", s"op_mismchs", cion"sor_r",
-                      hp"op mismchs []")
+    parser.add_argument("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
+                      help="output mismatches [%default]")
 
-    prsr._rgmn("-", "--op-mchs", s"op_mchs", cion"sor_r",
-                      hp"op mchs []")
+    parser.add_argument("-a", "--output-matches", dest="output_matches", action="store_true",
+                      help="output matches [%default]")
 
-    prsr._rgmn("-", "--op-niq", s"op_niq", cion"sor_r",
-                      hp"op niq posiions []")
+    parser.add_argument("-u", "--output-unique", dest="output_unique", action="store_true",
+                      help="output unique positions [%default]")
 
-    prsr._rgmn("-r", "--rsric", s"rsric", yp"sring",
-                      hp"rsric nysis o  chromosom pir (chr1:chr1:+) []")
+    parser.add_argument("-r", "--restrict", dest="restrict", type="string",
+                      help="restrict analysis to a chromosome pair (chr1:chr1:+) [%default]")
 
-    prsr.s_s(
-        op_mismchsFs,
-        op_niqFs,
-        rsricNon
+    parser.set_defaults(
+        output_mismatches=False,
+        output_unique=False,
+        restrict=None
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i n(rgs) ! 2:
-        ris VError("xpc wo chin is")
+    if len(args) != 2:
+        raise ValueError("expected two chain files")
 
-    inm_chin1, inm_chin2  rgs
+    filename_chain1, filename_chain2 = args
 
-    E.ino("viing chin 1")
-    i no viChin(iooos.opn_i(inm_chin1)):
-        E.wrn("viion i - xiing")
-        rrn 1
+    E.info("validating chain 1")
+    if not validateChain(iotools.open_file(filename_chain1)):
+        E.warn("validation failed - exiting")
+        return 1
 
-    E.ino("viing chin 2")
-    i no viChin(iooos.opn_i(inm_chin2)):
-        E.wrn("viion i - xiing")
-        rrn 1
+    E.info("validating chain 2")
+    if not validateChain(iotools.open_file(filename_chain2)):
+        E.warn("validation failed - exiting")
+        return 1
 
-    E.ino("biing pirs or s"  inm_chin1)
-    pirs1  biPirs(iooos.opn_i(inm_chin1))
-    E.ino("r i pirs"  n(pirs1))
+    E.info("building pairs for %s" % filename_chain1)
+    pairs1 = buildPairs(iotools.open_file(filename_chain1))
+    E.info("read %i pairs" % len(pairs1))
 
-    E.ino("biing pirs or s"  inm_chin2)
-    pirs2  biPirs(iooos.opn_i(inm_chin2))
-    E.ino("r i pirs"  n(pirs2))
+    E.info("building pairs for %s" % filename_chain2)
+    pairs2 = buildPairs(iotools.open_file(filename_chain2))
+    E.info("read %i pairs" % len(pairs2))
 
-    i opions.rsric:
-        rsric  p(opions.rsric.spi(":"))
-        pirs1  {rsric: pirs1[rsric]}
-        pirs2  {rsric: pirs2[rsric]}
+    if options.restrict:
+        restrict = tuple(options.restrict.split(":"))
+        pairs1 = {restrict: pairs1[restrict]}
+        pairs2 = {restrict: pairs2[restrict]}
 
-    E.ino("compring 1 -> 2")
-    comprison1  comprChins(pirs1, pirs2)
-    E.ino("compring 2 -> 1")
-    comprison2  comprChins(pirs2, pirs1)
+    E.info("comparing 1 -> 2")
+    comparison1 = compareChains(pairs1, pairs2)
+    E.info("comparing 2 -> 1")
+    comparison2 = compareChains(pairs2, pairs1)
 
-    _kys  sor(is(s(is(comprison1.kys()) + is(comprison2.kys()))))
+    all_keys = sorted(list(set(list(comparison1.keys()) + list(comparison2.keys()))))
 
-    oi  opions.so
-    hrs  ("mpp", "inic", "irn", "niq")
-    oi.wri("conig1\conig2\srn\s\s\s\s\n" 
+    outfile = options.stdout
+    headers = ("mapped", "identical", "different", "unique")
+    outfile.write("contig1\tcontig2\tstrand\t%s\t%s\t%s\t%s\n" %
                   (
-                      "\".join(["s1"  x or x in hrs]),
-                      "\".join(["ps1"  x or x in hrs]),
-                      "\".join(["s2"  x or x in hrs]),
-                      "\".join(["ps2"  x or x in hrs])))
+                      "\t".join(["%s1" % x for x in headers]),
+                      "\t".join(["p%s1" % x for x in headers]),
+                      "\t".join(["%s2" % x for x in headers]),
+                      "\t".join(["p%s2" % x for x in headers])))
 
-    os  E.Conr()
+    totals = E.Counter()
 
-    or ky in _kys:
-        oi.wri("s\s\s"  ky)
+    for key in all_keys:
+        outfile.write("%s\t%s\t%s" % key)
 
-        i ky in comprison1:
-            c  comprison1[ky]
-            oi.wri("\i\i\i\i\" 
-                          (c.o, c.sm, c.irn, c.niq))
-            oi.wri(
-                "\".join([iooos.pry_prcn(x, c.o) or x in c]))
+        if key in comparison1:
+            c = comparison1[key]
+            outfile.write("\t%i\t%i\t%i\t%i\t" %
+                          (c.total, c.same, c.different, c.unique))
+            outfile.write(
+                "\t".join([iotools.pretty_percent(x, c.total) for x in c]))
 
-            os.o1 + c.o
-            os.sm1 + c.sm
-            os.irn1 + c.irn
-            os.niq1 + c.niq
-        s:
-            oi.wri("\i\i\i\i\"  (0, 0, 0, 0))
-            oi.wri("\i\i\i\i"  (0, 0, 0, 0))
+            totals.total1 += c.total
+            totals.same1 += c.same
+            totals.different1 += c.different
+            totals.unique1 += c.unique
+        else:
+            outfile.write("\t%i\t%i\t%i\t%i\t" % (0, 0, 0, 0))
+            outfile.write("\t%i\t%i\t%i\t%i" % (0, 0, 0, 0))
 
-        i ky in comprison2:
-            c  comprison2[ky]
-            oi.wri("\i\i\i\i\" 
-                          (c.o, c.sm, c.irn, c.niq))
-            oi.wri(
-                "\".join([iooos.pry_prcn(x, c.o) or x in c]))
+        if key in comparison2:
+            c = comparison2[key]
+            outfile.write("\t%i\t%i\t%i\t%i\t" %
+                          (c.total, c.same, c.different, c.unique))
+            outfile.write(
+                "\t".join([iotools.pretty_percent(x, c.total) for x in c]))
 
-            os.sm2 + c.sm
-            os.o2 + c.o
-            os.irn2 + c.irn
-            os.niq2 + c.niq
-        s:
-            oi.wri("\i\i\i\i\"  (0, 0, 0, 0))
-            oi.wri("\i\i\i\i"  (0, 0, 0, 0))
+            totals.same2 += c.same
+            totals.total2 += c.total
+            totals.different2 += c.different
+            totals.unique2 += c.unique
+        else:
+            outfile.write("\t%i\t%i\t%i\t%i\t" % (0, 0, 0, 0))
+            outfile.write("\t%i\t%i\t%i\t%i" % (0, 0, 0, 0))
 
-        oi.wri("\n")
+        outfile.write("\n")
 
-    oi.wri("o\o\.\")
-    oi.wri("\".join(mp(sr, (os.o1,
-                                      os.sm1,
-                                      os.irn1,
-                                      os.niq1,
-                                      iooos.pry_prcn(
-                                          os.o1, os.o1),
-                                      iooos.pry_prcn(
-                                          os.sm1, os.o1),
-                                      iooos.pry_prcn(
-                                          os.irn1, os.o1),
-                                      iooos.pry_prcn(
-                                          os.niq1, os.o1),
-                                      os.o2,
-                                      os.sm2,
-                                      os.irn2,
-                                      os.niq2,
-                                      iooos.pry_prcn(
-                                          os.o2, os.o2),
-                                      iooos.pry_prcn(
-                                          os.sm2, os.o2),
-                                      iooos.pry_prcn(
-                                          os.irn2, os.o2),
-                                      iooos.pry_prcn(
-                                          os.niq2, os.o2),
+    outfile.write("total\ttotal\t.\t")
+    outfile.write("\t".join(map(str, (totals.total1,
+                                      totals.same1,
+                                      totals.different1,
+                                      totals.unique1,
+                                      iotools.pretty_percent(
+                                          totals.total1, totals.total1),
+                                      iotools.pretty_percent(
+                                          totals.same1, totals.total1),
+                                      iotools.pretty_percent(
+                                          totals.different1, totals.total1),
+                                      iotools.pretty_percent(
+                                          totals.unique1, totals.total1),
+                                      totals.total2,
+                                      totals.same2,
+                                      totals.different2,
+                                      totals.unique2,
+                                      iotools.pretty_percent(
+                                          totals.total2, totals.total2),
+                                      iotools.pretty_percent(
+                                          totals.same2, totals.total2),
+                                      iotools.pretty_percent(
+                                          totals.different2, totals.total2),
+                                      iotools.pretty_percent(
+                                          totals.unique2, totals.total2),
                                       ))) + "\n")
 
-    # op mismpp rsis
-    i opions.op_mismchs or opions.op_niq:
-        opMismchs(pirs1, pirs2,
-                         op_mismchsopions.op_mismchs,
-                         op_niqopions.op_niq,
-                         op_mchsopions.op_mchs,
+    # output mismapped residues
+    if options.output_mismatches or options.output_unique:
+        outputMismatches(pairs1, pairs2,
+                         output_mismatches=options.output_mismatches,
+                         output_unique=options.output_unique,
+                         output_matches=options.output_matches,
                          )
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,77 +1,77 @@
 '''
-cg_s2cDNA.py - convring mi-s o xon rs ino  mi-s o spic cDNAs/RNAs
+cgat_fasta2cDNA.py - converting multi-fasta of exon features into a multi-fasta of spliced cDNAs/RNAs
+======================================================================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-Usg
+Usage
 -----
 
-.. Exmp s cs
+.. Example use case
 
-Exmp::
+Example::
 
-   pyhon cg_s2cDNA.py
+   python cgat_fasta2cDNA.py
 
-Typ::
+Type::
 
-   pyhon cg_s2cDNA.py --hp
+   python cgat_fasta2cDNA.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import sys
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
- mkSpicFs(ini):
+def makeSplicedFasta(infile):
     '''
-    Mrg s sqncs oghr ino  sing
-    spic rnscrip sqnc
+    Merge fasta sequences together into a single
+    spliced transcript sequence
     '''
 
-    s_ic  {}
-    wih iooos.opn_i(ini) s i:
-        or in in i.rins():
-            i in[0]  '>':
-                hr  in.rsrip("\n")
-                s_ic[hr]  ''
-            s:
-                s_ic[hr] + in.rsrip("\n")
+    fasta_dict = {}
+    with iotools.open_file(infile) as fafile:
+        for line in fafile.readlines():
+            if line[0] == '>':
+                header = line.rstrip("\n")
+                fasta_dict[header] = ''
+            else:
+                fasta_dict[header] += line.rstrip("\n")
 
-    or ky, v in sor(s_ic.ims()):
-        yi "s\ns\n"  (ky, v)
+    for key, value in sorted(fasta_dict.items()):
+        yield "%s\n%s\n" % (key, value)
 
 
- min(rgvNon):
-    """scrip min.
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+def main(argv=None):
+    """script main.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    ini  rgv[-1]
-    or rcor in mkSpicFs(ini):
-        opions.so.wri(rcor)
+    infile = argv[-1]
+    for record in makeSplicedFasta(infile):
+        options.stdout.write(record)
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

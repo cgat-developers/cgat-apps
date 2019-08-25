@@ -1,212 +1,212 @@
 '''
-vcss_sqi.py - rorm op o vc-ss or bs oing
+vcfstats_sqlite.py - reformat output of vcf-stats for database loading
+======================================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-cr  csv spr i or oing ino  bs rom 
-op o vc-ss iiy in vc-oos pckg.
+create a csv separated file for loading into a database from 
+output of vcf-stats utility in vcf-tools package.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon vcss_sqi.py [is] > [oi]
+   python vcfstats_sqlite.py [files] > [outfile]
 
-Typ::
+Type::
 
-   pyhon vcss_sqi.py --hp
+   python vcfstats_sqlite.py --help
 
-or commn in hp.
+for command line help.
 
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor os
-impor sys
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import os
+import sys
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: vcss_sqi.py 0001 2011-04-13 vis $", sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id: vcfstats_sqlite.py 0001 2011-04-13 davids $", usage=globals()["__doc__"])
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    opions.inms  rgs
+    options.filenames = args
 
-    i n(opions.inms) < 1:
-        opions.so.wri("# Error: no vc-ss is spcii/on.")
-        sys.xi(1)
+    if len(options.filenames) < 1:
+        options.stdout.write("# Error: no vcf-stats files specified/found.")
+        sys.exit(1)
 
-    E.ino("Prsing i i(s)"  n(opions.inms))
+    E.info("Parsing %i file(s)" % len(options.filenames))
 
-    # s p op is
-    vc_i  iooos.opn_i('vcss.x', 'w')
-    in_i  iooos.opn_i('inss.x', 'w')
-    snp_i  iooos.opn_i('snpss.x', 'w')
-    shr_i  iooos.opn_i('shrss.x', 'w')
+    # set up output files
+    vcf_file = iotools.open_file('vcfstats.txt', 'w')
+    indel_file = iotools.open_file('indelstats.txt', 'w')
+    snp_file = iotools.open_file('snpstats.txt', 'w')
+    shared_file = iotools.open_file('sharedstats.txt', 'w')
 
-    or ino, inm in nmr(opions.inms):
+    for fileno, filename in enumerate(options.filenames):
 
-        prix  os.ph.bsnm(inm)
-        rcknm  prix.rpc(".vcss", "")
+        prefix = os.path.basename(filename)
+        trackname = prefix.replace(".vcfstats", "")
 
-        i os.ph.xiss(inm):
-            ins  [x or x in iooos.opn_i(inm, "r").rins()]
-        s:
-            ins  []
+        if os.path.exists(filename):
+            lines = [x for x in iotools.open_file(filename, "r").readlines()]
+        else:
+            lines = []
 
-        i n(ins)  0:
-            opions.so.wri(
-                "# Error: mpy vc-ss i on: $(inm)s")
-            sys.xi(1)
-        s:
-            E.ino("Fi i conins i ins"  (ino, n(ins)))
-            vc_ss  ic(rckrcknm)
-            snp_ss  ic(rckrcknm)
-            in_ss  ic()
-            shr_ss  ic()
-            _vrs  Fs
-            ins  Fs
-            snps  Fs
-            shr  Fs
-            or i, in in nmr(ins):
-                in  in.srip()
-                i in.in("''") > -1:
-                    _vrs  Tr
-                    E.ino("Fon ''")
-                    conin
+        if len(lines) == 0:
+            options.stdout.write(
+                "# Error: empty vcf-stats file found: $(filename)s")
+            sys.exit(1)
+        else:
+            E.info("File %i contains %i lines" % (fileno, len(lines)))
+            vcf_stats = dict(track=trackname)
+            snp_stats = dict(track=trackname)
+            indel_stats = dict()
+            shared_stats = dict()
+            all_vars = False
+            indels = False
+            snps = False
+            shared = False
+            for i, line in enumerate(lines):
+                line = line.strip()
+                if line.find("'all'") > -1:
+                    all_vars = True
+                    E.info("Found 'all'")
+                    continue
 
-                i _vrs:
-                    i in.in(">") > -1:
-                        is  in.spi(">")
-                        ky  is[0].srip().rpc(
-                            "'", "").rpc(">", "_")
-                        v  is[1].srip().rpc(",", "")
-                    s:
-                        ky  "NA"
-                        v  "NA"
-                    i ky  "in" n v  "{":
-                        ins  Tr
-                        E.ino("Fon 'ins'")
-                        conin
-                    i ky  "snp" n v  "{":
-                        snps  Tr
-                        E.ino("Fon 'SNPs'")
-                        conin
-                    i ky  "shr" n v  "{":
-                        shr  Tr
-                        E.ino("Fon 'Shr'")
-                        conin
+                if all_vars:
+                    if line.find("=>") > -1:
+                        fields = line.split("=>")
+                        key = fields[0].strip().replace(
+                            "'", "").replace(">", "_")
+                        val = fields[1].strip().replace(",", "")
+                    else:
+                        key = "NA"
+                        val = "NA"
+                    if key == "indel" and val == "{":
+                        indels = True
+                        E.info("Found 'indels'")
+                        continue
+                    elif key == "snp" and val == "{":
+                        snps = True
+                        E.info("Found 'SNPs'")
+                        continue
+                    elif key == "shared" and val == "{":
+                        shared = True
+                        E.info("Found 'Shared'")
+                        continue
 
-                    i ins:
-                        i in.in("}") > -1:
-                            ins  Fs
-                            E.ino("Procss 'ins'")
-                            conin
-                        s:
-                            in_ss[ky]  v
-                    i snps:
-                        i in.in("}") > -1:
-                            snps  Fs
-                            E.ino("Procss 'SNPs'")
-                            conin
-                        s:
-                            snp_ss[ky]  v
-                    i shr:
-                        i in.in("}") > -1:
-                            shr  Fs
-                            E.ino("Procss 'Shr'")
-                            conin
-                        s:
-                            shr_ss[ky]  v
-                    i ky ! "NA":
-                        vc_ss[ky]  v
+                    if indels:
+                        if line.find("}") > -1:
+                            indels = False
+                            E.info("Processed 'indels'")
+                            continue
+                        else:
+                            indel_stats[key] = val
+                    elif snps:
+                        if line.find("}") > -1:
+                            snps = False
+                            E.info("Processed 'SNPs'")
+                            continue
+                        else:
+                            snp_stats[key] = val
+                    elif shared:
+                        if line.find("}") > -1:
+                            shared = False
+                            E.info("Processed 'Shared'")
+                            continue
+                        else:
+                            shared_stats[key] = val
+                    elif key != "NA":
+                        vcf_stats[key] = val
 
-            # Ensr  kys r prsn
-            kys  ["n_1", "n_2", "n_3", "n_4",
-                       "n_5", "rck", "con", "snp_con", "in_con"]
-            or k in kys:
-                i k in vc_ss:
-                    conin
-                s:
-                    vc_ss[k]  "0"
+            # Ensure all keys are present
+            allkeys = ["nalt_1", "nalt_2", "nalt_3", "nalt_4",
+                       "nalt_5", "track", "count", "snp_count", "indel_count"]
+            for k in allkeys:
+                if k in vcf_stats:
+                    continue
+                else:
+                    vcf_stats[k] = "0"
 
-            # Wri hr (or irs i ony)
-            i inm  opions.inms[0]:
+            # Write header (for first file only)
+            if filename == options.filenames[0]:
 
-                # Ensr kys r sor
-                sr  is(vc_ss.kys())
-                sr.sor()
-                sp  ""
-                or k in sr:
-                    vc_i.wri("ss"  (sp, k))
-                    sp  "\"
-                vc_i.wri("\n")
+                # Ensure keys are sorted
+                srt = list(vcf_stats.keys())
+                srt.sort()
+                sep = ""
+                for k in srt:
+                    vcf_file.write("%s%s" % (sep, k))
+                    sep = "\t"
+                vcf_file.write("\n")
 
-                in_i.wri("rck\in_ngh\in_con\n")
-                shr_i.wri("rck\no_smps\vr_con\n")
+                indel_file.write("track\tindel_length\tindel_count\n")
+                shared_file.write("track\tno_samples\tvar_count\n")
 
-                sp  ""
-                or k in snp_ss.kys():
-                    snp_i.wri("ss"  (sp, k))
-                    sp  "\"
-                snp_i.wri("\n")
+                sep = ""
+                for k in snp_stats.keys():
+                    snp_file.write("%s%s" % (sep, k))
+                    sep = "\t"
+                snp_file.write("\n")
 
-            # Wri 
-            sp  ""
-            sr  is(vc_ss.kys())
-            sr.sor()
-            or k in sr:
-                vc_i.wri("ss"  (sp, vc_ss[k]))
-                sp  "\"
-            vc_i.wri("\n")
+            # Write data
+            sep = ""
+            srt = list(vcf_stats.keys())
+            srt.sort()
+            for k in srt:
+                vcf_file.write("%s%s" % (sep, vcf_stats[k]))
+                sep = "\t"
+            vcf_file.write("\n")
 
-            # Chck  in nghs r covr
-            r  is(rng(-20, 20, 1))
-            or i in r:
-                i sr(i) in in_ss:
-                    conin
-                s:
-                    in_ss[i]  "0"
-            or k in in_ss.kys():
-                in_i.wri("s\s\s\n" 
-                                 (rcknm, k, in_ss[k]))
+            # Check all indel lengths are covered
+            r = list(range(-20, 20, 1))
+            for i in r:
+                if str(i) in indel_stats:
+                    continue
+                else:
+                    indel_stats[i] = "0"
+            for k in indel_stats.keys():
+                indel_file.write("%s\t%s\t%s\n" %
+                                 (trackname, k, indel_stats[k]))
 
-            or k in shr_ss.kys():
-                shr_i.wri("s\s\s\n" 
-                                  (rcknm, k, shr_ss[k]))
+            for k in shared_stats.keys():
+                shared_file.write("%s\t%s\t%s\n" %
+                                  (trackname, k, shared_stats[k]))
 
-            sp  ""
-            or k in snp_ss.kys():
-                snp_i.wri("ss"  (sp, snp_ss[k]))
-                sp  "\"
-            snp_i.wri("\n")
+            sep = ""
+            for k in snp_stats.keys():
+                snp_file.write("%s%s" % (sep, snp_stats[k]))
+                sep = "\t"
+            snp_file.write("\n")
 
-    # cos is
-    vc_i.cos()
-    in_i.cos()
-    snp_i.cos()
+    # close files
+    vcf_file.close()
+    indel_file.close()
+    snp_file.close()
 
-    E.sop()
-    sys.xi(0)
+    E.stop()
+    sys.exit(0)
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

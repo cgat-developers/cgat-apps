@@ -1,529 +1,529 @@
 """
-g2s.py - nno gnomic bss rom  gn s
+gtf2fasta.py - annotate genomic bases from a gene set
+=====================================================
+
+:Tags: Genomics Genesets Sequences GTF FASTA Transformation
 
 
-:Tgs: Gnomics Gnss Sqncs GTF FASTA Trnsormion
-
-
-Prpos
+Purpose
 -------
-This scrip cn b s or  qick-n-iry nnoion o vrins
-in  gnom. I is mos ppropriy s in xporory nyss
-o h c o vrins/s.
+This script can be used for a quick-and-dirty annotation of variants
+in a genome. It is most appropriately used in exploratory analyses
+of the effect of variants/alleles.
 
-For  br pricion o vrin cs in coing sqncs,
-s :oc:`snp2cons` n :oc:`g2s`.
+For a better prediction of variant effects in coding sequences,
+see :doc:`snp2counts` and :doc:`gtf2alleles`.
 
-I yo wish o convr g inrvs ino s sqncs, s g2s.py.
+If you wish to convert gtf intervals into fasta sequences, use gff2fasta.py.
 
-This scrip ks  :rm:`g` orm i rom ENSEMBL n
-nnos ch bs in h gnom ccoring o is *ncion*. Th
-scrip mipxs boh srns wih owr- cs chrcrs rrring
-o h orwr srn n ppr-cs chrcrs rrring o h
-rvrs srn.
+This script takes a :term:`gtf` formatted file from ENSEMBL and
+annotates each base in the genome according to its *function*. The
+script multiplexes both strands with lower- case characters referring
+to the forward strand and upper-case characters referring to the
+reverse strand.
 
-Th cos n hir mning r:
+The codes and their meaning are:
 
 +-----+----------------------------------------------------------------------+
-|co | scripion                                                          |
+|code | description                                                          |
 +-----+----------------------------------------------------------------------+
-|    | irs coon posiion wihin  comp coon                         |
+|a    | first codon position within a complete codon                         |
 +-----+----------------------------------------------------------------------+
-|b    | scon coon posiion wihin  comp coon                        |
+|b    | second codon position within a complete codon                        |
 +-----+----------------------------------------------------------------------+
-|c    | hir coon posiion wihin  comp coon                         |
+|c    | third codon position within a complete codon                         |
 +-----+----------------------------------------------------------------------+
-|    | coing bs, b in mip rms or srns                       |
+|d    | coding base, but in multiple frames or strands                       |
 +-----+----------------------------------------------------------------------+
-|    | non-coing bs in xon                                              |
+|e    | non-coding base in exon                                              |
 +-----+----------------------------------------------------------------------+
-|    | rm-shi bs                                                   |
+|f    | frame-shifted base                                                   |
 +-----+----------------------------------------------------------------------+
-|g    | inrgnic bs                                                      |
+|g    | intergenic base                                                      |
 +-----+----------------------------------------------------------------------+
-|i    | inronic bs                                                        |
+|i    | intronic base                                                        |
 +-----+----------------------------------------------------------------------+
-|    | bs in ohr RNA                                                    |
+|l    | base in other RNA                                                    |
 +-----+----------------------------------------------------------------------+
-|m    | bs in miRNA                                                        |
+|m    | base in miRNA                                                        |
 +-----+----------------------------------------------------------------------+
-|n    | bs in snRNA                                                        |
+|n    | base in snRNA                                                        |
 +-----+----------------------------------------------------------------------+
-|o    | bs in snoRNA                                                       |
+|o    | base in snoRNA                                                       |
 +-----+----------------------------------------------------------------------+
-|r    | bs in rRNA (boh gnomic n miochonri)                        |
+|r    | base in rRNA (both genomic and mitochondrial)                        |
 +-----+----------------------------------------------------------------------+
-|p    | bs in psogn (incing rnscrib, nprocss n procss)|
+|p    | base in pseudogene (including transcribed, unprocessed and processed)|
 +-----+----------------------------------------------------------------------+
-|q    | bs in rrornsposon                                              |
+|q    | base in retrotransposon                                              |
 +-----+----------------------------------------------------------------------+
-|s    | bs wihin  spic sign (GT/AG)                                  |
+|s    | base within a splice signal (GT/AG)                                  |
 +-----+----------------------------------------------------------------------+
-|    | bs in RNA (boh gnomic n miochonri)                        |
+|t    | base in tRNA (both genomic and mitochondrial)                        |
 +-----+----------------------------------------------------------------------+
-|    | bs in 5' UTR                                                       |
+|u    | base in 5' UTR                                                       |
 +-----+----------------------------------------------------------------------+
-|v    | bs in 3' UTR                                                       |
+|v    | base in 3' UTR                                                       |
 +-----+----------------------------------------------------------------------+
-|x    | mbigos bs wih mip ncions.                              |
+|x    | ambiguous base with multiple functions.                              |
 +-----+----------------------------------------------------------------------+
-|y    | nknown bs                                                         |
+|y    | unknown base                                                         |
 +-----+----------------------------------------------------------------------+
 
 
 
-Op is
+Output files
 ++++++++++++
 
-Th nno gnom is op on so.
+The annotated genome is output on stdout.
 
-Th scrip crs h oowing iion op is:
+The script creates the following additional output files:
 
-cons
-   Cons or ch nnoions
+counts
+   Counts for each annotations
 
-jncions
-   Spic jncions. This is  b spr b inking rsis h r
-   join vi rs. Th coorins r orwr/rvrs coorins.
+junctions
+   Splice junctions. This is a tab separated table linking residues that are
+   joined via features. The coordinates are forward/reverse coordinates.
 
-   Th comns r:
+   The columns are:
 
-   conig
-      h conig
-   srn
-      ircion o inkg
-   n
-      s bs o xon in ircion o srn
-   sr
-      irs bs o xon in ircion o srn
-   rm
-      rm bs  scon coorin (or coing sqncs)
+   contig
+      the contig
+   strand
+      direction of linkage
+   end
+      last base of exon in direction of strand
+   start
+      first base of exon in direction of strand
+   frame
+      frame base at second coordinate (for coding sequences)
     
-Known probms
+Known problems
 --------------
 
-Th sop-coon is pr o h UTR. This hs h oowing cs:
+The stop-codon is part of the UTR. This has the following effects:
 
-   * On h miochonri chromosom, h sop-coon migh b s or
-     ncRNA rnscrips n hs h bs is rcor s mbigos.
+   * On the mitochondrial chromosome, the stop-codon might be used for
+     ncRNA transcripts and thus the base is recorded as ambiguous.
 
-   * On h miochonri chromosom, rniv rnscrips migh
-     r hrogh  sop-coon (RNA iing). Th coon is wi b
-     rcor s mbigos.
+   * On the mitochondrial chromosome, alternative transcripts might
+     read through a stop-codon (RNA editing). The codon itself will be
+     recorded as ambiguous.
 
-Usg
+Usage
 -----
 
-For xmp::
+For example::
 
-   zc hg19.g.gz | pyhon g2s.py --gnom-ihg19 > hg19.nno
+   zcat hg19.gtf.gz | python gtf2fasta.py --genome-file=hg19 > hg19.annotated
 
-Typ::
+Type::
 
-   pyhon g2s.py --hp
+   python gtf2fasta.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
-``--gnom-i``
-    rqir opion. inm or gnom s i
+``--genome-file``
+    required option. filename for genome fasta file
 
-``--ignor-missing``
-    rnscrips on conigs no in h gnom i wi b ignor
+``--ignore-missing``
+    transcripts on contigs not in the genome file will be ignored
 
-``--min-inron-ngh``
-    inronic bss in inrons ss hn spcii ngh
-    wi b mrk "nknown"
+``--min-intron-length``
+    intronic bases in introns less than specified length
+    will be marked "unknown"
 
 """
 
-impor sys
-impor cocions
-impor rry
+import sys
+import collections
+import array
 
-impor cgcor.xprimn s E
-impor cg.GTF s GTF
-impor cg.InxFs s InxFs
-impor cg.Gnomics s Gnomics
-impor cg.Inrvs s Inrvs
+import cgatcore.experiment as E
+import cgat.GTF as GTF
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Genomics as Genomics
+import cgat.Intervals as Intervals
 
-MAP_ENSEMBL  {'miRNA': 'm',
-               'misc_RNA': '',
-               'psogn': 'p',
-               'rnscrib_psogn': 'p',
-               'nprocss_psogn': 'p',
-               'procss_psogn': 'p',
-               'rrornspos': 'q',
+MAP_ENSEMBL = {'miRNA': 'm',
+               'misc_RNA': 'l',
+               'pseudogene': 'p',
+               'transcribed_pseudogene': 'p',
+               'unprocessed_pseudogene': 'p',
+               'processed_pseudogene': 'p',
+               'retrotransposed': 'q',
                'rRNA': 'r',
                'snRNA': 'n',
                'snoRNA': 'o',
-               'M_rRNA': 'r',
-               'M_RNA': ''}
+               'Mt_rRNA': 'r',
+               'Mt_tRNA': 't'}
 
-DEFAULT_CODE  "g"
-AMBIGUOUS_CODE  "x"
-CODING_CODE  ""
-ALL_CODES  DEFAULT_CODE + AMBIGUOUS_CODE + \
-    "bcimnorpqsvy" + "bcimnorpqsvy".ppr()
-CODING_CODES  "bcABCD"
-NONCODING_CODES  "ivIUV"
-INTRON_CODES  "iI"
-UTR_CODES  "vUV"
+DEFAULT_CODE = "g"
+AMBIGUOUS_CODE = "x"
+CODING_CODE = "d"
+ALL_CODES = DEFAULT_CODE + AMBIGUOUS_CODE + \
+    "abcdefilmnorpqstuvy" + "abcdefilmnorpqstuvy".upper()
+CODING_CODES = "abcdABCD"
+NONCODING_CODES = "iuvIUV"
+INTRON_CODES = "iI"
+UTR_CODES = "uvUV"
 
 
- sCo(nnoion, pos, co):
-    """s *pos* o *co* in nnoion.
+def setCode(annotation, pos, code):
+    """set *pos* to *code* in annotation.
 
-    This mho prorms conic rsoion in h oowing css:
+    This method performs conflict resolution in the following cases:
 
-    1. Inrons n UTRs o no cs  conic i hy ovrp wih ohr
-    rs
+    1. Introns and UTRs do not cause a conflict if they overlap with other
+    features
 
-    1. Coing bss k prcnc ovr inronic n UTR bss.
-    2. UTR bs k prcnc ovr inronic bss.
-    3. Coing bss in irn rms/srns r s o CODING_CODE
-    4. Non-coing rs o h sm yp b irn srn r prmi
+    1. Coding bases take precedence over intronic and UTR bases.
+    2. UTR base take precedence over intronic bases.
+    3. Coding bases in different frames/strands are set to CODING_CODE
+    4. Non-coding features of the same type but different strand are permitted
 
-    A ohr conics r mrk s mbigos bss.
+    All other conflicts are marked as ambiguous bases.
     """
-    c  nnoion[pos]
-    i c  DEFAULT_CODE or c in NONCODING_CODES:
-        nnoion[pos]  co
-    i c  AMBIGUOUS_CODE:
-        rrn
-    i co in NONCODING_CODES:
-        # ony s inrons/UTR i no ohr co is prsn
-        rrn
-    i c  co:
-        rrn
-    i co in CODING_CODES n c in CODING_CODES:
-        # mbigos rm/srn in coing sqnc
-        nnoion[pos]  CODING_CODE
-    i co in NONCODING_CODES n c in CODING_CODES:
-        # prmi rniv rnscrips
-        rrn
-    i c no in CODING_CODES n co no in CODING_CODES n c.ppr()  co.ppr():
-        # prmi rs o h sm yp on irn srns o ovrp (or
-        # xmp, RNAs)
-        rrn
-    s:
-        nnoion[pos]  AMBIGUOUS_CODE
-        E.wrn("mbigos posiion i: s - s"  (pos, c, co))
+    c = annotation[pos]
+    if c == DEFAULT_CODE or c in NONCODING_CODES:
+        annotation[pos] = code
+    elif c == AMBIGUOUS_CODE:
+        return
+    elif code in NONCODING_CODES:
+        # only set introns/UTR if no other code is present
+        return
+    elif c == code:
+        return
+    elif code in CODING_CODES and c in CODING_CODES:
+        # ambiguous frame/strand in coding sequence
+        annotation[pos] = CODING_CODE
+    elif code in NONCODING_CODES and c in CODING_CODES:
+        # permit alternative transcripts
+        return
+    elif c not in CODING_CODES and code not in CODING_CODES and c.upper() == code.upper():
+        # permit features of the same type on different strands to overlap (for
+        # example, tRNAs)
+        return
+    else:
+        annotation[pos] = AMBIGUOUS_CODE
+        E.warn("ambiguous position %i: %s - %s" % (pos, c, code))
 
 
- Sgmns(nnoion, inrvs, is_posiiv, co):
-    """ inrvs."""
-    i no inrvs:
-        rrn
-    i no is_posiiv:
-        co  co.ppr()
+def addSegments(annotation, intervals, is_positive, code):
+    """add intervals."""
+    if not intervals:
+        return
+    if not is_positive:
+        code = code.upper()
 
-    or sr, n in inrvs:
-        or x in rng(sr, n):
-            sCo(nnoion, x, co)
+    for start, end in intervals:
+        for x in range(start, end):
+            setCode(annotation, x, code)
 
 
- Inrons(nnoion, inrvs, is_posiiv, mx_rmshi_ngh):
-    """ inrons or inrvs.
+def addIntrons(annotation, intervals, is_positive, max_frameshift_length):
+    """add introns for intervals.
 
-    Inrvs n o b sor in incrmn orr.
+    Intervals need to be sorted in incremental order.
     """
-    i no inrvs:
-        rrn
-    inrvs.sor()
-    s  inrvs[0][1]
-    co_i, co_, co_s  "i", "", "s"
+    if not intervals:
+        return
+    intervals.sort()
+    last = intervals[0][1]
+    code_i, code_f, code_s = "i", "f", "s"
 
-    i no is_posiiv:
-        co_i  co_i.ppr()
-        co_  co_.ppr()
-        co_s  co_s.ppr()
+    if not is_positive:
+        code_i = code_i.upper()
+        code_f = code_f.upper()
+        code_s = code_s.upper()
 
-    or sr, n in inrvs[1:]:
-          sr - s
-        i  < mx_rmshi_ngh:
-            co  co_
-        s:
-            co  co_i
-            #  spic sis
-            sCo(nnoion, s, co_s)
-            sCo(nnoion, s + 1, co_s)
-            sCo(nnoion, sr - 2, co_s)
-            sCo(nnoion, sr - 1, co_s)
-            s + 2
-            sr - 2
+    for start, end in intervals[1:]:
+        d = start - last
+        if d < max_frameshift_length:
+            code = code_f
+        else:
+            code = code_i
+            # add splice sites
+            setCode(annotation, last, code_s)
+            setCode(annotation, last + 1, code_s)
+            setCode(annotation, start - 2, code_s)
+            setCode(annotation, start - 1, code_s)
+            last += 2
+            start -= 2
 
-        or x in rng(s, sr):
-            sCo(nnoion, x, co)
+        for x in range(last, start):
+            setCode(annotation, x, code)
 
-        s  n
-
-
- CDS(nnoion, gs, is_posiiv):
-    """ coing sqnc o conig.
-
-    Aso s h spic sis.
-    """
-
-    i no gs:
-        rrn
-
-    i is_posiiv:
-        chrs  "bc"
-    s:
-        chrs  "ABC"
-
-    s  Non
-    or cs in gs:
-
-        c  in(cs.rm)
-        i c ! 0:
-            c  3 - c
-
-        i is_posiiv:
-            r  rng(cs.sr, cs.n)
-        s:
-            r  rng(cs.n - 1, cs.sr - 1, -1)
-
-        or x in r:
-            co  chrs[c]
-            c + 1
-            i c  n(chrs):
-                c  0
-            sCo(nnoion, x, co)
+        last = end
 
 
- opCons(oi, nnoions):
-    """op b ino oi wih nnoions."""
+def addCDS(annotation, gtfs, is_positive):
+    """add coding sequence to contig.
 
-    o_cons  cocions.ic(in)
-
-    oi.wri("conig\o\s\n"  ("\".join(ALL_CODES)))
-
-    or k in sor(nnoions.kys()):
-        cons  cocions.ic(in)
-        or x in nnoions[k]:
-            cons[x] + 1
-        oi.wri("\".join((k,
-                                 sr(n(nnoions[k])),
-                                 "\".join([sr(cons[x]) or x in ALL_CODES]))) + "\n")
-
-        or k, v in cons.ims():
-            o_cons[k] + v
-
-    oi.wri("\".join(("o",
-                             sr(sm([n(x) or x in is(nnoions.vs())])),
-                             "\".join([sr(o_cons[x]) or x in ALL_CODES]))) + "\n")
-
-
- nnoGnom(iror, s, opions, _coDEFAULT_CODE):
-    """nno  gnom givn by h inx *s* i n 
-    n iror ovr g nnoions.
+    Also adds the splice sites.
     """
 
-    nnoions  {}
-    conig_sizs  s.gConigSizs(wih_synonymsFs)
-    E.ino("ocing mmory or i conigs n i bys" 
-           (n(conig_sizs), sm(conig_sizs.vs()) * rry.rry("B").imsiz))
-    # ASring.ASring( "").imsiz ))
+    if not gtfs:
+        return
 
-    or conig, siz in is(conig_sizs.ims()):
-        E.bg("ocing s: i bss"  (conig, siz))
-        # nnoions[conig]  ASring.ASring( _co * siz )
-        # nnoions[conig]  rry.rry("", _co * siz)
-        # Go o is or py3 compibiiy, pch
-        nnoions[conig]  [_co] * siz
+    if is_positive:
+        chars = "abc"
+    else:
+        chars = "ABC"
 
-    E.ino("oc mmory or i conigs"  n(s))
+    last = None
+    for cds in gtfs:
 
-    conr  E.Conr()
+        c = int(cds.frame)
+        if c != 0:
+            c = 3 - c
 
-    # op spic jncions
-    oi_jncions  E.opn_op_i("jncions")
-    oi_jncions.wri(
-        "conig\srn\pos1\pos2\rm\gn_i\rnscrip_i\n")
-    or gs in iror:
+        if is_positive:
+            r = range(cds.start, cds.end)
+        else:
+            r = range(cds.end - 1, cds.start - 1, -1)
 
-        conr.inp + 1
+        for x in r:
+            code = chars[c]
+            c += 1
+            if c == len(chars):
+                c = 0
+            setCode(annotation, x, code)
 
-        i conr.inp  opions.rpor_sp  0:
-            E.ino("irion i"  conr.inp)
 
-        ry:
-            conig  s.gTokn(gs[0].conig)
-        xcp KyError s msg:
-            E.wrn("conig s no on - nnoion ignor"  gs[0].conig)
-            conr.skipp_conig + 1
-            conin
+def outputCounts(outfile, annotations):
+    """output table into outfile with annotations."""
 
-        conig  s.gLngh(conig)
+    total_counts = collections.defaultdict(int)
 
-        # mk sr h xons r sor by coorin
-        gs.sor(kymb x: x.sr)
+    outfile.write("contig\ttotal\t%s\n" % ("\t".join(ALL_CODES)))
 
-        is_posiiv  Gnomics.IsPosiivSrn(gs[0].srn)
-        sorc  gs[0].sorc
+    for k in sorted(annotations.keys()):
+        counts = collections.defaultdict(int)
+        for x in annotations[k]:
+            counts[x] += 1
+        outfile.write("\t".join((k,
+                                 str(len(annotations[k])),
+                                 "\t".join([str(counts[x]) for x in ALL_CODES]))) + "\n")
 
-        # procss non-coing 
-        i sorc in MAP_ENSEMBL:
-            co  MAP_ENSEMBL[sorc]
+        for k, v in counts.items():
+            total_counts[k] += v
 
-            inrvs  [(x.sr, x.n) or x in gs]
-            Sgmns(nnoions[conig],
-                        inrvs,
-                        is_posiiv,
-                        co)
+    outfile.write("\t".join(("total",
+                             str(sum([len(x) for x in list(annotations.values())])),
+                             "\t".join([str(total_counts[x]) for x in ALL_CODES]))) + "\n")
 
-        i sorc  "proin_coing":
 
-            # coc xons or r
-            xons  [(x.sr, x.n) or x in gs i x.r  "xon"]
-            cs  [(x.sr, x.n) or x in gs i x.r  "CDS"]
-            i n(cs)  0:
-                conr.skipp_rnscrips + 1
-                E.wrn("proin-coing rnscrip s wiho CDS - skipp" 
-                       gs[0].rnscrip_i)
-                conin
+def annotateGenome(iterator, fasta, options, default_code=DEFAULT_CODE):
+    """annotate a genome given by the indexed *fasta* file and 
+    an iterator over gtf annotations.
+    """
 
-            xons  Inrvs.rnc(xons, cs)
-            sr, n  cs[0][0], cs[-1][1]
+    annotations = {}
+    contig_sizes = fasta.getContigSizes(with_synonyms=False)
+    E.info("allocating memory for %i contigs and %i bytes" %
+           (len(contig_sizes), sum(contig_sizes.values()) * array.array("B").itemsize))
+    # AString.AString( "a").itemsize ))
 
-            UTR5  [x or x in xons i x[1] < sr]
-            UTR3  [x or x in xons i x[0] > n]
+    for contig, size in list(contig_sizes.items()):
+        E.debug("allocating %s: %i bases" % (contig, size))
+        # annotations[contig] = AString.AString( default_code * size )
+        # annotations[contig] = array.array("", default_code * size)
+        # Go to list for py3 compatibility, patch
+        annotations[contig] = [default_code] * size
 
-            i no is_posiiv:
-                UTR5, UTR3  UTR3, UTR5
-                spic_co  "S"
-            s:
-                spic_co  "s"
+    E.info("allocated memory for %i contigs" % len(fasta))
 
-            Sgmns(nnoions[conig],
+    counter = E.Counter()
+
+    # output splice junctions
+    outfile_junctions = E.open_output_file("junctions")
+    outfile_junctions.write(
+        "contig\tstrand\tpos1\tpos2\tframe\tgene_id\ttranscript_id\n")
+    for gtfs in iterator:
+
+        counter.input += 1
+
+        if counter.input % options.report_step == 0:
+            E.info("iteration %i" % counter.input)
+
+        try:
+            contig = fasta.getToken(gtfs[0].contig)
+        except KeyError as msg:
+            E.warn("contig %s not found - annotation ignored" % gtfs[0].contig)
+            counter.skipped_contig += 1
+            continue
+
+        lcontig = fasta.getLength(contig)
+
+        # make sure that exons are sorted by coordinate
+        gtfs.sort(key=lambda x: x.start)
+
+        is_positive = Genomics.IsPositiveStrand(gtfs[0].strand)
+        source = gtfs[0].source
+
+        # process non-coding data
+        if source in MAP_ENSEMBL:
+            code = MAP_ENSEMBL[source]
+
+            intervals = [(x.start, x.end) for x in gtfs]
+            addSegments(annotations[contig],
+                        intervals,
+                        is_positive,
+                        code)
+
+        elif source == "protein_coding":
+
+            # collect exons for utr
+            exons = [(x.start, x.end) for x in gtfs if x.feature == "exon"]
+            cds = [(x.start, x.end) for x in gtfs if x.feature == "CDS"]
+            if len(cds) == 0:
+                counter.skipped_transcripts += 1
+                E.warn("protein-coding transcript %s without CDS - skipped" %
+                       gtfs[0].transcript_id)
+                continue
+
+            exons = Intervals.truncate(exons, cds)
+            start, end = cds[0][0], cds[-1][1]
+
+            UTR5 = [x for x in exons if x[1] < start]
+            UTR3 = [x for x in exons if x[0] >= end]
+
+            if not is_positive:
+                UTR5, UTR3 = UTR3, UTR5
+                splice_code = "S"
+            else:
+                splice_code = "s"
+
+            addSegments(annotations[contig],
                         UTR5,
-                        is_posiiv,
-                        "")
+                        is_positive,
+                        "u")
 
-            Inrons(nnoions[conig],
+            addIntrons(annotations[contig],
                        UTR5,
-                       is_posiiv,
-                       opions.mx_rmshi_ngh)
+                       is_positive,
+                       options.max_frameshift_length)
 
-            Sgmns(nnoions[conig],
+            addSegments(annotations[contig],
                         UTR3,
-                        is_posiiv,
+                        is_positive,
                         "v")
 
-            Inrons(nnoions[conig],
+            addIntrons(annotations[contig],
                        UTR3,
-                       is_posiiv,
-                       opions.mx_rmshi_ngh)
+                       is_positive,
+                       options.max_frameshift_length)
 
-            # op CDS ccoring o rm
-            CDS(nnoions[conig],
-                   [x or x in gs i x.r  "CDS"],
-                   is_posiiv)
+            # output CDS according to frame
+            addCDS(annotations[contig],
+                   [x for x in gtfs if x.feature == "CDS"],
+                   is_positive)
 
-            #  inrons bwn CDS
-            Inrons(nnoions[conig],
-                       cs,
-                       is_posiiv,
-                       opions.mx_rmshi_ngh)
+            # add introns between CDS
+            addIntrons(annotations[contig],
+                       cds,
+                       is_positive,
+                       options.max_frameshift_length)
 
-            # op spic jncions
-            cs  [x or x in gs i x.r  "CDS"]
+            # output splice junctions
+            cds = [x for x in gtfs if x.feature == "CDS"]
 
-            # ppy corrcions or 1-ps n coorins
-            # o poin bwn rsis wihin CDS
-            i is_posiiv:
-                nr  mb x: x.n - 1
-                srr  mb x: x.sr
-                o_posiiv  "+"
-            s:
-                nr  mb x: conig - x.sr - 1
-                srr  mb x: conig - x.n
-                o_posiiv  "-"
-                cs.rvrs()
+            # apply corrections for 1-past end coordinates
+            # to point between residues within CDS
+            if is_positive:
+                ender = lambda x: x.end - 1
+                starter = lambda x: x.start
+                out_positive = "+"
+            else:
+                ender = lambda x: lcontig - x.start - 1
+                starter = lambda x: lcontig - x.end
+                out_positive = "-"
+                cds.reverse()
 
-            n  nr(cs[0])
-            or c in cs[1:]:
-                sr  srr(c)
-                oi_jncions.wri("s\s\i\i\s\s\s\n" 
-                                        (conig,
-                                         o_posiiv,
-                                         n,
-                                         sr,
-                                         c.rm,
-                                         c.gn_i,
-                                         c.rnscrip_i,
+            end = ender(cds[0])
+            for c in cds[1:]:
+                start = starter(c)
+                outfile_junctions.write("%s\t%s\t%i\t%i\t%s\t%s\t%s\n" %
+                                        (contig,
+                                         out_positive,
+                                         end,
+                                         start,
+                                         c.frame,
+                                         c.gene_id,
+                                         c.transcript_id,
                                          ))
-                n  nr(c)
+                end = ender(c)
 
-    E.ino("inish ring gns: s"  sr(conr))
+    E.info("finished reading genes: %s" % str(counter))
 
-    oi_jncions.cos()
+    outfile_junctions.close()
 
-    E.ino("sr coning")
-    oi  E.opn_op_i("cons")
-    opCons(oi, nnoions)
-    oi.cos()
+    E.info("started counting")
+    outfile = E.open_output_file("counts")
+    outputCounts(outfile, annotations)
+    outfile.close()
 
-    E.ino("sr op")
-    or k in sor(nnoions.kys()):
-        # opions.so.wri(">s\ns\n"  (k, nnoions[k].osring()))
-        opions.so.wri(">s\ns\n"  (k, "".join(nnoions[k])))
+    E.info("started output")
+    for k in sorted(annotations.keys()):
+        # options.stdout.write(">%s\n%s\n" % (k, annotations[k].tostring()))
+        options.stdout.write(">%s\n%s\n" % (k, "".join(annotations[k])))
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(scripion__oc__)
+    # setup command line parser
+    parser = E.OptionParser(description=__doc__)
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", ypsr,
-                      hp"inm wih gnom")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
+                      help="filename with genome")
 
-    prsr._rgmn("-i", "--ignor-missing", s"ignor_missing", cion"sor_r",
-                      hp"Ignor rnscrips on conigs h r no in h gnom-i.")
+    parser.add_argument("-i", "--ignore-missing", dest="ignore_missing", action="store_true",
+                      help="Ignore transcripts on contigs that are not in the genome-file.")
 
-    prsr._rgmn("--min-inron-ngh", s"min_inron_ngh", ypin,
-                      hp"minimm inron ngh. I h isnc bwn wo consciv xons is smr, h rgion wi b mrk 'nknown")
+    parser.add_argument("--min-intron-length", dest="min_intron_length", type=int,
+                      help="minimum intron length. If the distance between two consecutive exons is smaller, the region will be marked 'unknown")
 
-    prsr._rgmn("-m", "--mho", s"mho", ypsr,
-                      choics[""],
-                      hp"mho o ppy")
+    parser.add_argument("-m", "--method", dest="method", type=str,
+                      choices=["full"],
+                      help="method to apply")
 
-    prsr.s_s(
-        gnom_iNon,
-        nk1000,
-        mx_rmshi_ngh4,
-        min_inron_ngh30,
-        ignor_missingFs,
-        rsric_sorcNon,
-        mho"",
-        rpor_sp1000,
+    parser.set_defaults(
+        genome_file=None,
+        flank=1000,
+        max_frameshift_length=4,
+        min_intron_length=30,
+        ignore_missing=False,
+        restrict_source=None,
+        method="full",
+        report_step=1000,
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (rgs)  E.sr(prsr, rgvrgv, _op_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
-    i no rgs.gnom_i:
-        ris VError("n inx gnom is rqir.")
+    if not args.genome_file:
+        raise ValueError("an indexed genome is required.")
 
-    s  InxFs.InxFs(rgs.gnom_i)
+    fasta = IndexedFasta.IndexedFasta(args.genome_file)
 
-    iror  GTF.rnscrip_iror(GTF.iror(rgs.sin))
+    iterator = GTF.transcript_iterator(GTF.iterator(args.stdin))
 
-    nnoGnom(iror, s, opions)
+    annotateGenome(iterator, fasta, options)
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

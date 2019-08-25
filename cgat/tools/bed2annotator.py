@@ -1,182 +1,182 @@
 '''
-b2nnoor.py - convr b o nnoor orm
+bed2annotator.py - convert bed to annotator format
+==================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip convrs  b i ino nnoor compib rgions. Dpning on h opion --scion
-his scrip wi cr:
+This script converts a bed file into annotator compatible regions. Depending on the option --section
+this script will create:
 
-   sgmns
-       sgmns i
+   segments
+      a segments file
 
-   nnoions
-       i wih nnoions. Ech b rck is  spr nnoion.
+   annotations
+      a file with annotations. Each bed track is a separate annotation.
 
-   workspc
-       i wih  workspc
+   workspace
+      a file with a workspace
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon b2nnoor2sv.py --hp
+   python bed2annotator2tsv.py --help
 
-Typ::
+Type::
 
-   pyhon b2nnoor2sv.py --hp
+   python bed2annotator2tsv.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor r
-impor iroos
-impor cocions
+import sys
+import re
+import itertools
+import collections
 
-impor cgcor.xprimn s E
-impor cg.B s B
-impor cg.InxFs s InxFs
+import cgatcore.experiment as E
+import cgat.Bed as Bed
+import cgat.IndexedFasta as IndexedFasta
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: b2nnoor2sv.py 2885 2010-04-07 08:46:50Z nrs $",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id: bed2annotator2tsv.py 2885 2010-04-07 08:46:50Z andreas $",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom.")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome.")
 
-    prsr._rgmn("-", "--rs", s"rs", yp"sring",
-                      hp"r o coc [Non].")
+    parser.add_argument("-f", "--features", dest="features", type="string",
+                      help="feature to collect [default=None].")
 
-    prsr._rgmn("-i", "--is", s"is", cion"ppn",
-                      hp"s mip nnoions [Non].")
+    parser.add_argument("-i", "--files", dest="files", action="append",
+                      help="use multiple annotations [default=None].")
 
-    prsr._rgmn("-", "--nnoions", s"nnoions", yp"sring",
-                      hp"ggrg nm or nnoions i ony sing i is provi rom STDIN [Non].")
+    parser.add_argument("-a", "--annotations", dest="annotations", type="string",
+                      help="aggregate name for annotations if only single file is provided from STDIN [default=None].")
 
-    prsr._rgmn("--mp-sv-i", s"inp_inm_mp", yp"sring",
-                      hp"inm wih  mp o gn_is o cgoris [Non].")
+    parser.add_argument("--map-tsv-file", dest="input_filename_map", type="string",
+                      help="filename with a map of gene_ids to categories [default=None].")
 
-    prsr._rgmn("-", "--mx-ngh", s"mx_ngh", yp"sring",
-                      hp"mximm sgmn ngh [Non].")
+    parser.add_argument("-l", "--max-length", dest="max_length", type="string",
+                      help="maximum segment length [default=None].")
 
-    prsr._rgmn("-m", "--mrg-ovrpping", s"mrg", cion"sor_r",
-                      hp"mrg ovrpping b sgmns [].")
+    parser.add_argument("-m", "--merge-overlapping", dest="merge", action="store_true",
+                      help="merge overlapping bed segments [default=%default].")
 
-    prsr._rgmn("-s", "--scion", s"scion", yp"choic",
-                      choics("sgmns", "nnoions", "workspc"),
-                      hp"nnoor scion [Non].")
+    parser.add_argument("-s", "--section", dest="section", type="choice",
+                      choices=("segments", "annotations", "workspace"),
+                      help="annotator section [default=None].")
 
-    prsr._rgmn("--sbs", s"sbss", yp"sring", cion"ppn",
-                      hp" inms o imi sbss wihin h g is. Th synx is inm.g,b,inm.is [Non].")
+    parser.add_argument("--subset", dest="subsets", type="string", action="append",
+                      help="add filenames to delimit subsets within the gff files. The syntax is filename.gff,label,filename.ids [default=None].")
 
-    prsr.s_s(
-        gnom_iNon,
-        rNon,
-        rmov_rnomTr,
-        scion"sgmns",
-        nnoions"nnoions",
-        mx_ngh100000,
-        is[],
-        sbss[],
-        inp_inm_mpNon,
-        mrgFs,
+    parser.set_defaults(
+        genome_file=None,
+        feature=None,
+        remove_random=True,
+        section="segments",
+        annotations="annotations",
+        max_length=100000,
+        files=[],
+        subsets=[],
+        input_filename_map=None,
+        merge=False,
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    opions.is + rgs
-    i n(opions.is)  0:
-        opions.is.ppn("-")
-    opions.is  is(
-        iroos.chin(*[r.spi("[,; ]+", x) or x in opions.is]))
+    options.files += args
+    if len(options.files) == 0:
+        options.files.append("-")
+    options.files = list(
+        itertools.chain(*[re.split("[,; ]+", x) for x in options.files]))
 
-    i opions.sbss:
-        sbss  cocions.ic(is)
-        or s in opions.sbss:
-            inm_g, b, inm_is  s.spi(",")
-            sbss[inm_g].ppn((b, inm_is))
-        opions.sbss  sbss
+    if options.subsets:
+        subsets = collections.defaultdict(list)
+        for s in options.subsets:
+            filename_gff, label, filename_ids = s.split(",")
+            subsets[filename_gff].append((label, filename_ids))
+        options.subsets = subsets
 
-    i opions.gnom_i:
-        s  InxFs.InxFs(opions.gnom_i)
-    s:
-        s  Non
+    if options.genome_file:
+        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    else:
+        fasta = None
 
-    i opions.scion  "sgmns":
-        prix  "##Sgs"
-    i opions.scion  "nnoions":
-        prix  "##I"
-    i opions.scion  "workspc":
-        prix  "##Work"
-    s:
-        ris VError("nknown scion s"  opions.scion)
+    if options.section == "segments":
+        prefix = "##Segs"
+    elif options.section == "annotations":
+        prefix = "##Id"
+    elif options.section == "workspace":
+        prefix = "##Work"
+    else:
+        raise ValueError("unknown section %s" % options.section)
 
-    i opions.mx_ngh:
-        mx_ngh  opions.mx_ngh
-    s:
-        mx_ngh  0
+    if options.max_length:
+        max_length = options.max_length
+    else:
+        max_length = 0
 
-    ninp, nrcks, nconigs, nsgmns, niscr  0, 0, 0, 0, 0
+    ninput, ntracks, ncontigs, nsegments, ndiscarded = 0, 0, 0, 0, 0
 
-    i opions.scion in ("nnoions"):
-        conigs  s()
-        i  iroos.gropby(
-            B.iror(opions.sin), kymb x: x.rck["nm"])
+    if options.section in ("annotations"):
+        contigs = set()
+        it = itertools.groupby(
+            Bed.iterator(options.stdin), key=lambda x: x.track["name"])
 
-        mp_rck2sgmns  {}
-        or rck, bs in i:
-            nrcks + 1
-            mp_rck2sgmns[rck]  []
-            irs_sgmn  nsgmns
+        map_track2segments = {}
+        for track, beds in it:
+            ntracks += 1
+            map_track2segments[track] = []
+            first_segment = nsegments
 
-            bs  is(bs)
+            beds = list(beds)
 
-            i opions.mrg:
-                bs  B.mrg(bs)
+            if options.merge:
+                beds = Bed.merge(beds)
 
-            or b in bs:
-                conig, sr, n  b.conig, b.sr, b.n
+            for bed in beds:
+                contig, start, end = bed.contig, bed.start, bed.end
 
-                i opions.rmov_rnom n "rnom" in conig:
-                    conin
+                if options.remove_random and "random" in contig:
+                    continue
 
-                i mx_ngh > 0 n n - sr > mx_ngh:
-                    niscr + 1
-                    conin
+                if max_length > 0 and end - start > max_length:
+                    ndiscarded += 1
+                    continue
 
-                conigs.(conig)
-                mp_rck2sgmns[rck].ppn(nsgmns)
-                opions.so.wri(
-                    "s\i\s\(i,i)\n"  (prix, nsgmns, conig, sr, n))
-                nsgmns + 1
+                contigs.add(contig)
+                map_track2segments[track].append(nsegments)
+                options.stdout.write(
+                    "%s\t%i\t%s\t(%i,%i)\n" % (prefix, nsegments, contig, start, end))
+                nsegments += 1
 
-            opions.so.wri("##Ann\s\s\n"  (
-                rck, "\".join(["i"  x or x in rng(irs_sgmn, nsgmns)])))
-            E.ino("rck s: nno wih i sgmns" 
-                   (rck, nsgmns - irs_sgmn))
+            options.stdout.write("##Ann\t%s\t%s\n" % (
+                track, "\t".join(["%i" % x for x in range(first_segment, nsegments)])))
+            E.info("track %s: annotated with %i segments" %
+                   (track, nsegments - first_segment))
 
-        nconigs  n(conigs)
-        E.ino("ninpi, nrcksi, nconigsi, nsgmnsi, niscri" 
-               (ninp, nrcks, nconigs, nsgmns, niscr))
+        ncontigs = len(contigs)
+        E.info("ninput=%i, ntracks=%i, ncontigs=%i, nsegments=%i, ndiscarded=%i" %
+               (ninput, ntracks, ncontigs, nsegments, ndiscarded))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,359 +1,359 @@
 '''
-csvs2csv.py - join bs
+csvs2csv.py - join tables
+=========================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip rs svr b-spr bs n joins hm.
+This script reads several tab-separated tables and joins them.
 
-.. no:: 
-   working wih mip comns pr b n soring is
-   no impmn corrcy n iky o i.
+.. note:: 
+   working with multiple columns per table and sorting is
+   not implemented correctly and likely to fail.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon combin_bs.py --hp
+   python combine_tables.py --help
 
-Typ::
+Type::
 
-   pyhon combin_bs.py --hp
+   python combine_tables.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor r
-impor os
-impor gob
+import sys
+import re
+import os
+import glob
 
-impor cgcor.xprimn s E
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--no-is", s"is", cion"sor_s",
-        hp"no is in inp.")
+    parser.add_argument(
+        "-t", "--no-titles", dest="titles", action="store_false",
+        help="no titles in input.")
 
-    prsr._rgmn(
-        "-i", "--skip-is", s"skip_is", cion"sor_r",
-        hp"skip op o is.")
+    parser.add_argument(
+        "-i", "--skip-titles", dest="skip_titles", action="store_true",
+        help="skip output of titles.")
 
-    prsr._rgmn(
-        "-m", "--missing-v", s"missing_v", yp"sring",
-        hp"nry o s or missing vs.")
+    parser.add_argument(
+        "-m", "--missing-value", dest="missing_value", type="string",
+        help="entry to use for missing values.")
 
-    prsr._rgmn("--hr-nms", s"hrs", yp"sring",
-                      hp" hrs or is.")
+    parser.add_argument("--header-names", dest="headers", type="string",
+                      help="add headers for files.")
 
-    prsr._rgmn(
-        "-c", "--comns", s"comns", yp"sring",
-        hp"comns o s or joining. Mip comns cn b spcii "
-        "s  comm-spr is [].")
+    parser.add_argument(
+        "-c", "--columns", dest="columns", type="string",
+        help="columns to use for joining. Multiple columns can be specified "
+        "as a comma-separated list [default=%default].")
 
-    prsr._rgmn(
-        "-g", "--gob", s"gob", yp"sring",
-        hp"wicr xprssion or b nms.")
+    parser.add_argument(
+        "-g", "--glob", dest="glob", type="string",
+        help="wildcard expression for table names.")
 
-    prsr._rgmn(
-        "-s", "--sor-orr", s"sor", yp"sring",
-        hp"sor by comn is phbic|nmric|is o comns.")
+    parser.add_argument(
+        "-s", "--sort-order", dest="sort", type="string",
+        help="sort by column titles alphabetical|numeric|list of columns.")
 
-    prsr._rgmn(
-        "-", "--mrg-ovrpping", s"mrg", cion"sor_r",
-        hp"simpy mrg bs wiho mching p rows. "
-        "[].")
+    parser.add_argument(
+        "-e", "--merge-overlapping", dest="merge", action="store_true",
+        help="simply merge tables without matching up rows. "
+        "[default=%default].")
 
-    prsr._rgmn(
-        "--sor-kys", s"sor_kys", yp"choic",
-        choics("nmric", "phbic"),
-        hp"sor ky comns by v.")
+    parser.add_argument(
+        "--sort-keys", dest="sort_keys", type="choice",
+        choices=("numeric", "alphabetic"),
+        help="sort key columns by value.")
 
-    prsr._rgmn(
-        "--kp-mpy", s"ignor_mpy", cion"sor_s",
-        hp"kp mpy bs. Th  is o ignor hm.")
+    parser.add_argument(
+        "--keep-empty", dest="ignore_empty", action="store_false",
+        help="keep empty tables. The default is to ignore them.")
 
-    prsr._rgmn(
-        "---i-prix", s"_i_prix", cion"sor_r",
-        hp" i prix o comns hrs in mi-comn bs "
-        "[]")
+    parser.add_argument(
+        "--add-file-prefix", dest="add_file_prefix", action="store_true",
+        help="add file prefix to columns headers in multi-column tables "
+        "[default=%default]")
 
-    prsr._rgmn(
-        "--rgx-inm", s"rgx_inm", yp"sring",
-        hp"prn o ppy o inm o bi prix "
-        "[]")
+    parser.add_argument(
+        "--regex-filename", dest="regex_filename", type="string",
+        help="pattern to apply to filename to build prefix "
+        "[default=%default]")
 
-    prsr.s_s(
-        isTr,
-        skip_isFs,
-        missing_v"n",
-        hrsNon,
-        sorNon,
-        gobNon,
-        comns"1",
-        sor_kysFs,
-        mrgFs,
-        ignor_mpyTr,
-        _i_prixFs,
-        rgx_inm"(.*)"
+    parser.set_defaults(
+        titles=True,
+        skip_titles=False,
+        missing_value="na",
+        headers=None,
+        sort=None,
+        glob=None,
+        columns="1",
+        sort_keys=False,
+        merge=False,
+        ignore_empty=True,
+        add_file_prefix=False,
+        regex_filename="(.*)"
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i opions.hrs:
-        i "," in opions.hrs:
-            opions.hrs  opions.hrs.spi(",")
-        s:
-            opions.hrs  r.spi("\s+", opions.hrs.srip())
+    if options.headers:
+        if "," in options.headers:
+            options.headers = options.headers.split(",")
+        else:
+            options.headers = re.split("\s+", options.headers.strip())
 
-    i opions.sor n opions.sor no in ("nmric", "phbic"):
-        i "," in opions.sor:
-            opions.sor  opions.sor.spi(",")
-        s:
-            opions.sor  r.spi("\s+", opions.sor)
+    if options.sort and options.sort not in ("numeric", "alphabetic"):
+        if "," in options.sort:
+            options.sort = options.sort.split(",")
+        else:
+            options.sort = re.split("\s+", options.sort)
 
-    i opions.mrg:
-        opions.comns  []
-    s:
-        opions.comns  [in(x) - 1 or x in opions.comns.spi(",")]
+    if options.merge:
+        options.columns = []
+    else:
+        options.columns = [int(x) - 1 for x in options.columns.split(",")]
 
-    opions.inms  []
+    options.filenames = []
 
-    i opions.gob:
-        opions.inms + gob.gob(opions.gob)
+    if options.glob:
+        options.filenames += glob.glob(options.glob)
 
-    opions.inms + rgs
+    options.filenames += args
 
-    i n(opions.inms) < 1:
-        prin(USAGE, "no bs spcii/on.")
-        sys.xi(1)
+    if len(options.filenames) < 1:
+        print(USAGE, "no tables specified/found.")
+        sys.exit(1)
 
-    i opions.ogv > 1:
-        opions.sog.wri("# combining i bs.\n" 
-                             n(opions.inms))
-        sys.so.sh()
-        i n(opions.inms)  1:
-            or in in iooos.opn_i(opions.inms[0]):
-                opions.so.wri(in)
-            E.sop()
-            sys.xi(0)
+    if options.loglevel >= 1:
+        options.stdlog.write("# combining %i tables.\n" %
+                             len(options.filenames))
+        sys.stdout.flush()
+        if len(options.filenames) == 1:
+            for line in iotools.open_file(options.filenames[0]):
+                options.stdout.write(line)
+            E.stop()
+            sys.exit(0)
 
-    i opions.hrs n opions.hrs[0] ! "o" n \
-       n(opions.hrs) ! n(opions.inms):
-        ris "nmbr o provi hrs (i) is no q o nmbr inms (i)." \
-              (n(opions.hrs), n(opions.inms))
+    if options.headers and options.headers[0] != "auto" and \
+       len(options.headers) != len(options.filenames):
+        raise "number of provided headers (%i) is not equal to number filenames (%i)." %\
+              (len(options.headers), len(options.filenames))
 
-    bs  []
-    kys  {}
-    sor_kys  []
-    sizs  {}
-    i opions.mrg:
-        is  ["con"]
-    s:
-        is  []
+    tables = []
+    keys = {}
+    sorted_keys = []
+    sizes = {}
+    if options.merge:
+        titles = ["count"]
+    else:
+        titles = []
 
-    or inm in opions.inms:
+    for filename in options.filenames:
 
-        prix  os.ph.bsnm(inm)
+        prefix = os.path.basename(filename)
 
-        i os.ph.xiss(inm):
-            i  iooos.opn_i(inm, "r")
-            ins  [x or x in i i x[0] ! "#"]
+        if os.path.exists(filename):
+            file = iotools.open_file(filename, "r")
+            lines = [x for x in file if x[0] != "#"]
 
-        s:
-            ins  []
+        else:
+            lines = []
 
-        i n(ins)  0 n opions.ignor_mpy:
-            conin
+        if len(lines) == 0 and options.ignore_empty:
+            continue
 
-        b  {}
-        sizs  {}
-        mx_siz  0
-        ncomns  0
+        table = {}
+        sizes = {}
+        max_size = 0
+        ncolumns = 0
 
-        i opions.is:
-              ins[0][:-1].spi("\")
-            i no is:
-                ky  "-".join([[x] or x in opions.comns])
-                is  [ky]
-            or x in rng(n()):
-                i x in opions.comns:
-                    conin
-                ncomns + 1
-                i opions._i_prix:
-                    p  r.srch(opions.rgx_inm, prix).grops()[0]
-                    is.ppn("s_s"  (p, [x]))
-                s:
-                    is.ppn([x])
+        if options.titles:
+            data = lines[0][:-1].split("\t")
+            if not titles:
+                key = "-".join([data[x] for x in options.columns])
+                titles = [key]
+            for x in range(len(data)):
+                if x in options.columns:
+                    continue
+                ncolumns += 1
+                if options.add_file_prefix:
+                    p = re.search(options.regex_filename, prefix).groups()[0]
+                    titles.append("%s_%s" % (p, data[x]))
+                else:
+                    titles.append(data[x])
 
-             ins[0]
-        s:
-            ncomns  1
+            del lines[0]
+        else:
+            ncolumns = 1
 
-        n  0
-        or in in ins:
-              in[:-1].spi("\")
-            row_kys  [[x] or x in opions.comns]
-            i opions.sor_kys:
-                i opions.sor_kys  "nmric":
-                    row_kys.sor(mb x, y: cmp(o(x), o(y)))
-                s:
-                    row_kys.sor()
-            i opions.mrg:
-                ky  n
-            s:
-                ky  "-".join(row_kys)
+        n = 0
+        for line in lines:
+            data = line[:-1].split("\t")
+            row_keys = [data[x] for x in options.columns]
+            if options.sort_keys:
+                if options.sort_keys == "numeric":
+                    row_keys.sort(lambda x, y: cmp(float(x), float(y)))
+                else:
+                    row_keys.sort()
+            if options.merge:
+                key = n
+            else:
+                key = "-".join(row_keys)
 
-            i ky no in kys:
-                sor_kys.ppn(ky)
-                kys[ky]  1
-                sizs[ky]  0
+            if key not in keys:
+                sorted_keys.append(key)
+                keys[key] = 1
+                sizes[key] = 0
 
-            mx_siz  mx(n() - n(opions.comns), mx_siz)
-            b[ky]  [[x]
-                          or x in [x or x in rng(0, n()) i x no in opions.comns]]
-            n + 1
+            max_size = max(len(data) - len(options.columns), max_size)
+            table[key] = [data[x]
+                          for x in [x for x in range(0, len(data)) if x not in options.columns]]
+            n += 1
 
-        # nr comns o "n" or mpy bs.
-        i mx_siz  0:
-            mx_siz  ncomns
+        # enter columns of "na" for empty tables.
+        if max_size == 0:
+            max_size = ncolumns
 
-        bs.ppn((mx_siz, b))
+        tables.append((max_size, table))
 
-    i n(bs)  n(is) - 1:
+    if len(tables) == len(titles) - 1:
 
-        i opions.hrs:
-            hrs  ["bin"]
-            i opions.hrs[0]  'o':
-                or  in rng(n(bs)):
-                    hrs.ppn(os.ph.bsnm(opions.inms[]))
-                    hrs + [""] * (bs[][0] - 1)
+        if options.headers:
+            headers = ["bin"]
+            if options.headers[0] == 'auto':
+                for t in range(len(tables)):
+                    headers.append(os.path.basename(options.filenames[t]))
+                    headers += [""] * (tables[t][0] - 1)
 
-            s:
-                or  in rng(n(bs)):
-                    hrs.ppn(opions.hrs[])
-                    hrs + [""] * (bs[][0] - 1)
+            else:
+                for t in range(len(tables)):
+                    headers.append(options.headers[t])
+                    headers += [""] * (tables[t][0] - 1)
 
-            # s hrs s is, i hrs is givn n skip-is is
-            # rn on
-            i opions.is n opions.skip_is:
-                is  hrs
-            s:
-                # ohrwis: prin h hrs o righ wy
-                sys.so.wri("\".join(hrs) + "\n")
+            # use headers as titles, if headers is given and skip-titles is
+            # turned on
+            if options.titles and options.skip_titles:
+                titles = headers
+            else:
+                # otherwise: print the headers out right away
+                sys.stdout.write("\t".join(headers) + "\n")
 
-        orr  is(rng(0, n(bs) + 1))
+        order = list(range(0, len(tables) + 1))
 
-        i opions.is:
+        if options.titles:
 
-            i opions.sor:
-                sor_orr  []
+            if options.sort:
+                sort_order = []
 
-                i opions.sor  "nmric":
-                      is(zip(is(mp(in, is[1:])), is(rng(1, n(is) + 1))))
-                    .sor()
+                if options.sort == "numeric":
+                    t = list(zip(list(map(int, titles[1:])), list(range(1, len(titles) + 1))))
+                    t.sort()
 
-                    or  in :
-                        sor_orr.ppn(is[[1]])
+                    for tt in t:
+                        sort_order.append(titles[tt[1]])
 
-                i opions.sor  "phbic":
-                      is(zip(is[1:], is(rng(1, n(is) + 1))))
-                    .sor()
+                elif options.sort == "alphabetical":
+                    t = list(zip(titles[1:], list(range(1, len(titles) + 1))))
+                    t.sort()
 
-                    or  in :
-                        sor_orr.ppn(is[[1]])
-                s:
-                    sor_orr  opions.sor
+                    for tt in t:
+                        sort_order.append(titles[tt[1]])
+                else:
+                    sort_order = options.sort
 
-                mp_i2pos  {}
-                or x in rng(1, n(is)):
-                    mp_i2pos[is[x]]  x
+                map_title2pos = {}
+                for x in range(1, len(titles)):
+                    map_title2pos[titles[x]] = x
 
-                orr  [0, ]
-                or x in sor_orr:
-                    i x in mp_i2pos:
-                        orr.ppn(mp_i2pos[x])
+                order = [0, ]
+                for x in sort_order:
+                    if x in map_title2pos:
+                        order.append(map_title2pos[x])
 
-            s:
-                orr  is(rng(0, n(is)))
+            else:
+                order = list(range(0, len(titles)))
 
-            sys.so.wri(
-                "\".join([is[orr[x]] or x in rng(n(is))]))
-            sys.so.wri("\n")
+            sys.stdout.write(
+                "\t".join([titles[order[x]] for x in range(len(titles))]))
+            sys.stdout.write("\n")
 
-        i opions.sor_kys:
-            i opions.sor_kys:
-                i opions.sor_kys  "nmric":
-                    sor_kys.sor(mb x, y: cmp(o(x), o(y)))
-                s:
-                    sor_kys.sor()
+        if options.sort_keys:
+            if options.sort_keys:
+                if options.sort_keys == "numeric":
+                    sorted_keys.sort(lambda x, y: cmp(float(x), float(y)))
+                else:
+                    sorted_keys.sort()
 
-        or ky in sor_kys:
+        for key in sorted_keys:
 
-            sys.so.wri("s"  ky)
+            sys.stdout.write("%s" % key)
 
-            or x in orr[1:]:
-                mx_siz, b  bs[x - 1]
-                c  0
-                i ky in b:
-                    sys.so.wri("\")
-                    sys.so.wri("\".join(b[ky]))
-                    c  n(b[ky])
+            for x in order[1:]:
+                max_size, table = tables[x - 1]
+                c = 0
+                if key in table:
+                    sys.stdout.write("\t")
+                    sys.stdout.write("\t".join(table[key]))
+                    c = len(table[key])
 
-                ssr(mx_siz  1)
+                assert(max_size == 1)
 
-                sys.so.wri(
-                    "\s"  opions.missing_v * (mx_siz - c))
+                sys.stdout.write(
+                    "\t%s" % options.missing_value * (max_size - c))
 
-            sys.so.wri("\n")
+            sys.stdout.write("\n")
 
-    s:
+    else:
 
-        # or mi-comn b, js wri
-        i opions.is:
-            sys.so.wri(
-                "\".join([is[x] or x in rng(n(is))]))
-            sys.so.wri("\n")
+        # for multi-column table, just write
+        if options.titles:
+            sys.stdout.write(
+                "\t".join([titles[x] for x in range(len(titles))]))
+            sys.stdout.write("\n")
 
-        or ky in sor_kys:
+        for key in sorted_keys:
 
-            sys.so.wri("s"  ky)
+            sys.stdout.write("%s" % key)
 
-            or x in rng(n(bs)):
+            for x in range(len(tables)):
 
-                mx_siz, b  bs[x]
-                c  0
-                i ky in b:
-                    sys.so.wri("\")
-                    sys.so.wri("\".join(b[ky]))
-                    c  n(b[ky])
+                max_size, table = tables[x]
+                c = 0
+                if key in table:
+                    sys.stdout.write("\t")
+                    sys.stdout.write("\t".join(table[key]))
+                    c = len(table[key])
 
-                sys.so.wri(
-                    "\s"  opions.missing_v * (mx_siz - c))
+                sys.stdout.write(
+                    "\t%s" % options.missing_value * (max_size - c))
 
-            sys.so.wri("\n")
+            sys.stdout.write("\n")
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

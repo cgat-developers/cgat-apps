@@ -1,78 +1,78 @@
 '''
-scrip_mp.py
+script_template.py
+=============================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-Convr h op o  mphn nysis o  prrr b orm
+Convert the output of a metaphlan analysis to a preferred table format
 
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon mphn2b.py --hp
+   python metaphlan2table.py --help
 
-Typ::
+Type::
 
-   pyhon mphn2b.py --hp
+   python metaphlan2table.py --help
 
-or commn in hp.
+for command line help.
 
-Docmnion
+Documentation
 -------------
 
-Co
+Code
 ----
 
 '''
 
-impor sys
-impor opprs
-impor cg.Mphn s Mphn
-impor cgcor.xprimn s E
+import sys
+import optparse
+import cgat.Metaphlan as Metaphlan
+import cgatcore.experiment as E
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  opprs.OpionPrsr(
-        vrsion"prog vrsion: $I: scrip_mp.py 2871 2010-03-03 10:20:44Z nrs $",
-        sggobs()["__oc__"])
+    # setup command line parser
+    parser = optparse.OptionParser(
+        version="%prog version: $Id: script_template.py 2871 2010-03-03 10:20:44Z andreas $",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn("-", "--sqnc-yp", s"yp", yp"choic",
-                      choics("r_mp", "r_b"), hp"yp o i o b prs o  b")
+    parser.add_argument("-t", "--sequence-type", dest="type", type="choice",
+                      choices=("read_map", "rel_ab"), help="type of file to be parsed to a table")
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    ssr opions.yp, "ms spciy ini yp"
-    i opions.yp  "r_mp":
-        opions.so.wri(
-            "sq_i\kingom\phym\css\orr\miy\gns\spcis\n")
-        or nry in Mphn.r_mp_iror(sys.sin):
-            opions.so.wri("\".join(
-                [nry.sq_i, nry.kingom, nry.phym, nry.c_ss, nry.orr, nry.miy, nry.gns, nry.spcis]) + "\n")
+    assert options.type, "must specify infile type"
+    if options.type == "read_map":
+        options.stdout.write(
+            "seq_id\tkingdom\tphylum\tclass\torder\tfamily\tgenus\tspecies\n")
+        for entry in Metaphlan.read_map_iterator(sys.stdin):
+            options.stdout.write("\t".join(
+                [entry.seq_id, entry.kingdom, entry.phylum, entry.c_lass, entry.order, entry.family, entry.genus, entry.species]) + "\n")
 
-    i opions.yp  "r_b":
-        opions.so.wri("xon_v\xon\r_bnnc\n")
-        or nry in Mphn.riv_bnnc_iror(sys.sin):
-            opions.so.wri(
-                "\".join([nry.xon_v, nry.xon, nry.bnnc]) + "\n")
+    elif options.type == "rel_ab":
+        options.stdout.write("taxon_level\ttaxon\trel_abundance\n")
+        for entry in Metaphlan.relative_abundance_iterator(sys.stdin):
+            options.stdout.write(
+                "\t".join([entry.taxon_level, entry.taxon, entry.abundance]) + "\n")
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

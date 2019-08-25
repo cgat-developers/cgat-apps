@@ -1,367 +1,367 @@
-'''g32g.py - vrios mhos or convring g3 is o g
+'''gff32gtf.py - various methods for converting gff3 files to gtf
+====================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-Provi  rng o mhos or convring GFF3 orm is o vi GTF 
-orm is.
+Provide a range of methods for converting GFF3 formated files to valid GTF 
+format files.
 
-Bckgron
+Background
 ----------
 
-Whi h vrios vors o GFF orm r spposy bckwr
-compib, his is brokn by GTF2.2 n GFF3. GTF rqirs h
-prsnc o gn_i n rnscrip_i is or ch rcor. This no
-so or GFF3. Frhr ky,v gs in h ribs is o GTF
-r " " imi, b r "" imi in GFF.
+While the various flavours of GFF format are supposedly backward
+compatible, this is broken by GTF2.2 and GFF3. GTF requires the
+presence of gene_id and transcript_id fields for each record. This not
+so for GFF3. Further key,value tags in the attributes fields of GTF
+are " " delimited, but are "=" delimited in GFF.
 
-Convrsion is non-rivi. GFF3 rcors r hirchic. To in h
-gn_i n rnscrip_i on ms rvrs h hirrchy o h
-corrc poin. Fhr rcors cn hv mip prns.
+Conversion is non-trivial. GFF3 records are hierachical. To find the
+gene_id and transcript_id one must traverse the hierarchy to the
+correct point. Futher records can have multiple parents.
 
                                                -> Exon
-Whi h snr srcr is Gn -> mRNA -|       ,
+While the standard structure is Gene -> mRNA -|       ,
                                                -> CDS
 
-his is no mniory, n i is possib h convrsion wi wn o
-b on in  irn wy.
+this is not manditory, and it is possible the conversion will want to
+be done in a different way.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon g32g.py --mho[METHOD] [opions]
+   python gff32gtf.py --method=[METHOD] [options]
 
-Thir r svr wys in which h convrsion cn b on:
+Their are several ways in which the conversion can be done:
 
-hirchic
+hierachical
 +++++++++++
 
-By  his scrip wi r in h nir GFF3 i, n hn or
-ch nry rvrs h hirrchy ni n objc o yp GENE_TYPE
-("gn" by ") or n objc wih no prn is on. This
-bcoms h "gn_i". Any objc o TRANSCRIPT_TYPE nconr on
-h wy is s s h rnscrip_i. I no sch objc is nconr
-hn h objc ircy bow h gn objc is s s h
-rncrip_i. Objcs h bong o mip rnscrips or gns r
-pic.
+By default this script will read in the entire GFF3 file, and then for
+each entry traverse the hierarchy until an object of type GENE_TYPE
+("gene" by default") or an object with no parent is found. This
+becomes the "gene_id". Any object of TRANSCRIPT_TYPE encountered on
+the way is set as the transcript_id. If not such object is encountered
+then the object directly below the gene object is used as the
+trancript_id. Objects that belong to multipe transcripts or genes are
+duplicated.
 
-This mho rqirs ID n Prn is o b prsn.
+This method requires ID and Parent fields to be present.
 
-Bcs his mho rs h who i in, i ss h mos mmory, hogh
-s --r-wic n --by-chrom or ricks h migh hp.
+Because this method reads the whole file in, it uses the most memory, although
+see --read-twice and --by-chrom for tricks that might help.
 
-s-i
+set-field
 +++++++++
 
-Th gn_i n rnscrip_i is r s o h  v o  provi i.
-Rcors h on' hv hs is r iscr. By :
+The gene_id and transcript_id fields are set to the  value of a provided field.
+Records that don't have these fields are discarded. By default:
 
-rnscrip_iID
-gn_iPrn
+transcript_id=ID
+gene_id=Parent
 
-s-prn
+set-pattern
 +++++++++++
 
-As bov, b h inms r s by  sring orm invoving h
-is o h rcor.
+As above, but the fieldnames are set by a string format involving the
+fields of the record.
 
-s-non
+set-none
 ++++++++
 
-rnscrip_i n gn_i r s o Non.
+transcript_id and gene_id are set to None.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
+import sys
 
-impor cgcor.xprimn s E
-impor cg.GFF3 s GFF3
-impor cg.GTF s GTF
-impor cgcor.iooos s iooos
+import cgatcore.experiment as E
+import cgat.GFF3 as GFF3
+import cgat.GTF as GTF
+import cgatcore.iotools as iotools
 
 
- srch_hirrchy(ID, hirrchy, opions):
-    '''Rrns  hr mn p o iss.
+def search_hierarchy(ID, hierarchy, options):
+    '''Returns a three element tuple of lists.
 
-        * Th irs wo iss r h gn_is n rnscrip_is h
-        * r ssoci wih spcii IDs.  Th hir is  is o
-        * possib rnscrip_is - h is rncrip_is h r on
-        * v bow whr h gn i cm rom.
+        * The first two lists are the gene_ids and transcript_ids that
+        * are associated with specified IDs.  The third is a list of
+        * possible transcript_ids - that is trancript_ids that are one
+        * level below where the gene id came from.
 
-        A hr iss r grn o b h sm ngh, b boh
-        h rnscrip iss co conin Non vs whr no
-        rnscrip_i hs bn on.
+        All three lists are guarenteed to be the same length, but both
+        the transcript lists could contain None values where no
+        transcript_id has been found.
 
-        Works by cing i s rcrsivy, no icin, b os
-         wih h probm o cicr rrncs: h rcrsion
-        imi wi b qicky rch.
+        Works by calling it self recursively, not efficient, but does
+        deal with the problem of cicular references: the recursion
+        limit will be quickly reached.
 
-        Cn so ris VError i no r o yp
-        opions.gn_yp is on n opions.missing_gn is s
+        Can also raise ValueError if no feature of type
+        options.gene_type is found and options.missing_gene is false
 
     '''
 
-    gn_i  []
-    rnscrip_i  []
-    possib_rnscrip_i  []
+    gene_id = []
+    transcript_id = []
+    possible_transcript_id = []
 
-    nry  hirrchy[ID]
+    entry = hierarchy[ID]
 
-    i nry['yp']  opions.gn_yp:
-        gn_i.ppn(hirrchy[ID]['gn_i'])
+    if entry['type'] == options.gene_type:
+        gene_id.append(hierarchy[ID]['gene_id'])
 
-        i no nry['yp']  opions.rnscrip_yp:
-            rnscrip_i  [Non]
-            possib_rnscrip_i  [Non]
-        s:
-            rnscrip_i  [nry['rnscrip_i']]
-            possib_rnscrip_i  [Non]
+        if not entry['type'] == options.transcript_type:
+            transcript_id = [None]
+            possible_transcript_id = [None]
+        else:
+            transcript_id = [entry['transcript_id']]
+            possible_transcript_id = [None]
 
-        rrn (gn_i, rnscrip_i, possib_rnscrip_i)
+        return (gene_id, transcript_id, possible_transcript_id)
 
-    or prn in nry['Prn']:
+    for parent in entry['Parent']:
 
-        nw_gn_i, nw_rnscrip_i, nw_possib_rnscrip_i  srch_hirrchy(
-            prn, hirrchy, opions)
+        new_gene_id, new_transcript_id, new_possible_transcript_id = search_hierarchy(
+            parent, hierarchy, options)
 
-        gn_i.xn(nw_gn_i)
-        rnscrip_i.xn(nw_rnscrip_i)
-        possib_rnscrip_i.xn(nw_possib_rnscrip_i)
+        gene_id.extend(new_gene_id)
+        transcript_id.extend(new_transcript_id)
+        possible_transcript_id.extend(new_possible_transcript_id)
 
-    i opions.missing_gn:
-        possib_rnscrip_i  [
-            nry['rnscrip_i'] i x is Non s x or x in possib_rnscrip_i]
+    if options.missing_gene:
+        possible_transcript_id = [
+            entry['transcript_id'] if x is None else x for x in possible_transcript_id]
 
-    i n(gn_i)  0 n opions.missing_gn:
-        gn_i  [nry['gn_i']]
-        rnscrip_i  [Non]
-        possib_rnscrip_i  [Non]
-    i n(gn_i)  0 n no opions.missing_gn:
-        ris VError(
-            "Roo on wiho ining n objc o yp s"  opions.gn_yp)
+    if len(gene_id) == 0 and options.missing_gene:
+        gene_id = [entry['gene_id']]
+        transcript_id = [None]
+        possible_transcript_id = [None]
+    elif len(gene_id) == 0 and not options.missing_gene:
+        raise ValueError(
+            "Root found without finding an object of type %s" % options.gene_type)
 
-    i nry['yp']  opions.rnscrip_yp:
-        rnscrip_i  [
-            nry['rnscrip_i'] i x is Non s x or x in rnscrip_i]
+    if entry['type'] == options.transcript_type:
+        transcript_id = [
+            entry['transcript_id'] if x is None else x for x in transcript_id]
 
-    ssr n(gn_i)  n(rnscrip_i) n n(
-        rnscrip_i)  n(possib_rnscrip_i)
-    ssr n(gn_i) > 0
+    assert len(gene_id) == len(transcript_id) and len(
+        transcript_id) == len(possible_transcript_id)
+    assert len(gene_id) > 0
 
-    rrn gn_i, rnscrip_i, possib_rnscrip_i
-
-
- convr_hirrchy(irs_gs, scon_gs, opions):
-    ''' Convrs GFF o GTF by prsing h hirrchy.
-    Firs prss :prm:irs_gs o bi h hirrchy hn irs ovr scon_gs
-    sing  c o h rcrsiv ncion srch_hirrchy o iniy gn_is n rnscrip_is.
-
-    I mip gn n rnscrip_is r on ops  rcor or ch combinion.
-
-    I no iniiv rnscrip_i is on n opions.missing_gn is Tr, i wi s h 
-    possib_rnscrip_i s rnscrip_i, which is h ID on v bow h nry s s gn_i.
-    I his is so Non (h is hr ws ony on v), ss rnscrip_i o gn_i.
-
-    Migh ris VError i opions.missing_gn is s n ihr no gn or no rnscrip_i
-    ws on or n nry.
-
-    Migh ris RnimError i h rcrsion imi ws rch bcs h inp conins circr
-    rrncs. '''
-
-    hirrchy  {}
-
-    or g in irs_gs:
-
-        i no(opions.prn  "Prn"):
-            i opions.prn in g.sDic():
-                g['Prn']  g[opions.prn].spi(",")
-            s:
-                g['Prn']  []
-
-        hirrchy[g['ID']]  {
-            "yp": g.r,
-            "Prn": g.sDic().g("Prn", []),
-            "gn_i": g.ribs.g(
-                opions.gn_i_or_prn, g['ID']),
-            "rnscrip_i": g.ribs.g(
-                opions.rnscrip_i_or_prn, g['ID'])}
-
-    or g in scon_gs:
-
-        i opions.iscr n (
-                (opions.missing_gn n opions.prn no in g) or (
-                g.r in (opions.gn_yp, opions.rnscrip_yp))):
-
-            conin
-
-        gn_is, rnscrip_is, poss_rnscrip_is  srch_hirrchy(
-            g['ID'], hirrchy, opions)
-
-        ssr n(gn_is) > 0 n n(rnscrip_is) > 0
-
-        i opions.missing_gn:
-
-            rnscrip_is  [poss i on is Non s on
-                              or on, poss in
-                              zip(rnscrip_is, poss_rnscrip_is)]
-
-            rnscrip_is  [gi i on is Non s on
-                              or on, gi in
-                              zip(rnscrip_is, gn_is)]
-
-        i Non in rnscrip_is:
-            ris VError("i o in rnscrip i or s"  g['ID'])
-
-        or gn_i, rnscrip_i in zip(gn_is, rnscrip_is):
-
-            g.gn_i  gn_i
-            g.rnscrip_i  rnscrip_i
-
-            g_nry  GTF.Enry()
-            g_nry.copy(g)
-            i "Prn" in g_nry:
-                g_nry['Prn']  ",".join(g_nry['Prn'])
-
-            opions.so.wri(sr(g_nry) + "\n")
+    return gene_id, transcript_id, possible_transcript_id
 
 
- convr_s(gs, gn_prn, rnscrip_prn, opions):
-    ''' crs h gn_i n rnscrip_i is rom  sring orm prn sing
-    is o h g. '''
+def convert_hierarchy(first_gffs, second_gffs, options):
+    ''' Converts GFF to GTF by parsing the hierarchy.
+    First parses :param:first_gffs to build the hierarchy then iterates over second_gffs
+    using a call to the recursive function search_hierarchy to identify gene_ids and transcript_ids.
 
-    or g in gs:
+    If multiple gene and transcript_ids are found outputs a record for each combination.
 
-        g.gn_i  sr(gn_prn)  g.sDic()
-        g.rnscrip_i  sr(gn_prn)  g.sDic()
+    If no definitive transcript_id is found and options.missing_gene is True, it will use the 
+    possible_transcript_id as transcript_id, which is the ID one level below the entry used as gene_id.
+    If this is also None (that is there was only on level), sets transcript_id to gene_id.
 
-        g_nry  GTF.Enry()
+    Might raise ValueError if options.missing_gene is false and either no gene or no transcript_id
+    was found for an entry.
 
-        g_nry.copy(g)
-        i "Prn" in g_nry:
-            g_nry['Prn']  ",".join(g_nry['Prn'])
+    Might raise RuntimeError if the recursion limit was reached because the input contains circular
+    references. '''
 
-        opions.so.wri(sr(g_nry) + "\n")
+    hierarchy = {}
+
+    for gff in first_gffs:
+
+        if not(options.parent == "Parent"):
+            if options.parent in gff.asDict():
+                gff['Parent'] = gff[options.parent].split(",")
+            else:
+                gff['Parent'] = []
+
+        hierarchy[gff['ID']] = {
+            "type": gff.feature,
+            "Parent": gff.asDict().get("Parent", []),
+            "gene_id": gff.attributes.get(
+                options.gene_field_or_pattern, gff['ID']),
+            "transcript_id": gff.attributes.get(
+                options.transcript_field_or_pattern, gff['ID'])}
+
+    for gff in second_gffs:
+
+        if options.discard and (
+                (options.missing_gene and options.parent not in gff) or (
+                gff.feature in (options.gene_type, options.transcript_type))):
+
+            continue
+
+        gene_ids, transcript_ids, poss_transcript_ids = search_hierarchy(
+            gff['ID'], hierarchy, options)
+
+        assert len(gene_ids) > 0 and len(transcript_ids) > 0
+
+        if options.missing_gene:
+
+            transcript_ids = [poss if found is None else found
+                              for found, poss in
+                              zip(transcript_ids, poss_transcript_ids)]
+
+            transcript_ids = [gid if found is None else found
+                              for found, gid in
+                              zip(transcript_ids, gene_ids)]
+
+        elif None in transcript_ids:
+            raise ValueError("failed to find transcript id for %s" % gff['ID'])
+
+        for gene_id, transcript_id in zip(gene_ids, transcript_ids):
+
+            gff.gene_id = gene_id
+            gff.transcript_id = transcript_id
+
+            gtf_entry = GTF.Entry()
+            gtf_entry.copy(gff)
+            if "Parent" in gtf_entry:
+                gtf_entry['Parent'] = ",".join(gtf_entry['Parent'])
+
+            options.stdout.write(str(gtf_entry) + "\n")
 
 
- min(rgvNon):
-    """scrip min.
+def convert_set(gffs, gene_pattern, transcript_pattern, options):
+    ''' creates the gene_id and transcript_id fields from a string format pattern using
+    fields of the gff. '''
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    for gff in gffs:
+
+        gff.gene_id = str(gene_pattern) % gff.asDict()
+        gff.transcript_id = str(gene_pattern) % gff.asDict()
+
+        gtf_entry = GTF.Entry()
+
+        gtf_entry.copy(gff)
+        if "Parent" in gtf_entry:
+            gtf_entry['Parent'] = ",".join(gtf_entry['Parent'])
+
+        options.stdout.write(str(gtf_entry) + "\n")
+
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-m", "--mho", s"mho", yp"choic", cion"sor",
-                      choics(
-                          "hirrchy", "s-i", "s-prn", "s-non"),
-                      hp"Mho o s or convrsion")
+    parser.add_argument("-m", "--method", dest="method", type="choice", action="store",
+                      choices=(
+                          "hierarchy", "set-field", "set-pattern", "set-none"),
+                      help="Method to use for conversion")
 
-    prsr._rgmn("-g", "--gn-yp", s"gn_yp", yp"sring",
-                      hp"r yp o g gn_i rom i possib []")
+    parser.add_argument("-g", "--gene-type", dest="gene_type", type="string",
+                      help="feature type to get gene_id from if possible [%default]")
 
-    prsr._rgmn("-", "--rnscrip-yp", s"rnscrip_yp", yp"sring",
-                      hp"r yp o g rnscrip_i rom i possib []")
+    parser.add_argument("-t", "--transcript-type", dest="transcript_type", type="string",
+                      help="feature type to get transcript_id from if possible [%default]")
 
-    prsr._rgmn("-", "--no-iscr", s"iscr", cion"sor_s",
-                      hp"Do no iscr r yps spcii by GENE_TYPE n TRANSCRIPT_TYPE")
+    parser.add_argument("-d", "--no-discard", dest="discard", action="store_false",
+                      help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
 
-    prsr._rgmn("--gn-i", s"gn_i_or_prn", yp"sring",
-                      hp"Eihr i or prn or h gn_i []")
+    parser.add_argument("--gene-id", dest="gene_field_or_pattern", type="string",
+                      help="Either field or pattern for the gene_id [%default]")
 
-    prsr._rgmn("--rnscrip-i", s"rnscrip_i_or_prn", yp"sring",
-                      hp"Eihr i or prn or h rnscrip_i []")
+    parser.add_argument("--transcript-id", dest="transcript_field_or_pattern", type="string",
+                      help="Either field or pattern for the transcript_id [%default]")
 
-    prsr._rgmn("--prn-i", s"prn", yp"sring",
-                      hp"i h spciis h prn rionship. Crrny ony"
-                      "i  s Prn wi rs wih mip prns b prs"
-                      "corrcy""")
+    parser.add_argument("--parent-field", dest="parent", type="string",
+                      help="field that specifies the parent relationship. Currently only"
+                      "if left as Parent will features with multiple parents be parsed"
+                      "correctly""")
 
-    prsr._rgmn("--r-wic", s"r_wic", cion"sor_r",
-                      hp"Ins o hoing h who i in mmory, r onc or prsing h "
-                      "hirrchy, n hn gin or cy oing h convrsion. Mns  r i "
-                      "n no  pip ms b provi.""")
+    parser.add_argument("--read-twice", dest="read_twice", action="store_true",
+                      help="Instead of holding the whole file in memory, read once for parsing the "
+                      "hierarchy, and then again for actaully doing the conversion. Means a real file "
+                      "and not a pipe must be provided.""")
 
-    prsr._rgmn("--by-chrom", s"by_chrom", cion"sor_r",
-                      hp"Prs inp i on choromosom   im. Rcs mmory sg, "
-                      "b inp ms b sor by chromosom n rs my no spi ccross "
-                      " mip chromosoms""")
+    parser.add_argument("--by-chrom", dest="by_chrom", action="store_true",
+                      help="Parse input file one choromosome at a time. Reduces memory usage, "
+                      "but input must be sorted by chromosome and features may not split accross "
+                      " multiple chromosomes""")
 
-    prsr._rgmn("--i-missing-gn", s"missing_gn", cion"sor_s",
-                      hp"Fi i no r o yp GENE_TYPE is on ins o sing "
-                      "ing o highs objc in hirrchy""")
+    parser.add_argument("--fail-missing-gene", dest="missing_gene", action="store_false",
+                      help="Fail if no feature of type GENE_TYPE is found instead of using "
+                      "defaulting to highest object in hierarchy""")
 
-    prsr.s_s(
-        mho"hirrchy",
-        gn_yp"gn",
-        rnscrip_yp"mRNA",
-        iscrTr,
-        gn_i_or_prn"ID",
-        rnscrip_i_or_prn"ID",
-        r_wicFs,
-        by_chromFs,
-        missing_gnTr,
-        prn"Prn"
+    parser.set_defaults(
+        method="hierarchy",
+        gene_type="gene",
+        transcript_type="mRNA",
+        discard=True,
+        gene_field_or_pattern="ID",
+        transcript_field_or_pattern="ID",
+        read_twice=False,
+        by_chrom=False,
+        missing_gene=True,
+        parent="Parent"
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    gs  GFF3._i_iror(opions.sin)
+    gffs = GFF3.flat_file_iterator(options.stdin)
 
-    i opions.by_chrom:
-        gs  GFF3.chrom_iror(gs)
-    s:
-        gs  [gs]
+    if options.by_chrom:
+        gffs = GFF3.chrom_iterator(gffs)
+    else:
+        gffs = [gffs]
 
-    # rnning ry so h is ry i conigrion is wrong
-    i opions.r_wic:
-        # Wi hrow IOError i opions.sin is no  norm i
-        scon_g  GFF3._i_iror(
-            iooos.opn_i(opions.sin.nm))
+    # running early so that fails early if configuration is wrong
+    if options.read_twice:
+        # Will throw IOError if options.stdin is not a normal file
+        second_gff = GFF3.flat_file_iterator(
+            iotools.open_file(options.stdin.name))
 
-        i opions.by_chrom:
-            scon_g  GFF3.chrom_iror(scon_g)
-        s:
-            scon_g  ir([scon_g])
-    s:
-        scon_g  Non
+        if options.by_chrom:
+            second_gff = GFF3.chrom_iterator(second_gff)
+        else:
+            second_gff = iter([second_gff])
+    else:
+        second_gff = None
 
-    or chnk in gs:
+    for chunk in gffs:
 
-        i opions.r_wic:
-            scon_g_chnk  nx(scon_g)
-        s:
-            chnk  is(chnk)
-            scon_g_chnk  chnk
+        if options.read_twice:
+            second_gff_chunk = next(second_gff)
+        else:
+            chunk = list(chunk)
+            second_gff_chunk = chunk
 
-        i opions.mho  "hirrchy":
+        if options.method == "hierarchy":
 
-            convr_hirrchy(chnk, scon_g_chnk, opions)
-        i opions.mho  "s-i":
-            gn_i_prn  "(s)s"  opions.gn_i_or_prn
-            rnscrip_i_prn  "(s)s"  opions.rnscrip_i_or_prn
-            convr_s(chnk, gn_i_prn, rnscrip_i_prn, opions)
-        i opions.mho  "s-prn":
-            convr_s(chnk, opions.gn_i_or_prn,
-                        opions.rnscrip_i_or_prn, opions)
-        i opions.mho  "s-non":
-            convr_s(chnk, Non, Non, opions)
+            convert_hierarchy(chunk, second_gff_chunk, options)
+        elif options.method == "set-field":
+            gene_id_pattern = "%%(%s)s" % options.gene_field_or_pattern
+            transcript_id_pattern = "%%(%s)s" % options.transcript_field_or_pattern
+            convert_set(chunk, gene_id_pattern, transcript_id_pattern, options)
+        elif options.method == "set-pattern":
+            convert_set(chunk, options.gene_field_or_pattern,
+                        options.transcript_field_or_pattern, options)
+        elif options.method == "set-none":
+            convert_set(chunk, None, None, options)
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

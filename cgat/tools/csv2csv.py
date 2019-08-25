@@ -1,75 +1,75 @@
 '''
-csv2csv.py - opr on bs
+csv2csv.py - operate on tables
+==============================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-opr on bs.
+operate on tables.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon csv2csv.py --hp
+   python csv2csv.py --help
 
-Typ::
+Type::
 
-   pyhon csv2csv.py --hp
+   python csv2csv.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor csv
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import sys
+import csv
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$")
+    parser = E.OptionParser(
+        version="%prog version: $Id$")
 
-    prsr._rgmn(
-        "-s", "--mhosor --sor-orr", s"sor", yp"sring",
-        hp"is o k (in sor orr).")
+    parser.add_argument(
+        "-s", "--method=sort --sort-order", dest="sort", type="string",
+        help="fields to take (in sorted order).")
 
-    (opions, rgs)  E.sr(prsr, _csv_opionsTr)
+    (options, args) = E.start(parser, add_csv_options=True)
 
-    rr  csv.DicRr(E.sin, icopions.csv_ic)
+    reader = csv.DictReader(E.stdin, dialect=options.csv_dialect)
 
-    i opions.sor:
-        is  opions.sor.spi(",")
-    s:
-        is  Non
+    if options.sort:
+        fields = options.sort.split(",")
+    else:
+        fields = None
 
-    wrir  csv.DicWrir(E.so,
-                            is,
-                            icopions.csv_ic,
-                            inrminoropions.csv_inrminor,
-                            xrscion'ignor')
+    writer = csv.DictWriter(E.stdout,
+                            fields,
+                            dialect=options.csv_dialect,
+                            lineterminator=options.csv_lineterminator,
+                            extrasaction='ignore')
 
-    E.so.wri("\".join(is) + "\n")
+    E.stdout.write("\t".join(fields) + "\n")
 
-    or row in rr:
-        row  iooos.convrDicionry(row)
-        wrir.wrirow(row)
+    for row in reader:
+        row = iotools.convertDictionary(row)
+        writer.writerow(row)
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

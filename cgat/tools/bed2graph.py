@@ -1,92 +1,92 @@
 """
-b2grph.py - comp h ovrp grph bwn wo b is
+bed2graph.py - compute the overlap graph between two bed files
+==============================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip ops  is o h nms o  ovrpping inrvs 
-bwn wo b is.
+This script ouputs a list of the names of all overlapping intervals 
+between two bed files.
 
-Usg
+Usage
 -----
 
-Typ::
+Type::
 
-   pyhon b2grph.py A.b.gz B.b.gz > grph.o
+   python bed2graph.py A.bed.gz B.bed.gz > graph.out
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 """
 
-impor sys
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor cg.B s B
+import sys
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import cgat.Bed as Bed
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: b2grph.py 2861 2010-02-23 17:36:32Z nrs $", sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(
+        version="%prog version: $Id: bed2graph.py 2861 2010-02-23 17:36:32Z andreas $", usage=globals()["__doc__"])
 
-    prsr._rgmn("-o", "--op-scion", s"op", yp"choic",
-                      choics("", "nm"),
-                      hp"op ihr ```` ovrpping nris, ony h ``nm``s. [].")
+    parser.add_argument("-o", "--output-section", dest="output", type="choice",
+                      choices=("full", "name"),
+                      help="output either ``full`` overlapping entries, only the ``name``s. [default=%default].")
 
-    prsr.s_s(
-        op"",
+    parser.set_defaults(
+        output="full",
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i n(rgs) ! 2:
-        ris VError("wo rgmns rqir")
+    if len(args) != 2:
+        raise ValueError("two arguments required")
 
-    i rgs[0]  "-":
-        ini1  opions.sin
-    s:
-        ini1  iooos.opn_i(rgs[0], "r")
+    if args[0] == "-":
+        infile1 = options.stdin
+    else:
+        infile1 = iotools.open_file(args[0], "r")
 
-    ini2  iooos.opn_i(rgs[1], "r")
+    infile2 = iotools.open_file(args[1], "r")
 
-    ix  B.rAnInx(ini2, wih_vsTr)
+    idx = Bed.readAndIndex(infile2, with_values=True)
 
-    op  opions.op
-    oi  opions.so
+    output = options.output
+    outfile = options.stdout
 
-    i op  "nm":
-        oi.wri("nm1\nm2\n")
-        o  mb x: x.is[0]
-    s:
-        o  sr
+    if output == "name":
+        outfile.write("name1\tname2\n")
+        outf = lambda x: x.fields[0]
+    else:
+        outf = str
 
-    or b in B.iror(ini1):
-        ry:
-            ovrps  ix[b.conig].in(b.sr, b.n)
-        xcp (KyError, InxError):
-            # ignor missing conig n zro ngh inrvs
-            conin
+    for bed in Bed.iterator(infile1):
+        try:
+            overlaps = idx[bed.contig].find(bed.start, bed.end)
+        except (KeyError, IndexError):
+            # ignore missing contig and zero length intervals
+            continue
 
-        or o in ovrps:
-            oi.wri("\".join((o(b), o(o[2]))) + "\n")
+        for o in overlaps:
+            outfile.write("\t".join((outf(bed), outf(o[2]))) + "\n")
 
-    E.sop()
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,78 +1,78 @@
-"""convr s o VCF
+"""convert fasta to VCF
+==========================
 
-
-Op  i in VCF orm wih vrins ccoring
-o  s i.
+Output a file in VCF format with variants according
+to a fasta file.
 
 
 """
 
-impor sys
-impor rnom
-impor cgcor.xprimn s E
-impor pysm
+import sys
+import random
+import cgatcore.experiment as E
+import pysam
 
 
- min(rgvNon):
+def main(argv=None):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-s", "--smp-siz", s"smp_siz", yp"o",
-        hp"smp siz. I ss hn 0, k  proporion o h chromosom siz. "
-        "I grr hn 0, k  ix nmbr o vrins []")
+    parser.add_argument(
+        "-s", "--sample-size", dest="sample_size", type="float",
+        help="sample size. If less than 0, take a proportion of the chromosome size. "
+        "If greater than 0, take a fixed number of variants [%default]")
 
-    prsr.s_s(
-        inp_inm_sNon,
-        smp_siz0.001,
-        smp_nm"NA12878"
+    parser.set_defaults(
+        input_filename_fasta=None,
+        sample_size=0.001,
+        sample_name="NA12878"
     )
 
-    (opions, rgs)  E.sr(prsr,
-                              rgvrgv,
-                              _op_opionsTr)
+    (options, args) = E.start(parser,
+                              argv=argv,
+                              add_output_options=True)
 
-    i n(rgs) > 0:
-        opions.inp_inm_s  rgs[0]
+    if len(args) > 0:
+        options.input_filename_fasta = args[0]
 
-    i opions.inp_inm_s  "-":
-        opions.inp_inm_s  opions.sin
+    if options.input_filename_fasta == "-":
+        options.input_filename_fasta = options.stdin
 
-    o  opions.so
-    o.wri("##iormVCFv4.1\n")
-    o.wri("##FORMAT<IDGT,Nmbr1,TypSring,Dscripion\"Gnoyp\">\n")
-    o.wri("#CHROM\POS\ID\REF\ALT\QUAL\FILTER\INFO\FORMAT\{}\n".orm(opions.smp_nm))
+    outf = options.stdout
+    outf.write("##fileformat=VCFv4.1\n")
+    outf.write("##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n")
+    outf.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}\n".format(options.sample_name))
 
-    wih pysm.FsxFi(opions.inp_inm_s) s in:
-        or rcor in in:
-            conig  rcor.nm
-            sqnc  rcor.sqnc
-            i opions.smp_siz < 1.0:
-                nsmps  in(o(n(sqnc)) * opions.smp_siz)
-            s:
-                nsmps  in(opions.smp_siz)
-            E.ino("gnring {} smp vrins or conig {}".orm(nsmps, conig))
-            smp_posiions  s()
-            missing_nsmps  nsmps
-            whi n(smp_posiions) < nsmps:
-                rw_posiions  rnom.smp(is(rng(n(sqnc))), nsmps - n(smp_posiions))
-                ir_posiions  [x or x in rw_posiions i sqnc[x] ! "N"]
-                smp_posiions.p(ir_posiions)
-                E.bg("smp p: o{}, rw{}, ir{}".orm(
-                        n(smp_posiions),
-                        n(rw_posiions),
-                        n(ir_posiions)))
+    with pysam.FastxFile(options.input_filename_fasta) as inf:
+        for record in inf:
+            contig = record.name
+            sequence = record.sequence
+            if options.sample_size < 1.0:
+                nsamples = int(float(len(sequence)) * options.sample_size)
+            else:
+                nsamples = int(options.sample_size)
+            E.info("generating {} sampled variants for contig {}".format(nsamples, contig))
+            sampled_positions = set()
+            missing_nsamples = nsamples
+            while len(sampled_positions) < nsamples:
+                raw_positions = random.sample(list(range(len(sequence))), nsamples - len(sampled_positions))
+                filtered_positions = [x for x in raw_positions if sequence[x] != "N"]
+                sampled_positions.update(filtered_positions)
+                E.debug("sample update: total={}, raw={}, filtered={}".format(
+                        len(sampled_positions),
+                        len(raw_positions),
+                        len(filtered_positions)))
 
-            smp_posiions  sor(smp_posiions)
+            sampled_positions = sorted(sampled_positions)
 
-            or posiion in smp_posiions:
-                bs  sqnc[posiion]
-                o.wri("{}\{}\.\{}\{}\.\.\.\GT\0/0\n".orm(
-                        conig, posiion + 1, bs, bs))
+            for position in sampled_positions:
+                base = sequence[position]
+                outf.write("{}\t{}\t.\t{}\t{}\t.\t.\t.\tGT\t0/0\n".format(
+                        contig, position + 1, base, base))
 
-    E.sop()
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min())
+if __name__ == "__main__":
+    sys.exit(main())

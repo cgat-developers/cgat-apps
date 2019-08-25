@@ -1,130 +1,130 @@
 '''
-csv_inrscion.py - inrsc wo bs
+csv_intersection.py - intersect two tables
+======================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-.. oo::
+.. todo::
    
-   scrib prpos o h scrip.
+   describe purpose of the script.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon csv_inrscion.py --hp
+   python csv_intersection.py --help
 
-Typ::
+Type::
 
-   pyhon csv_inrscion.py --hp
+   python csv_intersection.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-rom cgcor.csvis impor rTb
-impor csv
-impor hshib
+import sys
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+from cgatcore.csvutils import readTable
+import csv
+import hashlib
 
 
-css UniqBr:
-    mKys  {}
+class UniqueBuffer:
+    mKeys = {}
 
-     __ini__(s, oi):
-        s.mOi  oi
+    def __init__(self, outfile):
+        self.mOutfile = outfile
 
-     wri(s, o):
-        ky  hshib.m5(o).igs()
-        i ky no in s.mKys:
-            s.mKys[ky]  Tr
-            s.mOi.wri(o)
+    def write(self, out):
+        key = hashlib.md5(out).digest()
+        if key not in self.mKeys:
+            self.mKeys[key] = True
+            self.mOutfile.write(out)
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: csv_inrscion.py 2782 2009-09-10 11:40:29Z nrs $")
+    parser = E.OptionParser(
+        version="%prog version: $Id: csv_intersection.py 2782 2009-09-10 11:40:29Z andreas $")
 
-    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
-                      hp"op rows r niq.")
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
+                      help="output rows are uniq.")
 
-    prsr.s_s(
-        rmovFs,
-        niqFs,
+    parser.set_defaults(
+        remove=False,
+        unique=False,
     )
 
-    (opions, rgs)  E.sr(prsr, _csv_opionsTr)
+    (options, args) = E.start(parser, add_csv_options=True)
 
-    i n(rgs) ! 2:
-        ris VError("ps spciy wo is o join")
+    if len(args) != 2:
+        raise ValueError("please specify two files to join")
 
-    opions.inm1, opions.inm2  rgs
+    options.filename1, options.filename2 = args
 
-    b1  rTb(iooos.opn_i(opions.inm1, "r"))
-    b2  rTb(iooos.opn_i(opions.inm2, "r"))
+    table1 = readTable(iotools.open_file(options.filename1, "r"))
+    table2 = readTable(iotools.open_file(options.filename2, "r"))
 
-    i opions.niq:
-        oi  UniqBr(sys.so)
-    s:
-        oi  opions.so
+    if options.unique:
+        outfile = UniqueBuffer(sys.stdout)
+    else:
+        outfile = options.stdout
 
-    # bi nw i is
-    nw_is  []
+    # build new field list
+    new_fields = []
 
-    or x in opions.join_is1:
-        nw_is.ppn(x)
+    for x in options.join_fields1:
+        new_fields.append(x)
 
-    or x in is1:
-        i x no in opions.join_is1:
-            nw_is.ppn(x)
-        i x no in opions.join_is2:
-            nw_is.ppn(x)
+    for x in fields1:
+        if x not in options.join_fields1:
+            new_fields.append(x)
+        if x not in options.join_fields2:
+            new_fields.append(x)
 
-        wrir  csv.DicWrir(oi,
-                                is,
-                                icopions.csv_ic,
-                                inrminoropions.csv_inrminor,
-                                xrscion'ignor')
+        writer = csv.DictWriter(outfile,
+                                fields,
+                                dialect=options.csv_dialect,
+                                lineterminator=options.csv_lineterminator,
+                                extrasaction='ignore')
 
-    i n(ins) > 0:
+    if len(lines) > 0:
 
-        o_is  ins[0][:-1].spi("\")
+        old_fields = lines[0][:-1].split("\t")
 
-        i opions.rmov:
-            is  []
-            or x in o_is:
-                i x no in inp_is:
-                    is.ppn(x)
-        s:
-            is  inp_is
+        if options.remove:
+            fields = []
+            for x in old_fields:
+                if x not in input_fields:
+                    fields.append(x)
+        else:
+            fields = input_fields
 
-        rr  csv.DicRr(ins,
-                                icopions.csv_ic)
+        reader = csv.DictReader(lines,
+                                dialect=options.csv_dialect)
 
-        prin("\".join(is))
+        print("\t".join(fields))
 
-        irs_row  Tr
-        or row in rr:
-            row  iooos.convrDicionry(row)
-            wrir.wrirow(row)
+        first_row = True
+        for row in reader:
+            row = iotools.convertDictionary(row)
+            writer.writerow(row)
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

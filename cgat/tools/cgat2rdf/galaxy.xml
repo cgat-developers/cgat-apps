@@ -1,227 +1,227 @@
-{ mcro gTyp(p) -}
-  { i p.yp  "Non" or p.choics or p.propry_bg['rom_oc'] or p.yp  "boon" -}
-     sc
-  {- i p.yp in ["inp", "sin"] -}
-     
-  {- i p.yp  "sring" -}
-     x
-  {- s -}
-     {{ p.yp }}
-  {- ni -}
-{- nmcro -}
+{% macro getType(p) -%}
+  {% if p.type == "None" or p.choices or p.property_bag['from_loc'] or p.type == "boolean" -%}
+     select
+  {%- elif p.type in ["input", "stdin"] -%}
+     data
+  {%- elif p.type == "string" -%}
+     text
+  {%- else -%}
+     {{ p.type }}
+  {%- endif -%}
+{%- endmacro -%}
 
-{ mcro convrV(v) -}
-  { i v  "Tr" -}
-    ys
-  {- s -}
+{% macro convertValue(value) -%}
+  {% if value == "True" -%}
+    yes
+  {%- else -%}
     no
-  {- ni -}
-{- nmcro -}
+  {%- endif -%}
+{%- endmacro -%}
 
-{#- rcrsiv ncion o prin  prmr n is pnn prmrs -#}
-{ mcro prinPrmr(p) -}
-  {- i p.mx_occrrnc  '?' or p.mx_occrrnc|in > 1 -}
-    <rp nm"{{p.ns_nm}}_rp" i"{{p.b|}} Rp"{{' min"' + p.min_occrrnc + '"' i p.min_occrrnc }}{{' mx"' + p.mx_occrrnc + '"' i p.mx_occrrnc n p.mx_occrrnc ! '?' }}>
-      {{ prinPrmrCor(p) }}
-    </rp>
-  {- i p.nm in pnncyMp }
-    <coniion nm"{{p.ns_nm}}_coniion">
-      {{ prinPrmrCor(p) }}
-      {- or grop in pnncyMp[p.nm] | gropby('coniion') }
-      <whn v"{{ grop.gropr }}">
-        { or pnncy in grop.is -}
-          {{ prinPrmr(pnncy.prmr) }}
-        {- nor }
-      </whn>
-      {- nor }
-    </coniion>
-  {- s -}
-    {{ prinPrmrCor(p) }}
-  {- ni -}
-{- nmcro -}
+{#- recursive function to print a parameter and its depenedent parameters -#}
+{% macro printParameter(p) -%}
+  {%- if p.max_occurrence == '?' or p.max_occurrence|int > 1 -%}
+    <repeat name="{{p.ns_name}}_repeat" title="{{p.label|e}} Repeat"{{' min="' + p.min_occurrence + '"' if p.min_occurrence }}{{' max="' + p.max_occurrence + '"' if p.max_occurrence and p.max_occurrence != '?' }}>
+      {{ printParameterCore(p) }}
+    </repeat>
+  {%- elif p.name in dependencyMap %}
+    <conditional name="{{p.ns_name}}_condition">
+      {{ printParameterCore(p) }}
+      {%- for group in dependencyMap[p.name] | groupby('condition') %}
+      <when value="{{ group.grouper }}">
+        {% for dependency in group.list -%}
+          {{ printParameter(dependency.parameter) }}
+        {%- endfor %}
+      </when>
+      {%- endfor %}
+    </conditional>
+  {%- else -%}
+    {{ printParameterCore(p) }}
+  {%- endif -%}
+{%- endmacro -%}
 
-{#- Prin  sing prmr bs on i's yp. Boon yp is convr ino sc yp. Non n mpy vs r no prin-#}
-{ mcro prinPrmrCor(p) -}
-  {- s yp  gTyp(p) -}
-  <prm nm"{{ p.ns_nm }}" yp"{{ yp }}" b"{{ p.b| }}" hp"{{ p.scripion| }}"
-  {- i p.min_occrrnc|in  0  n p.mx_occrrnc|in < 2 } opion"r" {- ni -}
-  {- i "mip" in p n p.mip} mip"r" {- ni -}
-  {- i yp  "sc" }>
-    {{ prinScOpions(p) }}
-    </prm>
-  {- i yp  "" } orm"{{ p.orm }}" />
-  {#-  by AH: o no op mpy vs -#}  
-  {- i p.v  Non or p.v  "" or p.v  [] } v"" />
-  {- s } v"{{ p.v }}" />
-  {- ni -}
-{- nmcro -}
+{#- Print a single parameter based on it's type. Boolean type is converted into select type. None and empty values are not printed-#}
+{% macro printParameterCore(p) -%}
+  {%- set type = getType(p) -%}
+  <param name="{{ p.ns_name }}" type="{{ type }}" label="{{ p.label|e }}" help="{{ p.description|e }}"
+  {%- if p.min_occurrence|int == 0  and p.max_occurrence|int < 2 %} optional="true" {%- endif -%}
+  {%- if "multiple" in p and p.multiple%} multiple="true" {%- endif -%}
+  {%- if type == "select" %}>
+    {{ printSelectOptions(p) }}
+    </param>
+  {%- elif type == "data" %} format="{{ p.format }}" />
+  {#- added by AH: do not output empty values -#}  
+  {%- elif p.value == None or p.value == "" or p.value == [] %} value="" />
+  {%- else %} value="{{ p.value }}" />
+  {%- endif -%}
+{%- endmacro -%}
 
-{#- hpr ncion o prin sc yp prmr -#}
-{ mcro prinScOpions(p) -}
-  { i p.propry_bg -}
-   { i p.propry_bg['rom_oc'] -}
-    <opions rom__b"{{p.propry_bg.g( 'oc_i', .nm)}}_inxs" />
-    {- ni -}
-  {- s -}
-    {#-  by AH: or boon choics insr h g ins -#}
-    {- i p.yp  "boon" -}
-       <opion v"{{p.rg_ong}}" sc"r">Chck</opion>
-       <opion v"" sc"r">D</opion>
-    {- s -}
-       {- s v  p.choics i p.choics s ['Fs', 'Tr'] -}
-       {- or v in v }
-          <opion v"{{ v }}"{{' sc"r"' i p.v  v}}>{{ v }}</opion>
-       {- nor -}
-     {- ni -}
-  {- ni -}
-{- nmcro -}
+{#- helper function to print select type parameter -#}
+{% macro printSelectOptions(p) -%}
+  {% if p.property_bag -%}
+   {% if p.property_bag['from_loc'] -%}
+    <options from_data_table="{{p.property_bag.get( 'loc_id', data.name)}}_indexes" />
+    {%- endif -%}
+  {%- else -%}
+    {#- added by AH: for boolean choices insert the flag instead -#}
+    {%- if p.type == "boolean" -%}
+       <option value="{{p.arg_long}}" selected="true">Check</option>
+       <option value="" selected="true">Default</option>
+    {%- else -%}
+       {%- set value = p.choices if p.choices else ['False', 'True'] -%}
+       {%- for v in value %}
+          <option value="{{ v }}"{{' selected="true"' if p.value == v}}>{{ v }}</option>
+       {%- endfor -%}
+     {%- endif -%}
+  {%- endif -%}
+{%- endmacro -%}
 
-{#- hpr ncion o prin vrib nm. -#}
-{ mcro prinVribNm(prix, nm) -}
-    {- i prix -}
-        {{prix}}.{{nm}}
-    {- s -}
-        {{nm}}
-    {- ni -}
-{- nmcro -}
+{#- helper function to print variable name. -#}
+{% macro printVariableName(prefix, name) -%}
+    {%- if prefix -%}
+        {{prefix}}.{{name}}
+    {%- else -%}
+        {{name}}
+    {%- endif -%}
+{%- endmacro -%}
 
-{ mcro prinOpion(p, prix, prinV) -}
-  {- i p.mx_occrrnc  '?' or p.mx_occrrnc|in > 1 -}
-    #or $i in ${{prinVribNm(prix, p.ns_nm)}}_rp
-        {{p.rg}} "${i.{{p.ns_nm}}}"
-      #n or
-  {- i p.nm in pnncyMp -}
-    {- s prix  prinVribNm(prix, p.ns_nm + '_coniion') -}
-      {{ prinOpionCor(p, prix, prinV) }}
-    {- or grop in pnncyMp[p.nm] | gropby('coniion') }
-      {- s conro  'i' i oop.irs s 'i' }
-      #{{conro}} sr(${{prinVribNm(prix, p.ns_nm)}})  "{{grop.gropr}}":
-      {- or pnncy in grop.is }
-        {{ prinOpionCor(pnncy.prmr, prix, pnncy.prmr.ispy ! 'show') }}
-      {- nor }
-      { i oop.s }#n i { ni -}
-    {- nor -}
-  {- s -}
-    {{ prinOpionCor(p, prix, prinV) }}
-  {- ni }
-{- nmcro -}
+{% macro printOption(p, prefix, printValue) -%}
+  {%- if p.max_occurrence == '?' or p.max_occurrence|int > 1 -%}
+    #for $i in ${{printVariableName(prefix, p.ns_name)}}_repeat
+        {{p.arg}} "${i.{{p.ns_name}}}"
+      #end for
+  {%- elif p.name in dependencyMap -%}
+    {%- set prefix = printVariableName(prefix, p.ns_name + '_condition') -%}
+      {{ printOptionCore(p, prefix, printValue) }}
+    {%- for group in dependencyMap[p.name] | groupby('condition') %}
+      {%- set control = 'if' if loop.first else 'elif' %}
+      #{{control}} str(${{printVariableName(prefix, p.ns_name)}}) == "{{group.grouper}}":
+      {%- for dependency in group.list %}
+        {{ printOptionCore(dependency.parameter, prefix, dependency.parameter.display != 'show') }}
+      {%- endfor %}
+      {% if loop.last %}#end if {% endif -%}
+    {%- endfor -%}
+  {%- else -%}
+    {{ printOptionCore(p, prefix, printValue) }}
+  {%- endif %}
+{%- endmacro -%}
 
-{ mcro prinOpionCor(p, prix, prinV) -}
-  {- s rg  p.rg_ong or p.rg -}
-  {- s c  "" i rg  p.rg_ong s " " -}
-  {- i p.yp  "Non" n no prinV -}
-    {- s rv  p.v i p.v s "Tr" -}
-    #i sr(${{prinVribNm(prix, p.ns_nm)}})  "{{ rv }}" hn "{{rg}}" s "" #
-  {- i p.yp  "boon" n no prinV -}
-    {#-  by AH: or boon vs insr  vrib -#}
-    ${{prinVribNm(prix, p.ns_nm)}}
-  {- i p.propry_bg['rom_oc']  'ph' -}
-    {{rg}}{{c}}"${ir(mb x: sr(x[{{p.propry_bg.g('oc_i_ir', 0)}}])  sr(${{p.ns_nm}}), $__pp__.oo__bs['{{p.propry_bg.g( 'oc_i', .nm )}}_inxs'].g_is())[0][-1]}"
-  {- i p.propry_bg['rom_oc']  'bky' -}
-    {{rg}}{{c}}"${ir(mb x: sr(x[1])  sr(${{p.propry_bg['oc_i_ir']}}), $__pp__.oo__bs['{{p.propry_bg.g( 'oc_i', .nm)}}_inxs'].g_is())[0][1]}"
-  {- i no prinV -}
-    {- i p.min_occrrnc|in  0 n (p.v  Non or p.v  "") -}
-      {#-  by AH: or opion rgmns - o no prin o Non or "" vs -#}
-      #i ${{prinVribNm(prix, p.ns_nm)}}
-        {{rg}}{{c}}${{prinVribNm(prix, p.ns_nm)}}
-      #n i
-    {- s -}
-      {{rg}}{{c}}"${{prinVribNm(prix, p.ns_nm)}}"
-    {- ni -}
-  {- i p.v -}
-    {#- his is or hin prmrs: prin o n opion sing is  v. -#}
-	{- i p.yp  'sc' -}
-	  {{rg}}{{c}}{{p.v[0]}}
-	{- i p.yp in ['ingr', 'o'] -}
-	  {{rg}}{{c}}{{p.v}}
-	{- s -}
-	  {{rg}}{{c}}"{{p.v}}"
-	{- ni -}
-  {- s -}
-    {{rg}}
-  {- ni -}
-{- nmcro -}
+{% macro printOptionCore(p, prefix, printValue) -%}
+  {%- set arg = p.arg_long or p.arg -%}
+  {%- set c = "=" if arg == p.arg_long else " " -%}
+  {%- if p.type == "None" and not printValue -%}
+    {%- set truevalue = p.value if p.value else "True" -%}
+    #if str(${{printVariableName(prefix, p.ns_name)}}) == "{{ truevalue }}" then "{{arg}}" else "" #
+  {%- elif p.type == "boolean" and not printValue -%}
+    {#- added by AH: for boolean values insert a variable -#}
+    ${{printVariableName(prefix, p.ns_name)}}
+  {%- elif p.property_bag['from_loc'] == 'path' -%}
+    {{arg}}{{c}}"${filter(lambda x: str(x[{{p.property_bag.get('loc_id_filter', 0)}}]) == str(${{p.ns_name}}), $__app__.tool_data_tables['{{p.property_bag.get( 'loc_id', data.name )}}_indexes'].get_fields())[0][-1]}"
+  {%- elif p.property_bag['from_loc'] == 'dbkey' -%}
+    {{arg}}{{c}}"${filter(lambda x: str(x[1]) == str(${{p.property_bag['loc_id_filter']}}), $__app__.tool_data_tables['{{p.property_bag.get( 'loc_id', data.name)}}_indexes'].get_fields())[0][1]}"
+  {%- elif not printValue -%}
+    {%- if p.min_occurrence|int == 0 and (p.value == None or p.value == "") -%}
+      {#- added by AH: for optional arguments - do not print out None or "" values -#}
+      #if ${{printVariableName(prefix, p.ns_name)}}
+        {{arg}}{{c}}${{printVariableName(prefix, p.ns_name)}}
+      #end if
+    {%- else -%}
+      {{arg}}{{c}}"${{printVariableName(prefix, p.ns_name)}}"
+    {%- endif -%}
+  {%- elif p.value -%}
+    {#- this is for hidden parameters: print out an option using its default value. -#}
+	{%- if p.type == 'select' -%}
+	  {{arg}}{{c}}{{p.value[0]}}
+	{%- elif p.type in ['integer', 'float'] -%}
+	  {{arg}}{{c}}{{p.value}}
+	{%- else -%}
+	  {{arg}}{{c}}"{{p.value}}"
+	{%- endif -%}
+  {%- else -%}
+    {{arg}}
+  {%- endif -%}
+{%- endmacro -%}
 
-<oo i"{{.nm}}" nm"{{.nm}}" vrsion"{{.vrsion}}">
-  <scripion>{{ .scripion }}</scripion>
-  <prism mho"bsic"></prism>
-  <commn{{' inrprr"' + ['inrprr'] + '"' i ['inrprr'] ! '(binry)'}}> 
-    {{.binry}} --vrbos0
-    {#- ogging o spr i -#}
-    {#- prin o vnc mn opions -#}
-    {- i showAvncMn }
-      #i sr($vnc_coniion.vnc)  "Tr":
-      {- or prmr in ispyMp['show in vnc'] }
-        {{ prinOpion(prmr, 'vnc_coniion', Fs) }}
-      {- nor }
-      #s:
-      {- or prmr in ispyMp['show in vnc'] }
-        {{ prinOpion(prmr, '', Tr) }}
-      {- nor }
-      #n i
-    {- ni }
-    {- or prmr in ispyMp['norm'] }
-      {{ prinOpion(prmr, '',  prmr.ispy ! 'show') }}
-    {- nor }
-    {- or prmr in ispyMp['hin'] }
-      {{ prinOpion(prmr, '',  prmr.ispy ! 'show') }}
-    {- nor }
-  </commn>
-  <rqirmns>
-    <rqirmn yp"pckg">{{.binry}}</rqirmn>
-  </rqirmns>
-  <inps>
-  {- or i in ispyMp['show'] i i.yp no in ['so', 'op', 'srr'] }
-    {{ prinPrmr(i) }}
-  {- nor -}
-  {- i showAvncMn }
-    <coniion nm"vnc_coniion">
-  	  <prm nm"vnc" yp"sc" b"Avnc opions or {{.nm}}">
-        <opion v"Fs" sc'sc'>Fs</opion>
-        <opion v"Tr">Tr</opion>
-  	  </prm>
-  	  <whn v"Fs" />
-  	  <whn v"Tr">
-      {- or i in ispyMp['show in vnc'] i i.yp no in ['so', 'op', 'srr'] }
-        {{ prinPrmr(i) }}
-      {- nor }
-  	  </whn>
-  	</coniion>
-  {- ni }
-  </inps>
-  <ops>
-  {- or o in ops }
-    < nm"{{o.ns_nm}}" b"${oo.nm}{{' on ${on_sring}' i inps}}: {{o.b}}" orm"{{o.orm or 'x'}}" >
-    {- i o.pnncis -}
-      { or p_grop in o.pnncis | gropby("pnn_scop") -}
-        {- i p_grop.gropr  'orm' }
-        <chng_orm>
-        {- or p in p_grop.is }
-          <whn inp"{{p.pning_prmr}}" v"{{p.pning_coniion}}" orm"{{p.pnn_c}}" />
-        { nor -}
-        </chng_orm>
-        { ni -}
-      {- nor -}
-    { ni -}
-    </>
-  { nor }
-  </ops>
-  <hp>
-{{ .hp| }}
+<tool id="{{data.name}}" name="{{data.name}}" version="{{data.version}}">
+  <description>{{ data.description }}</description>
+  <parallelism method="basic"></parallelism>
+  <command{{' interpreter="' + data['interpreter'] + '"' if data['interpreter'] != '(binary)'}}> 
+    {{data.binary}} --verbose=0
+    {#- logging to separate file -#}
+    {#- print out advanced menu options -#}
+    {%- if showAdvanceMenu %}
+      #if str($advanced_condition.advanced) == "True":
+      {%- for parameter in displayMap['show in advanced'] %}
+        {{ printOption(parameter, 'advanced_condition', False) }}
+      {%- endfor %}
+      #else:
+      {%- for parameter in displayMap['show in advanced'] %}
+        {{ printOption(parameter, '', True) }}
+      {%- endfor %}
+      #end if
+    {%- endif %}
+    {%- for parameter in displayMap['normal'] %}
+      {{ printOption(parameter, '',  parameter.display != 'show') }}
+    {%- endfor %}
+    {%- for parameter in displayMap['hidden'] %}
+      {{ printOption(parameter, '',  parameter.display != 'show') }}
+    {%- endfor %}
+  </command>
+  <requirements>
+    <requirement type="package">{{data.binary}}</requirement>
+  </requirements>
+  <inputs>
+  {%- for i in displayMap['show'] if i.type not in ['stdout', 'output', 'stderr'] %}
+    {{ printParameter(i) }}
+  {%- endfor -%}
+  {%- if showAdvanceMenu %}
+    <conditional name="advanced_condition">
+  	  <param name="advanced" type="select" label="Advanced options for {{data.name}}">
+        <option value="False" selected='selected'>False</option>
+        <option value="True">True</option>
+  	  </param>
+  	  <when value="False" />
+  	  <when value="True">
+      {%- for i in displayMap['show in advanced'] if i.type not in ['stdout', 'output', 'stderr'] %}
+        {{ printParameter(i) }}
+      {%- endfor %}
+  	  </when>
+  	</conditional>
+  {%- endif %}
+  </inputs>
+  <outputs>
+  {%- for o in outputs %}
+    <data name="{{o.ns_name}}" label="${tool.name}{{' on ${on_string}' if inputs}}: {{o.label}}" format="{{o.format or 'txt'}}" >
+    {%- if o.dependencies -%}
+      {% for dep_group in o.dependencies | groupby("dependent_scope") -%}
+        {%- if dep_group.grouper == 'format' %}
+        <change_format>
+        {%- for dep in dep_group.list %}
+          <when input="{{dep.depending_parameter}}" value="{{dep.depending_condition}}" format="{{dep.dependent_effect}}" />
+        {% endfor -%}
+        </change_format>
+        {% endif -%}
+      {%- endfor -%}
+    {% endif -%}
+    </data>
+  {% endfor %}
+  </outputs>
+  <help>
+{{ data.help|e }}
 
-{ i .hp }------{ ni }
+{% if data.help %}------{% endif %}
 
-**Gnr By**:
+**Generated By**:
 
-CGAT Inrc Gnror {{vrsion}}
+CGAT Interface Generator {{version}}
 
-{{im}}
+{{time}}
 
-**Bs On**:
-{ i ['m'] }
-{{['m']['b']}}
+**Based On**:
+{% if data['meta'] %}
+{{data['meta']['label']}}
 
-{{['m']['im']}}
-{ ni }
-  </hp>
-</oo>
+{{data['meta']['time']}}
+{% endif %}
+  </help>
+</tool>

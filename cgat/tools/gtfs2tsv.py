@@ -1,341 +1,341 @@
-'''gs2sv.py - compr wo gnss
+'''gtfs2tsv.py - compare two genesets
+==================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip comprs wo gnss (rqir) in :rm:`g`-orm
-is n op iss o shr n niq gns.
+This script compares two genesets (required) in :term:`gtf`-formatted
+files and output lists of shared and unique genes.
 
-I ops h rss o h comprison ino vrios scions. Th
-scions r spi ino spr op is whos nms r
-rmin by h ``--op-inm-prn`` opion. Th scions
-r:
+It outputs the results of the comparison into various sections. The
+sections are split into separate output files whose names are
+determined by the ``--output-filename-pattern`` option. The sections
+are:
 
-``gns_ov``
-   Tb wih ovrpping gns
+``genes_ovl``
+   Table with overlapping genes
 
-``gns_o``
-   Smmry sisic o ovrpping gns
+``genes_total``
+   Summary statistic of overlapping genes
 
-``gns_niq1``
-   Lis o gns niq in s 1
+``genes_uniq1``
+   List of genes unique in set 1
 
-``gns_niq2``
-   Lis o gns niq in s 2
+``genes_uniq2``
+   List of genes unique in set 2
 
-Opions
+Options
 -------
 
-``--op-inm-prn``
-   This opion ins how h op inms r rmin or h
-   scions scrib in h :rm:`Prpos` scion bov.
+``--output-filename-pattern``
+   This option defines how the output filenames are determined for the
+   sections described in the :term:`Purpose` section above.
 
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   h .g::
+   head a.gtf::
 
-     19 procss_rnscrip xon 66346 66509 . - . gn_i "ENSG00000225373";
-     rnscrip_i "ENST00000592209"; xon_nmbr "1"; gn_nm "AC008993.5";
-     gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002";
-     xon_i "ENSE00001701708";
+     19 processed_transcript exon 66346 66509 . - . gene_id "ENSG00000225373";
+     transcript_id "ENST00000592209"; exon_number "1"; gene_name "AC008993.5";
+     gene_biotype "pseudogene"; transcript_name "AC008993.5-002";
+     exon_id "ENSE00001701708";
 
-     19 procss_rnscrip xon 60521 60747 . - . gn_i "ENSG00000225373";
-     rnscrip_i "ENST00000592209"; xon_nmbr "2"; gn_nm "AC008993.5";
-     gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002";
-     xon_i "ENSE00002735807";
+     19 processed_transcript exon 60521 60747 . - . gene_id "ENSG00000225373";
+     transcript_id "ENST00000592209"; exon_number "2"; gene_name "AC008993.5";
+     gene_biotype "pseudogene"; transcript_name "AC008993.5-002";
+     exon_id "ENSE00002735807";
 
-     19 procss_rnscrip xon 60105 60162 . - . gn_i "ENSG00000225373";
-     rnscrip_i "ENST00000592209"; xon_nmbr "3"; gn_nm "AC008993.5";
-     gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002";
-     xon_i "ENSE00002846866";
+     19 processed_transcript exon 60105 60162 . - . gene_id "ENSG00000225373";
+     transcript_id "ENST00000592209"; exon_number "3"; gene_name "AC008993.5";
+     gene_biotype "pseudogene"; transcript_name "AC008993.5-002";
+     exon_id "ENSE00002846866";
 
-   h b.g::
+   head b.gtf::
 
-     19 rnscrib_procss_psogn xon 66320 66492 . - .
-     gn_i "ENSG00000225373"; rnscrip_i "ENST00000587045"; xon_nmbr "1";
-     gn_nm "AC008993.5"; gn_bioyp "psogn";
-     rnscrip_nm "AC008993.5-001"; xon_i "ENSE00002739353";
+     19 transcribed_processed_pseudogene exon 66320 66492 . - .
+     gene_id "ENSG00000225373"; transcript_id "ENST00000587045"; exon_number "1";
+     gene_name "AC008993.5"; gene_biotype "pseudogene";
+     transcript_name "AC008993.5-001"; exon_id "ENSE00002739353";
 
-     19 incRNA xon 68403 69146 . + . gn_i "ENSG00000267111";
-     rnscrip_i "ENST00000589495"; xon_nmbr "1"; gn_nm "AC008993.2";
-     gn_bioyp "incRNA"; rnscrip_nm "AC008993.2-001";
-     xon_i "ENSE00002777656";
+     19 lincRNA exon 68403 69146 . + . gene_id "ENSG00000267111";
+     transcript_id "ENST00000589495"; exon_number "1"; gene_name "AC008993.2";
+     gene_biotype "lincRNA"; transcript_name "AC008993.2-001";
+     exon_id "ENSE00002777656";
 
-     19 incRNA xon 71161 71646 . + . gn_i "ENSG00000267588";
-     rnscrip_i "ENST00000590978"; xon_nmbr "1"; gn_nm "MIR1302-2";
-     gn_bioyp "incRNA"; rnscrip_nm "MIR1302-2-001";
-     xon_i "ENSE00002870487";
+     19 lincRNA exon 71161 71646 . + . gene_id "ENSG00000267588";
+     transcript_id "ENST00000590978"; exon_number "1"; gene_name "MIR1302-2";
+     gene_biotype "lincRNA"; transcript_name "MIR1302-2-001";
+     exon_id "ENSE00002870487";
 
-   pyhon gs2sv.py .g b.g > o.sv
+   python gtfs2tsv.py a.gtf b.gtf > out.tsv
 
-   h o.sv::
+   head out.tsv::
 
-     conigs sorc r sr n scor srn rm gn_i rnscrip_i ribs
-     19 procss_rnscrip xon 66345 66509 . - . ENSG00000225373 ENST00000592209 xon_nmbr "1";
-     gn_nm "AC008993.5"; gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002";
-     xon_i "ENSE00001701708"
-     19 procss_rnscrip xon 60520 60747 . - . ENSG00000225373 ENST00000592209 xon_nmbr "2";
-     gn_nm "AC008993.5"; gn_bioyp "psogn"; rnscrip_nm "AC008993.5-002";
-     xon_i "ENSE00002735807"
+     contigs source feature start end score strand frame gene_id transcript_id attributes
+     19 processed_transcript exon 66345 66509 . - . ENSG00000225373 ENST00000592209 exon_number "1";
+     gene_name "AC008993.5"; gene_biotype "pseudogene"; transcript_name "AC008993.5-002";
+     exon_id "ENSE00001701708"
+     19 processed_transcript exon 60520 60747 . - . ENSG00000225373 ENST00000592209 exon_number "2";
+     gene_name "AC008993.5"; gene_biotype "pseudogene"; transcript_name "AC008993.5-002";
+     exon_id "ENSE00002735807"
 
-Typ::
+Type::
 
-   pyhon gs2sv.py --hp
+   python gtfs2tsv.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor os
-impor qicksc
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor cg.GTF s GTF
+import sys
+import os
+import quicksect
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import cgat.GTF as GTF
 
 
- GNxLin(ini):
-    or in in ini:
-        i in[0]  "#":
-            conin
-        rrn in
-    rrn Non
+def GetNextLine(infile):
+    for line in infile:
+        if line[0] == "#":
+            continue
+        return line
+    return None
 
 
-css Cons:
+class Counts:
 
-    mPrcnForm  ".2"
+    mPercentFormat = "%.2f"
 
-     __ini__(s, _prcn):
+    def __init__(self, add_percent):
 
-        s.n, s.nrigh, s.novrp  0, 0, 0
-        s.nniq_  0
-        s.nniq_righ  0
-        s.ninic  0
-        s.nh  0
-        s.nspi_  0
-        s.nspi_righ  0
-        s.mAPrcn  _prcn
+        self.nleft, self.nright, self.noverlap = 0, 0, 0
+        self.nunique_left = 0
+        self.nunique_right = 0
+        self.nidentical = 0
+        self.nhalf = 0
+        self.nsplit_left = 0
+        self.nsplit_right = 0
+        self.mAddPercent = add_percent
 
-     ____(s, ohr):
-        s.n + ohr.n
-        s.nrigh + ohr.nrigh
-        s.novrp + ohr.novrp
-        s.nniq_ + ohr.nniq_
-        s.nniq_righ + ohr.nniq_righ
-        s.ninic + ohr.ninic
-        s.nh + ohr.nh
-        s.nspi_ + ohr.nspi_
-        s.nspi_righ + ohr.nspi_righ
-        rrn s
+    def __add__(self, other):
+        self.nleft += other.nleft
+        self.nright += other.nright
+        self.noverlap += other.noverlap
+        self.nunique_left += other.nunique_left
+        self.nunique_right += other.nunique_right
+        self.nidentical += other.nidentical
+        self.nhalf += other.nhalf
+        self.nsplit_left += other.nsplit_left
+        self.nsplit_right += other.nsplit_right
+        return self
 
-     gHr(s):
-        h  "o_\o_righ\novrp\ninic\nh\niq_\niq_righ\spi_\spi_righ"
-        i s.mAPrcn:
-            h + "\" + s.gHrPrcn()
-        rrn h
+    def getHeader(self):
+        h = "total_left\ttotal_right\tnoverlap\tnidentical\tnhalf\tunique_left\tunique_right\tsplit_left\tsplit_right"
+        if self.mAddPercent:
+            h += "\t" + self.getHeaderPercent()
+        return h
 
-     __sr__(s):
-        h  "\".join(mp(sr,
-                          (s.n, s.nrigh,
-                              s.novrp, s.ninic, s.nh,
-                              s.nniq_, s.nniq_righ,
-                              s.nspi_, s.nspi_righ)))
-        i s.mAPrcn:
-            h + "\" + s.sPrcn()
+    def __str__(self):
+        h = "\t".join(map(str,
+                          (self.nleft, self.nright,
+                              self.noverlap, self.nidentical, self.nhalf,
+                              self.nunique_left, self.nunique_right,
+                              self.nsplit_left, self.nsplit_right)))
+        if self.mAddPercent:
+            h += "\t" + self.asPercent()
 
-        rrn h
+        return h
 
-     gHrPrcn(s):
-        rrn "\".join(["ps\prs"  (x, x) or x in ("ovrp", "inic", "h", "niq", "spi")])
+    def getHeaderPercent(self):
+        return "\t".join(["pl%s\tpr%s" % (x, x) for x in ("overlap", "identical", "half", "unique", "split")])
 
-     sPrcn(s):
-        rrn "\".join([s.mPrcnForm  (100.0 * x) or x in (
-            o(s.novrp) / s.n,
-            o(s.novrp) / s.nrigh,
-            o(s.ninic) / s.n,
-            o(s.ninic) / s.nrigh,
-            o(s.nh) / s.n,
-            o(s.nh) / s.nrigh,
-            o(s.nniq_) / s.n,
-            o(s.nniq_righ) / s.nrigh,
-            o(s.nspi_) / s.n,
-            o(s.nspi_righ) / s.nrigh)])
-
-
- gFi(opions, scion):
-
-    i opions.op_inm_prn:
-        oi  iooos.opn_i(
-            opions.op_inm_prn  scion, "w")
-        E.ino("op or scion 's' gos o i s" 
-               (scion, opions.op_inm_prn  scion))
-    s:
-        oi  opions.so
-        oi.wri("## scion: s\n"  scion)
-    rrn oi
+    def asPercent(self):
+        return "\t".join([self.mPercentFormat % (100.0 * x) for x in (
+            float(self.noverlap) / self.nleft,
+            float(self.noverlap) / self.nright,
+            float(self.nidentical) / self.nleft,
+            float(self.nidentical) / self.nright,
+            float(self.nhalf) / self.nleft,
+            float(self.nhalf) / self.nright,
+            float(self.nunique_left) / self.nleft,
+            float(self.nunique_right) / self.nright,
+            float(self.nsplit_left) / self.nleft,
+            float(self.nsplit_right) / self.nright)])
 
 
- wriDi(oi, symbo, gns):
+def getFile(options, section):
 
-    or gn in sor(gns):
-        or xon in sor(gn):
-            oi.wri("s\s\n"  (symbo, sr(xon)))
+    if options.output_filename_pattern:
+        outfile = iotools.open_file(
+            options.output_filename_pattern % section, "w")
+        E.info("output for section '%s' goes to file %s" %
+               (section, options.output_filename_pattern % section))
+    else:
+        outfile = options.stdout
+        outfile.write("## section: %s\n" % section)
+    return outfile
 
 
- min(rgvNon):
+def writeDiff(outfile, symbol, genes):
 
-    i no rgv:
-        rgv  sys.rgv
+    for gene in sorted(genes):
+        for exon in sorted(gene):
+            outfile.write("%s\t%s\n" % (symbol, str(exon)))
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
 
-    prsr._rgmn(
-        "-", "--op-qivn", s"wri_qivn",
-        cion"sor_r",
-        hp"wri qivn nris [].")
+def main(argv=None):
 
-    prsr._rgmn(
-        "-", "--op-", s"wri_",
-        cion"sor_r",
-        hp"wri  g nris [].")
+    if not argv:
+        argv = sys.argv
 
-    prsr._rgmn("-p", "---prcn", s"_prcn",
-                      cion"sor_r",
-                      hp" prcng comns [].")
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn("-s", "--ignor-srn", s"ignor_srn",
-                      cion"sor_r",
-                      hp"ignor srn inormion [].")
+    parser.add_argument(
+        "-e", "--output-equivalent", dest="write_equivalent",
+        action="store_true",
+        help="write equivalent entries [default=%default].")
 
-    prsr.s_s(
-        wri_qivnFs,
-        wri_Fs,
-        _prcnFs,
-        ignor_srnFs,
-        s_gFs,
+    parser.add_argument(
+        "-f", "--output-full", dest="write_full",
+        action="store_true",
+        help="write full gff entries [default=%default].")
+
+    parser.add_argument("-p", "--add-percent", dest="add_percent",
+                      action="store_true",
+                      help="add percentage columns [default=%default].")
+
+    parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
+                      action="store_true",
+                      help="ignore strand information [default=%default].")
+
+    parser.set_defaults(
+        write_equivalent=False,
+        write_full=False,
+        add_percent=False,
+        ignore_strand=False,
+        as_gtf=False,
     )
 
-    (opions, rgs)  E.sr(prsr, rgv, _op_opionsTr)
+    (options, args) = E.start(parser, argv, add_output_options=True)
 
-    i n(rgs) ! 2:
-        ris VError("wo rgmns rqir")
+    if len(args) != 2:
+        raise ValueError("two arguments required")
 
-    inp_inm1, inp_inm2  rgs
+    input_filename1, input_filename2 = args
 
-    # pic rs cs  probm. Mk sr
-    # rs r non-ovrpping by rnning
-    # g_combin.py on GFF is irs.
+    # duplicated features cause a problem. Make sure
+    # features are non-overlapping by running
+    # gff_combine.py on GFF files first.
 
-    E.ino("ring  sr")
+    E.info("reading data started")
 
-    ix, gns2  {}, s()
-    or  in GTF.rFromFi(iooos.opn_i(inp_inm2, "r")):
-        gns2.(.gn_i)
-        i .conig no in ix:
-            ix[.conig]  qicksc.InrvTr()
-        ix[.conig].(.sr, .n, )
+    idx, genes2 = {}, set()
+    for e in GTF.readFromFile(iotools.open_file(input_filename2, "r")):
+        genes2.add(e.gene_id)
+        if e.contig not in idx:
+            idx[e.contig] = quicksect.IntervalTree()
+        idx[e.contig].add(e.start, e.end, e)
 
-    ovrps_gns  []
+    overlaps_genes = []
 
-    E.ino("ring  inish: i conigs"  n(ix))
+    E.info("reading data finished: %i contigs" % len(idx))
 
-    # oi_i n oi_ovrp no impmn
-    # oi_i  gFi( opions, "i" )
-    # oi_ovrp  gFi( opions, "ovrp" )
-    ovrpping_gns  s()
+    # outfile_diff and outfile_overlap not implemented
+    # outfile_diff = getFile( options, "diff" )
+    # outfile_overlap = getFile( options, "overlap" )
+    overlapping_genes = set()
 
-    gns1  s()
+    genes1 = set()
 
-    # ir ovr xons
-    wih iooos.opn_i(inp_inm1, "r") s ini:
-        or his in GTF.iror(ini):
+    # iterate over exons
+    with iotools.open_file(input_filename1, "r") as infile:
+        for this in GTF.iterator(infile):
 
-            gns1.(his.gn_i)
+            genes1.add(this.gene_id)
 
-            ry:
-                inrvs  ix[his.conig].in(qicksc.Inrv(his.sr, his.n))
-            xcp KyError:
-                conin
+            try:
+                intervals = idx[this.contig].find(quicksect.Interval(this.start, this.end))
+            except KeyError:
+                continue
 
-            ohrs  [x. or x in inrvs]
-            or ohr in ohrs:
-                ovrpping_gns.((his.gn_i, ohr.gn_i))
+            others = [x.data for x in intervals]
+            for other in others:
+                overlapping_genes.add((this.gene_id, other.gene_id))
 
-            # chck or inic/h-inic mchs
-            op  Non
-            or ohr in ohrs:
-                i his.sr  ohr.sr n his.n  ohr.n:
-                    op, symbo  ohr, ""
-                    brk
-            s:
-                or ohr in ohrs:
-                    i his.sr  ohr.sr or his.n  ohr.n:
-                        op, symbo  ohr, "|"
-                        brk
-                s:
-                    symbo  "~"
+            # check for identical/half-identical matches
+            output = None
+            for other in others:
+                if this.start == other.start and this.end == other.end:
+                    output, symbol = other, "="
+                    break
+            else:
+                for other in others:
+                    if this.start == other.start or this.end == other.end:
+                        output, symbol = other, "|"
+                        break
+                else:
+                    symbol = "~"
 
-    # i oi_i ! opions.so: oi_i.cos()
-    # i oi_ovrp ! opions.so: oi_ovrp.cos()
+    # if outfile_diff != options.stdout: outfile_diff.close()
+    # if outfile_overlap != options.stdout: outfile_overlap.close()
 
-    oi  Non
+    outfile = None
     ##################################################################
     ##################################################################
     ##################################################################
-    # prin gn bs inormion
+    # print gene based information
     ##################################################################
-    i ovrpping_gns:
-        oi  gFi(opions, "gns_ov")
-        oi.wri("gn_i1\gn_i2\n")
-        or , b in sor(ovrpping_gns):
-            oi.wri("s\s\n"  (, b))
-        i oi ! opions.so:
-            oi.cos()
+    if overlapping_genes:
+        outfile = getFile(options, "genes_ovl")
+        outfile.write("gene_id1\tgene_id2\n")
+        for a, b in sorted(overlapping_genes):
+            outfile.write("%s\t%s\n" % (a, b))
+        if outfile != options.stdout:
+            outfile.close()
 
-        oi_o  gFi(opions, "gns_o")
-        oi_o.wri(
-            "s\ngns\novrpping\povrpping\nniq\pniq\n")
+        outfile_total = getFile(options, "genes_total")
+        outfile_total.write(
+            "set\tngenes\tnoverlapping\tpoverlapping\tnunique\tpunique\n")
 
-        oi  gFi(opions, "gns_niq1")
-        b  s([x[0] or x in ovrpping_gns])
-          gns1.irnc(b)
-        oi.wri("gn_i1\n")
-        oi.wri("\n".join(sor()) + "\n")
-        i oi ! opions.so:
-            oi.cos()
-        oi_o.wri("s\i\i\5.2\i\5.2\n"  (
-            os.ph.bsnm(inp_inm1), n(
-                gns1), n(b), 100.0 * n(b) / n(),
-            n(), 100.0 * n() / n(gns1)))
+        outfile = getFile(options, "genes_uniq1")
+        b = set([x[0] for x in overlapping_genes])
+        d = genes1.difference(b)
+        outfile.write("gene_id1\n")
+        outfile.write("\n".join(sorted(d)) + "\n")
+        if outfile != options.stdout:
+            outfile.close()
+        outfile_total.write("%s\t%i\t%i\t%5.2f\t%i\t%5.2f\n" % (
+            os.path.basename(input_filename1), len(
+                genes1), len(b), 100.0 * len(b) / len(a),
+            len(d), 100.0 * len(d) / len(genes1)))
 
-        oi  gFi(opions, "gns_niq2")
-        b  s([x[1] or x in ovrpping_gns])
-          gns2.irnc(b)
-        oi.wri("gn_i2\n")
-        oi.wri("\n".join(sor()) + "\n")
-        i oi ! opions.so:
-            oi.cos()
+        outfile = getFile(options, "genes_uniq2")
+        b = set([x[1] for x in overlapping_genes])
+        d = genes2.difference(b)
+        outfile.write("gene_id2\n")
+        outfile.write("\n".join(sorted(d)) + "\n")
+        if outfile != options.stdout:
+            outfile.close()
 
-        oi_o.wri("s\i\i\5.2\i\5.2\n"  (
-            os.ph.bsnm(inp_inm2), n(
-                gns2), n(b), 100.0 * n(b) / n(),
-            n(), 100.0 * n() / n(gns2)))
-        i oi_o ! opions.so:
-            oi_o.cos()
+        outfile_total.write("%s\t%i\t%i\t%5.2f\t%i\t%5.2f\n" % (
+            os.path.basename(input_filename2), len(
+                genes2), len(b), 100.0 * len(b) / len(a),
+            len(d), 100.0 * len(d) / len(genes2)))
+        if outfile_total != options.stdout:
+            outfile_total.close()
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min())
+if __name__ == "__main__":
+    sys.exit(main())

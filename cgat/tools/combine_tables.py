@@ -1,45 +1,45 @@
-'''combin_bs.py - join bs
+'''combine_tables.py - join tables
+===============================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip rs svr b-spr bs n joins hm ino 
-sing on.
+This script reads several tab-separated tables and joins them into a
+single one.
 
-.. oo::
+.. todo::
 
-   * Rnm o bs2b.py
-   * Us pns rms or s IO n mrging/joining
+   * Rename to tables2table.py
+   * Use pandas dataframes for fast IO and merging/joining
 
-Usg
+Usage
 -----
 
-Th opion ``--hr-nms`` ss h comn is xpiciy. A
-``--skip-is`` i yo wn o voi choing h origin i in
-h inp is.
+The option ``--header-names`` sets the column titles explicitely. Add
+``--skip-titles`` if you want to avoid echoing the original title in
+the input files.
 
 
-Exmp::
+Example::
 
-   pyhon combin_bs.py --hp
+   python combine_tables.py --help
 
-Typ::
+Type::
 
-   pyhon combin_bs.py --hp
+   python combine_tables.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-rom cgcor.bs impor min
+import sys
+from cgatcore.tables import main
 
 
-i __nm__  '__min__':
-    sys.xi(min(sys.rgv))
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

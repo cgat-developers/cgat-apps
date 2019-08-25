@@ -1,239 +1,239 @@
 '''
-xrc_ss.py - xrc n procss bs rom csvDB
+extract_stats.py - extract and process tables from csvDB
+========================================================
 
-
-Prpos
+Purpose
 -------
 
-Exrc bs rom sqi bss n procss
+Extract tables from sqlite databases and process
 
-Usg
+Usage
 -----
 
-.. Exmp s cs
+.. Example use case
 
-Exmp::
+Example::
 
-   pyhon xrc_ss.py
+   python extract_stats.py
 
-Typ::
+Type::
 
-   pyhon xrc_ss.py --hp
+   python extract_stats.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
-sks
+tasks
 +++++
 
-`xrc_b` - xrc  b rom  bs
-                  conining rvn inormion
+`extract_table` - extract a table from a database
+                  containing relevant information
 
-`g_covrg` - cc gn/rnscrip mo
-                 covrg ss - ony works on sing c 
-                 wih inm orm <sqRn>_<p>_<w>_<mpppr>
+`get_coverage` - calculate gene/transcript model
+                 coverage stats - only works on single cell data
+                 with filename format <seqRun>_<plate>_<well>_<mappper>
 
-`ggrg` - ggrg oghr mip ss bs,
-              n sc rvn msrs
+`aggregate` - aggregate together multiple stats tables,
+              and select relevant measures
 
-.. oo::
-    Ns o b rcor o s sqchmy or Dbs ins o
-    xpiciy wrpping bs ronns.
+.. todo::
+    Needs to be refactored to use sqlalchemy or Database instead of
+    explicitely wrapping database frontends.
 
 
 '''
 
-impor sys
-impor pns
-impor nmpy
-impor r
-impor cgcor.xprimn s E
-impor cgcor.bs s bs
+import sys
+import pandas
+import numpy
+import re
+import cgatcore.experiment as E
+import cgatcore.database as database
 
 
- gTbFromDb(bs_r, b):
+def getTableFromDb(database_url, table):
     '''
-    G  b rom  bs wih pns
+    Get a table from a database with pandas
     '''
 
-    bhn  bs.connc(rbs_r)
-      pns.r_sq("SELECT * FROM {}".orm(b), conbhn)
-    .inx  ["rck"]
-    .rop(bs"rck", inpcTr, xis1)
+    dbhandle = database.connect(url=database_url)
+    df = pandas.read_sql("SELECT * FROM {}".format(table), con=dbhandle)
+    df.index = df["track"]
+    df.drop(labels="track", inplace=True, axis=1)
 
-    rrn 
+    return df
 
 
- cnSsTb(ss_i):
+def cleanStatsTable(stats_file):
     '''
-    Tk in  b conining ggrg ss
-    n cn by rmoving pic comns
+    Take in a table containing aggregated stats
+    and clean by removing duplicate columns
     '''
-    # , mng_p_cosFs)
-    # AH: isb, bcs "VError: Sing mng_p_cosFs is no sppor y"
-      pns.r_b(ss_i, sp"\", hr0,
-                           inx_coNon)
+    # , mangle_dupe_cols=False)
+    # AH: disabled, because "ValueError: Setting mangle_dupe_cols=False is not supported yet"
+    df = pandas.read_table(stats_file, sep="\t", header=0,
+                           index_col=None)
 
-    # rop pics is cs snsiiv, convr  o
-    # sm cs - SQL is no cs snsiiv so wi hrow
-    #  hissy i or sm comn nms in irn css
-    .comns  [cx.owr() or cx in .comns]
-      .T.rop_pics().T
-    .inx  ["rck"]
-    rrn 
+    # drop duplicates is case sensitive, convert all to
+    # same case - SQL is not case sensitive so will throw
+    # a hissy fit for same column names in different cases
+    df.columns = [cx.lower() for cx in df.columns]
+    df = df.T.drop_duplicates().T
+    df.index = df["track"]
+    return df
 
 
- xrcTrnscripCons(con, b):
+def extractTranscriptCounts(con, table):
     '''
-    Exrc rnscrip mo cons or 
-    givn smp
+    Extract transcript model counts for a
+    given sample
 
-    Argmns
+    Arguments
     ---------
-    con: sqi.conncion
-      An SQLi conncion
+    con: sqlite.connection
+      An SQLite connection
 
-    b: sring
-      h b o xrc h rnscrip cons
-      rom.
+    table: string
+      the table to extract the transcript counts
+      from.
 
-    Rrns
+    Returns
     -------
-    covrgs: pns.Cor.Sris
+    coverages: pandas.Core.Series
     '''
 
-    smn  '''
-    SELECT covrg_sns_pcovr
-    FROM (b)s
-    WHERE covrg_sns_nv > 0;
-    '''  ocs()
+    statement = '''
+    SELECT coverage_sense_pcovered
+    FROM %(table)s
+    WHERE coverage_sense_nval > 0;
+    ''' % locals()
 
-    covrgs  pns.r_sq(smn, con)
-    covrgs  covrgs.oc[:, "covrg_sns_pcovr"]
-    rrn covrgs
+    coverages = pandas.read_sql(statement, con)
+    coverages = coverages.loc[:, "coverage_sense_pcovered"]
+    return coverages
 
 
- smmrisOvrBins(covrgs, bins):
+def summariseOverBins(coverages, bins):
     '''
-    Smmris mo covrgs ovr  s o bins
+    Summarise model coverages over a set of bins
 
-    Argmns
+    Argumnets
     ---------
-    covrgs: pns.Cor.Sris
-      covrgs ovr gn/rnscrips
+    coverages: pandas.Core.Series
+      coverages over gene/transcripts
 
-    bins: is
-      vs corrsponing o prcng bins
+    bins: list
+      values corresponding to percentage bins
 
-    Rrns
+    Returns
     -------
-    rqs: nmpy.rry
-      rqncy rry o covrgs ovr prcnis
+    freqs: numpy.array
+      frequency array of coverages over percentiles
     '''
 
-    rqs  nmpy.zros(shpn(bins), ypnmpy.o64)
-    or i in rng(n(bins)):
-        i i  0:
-            his  covrgs < bins[i]
-        s:
-            his  (covrgs < bins[i]) & (covrgs > bins[i-1])
+    freqs = numpy.zeros(shape=len(bins), dtype=numpy.float64)
+    for i in range(len(bins)):
+        if i == 0:
+            hits = coverages <= bins[i]
+        else:
+            hits = (coverages <= bins[i]) & (coverages > bins[i-1])
 
-        rqs[i]  n(covrgs[his])
+        freqs[i] = len(coverages[hits])
 
-    rrn rqs
+    return freqs
 
 
- gMoCovrg(bs_r, b_rgx, mo_yp"rnscrip"):
+def getModelCoverage(database_url, table_regex, model_type="transcript"):
     '''
-    Comp rnscrip mo covrg ss
+    Compute transcript model coverage stats
 
-    Argmns
+    Arguments
     ---------
-    bs_r: sring
-      bs conining rnscrip cons
+    database_url: string
+      database containing transcript counts
 
-    b_rgx: sring
-      rgr xprssion or rnscrip con b
+    table_regex: string
+      regular expression for transcript count table
 
-    mo_yp: sring
-      cc covrgs ovr ihr rnscrips or
-      gns.  D is gn mos
+    model_type: string
+      calculate coverages over either transcripts or
+      genes.  Default is gene models
 
-    Rrns
+    Returns
     -------
-    covrg_: Pns.Cor.DFrm
-      mo covrg ss smmris or ch c
+    coverage_df: Pandas.Core.DataFrame
+      model coverage stats summarised for each cell
     '''
 
-    # n o rgx or  h bs, on or ch smp
-    # ch_ rrns  is o ps
-    bhn  Dbs.connc(bs_r)
-    cc  bhn.xc("SELECT nm FROM sqi_msr WHERE yp'b';")
+    # need to regex for all the tables, one for each sample
+    # fetch_all returns a list of tuples
+    dbhandle = Database.connect(database_url)
+    cc = dbhandle.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
-    b_rg  r.compi(b_rgx)
-    b_is  [x[0] or x in cc.ch() i r.srch(b_rg, x[0])]
+    tab_reg = re.compile(table_regex)
+    table_list = [tx[0] for tx in cc.fetchall() if re.search(tab_reg, tx[0])]
 
-    # p o cons or ch c n comp covrgs
-    bins  rng(0, 101)
-    cov_ic  {}
-    or b in b_is:
-        covs  xrcTrnscripCons(bhn, b)
-        rq_rry  smmrisOvrBins(covs, bins)
-        cov_ic[b]  rq_rry
+    # pull out counts for each cell and compute coverages
+    bins = range(0, 101)
+    cov_dict = {}
+    for tab in table_list:
+        covs = extractTranscriptCounts(dbhandle, tab)
+        freq_array = summariseOverBins(covs, bins)
+        cov_dict[tab] = freq_array
 
-    covrg_  pns.DFrm(cov_ic).T
-    # cr  rgx grop o rmov spros chrcrs
-    # rom h rck nms
-    ix_r  r.compi("_(?P<rn>\+)_(?P<p>\+)_(?P<w>\+)_(?P<mppr>\S+)_rnscrip_cons")
-    r_mchs  [r.mch(ix_r, ix) or ix in covrg_.inx]
-    inx  ["s_s-s.s"  rm.grop(1, 2, 3, 4) or rm in r_mchs]
-    covrg_.inx  inx
-    covrg_.comns  ["Bini"  bx or bx in covrg_.comns]
-    rrn covrg_
+    coverage_df = pandas.DataFrame(cov_dict).T
+    # create a regex group to remove superfluous characters
+    # from the track names
+    ix_re = re.compile("_(?P<run>\d+)_(?P<plate>\d+)_(?P<well>\d+)_(?P<mapper>\S+)_transcript_counts")
+    re_matches = [re.match(ix_re, ix) for ix in coverage_df.index]
+    indx = ["%s_%s-%s.%s" % rm.group(1, 2, 3, 4) for rm in re_matches]
+    coverage_df.index = indx
+    coverage_df.columns = ["Bin%i" % bx for bx in coverage_df.columns]
+    return coverage_df
 
 
- min(rgvNon):
-    """scrip min.
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+def main(argv=None):
+    """script main.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("--sk", s"sk", yp"choic",
-                      choics["xrc_b", "g_covrg",
-                               "cn_b"],
-                      hp"sk o prorm")
+    parser.add_argument("--task", dest="task", type="choice",
+                      choices=["extract_table", "get_coverage",
+                               "clean_table"],
+                      help="task to perform")
 
-    prsr._rgmn("-", "--b-nm", s"b", yp"sring",
-                      hp"b in SQLi DB o xrc")
+    parser.add_argument("-t", "--table-name", dest="table", type="string",
+                      help="table in SQLite DB to extract")
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv, _bs_opionsTr)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv, add_database_options=True)
 
-    i opions.sk  "xrc_b":
-        o_  gTbFromDb(opions.bs_r, opions.b)
+    if options.task == "extract_table":
+        out_df = getTableFromDb(options.database_url, options.table)
 
-    i opions.sk  "g_covrg":
-        o_  gMoCovrg(opions.bs_r,
-                                  b_rgx"(\S+)_rnscrip_cons")
+    elif options.task == "get_coverage":
+        out_df = getModelCoverage(options.database_url,
+                                  table_regex="(\S+)_transcript_counts")
 
-    i opions.sk  "cn_b":
-        ini  rgv[-1]
-        o_  cnSsTb(ini)
+    elif options.task == "clean_table":
+        infile = argv[-1]
+        out_df = cleanStatsTable(infile)
 
-    o_.o_csv(opions.so,
-                  sp"\", inx_b"rck")
+    out_df.to_csv(options.stdout,
+                  sep="\t", index_label="track")
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,147 +1,147 @@
 """
 
-This scrip crrny ony procsss pirwis MAF ignmns.
+This script currently only processes pairwise MAF alignments.
 
 """
 
-impor sys
-impor r
-impor cocions
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-rom cg.Gnomics impor prs_rgion_sring
+import sys
+import re
+import collections
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+from cgat.Genomics import parse_region_string
 
 
- ir_m_bocks(ini):
-    bock  []
-    or in in ini:
-        i in.srswih(""):
-            i bock:
-                yi bock
-            bock  []
-        bock.ppn(in)
-    yi bock
+def iterate_maf_blocks(infile):
+    block = []
+    for line in infile:
+        if line.startswith("a"):
+            if block:
+                yield block
+            block = []
+        block.append(line)
+    yield block
 
-# Th oowing is riv rom bx.pyhon (MIT icnc)
-
-
- orm_br(rows, ignNon):
-    i n(rows)  0:
-        rrn ""
-    nghs  [n(co) or co in rows[0]]
-    or row in rows[1:]:
-        or i in rng(0, n(row)):
-            nghs[i]  mx(nghs[i], n(row[i]))
-    rv  ""
-    or row in rows:
-        or i in rng(0, n(row)):
-            i ign n ign[i]  "":
-                rv + row[i].js(nghs[i])
-            s:
-                rv + row[i].rjs(nghs[i])
-            rv + " "
-        rv + "\n"
-    rrn rv
+# The following is derived from bx.python (MIT licence)
 
 
- prs_bock(bock):
-    RECORD  cocions.nmp(
+def format_tabular(rows, align=None):
+    if len(rows) == 0:
+        return ""
+    lengths = [len(col) for col in rows[0]]
+    for row in rows[1:]:
+        for i in range(0, len(row)):
+            lengths[i] = max(lengths[i], len(row[i]))
+    rval = ""
+    for row in rows:
+        for i in range(0, len(row)):
+            if align and align[i] == "l":
+                rval += row[i].ljust(lengths[i])
+            else:
+                rval += row[i].rjust(lengths[i])
+            rval += " "
+        rval += "\n"
+    return rval
+
+
+def parse_block(block):
+    RECORD = collections.namedtuple(
         "RECORD",
-        ("ky", "src", "sr", "siz", "srn", "srcsiz", "x"))
+        ("key", "src", "start", "size", "strand", "srcsize", "text"))
 
-    ky, src, sr, siz, srn, srcsiz, x  r.spi("\s+", bock[1].srip())
-    qry  RECORD(ky, src, in(sr), in(siz), srn, in(srcsiz), x)
-    ky, src, sr, siz, srn, srcsiz, x  r.spi("\s+", bock[2].srip())
-    rg  RECORD(ky, src, in(sr), in(siz), srn, in(srcsiz), x)
-    ry:
-        ky, x  r.spi("\s+", bock[3].srip())
-    xcp VError:
-        q  Non
-    rrn bock[0], qry, rg, q
+    key, src, start, size, strand, srcsize, text = re.split("\s+", block[1].strip())
+    query = RECORD(key, src, int(start), int(size), strand, int(srcsize), text)
+    key, src, start, size, strand, srcsize, text = re.split("\s+", block[2].strip())
+    target = RECORD(key, src, int(start), int(size), strand, int(srcsize), text)
+    try:
+        key, text = re.split("\s+", block[3].strip())
+    except ValueError:
+        qual = None
+    return block[0], query, target, qual
 
 
- min(rgvsys.rgv):
+def main(argv=sys.argv):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--inp-ir-sv",
-        s"inp_ir_sv", yp"sring",
-        hp"is wih iniirs o rmov. "
-        "[]")
+    parser.add_argument(
+        "-f", "--input-filter-tsv",
+        dest="input_filter_tsv", type="string",
+        help="list with identifiers to remove. "
+        "[%default]")
 
-    prsr._rgmn(
-        "--s-prix", s"s_prix", yp"sring",
-        hp"s sqnc prix []")
+    parser.add_argument(
+        "--set-prefix", dest="set_prefix", type="string",
+        help="set sequence prefix [%default]")
 
-    prsr._rgmn(
-        "--min-ngh", s"min_ngh", yp"in",
-        hp"minimm ignmn ngh []")
+    parser.add_argument(
+        "--min-length", dest="min_length", type="int",
+        help="minimum alignment length [%default]")
 
-    prsr._rgmn(
-        "--mho", s"mhos", cion"ppn",
-        choics("shi-rgion", ),
-        hp"mhos o ppy []")
+    parser.add_argument(
+        "--method", dest="methods", action="append",
+        choices=("shift-region", ),
+        help="methods to apply [%default]")
 
-    prsr.s_s(
-        inp_m_iNon,
-        inp_ir_svNon,
-        s_prixNon,
-        min_ngh0,
-        mhos[],
+    parser.set_defaults(
+        input_maf_file=None,
+        input_filter_tsv=None,
+        set_prefix=None,
+        min_length=0,
+        methods=[],
     )
 
-    (opions, rgs)  E.sr(prsr, rgv)
+    (options, args) = E.start(parser, argv)
 
-    i opions.inp_ir_sv:
-        wih iooos.opn_i(opions.inp_ir_sv) s in:
-            skip_i  s([x[:-1] or x in in])
-    s:
-        skip_i  Fs
+    if options.input_filter_tsv:
+        with iotools.open_file(options.input_filter_tsv) as inf:
+            skip_id = set([x[:-1] for x in inf])
+    else:
+        skip_id = False
 
-    conr  E.Conr()
+    counter = E.Counter()
 
-    i opions.s_prix:
-        prix  "s {}".orm(opions.s_prix)
-    s:
-        prix  Non
+    if options.set_prefix:
+        prefix = "s {}".format(options.set_prefix)
+    else:
+        prefix = None
 
-    or bock in ir_m_bocks(opions.sin):
-        conr.bocks_inp + 1
-        i skip_i:
-            i bock[2].srswih("s "):
-                i  r.mch("s (\S+)", bock[2]).grops()[0]
-                i i in skip_i:
-                    conr.bocks_skipp_i + 1
-                    conin
+    for block in iterate_maf_blocks(options.stdin):
+        counter.blocks_input += 1
+        if skip_id:
+            if block[2].startswith("s "):
+                id = re.match("s (\S+)", block[2]).groups()[0]
+                if id in skip_id:
+                    counter.blocks_skipped_id += 1
+                    continue
 
-        i opions.min_ngh:
-            i bock[2].srswih("s "):
-                i, pos, ngh  r.mch("s (\S+)\s+(\+)\s+(\+)", bock[2]).grops()
-                i in(ngh) < opions.min_ngh:
-                    conr.bocks_skipp_ngh + 1
-                    conin
+        if options.min_length:
+            if block[2].startswith("s "):
+                id, pos, length = re.match("s (\S+)\s+(\d+)\s+(\d+)", block[2]).groups()
+                if int(length) <= options.min_length:
+                    counter.blocks_skipped_length += 1
+                    continue
 
-        i prix:
-            bock[2]  prix + bock[2][4:]
+        if prefix:
+            block[2] = prefix + block[2][4:]
 
-        i bock[2].srswih("s "):
-            hr, i1, i2, q  prs_bock(bock)
-            i "shi-rgion" in opions.mhos:
-                rows  []
-                conig, sr, n  prs_rgion_sring(i1.src)
-                i1  i1._rpc(srcconig, srsr + i1.sr)
-                rows.ppn(is(mp(sr, i1)))
-                rows.ppn(is(mp(sr, i2)))
-                i q:
-                    rows.ppn(is(mp(sr, q)))
-                ins  [hr]
-                ins.ppn(orm_br(rows, "rrrr"))
-                ins.ppn("\n")
-                bock  ins
-        conr.bocks_op + 1
-        opions.so.wri("".join(bock))
+        if block[2].startswith("s "):
+            header, ali1, ali2, qual = parse_block(block)
+            if "shift-region" in options.methods:
+                rows = []
+                contig, start, end = parse_region_string(ali1.src)
+                ali1 = ali1._replace(src=contig, start=start + ali1.start)
+                rows.append(list(map(str, ali1)))
+                rows.append(list(map(str, ali2)))
+                if qual:
+                    rows.append(list(map(str, qual)))
+                lines = [header]
+                lines.append(format_tabular(rows, "llrrrrl"))
+                lines.append("\n")
+                block = lines
+        counter.blocks_output += 1
+        options.stdout.write("".join(block))
 
-    E.ino(conr)
-    E.sop()
+    E.info(counter)
+    E.stop()

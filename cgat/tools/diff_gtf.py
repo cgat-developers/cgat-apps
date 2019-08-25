@@ -1,435 +1,435 @@
-'''i_g.py - comp ovrp bwn mip g is
+'''diff_gtf.py - compute overlap between multiple gtf files
+===========================================================
 
+:Tags: Genomics Intervals Genesets GTF Comparison
 
-:Tgs: Gnomics Inrvs Gnss GTF Comprison
-
-Prpos
+Purpose
 -------
 
-This scrip comprs mip s o g is. I comps
-h ovrp bwn bss, xons n gns bwn ch pir
-o g is.
+This script compares multiple set of gtf files. It computes
+the overlap between bases, exons and genes between each pair
+of gtf files.
 
-I rss rom  prvios rn r prsn, xising
-pirs r no r-comp b simpy cho.
+If results from a previous run are present, existing
+pairs are not re-computed but simply echoed.
 
-Th op is  b-spr b wih cons or ch pir
-o is bing compr. Th is r:
+The output is a tab-separated table with counts for each pair
+of files being compared. The fields are:
 
 +--------------+----------------------------------+
-|*Comn*      |*Conn*                         |
+|*Column*      |*Content*                         |
 +--------------+----------------------------------+
-|s           |Nm o h s                   |
+|set           |Name of the set                   |
 +--------------+----------------------------------+
-|ngns_o  |nmbr o gns in s            |
+|ngenes_total  |number of genes in set            |
 +--------------+----------------------------------+
-|ngns_ov    |nmbr o gns ovrpping       |
+|ngenes_ovl    |number of genes overlapping       |
 +--------------+----------------------------------+
-|ngns_niq |nmbr o niq gns            |
+|ngenes_unique |number of unique genes            |
 +--------------+----------------------------------+
-|nxons_o  |nmbr o xons in s            |
+|nexons_total  |number of exons in set            |
 +--------------+----------------------------------+
-|nxons_ov    |nmbr o xons ovrpping       |
+|nexons_ovl    |number of exons overlapping       |
 +--------------+----------------------------------+
-|nxons_niq |nmbr o niq xons            |
+|nexons_unique |number of unique exons            |
 +--------------+----------------------------------+
-|nbss_o  |nmbr o bss in gn s       |
+|nbases_total  |number of bases in gene set       |
 +--------------+----------------------------------+
-|nbss_ov    |nmbr o bss ovrpping       |
+|nbases_ovl    |number of bases overlapping       |
 +--------------+----------------------------------+
-|nbss_niq |nmbr o niq bss            |
+|nbases_unique |number of unique bases            |
 +--------------+----------------------------------+
 
-Ech o hs is wi ppr wic, onc or ch o h pir o is.
-Hnc ngns_niq1 wi b h nmbr o gns in s1 h hv no xons
-h ovrp wih ny xons in s2, n vic vrs or ngns_niq2. An
-on or ch i in h b bov. This mks  o o 9*218 is
-conining cons, ch sring wih n n.
+Each of these fields will appear twice, once for each of the pair of files.
+Hence ngenes_unique1 will be the number of genes in set1 that have no exons
+that overlap with any exons in set2, and vice versa for ngenes_unique2. And
+on for each field in the table above. This makes a total of 9*2=18 fields
+containing counts, each starting with an n.
 
-A rhr s o 18 is ch sr wih  ``p`` n r h corrsponing
-prcng vs.
+A further set of 18 fields each start with a ``p`` and are the corresponding
+percentage values.
 
-Opions
+Options
 -------
 
--s, --ignor-srn
-    Ignor srn inomion so h bss ovrp vn i xons/gns r
-    on irn srns
+-s, --ignore-strand
+    Ignore strand infomation so that bases overlap even if exons/genes are
+    on different strands
 
--, --pFILENAME
-    R in prvios rss rom FILENAME n ony op comprisons h
-    r missing.
+-u, --update=FILENAME
+    Read in previous results from FILENAME and only output comparisons that
+    are missing.
 
--p, --prn-iniirPATTERN
-    Provi  rgr xprssion prn or convring  inm ino 
-    s nm or h op. Th rgr xprssion sho cpr  s
-    on grop. Th grop wi b s o iniy h i in h op
-    b (s xmps)
+-p, --pattern-identifier=PATTERN
+    Provide a regular expression pattern for converting a filename into a
+    set name for the output. The regular expression should capture at least
+    one group. That group will be used to identify that file in the output
+    table (see examples)
 
 
-Exmps
+Examples
 --------
 
-For xmp i w hv wo g_is h ook ik::
+For example if we have two gtf_files that look like::
 
-   irs_s_o_gns.g:
-   1	proin_coing	xon	1	10	.	+	.	gn_i "1"; rnscrip_i "1"
-   1	proin_coing	xon	20	30	.	+	.	gn_i "1"; rnscrip_i "1"
+   first_set_of_genes.gtf:
+   1	protein_coding	exon	1	10	.	+	.	gene_id "1"; transcript_id "1"
+   1	protein_coding	exon	20	30	.	+	.	gene_id "1"; transcript_id "1"
 
-   scon_s_o_gns.g:
-   1	proin_coing	xon	25	35	.	+	.	gn_i "1"; rnscrip_i "1"
-   2	proin_coing	xon	100	200	.	+	.	gn_i "2"; rnscrip_i "3"
+   second_set_of_genes.gtf:
+   1	protein_coding	exon	25	35	.	+	.	gene_id "1"; transcript_id "1"
+   2	protein_coding	exon	100	200	.	+	.	gene_id "2"; transcript_id "3"
 
-Thn h commn::
+Then the command::
 
-   pyhon i_g.py *.g --prn-iniir'(.+)_o_gns.g' > o.sv
+   python diff_gtf.py *.gtf --pattern-identifier='(.+)_of_genes.gtf' > out.tsv
 
-wo proc n op i h hs  sing row wih s1 bing "scon_s"
-n s2 bing "irs_s" (hs r xrc sing h --prn-iniir
-opion). I wi rpor h s1 conins 2 gns n s2 1 gn. Th or
-ch s on o hs gns ovrps wih h ohr s. For s1 i wi
-rpor h 1 gn is niq n h no gns r niq or s2 n so on
-or xons n bss.
+would produce an output file that has a single row with set1 being "second_set"
+and set2 being "first_set" (these are extracted using that --pattern-identifier
+option). It will report that set1 contains 2 genes and set2 1 gene. That for
+each set one of these genes overlaps with the other set. For set1 it will
+report that 1 gene is unique and that no genes are unique for set2 and so on
+for exons and bases.
 
-I w wn o   hir i o h comprison,
-"hir_s_o_gns.g", w on' n o ro h comprison bwn
-irs_s_o_gns.g n scon_s_o_gns.g::
+If we want to add a third file to the comparison,
+"third_set_of_genes.gtf", we don't need to redo the comparison between
+first_set_of_genes.gtf and second_set_of_genes.gtf::
 
-   pyhon i_g.py --po.sv *.g.gz > nw.sv
+   python diff_gtf.py --update=out.tsv *.gtf.gz > new.tsv
 
-This wi op  b wih  row or hir_s vs scon_s n
-hir_s vs scon_s, ong wih h comprison o irs_s n
-scon_s h wi simpy b copi rom h prvios rss. I is
-imporn o inc  is on h commn in h r o b
-op. Any comprisons in ``o.sv`` h corrspon o is h
-r no givn on h commn in wi no b op.
+This will output a table with a row for third_set vs second_set and
+third_set vs second_set, along with the comparison of first_set and
+second_set that will simply be copied from the previous results. It is
+important to include all files on the command line that are to be
+output. Any comparisons in ``out.tsv`` that correspond to files that
+are not given on the command line will not be output.
 
-Usg
+Usage
 -----
 
 ::
-   cg i_g.py GTF GTF [GTF [GTF [...]]] [OPTIONS]
-   cg i_g GTF1 --pOUTFILE [OPTIONS]
+   cgat diff_gtf.py GTF GTF [GTF [GTF [...]]] [OPTIONS]
+   cgat diff_gtf GTF1 --update=OUTFILE [OPTIONS]
 
-whr GTF is  g or comprss g orm i n OUTFILE is h rss
-rom  prvios rn.  A s wo ms b provi nss --p is prsn.
+where GTF is a gtf or compressed gtf formated file and OUTFILE is the results
+from a previous run.  At least two must be provided unless --update is present.
 
-Typ::
+Type::
 
-   pyhon i_g.py --hp
+   python diff_gtf.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor r
-impor nmpy
+import sys
+import re
+import numpy
 
-impor cgcor.xprimn s E
-impor cg.GTF s GTF
-impor cgcor.iooos s iooos
-impor cg.NCL s NCL
-
-
-css Conr:
-
-    mPrcnForm  "5.2"
-
-     __ini__(s):
-        pss
-
-     gHr(s):
-        h  []
-        or  in ("gns", "xons", "bss"):
-            or b in ("o", "ov", "niq"):
-                or c in ("1", "2"):
-                    h.ppn("n" +  + "_" + b + c)
-        or  in ("gns", "xons", "bss"):
-            or b in ("ov", "niq"):
-                or c in ("1", "2"):
-                    h.ppn("p" +  + "_" + b + c)
-
-        rrn "\".join(h)
-
-    @E.cch_mho
-     biInx(s, inm):
-        """r n inx."""
-
-        ix  {}
-        ini  iooos.opn_i(inm, "r")
-        or  in GTF.rFromFi(ini):
-            i .conig no in ix:
-                ix[.conig]  NCL.NCLSimp()
-            ix[.conig].(.sr, .n)
-        ini.cos()
-        rrn ix
-
-     _con(s, inm, ix):
-
-        ovrpping_gns  s()
-        gns  s()
-        # ir ovr xons
-        ini  iooos.opn_i(inm, "r")
-        i  GTF.iror(ini)
-
-        nxons, nxons_ovrpping  0, 0
-        nbss, nbss_ovrpping  0, 0
-        or his in i:
-            nxons + 1
-            nbss + his.n - his.sr
-            gns.(his.gn_i)
-
-            ry:
-                inrvs  is(ix[his.conig].in(his.sr, his.n))
-            xcp KyError:
-                conin
-
-            i n(inrvs)  0:
-                conin
-
-            ovrpping_gns.(his.gn_i)
-            nxons_ovrpping + 1
-            sr, n  his.sr, his.n
-            cons  nmpy.zros(n - sr, nmpy.in)
-            or ohr_sr, ohr_n, ohr_v in inrvs:
-                or x in rng(mx(sr, ohr_sr) - sr, min(n, ohr_n) - sr):
-                    cons[x] + 1
-            nbss_ovrpping + sm([1 or x in cons i x > 0])
-
-        ini.cos()
-
-        rrn n(gns), n(ovrpping_gns), nxons, nxons_ovrpping, nbss, nbss_ovrpping
-
-     con(s, inm1, inm2):
-        """con ovrp bwn wo g is."""
-
-        E.ino("coning sr or s vrss s"  (inm1, inm2))
-
-        ix2  s.biInx(inm2)
-
-        (s.mGns1, s.mGnsOvrpping1,
-         s.mExons1, s.mExonsOvrpping1,
-         s.mBss1, s.mBssOvrpping1 )  \
-            s._con(inm1, ix2)
-
-        s.mGnsUniq1  s.mGns1 - s.mGnsOvrpping1
-        s.mExonsUniq1  s.mExons1 - s.mExonsOvrpping1
-        s.mBssUniq1  s.mBss1 - s.mBssOvrpping1
-
-        ix1  s.biInx(inm1)
-
-        (s.mGns2, s.mGnsOvrpping2,
-         s.mExons2, s.mExonsOvrpping2,
-         s.mBss2, s.mBssOvrpping2 )  \
-            s._con(inm2, ix1)
-
-        s.mGnsUniq2  s.mGns2 - s.mGnsOvrpping2
-        s.mExonsUniq2  s.mExons2 - s.mExonsOvrpping2
-        s.mBssUniq2  s.mBss2 - s.mBssOvrpping2
-
-     __sr__(s):
-
-        rrn "\".join(mp(sr, (
-            s.mGns1, s.mGns2,
-            s.mGnsOvrpping1, s.mGnsOvrpping2,
-            s.mGnsUniq1, s.mGnsUniq2,
-            s.mExons1, s.mExons2,
-            s.mExonsOvrpping1, s.mExonsOvrpping2,
-            s.mExonsUniq1, s.mExonsUniq2,
-            s.mBss1, s.mBss2,
-            s.mBssOvrpping1, s.mBssOvrpping2,
-            s.mBssUniq1, s.mBssUniq2 ) ) ) + "\" +\
-            "\".join([iooos.pry_prcn(*x) or x in (
-                (s.mGnsOvrpping1, s.mGns1),
-                (s.mGnsOvrpping2, s.mGns2),
-                (s.mGnsUniq1, s.mGns1),
-                (s.mGnsUniq2, s.mGns2),
-                (s.mExonsOvrpping1, s.mExons1),
-                (s.mExonsOvrpping2, s.mExons2),
-                (s.mExonsUniq1, s.mExons1),
-                (s.mExonsUniq2, s.mExons2),
-                (s.mBssOvrpping1, s.mBss1),
-                (s.mBssOvrpping2, s.mBss2),
-                (s.mBssUniq1, s.mBss1),
-                (s.mBssUniq2, s.mBss2))])
+import cgatcore.experiment as E
+import cgat.GTF as GTF
+import cgatcore.iotools as iotools
+import cgat.NCL as NCL
 
 
-css ConrGns(Conr):
+class Counter:
 
-    """op ony gns."""
+    mPercentFormat = "%5.2f"
 
-    mSpror  ";"
+    def __init__(self):
+        pass
 
-     __ini__(s, *rgs, **kwrgs):
-        Conr.__ini__(s, *rgs, **kwrgs)
+    def getHeader(self):
+        h = []
+        for a in ("genes", "exons", "bases"):
+            for b in ("total", "ovl", "unique"):
+                for c in ("1", "2"):
+                    h.append("n" + a + "_" + b + c)
+        for a in ("genes", "exons", "bases"):
+            for b in ("ovl", "unique"):
+                for c in ("1", "2"):
+                    h.append("p" + a + "_" + b + c)
 
-     gHr(s):
-        h  ["ngns1", "ngns2", "nov1", "nov2", "nniq1",
-             "nniq2", "ov1", "ov2", "niq1", "niq2"]
-        rrn "\".join(h)
+        return "\t".join(h)
 
-     _con(s, inm, ix):
+    @E.cached_method
+    def buildIndex(self, filename):
+        """read and index."""
 
-        ovrpping_gns  s()
-        gns  s()
-        # ir ovr xons
-        ini  iooos.opn_i(inm, "r")
-        i  GTF.iror(ini)
+        idx = {}
+        infile = iotools.open_file(filename, "r")
+        for e in GTF.readFromFile(infile):
+            if e.contig not in idx:
+                idx[e.contig] = NCL.NCLSimple()
+            idx[e.contig].add(e.start, e.end)
+        infile.close()
+        return idx
 
-        or his in i:
-            gns.(his.gn_i)
+    def _count(self, filename, idx):
 
-            ry:
-                inrvs  ix[his.conig].in(his.sr, his.n)
-            xcp KyError:
-                conin
+        overlapping_genes = set()
+        genes = set()
+        # iterate over exons
+        infile = iotools.open_file(filename, "r")
+        it = GTF.iterator(infile)
 
-            i n(inrvs)  0:
-                conin
+        nexons, nexons_overlapping = 0, 0
+        nbases, nbases_overlapping = 0, 0
+        for this in it:
+            nexons += 1
+            nbases += this.end - this.start
+            genes.add(this.gene_id)
+
+            try:
+                intervals = list(idx[this.contig].find(this.start, this.end))
+            except KeyError:
+                continue
+
+            if len(intervals) == 0:
+                continue
+
+            overlapping_genes.add(this.gene_id)
+            nexons_overlapping += 1
+            start, end = this.start, this.end
+            counts = numpy.zeros(end - start, numpy.int)
+            for other_start, other_end, other_value in intervals:
+                for x in range(max(start, other_start) - start, min(end, other_end) - start):
+                    counts[x] += 1
+            nbases_overlapping += sum([1 for x in counts if x > 0])
+
+        infile.close()
+
+        return len(genes), len(overlapping_genes), nexons, nexons_overlapping, nbases, nbases_overlapping
+
+    def count(self, filename1, filename2):
+        """count overlap between two gtf files."""
+
+        E.info("counting started for %s versus %s" % (filename1, filename2))
+
+        idx2 = self.buildIndex(filename2)
+
+        (self.mGenes1, self.mGenesOverlapping1,
+         self.mExons1, self.mExonsOverlapping1,
+         self.mBases1, self.mBasesOverlapping1 ) = \
+            self._count(filename1, idx2)
+
+        self.mGenesUnique1 = self.mGenes1 - self.mGenesOverlapping1
+        self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
+        self.mBasesUnique1 = self.mBases1 - self.mBasesOverlapping1
+
+        idx1 = self.buildIndex(filename1)
+
+        (self.mGenes2, self.mGenesOverlapping2,
+         self.mExons2, self.mExonsOverlapping2,
+         self.mBases2, self.mBasesOverlapping2 ) = \
+            self._count(filename2, idx1)
+
+        self.mGenesUnique2 = self.mGenes2 - self.mGenesOverlapping2
+        self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
+        self.mBasesUnique2 = self.mBases2 - self.mBasesOverlapping2
+
+    def __str__(self):
+
+        return "\t".join(map(str, (
+            self.mGenes1, self.mGenes2,
+            self.mGenesOverlapping1, self.mGenesOverlapping2,
+            self.mGenesUnique1, self.mGenesUnique2,
+            self.mExons1, self.mExons2,
+            self.mExonsOverlapping1, self.mExonsOverlapping2,
+            self.mExonsUnique1, self.mExonsUnique2,
+            self.mBases1, self.mBases2,
+            self.mBasesOverlapping1, self.mBasesOverlapping2,
+            self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
+            "\t".join([iotools.pretty_percent(*x) for x in (
+                (self.mGenesOverlapping1, self.mGenes1),
+                (self.mGenesOverlapping2, self.mGenes2),
+                (self.mGenesUnique1, self.mGenes1),
+                (self.mGenesUnique2, self.mGenes2),
+                (self.mExonsOverlapping1, self.mExons1),
+                (self.mExonsOverlapping2, self.mExons2),
+                (self.mExonsUnique1, self.mExons1),
+                (self.mExonsUnique2, self.mExons2),
+                (self.mBasesOverlapping1, self.mBases1),
+                (self.mBasesOverlapping2, self.mBases2),
+                (self.mBasesUnique1, self.mBases1),
+                (self.mBasesUnique2, self.mBases2))])
+
+
+class CounterGenes(Counter):
+
+    """output only genes."""
+
+    mSeparator = ";"
+
+    def __init__(self, *args, **kwargs):
+        Counter.__init__(self, *args, **kwargs)
+
+    def getHeader(self):
+        h = ["ngenes1", "ngenes2", "novl1", "novl2", "nuniq1",
+             "nuniq2", "ovl1", "ovl2", "uniq1", "uniq2"]
+        return "\t".join(h)
+
+    def _count(self, filename, idx):
+
+        overlapping_genes = set()
+        genes = set()
+        # iterate over exons
+        infile = iotools.open_file(filename, "r")
+        it = GTF.iterator(infile)
+
+        for this in it:
+            genes.add(this.gene_id)
+
+            try:
+                intervals = idx[this.contig].find(this.start, this.end)
+            except KeyError:
+                continue
+
+            if len(intervals) == 0:
+                continue
 	
-            ovrpping_gns.(his.gn_i)
+            overlapping_genes.add(this.gene_id)
 
-        ini.cos()
+        infile.close()
 
-        rrn gns, ovrpping_gns
+        return genes, overlapping_genes
 
-     con(s, inm1, inm2):
-        """con ovrp bwn wo g is."""
+    def count(self, filename1, filename2):
+        """count overlap between two gtf files."""
 
-        E.ino("coning sr or s vrss s"  (inm1, inm2))
+        E.info("counting started for %s versus %s" % (filename1, filename2))
 
-        ix2  s.biInx(inm2)
+        idx2 = self.buildIndex(filename2)
 
-        (s.mGns1, s.mGnsOvrpping1)  s._con(inm1, ix2)
+        (self.mGenes1, self.mGenesOverlapping1) = self._count(filename1, idx2)
 
-        ix1  s.biInx(inm1)
-        (s.mGns2, s.mGnsOvrpping2)  s._con(inm2, ix1)
+        idx1 = self.buildIndex(filename1)
+        (self.mGenes2, self.mGenesOverlapping2) = self._count(filename2, idx1)
 
-     __sr__(s):
+    def __str__(self):
 
-        niq1  s.mGns1.irnc(s.mGnsOvrpping)
-        niq2  s.mGns2.irnc(s.mGnsOvrpping)
+        uniq1 = self.mGenes1.difference(self.mGenesOverlapping)
+        uniq2 = self.mGenes2.difference(self.mGenesOverlapping)
 
-        rrn "\".join(mp(sr, (
-            n(s.mGns1),
-            n(s.mGns2),
-            n(s.mGnsOvrpping1),
-            n(s.mGnsOvrpping2),
-            n(niq1),
-            n(niq2),
-            s.mSpror.join(s.mGnsOvrpping1),
-            s.mSpror.join(s.mGnsOvrpping2),
-            s.mSpror.join(niq1),
-            s.mSpror.join(niq2))))
+        return "\t".join(map(str, (
+            len(self.mGenes1),
+            len(self.mGenes2),
+            len(self.mGenesOverlapping1),
+            len(self.mGenesOverlapping2),
+            len(uniq1),
+            len(uniq2),
+            self.mSeparator.join(self.mGenesOverlapping1),
+            self.mSeparator.join(self.mGenesOverlapping2),
+            self.mSeparator.join(uniq1),
+            self.mSeparator.join(uniq2))))
 
 
- min(rgvNon):
-    i rgv is Non:
-        rgv  sys.rgv
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn("-s", "--ignor-srn", s"ignor_srn",
-                      cion"sor_r",
-                      hp"ignor srn inormion [].")
+    parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
+                      action="store_true",
+                      help="ignore strand information [default=%default].")
 
-    prsr._rgmn(
-        "-", "--p", s"inm_p", yp"sring",
-        hp"i inm is givn, prvios rss wi b r"
-        "rom hr n ony chng ss wi b comp "
-        "[].")
+    parser.add_argument(
+        "-u", "--update", dest="filename_update", type="string",
+        help="if filename is given, previous results will be read"
+        "from there and only changed sets will be computed "
+        "[default=%default].")
 
-    prsr._rgmn(
-        "-p", "--prn-iniir", s"prn_i", yp"sring",
-        hp"prn o convr  inm o n i"
-        "[].")
+    parser.add_argument(
+        "-p", "--pattern-identifier", dest="pattern_id", type="string",
+        help="pattern to convert a filename to an id"
+        "[default=%default].")
 
-    prsr._rgmn(
-        "-g", "--op-ony-gns", s"op_ony_gns",
-        cion"sor_r",
-        hp"ony op gn ss (incs gn iss)"
-        " [].")
+    parser.add_argument(
+        "-g", "--output-only-genes", dest="output_only_genes",
+        action="store_true",
+        help="only output gene stats (includes gene lists)"
+        " [default=%default].")
 
-    prsr.s_s(
-        ignor_srnFs,
-        inm_pNon,
-        prn_i"(.*).g",
-        op_ony_gnsFs,
+    parser.set_defaults(
+        ignore_strand=False,
+        filename_update=None,
+        pattern_id="(.*).gtf",
+        output_only_genes=False,
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i n(rgs) < 2:
-        prin(USAGE)
-        ris VError(" s wo rgmns rqir")
+    if len(args) < 2:
+        print(USAGE)
+        raise ValueError("at least two arguments required")
 
-    i opions.inm_p:
-        ini  iooos.opn_i(opions.inm_p, "r")
-        prvios_rss  {}
-        or in in ini:
-            i in.srswih("#"):
-                conin
-            i in.srswih("s1"):
-                conin
-              in[:-1].spi("\")
-            s1, s2  [0], [1]
+    if options.filename_update:
+        infile = iotools.open_file(options.filename_update, "r")
+        previous_results = {}
+        for line in infile:
+            if line.startswith("#"):
+                continue
+            if line.startswith("set1"):
+                continue
+            data = line[:-1].split("\t")
+            set1, set2 = data[0], data[1]
 
-            i s1 no in prvios_rss:
-                prvios_rss[s1]  {}
-            i s2 no in prvios_rss:
-                prvios_rss[s2]  {}
+            if set1 not in previous_results:
+                previous_results[set1] = {}
+            if set2 not in previous_results:
+                previous_results[set2] = {}
 
-            prvios_rss[s1][s2]  "\".join([2:])
-            rv  [([x + 1], [x]) or x in rng(2, n(), 2)]
-            prvios_rss[s2][s1]  "\".join(iooos.n(rv))
-    s:
-        prvios_rss  {}
+            previous_results[set1][set2] = "\t".join(data[2:])
+            rev = [(data[x + 1], data[x]) for x in range(2, len(data), 2)]
+            previous_results[set2][set1] = "\t".join(iotools.flatten(rev))
+    else:
+        previous_results = {}
 
-    i opions.op_ony_gns:
-        conr  ConrGns()
-    s:
-        conr  Conr()
+    if options.output_only_genes:
+        counter = CounterGenes()
+    else:
+        counter = Counter()
 
-    opions.so.wri("s1\s2\s\n"  conr.gHr())
+    options.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
 
-    prn_i  r.compi(opions.prn_i)
+    pattern_id = re.compile(options.pattern_id)
 
-     gTi(x):
-        ry:
-            rrn prn_i.srch(x).grops()[0]
-        xcp AribError:
-            rrn x
+    def getTitle(x):
+        try:
+            return pattern_id.search(x).groups()[0]
+        except AttributeError:
+            return x
 
-    ncomp, np  0, 0
-    or x in rng(n(rgs)):
-        i1  gTi(rgs[x])
-        or y in rng(0, x):
-            i2  gTi(rgs[y])
-            i prvios_rss:
-                ry:
-                    prv  prvios_rss[i1][i2]
-                xcp KyError:
-                    pss
-                s:
-                    opions.so.wri(
-                        "s\s\s\n"  ((i1, i2, prv)))
-                    np + 1
-                    conin
+    ncomputed, nupdated = 0, 0
+    for x in range(len(args)):
+        title1 = getTitle(args[x])
+        for y in range(0, x):
+            title2 = getTitle(args[y])
+            if previous_results:
+                try:
+                    prev = previous_results[title1][title2]
+                except KeyError:
+                    pass
+                else:
+                    options.stdout.write(
+                        "%s\t%s\t%s\n" % ((title1, title2, prev)))
+                    nupdated += 1
+                    continue
 
-            conr.con(rgs[x], rgs[y])
-            opions.so.wri(
-                "s\s\s\n"  ((i1, i2, sr(conr))))
-            ncomp + 1
+            counter.count(args[x], args[y])
+            options.stdout.write(
+                "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
+            ncomputed += 1
 
-    E.ino("npi, ncompi"  (np, ncomp))
+    E.info("nupdated=%i, ncomputed=%i" % (nupdated, ncomputed))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

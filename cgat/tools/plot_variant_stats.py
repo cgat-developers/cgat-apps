@@ -1,197 +1,197 @@
-"""po-vrin-ss
+"""plot-variant-stats
+=====================
 
-
-Impm mhos
+Implemeted methods
 ------------------
 
-po-mion-proi
+plot-mutational-profile
 +++++++++++++++++++++++
 
-Po mion proi rom op o vc-ss.
+Plot mutational profile from output of vcf-stats.
 
 """
 
-impor sys
-impor pns
-impor nmpy
-impor r
-impor mpoib.pypo s p
-impor cgcor.xprimn s E
-rom cg.Pos.VrinPos impor MionProiBrPo, DphProiPo, \
-    MnhnPo
+import sys
+import pandas
+import numpy
+import re
+import matplotlib.pyplot as plt
+import cgatcore.experiment as E
+from cgat.Plots.VariantPlots import MutationProfileBarPlot, DepthProfilePlot, \
+    ManhattanPlot
 
 
- po_mion_proi_br_po(rm, scion, mp_ky2b{}, **kwrgs):
+def plot_mutation_profile_bar_plot(dataframe, section, map_key2label={}, **kwargs):
 
-    or ky, rm in rm.gropby(by"smp"):
-        i ky  "niq":
-            conin
+    for key, dataframe in dataframe.groupby(by="sample"):
+        if key == "unique":
+            continue
 
-        i rm.mpy:
-            E.wrn("no  or {}".orm(ky))
-            conin
+        if dataframe.empty:
+            E.warn("no data for {}".format(key))
+            continue
 
-        x  MionProiBrPo()(rm)
+        ax = MutationProfileBarPlot()(dataframe)
 
-        b  mp_ky2b.g(ky, ky)
-        p.svig(E.g_op_i("-".join((scion, b))))
-        p.cos()
-
-
- po_ph_proi_po(rm, scion, mp_ky2b{}, **kwrgs):
-
-    x  DphProiPo()(rm, mp_smp2b{})
-    p.svig(E.g_op_i(scion))
-    p.cos()
+        label = map_key2label.get(key, key)
+        plt.savefig(E.get_output_file("-".join((section, label))))
+        plt.close()
 
 
- po_mnhn_po(rm,
-                        scion,
-                        inm_s,
-                        mp_ky2b{},
-                        **kwrgs):
+def plot_depth_profile_plot(dataframe, section, map_key2label={}, **kwargs):
 
-    por  MnhnPo(gnom_siz_iinm_s)
-    x  por(rm, **kwrgs)
-    p.svig(E.g_op_i(scion))
-    p.cos()
+    ax = DepthProfilePlot()(dataframe, map_sample2label={})
+    plt.savefig(E.get_output_file(section))
+    plt.close()
 
 
- comp_og_ph_rio(rm, min_ph10):
+def plot_manhattan_plot(dataframe,
+                        section,
+                        filename_fasta,
+                        map_key2label={},
+                        **kwargs):
 
-    b  rm.s_inx(["CHROM", "POS"])
-
-    i n(b.comns) ! 2:
-        ris NoImpmnError("xpc 2 comns in b {}".orm(n))
-
-    norm_b  b / b.sm()
-    # ssmpion: comn orr is norm, mor
-    norm, mor  norm_b.comns
-    ogrios  nmpy.og2(norm_b[mor] / norm_b[norm])
-
-    norm_b["2o_DP"]  ogrios
-    rs  norm_b.rop([norm, mor], xis1)
-
-    rs  rs[b[norm].g(min_ph) |
-                    b[mor].g(min_ph)]
-    rrn rs.rs_inx()
+    plotter = ManhattanPlot(genome_size_file=filename_fasta)
+    ax = plotter(dataframe, **kwargs)
+    plt.savefig(E.get_output_file(section))
+    plt.close()
 
 
- min(rgvNon):
+def compute_log_depth_ratio(dataframe, min_depth=10):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    table = dataframe.set_index(["CHROM", "POS"])
 
-    prsr._rgmn(
-        "-m", "--mho", s"mho", yp"choic",
-        choics["mion-proi-br-po",
-                 "ph-proi-in-po",
-                 "mnhn-po"],
-        hp"mhos o ppy []")
+    if len(table.columns) != 2:
+        raise NotImplementedError("expected 2 columns in table {}".format(fn))
 
-    prsr._rgmn(
-        "-", "--rnsormion", s"rnsormions", yp"choic",
-        cion"ppn",
-        choics["og-ph-rio"],
-        hp"rm rnsormion opions []")
+    normed_table = table / table.sum()
+    # assumption: column order is normal, tumour
+    normal, tumour = normed_table.columns
+    logratios = numpy.log2(normed_table[tumour] / normed_table[normal])
 
-    prsr._rgmn(
-        "-r", "--rgx-inm", s"rgx_inm", yp"sring",
-        hp"[]")
+    normed_table["l2fold_DP"] = logratios
+    result = normed_table.drop([normal, tumour], axis=1)
 
-    prsr._rgmn(
-        "-", "--rrnc-s-i", s"rrnc_s_i",
-        hp"rrnc gnomic sqnc in s orm. "
-        "[]")
+    result = result[table[normal].gt(min_depth) |
+                    table[tumour].gt(min_depth)]
+    return result.reset_index()
 
-    prsr._rgmn(
-        "--inp-i-orm", s"inp_i_orm", yp"choic",
-        choics("sv", "bcoos-qry"),
-        hp"inp i orm "
-        "[]")
 
-    prsr._rgmn(
-        "--po-opions", s"po_opions", yp"sring",
-        hp"po opions o pss hrogh o h por. Th sring is "
-        "v', or xmp: --po-opions'winow_siz3, yb\"12\"' "
-        "[]")
+def main(argv=None):
 
-    prsr.s_s(
-        mhoNon,
-        rrnc_sNon,
-        inp_i_orm"sv",
-        po_opionsNon,
-        rnsormions[],
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
+
+    parser.add_argument(
+        "-m", "--method", dest="method", type="choice",
+        choices=["mutation-profile-bar-plot",
+                 "depth-profile-line-plot",
+                 "manhattan-plot"],
+        help="methods to apply [%default]")
+
+    parser.add_argument(
+        "-t", "--transformation", dest="transformations", type="choice",
+        action="append",
+        choices=["log-depth-ratio"],
+        help="dataframe transformation options [%default]")
+
+    parser.add_argument(
+        "-r", "--regex-filename", dest="regex_filename", type="string",
+        help="[%default]")
+
+    parser.add_argument(
+        "-f", "--reference-fasta-file", dest="reference_fasta_file",
+        help="reference genomic sequence in fasta format. "
+        "[%default]")
+
+    parser.add_argument(
+        "--input-file-format", dest="input_file_format", type="choice",
+        choices=("tsv", "bcftools-query"),
+        help="input file format "
+        "[%default]")
+
+    parser.add_argument(
+        "--plot-options", dest="plot_options", type="string",
+        help="plot options to pass through to the plotter. The string is "
+        "eval'ed, for example: --plot-options='window_size=3, ylabel=\"12\"' "
+        "[%default]")
+
+    parser.set_defaults(
+        method=None,
+        reference_fasta=None,
+        input_file_format="tsv",
+        plot_options=None,
+        transformations=[],
     )
 
-    (opions, rgs)  E.sr(prsr,
-                              rgvrgv,
-                              _op_opionsTr)
+    (options, args) = E.start(parser,
+                              argv=argv,
+                              add_output_options=True)
 
-    inms  rgs
+    filenames = args
 
-    i n(inms)  0:
-        E.ino("ring rom sin")
-        inms  [opions.sin]
+    if len(filenames) == 0:
+        E.info("reading from stdin")
+        filenames = [options.stdin]
 
-    i opions.po_opions is no Non:
-        po_opions  v("ic({})".orm(opions.po_opions))
-    s:
-        po_opions  {}
+    if options.plot_options is not None:
+        plot_options = eval("dict({})".format(options.plot_options))
+    else:
+        plot_options = {}
 
-    or inx, inm in nmr(inms):
+    for index, filename in enumerate(filenames):
 
-        E.ino("working on {}".orm(inm))
+        E.info("working on {}".format(filename))
 
-        ry:
-            i opions.inp_i_orm  "bcoos-qry":
-                # or bcoos qry, hr srs wih "#".
+        try:
+            if options.input_file_format == "bcftools-query":
+                # for bctools query, header starts with "#".
 
-                rm  pns.r_csv(inm,
-                                            sp"\",
-                                            skip_bnk_insFs,
-                                            hr0,
-                                            yp{"CHROM": sr})
-                # nms r o orm [1]smp1:DP, xrc smp1
-                rm.comns  (
-                    [r.srch("\[\+\]([^:]+)", x).grops()[0]
-                     or x in rm.comns])
-            s:
-                rm  pns.r_csv(inm, sp"\",
-                                            yp{"CHROM": sr})
-        xcp pns.io.common.EmpyDError:
-            E.wrn("no  in {}, skipp".orm(inm))
-            conin
+                dataframe = pandas.read_csv(filename,
+                                            sep="\t",
+                                            skip_blank_lines=False,
+                                            header=0,
+                                            dtype={"CHROM": str})
+                # names are of format [1]sample1:DP, extract sample1
+                dataframe.columns = (
+                    [re.search("\[\d+\]([^:]+)", x).groups()[0]
+                     for x in dataframe.columns])
+            else:
+                dataframe = pandas.read_csv(filename, sep="\t",
+                                            dtype={"CHROM": str})
+        except pandas.io.common.EmptyDataError:
+            E.warn("no data in {}, skipped".format(filename))
+            continue
 
-        E.ino("r  rom {}".orm(inm))
+        E.info("read data from {}".format(filename))
 
-        i opions.rgx_inm:
-            scion  r.srch(opions.rgx_inm, inm).grops()[0]
-        s:
-            scion  "{}".orm(inx + 1)
+        if options.regex_filename:
+            section = re.search(options.regex_filename, filename).groups()[0]
+        else:
+            section = "{}".format(index + 1)
 
-        or mho in opions.rnsormions:
-            i mho  "og-ph-rio":
-                rm  comp_og_ph_rio(rm)
+        for method in options.transformations:
+            if method == "log-depth-ratio":
+                dataframe = compute_log_depth_ratio(dataframe)
 
-        i rm.mpy:
-            E.wrn("rm rom {} is mpy - skipp".orm(inm))
-            conin
+        if dataframe.empty:
+            E.warn("dataframe from {} is empty - skipped".format(filename))
+            continue
 
-        i opions.mho  "mion-proi-br-po":
-            po_mion_proi_br_po(rm, scion, **po_opions)
+        if options.method == "mutation-profile-bar-plot":
+            plot_mutation_profile_bar_plot(dataframe, section, **plot_options)
 
-        i opions.mho  "ph-proi-in-po":
-            po_ph_proi_po(rm, scion, **po_opions)
+        elif options.method == "depth-profile-line-plot":
+            plot_depth_profile_plot(dataframe, section, **plot_options)
 
-        i opions.mho  "mnhn-po":
-            po_mnhn_po(rm,
-                                scion,
-                                inm_sopions.rrnc_s_i,
-                                **po_opions)
+        elif options.method == "manhattan-plot":
+            plot_manhattan_plot(dataframe,
+                                section,
+                                filename_fasta=options.reference_fasta_file,
+                                **plot_options)
 
-    E.sop()
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min())
+if __name__ == "__main__":
+    sys.exit(main())

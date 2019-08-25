@@ -1,179 +1,179 @@
-'''spi_g - spi  g i ino chnks
+'''split_gff - split a gff file into chunks
+=============================================
 
+:Tags: Genomics Intervals Genesets GFF Manipulation
 
-:Tgs: Gnomics Inrvs Gnss GFF Mnipion
-
-Prpos
+Purpose
 -------
 
-Spi g i ino chnks. Ovrpping nris wi wys b op
-in h sm chnk. Inp is r rom sin nss ohrwis
-spcii. Th inp ns o b conig/sr posiion sor.
+Split gff file into chunks. Overlapping entries will always be output
+in the same chunk. Input is read from stdin unless otherwise
+specified. The input needs to be contig/start position sorted.
 
-Opions
+Options
 -------
 
--i --min-chnk-siz
+-i --min-chunk-size
 
-    This opion spciis how big ch chnck sho
-    b, in rms o h nmbr o g ins o b
-    inc. Bcs ovrpping ins r wys
-    op o h sm i, his sho b consir
-     minimm siz.
+    This option specifies how big each chunck should
+    be, in terms of the number of gff lines to be
+    included. Because overlapping lines are always
+    output to the same file, this should be considered
+    a minimum size.
 
--n, --ry-rn
+-n, --dry-run
 
-    This opions s h scrip no o cy wri
-    ny is, b i wi op  is o h is
-    h wo b op.
+    This options tells the script not to actaully write
+    any files, but it will output a list of the files
+    that would be output.
 
-Exmp
+Example
 -------
 
-    cg spig -i 1 < in.g
+    cgat splitgff -i 1 < in.gff
 
-whr in.g ooks ik:
+where in.gff looks like:
 
-    chr1	.	xon	1	10	.	+	.
-    chr1	.	xon	8	100	.	+	.
-    chr1	.	xon	102	150	.	+	.
+    chr1	.	exon	1	10	.	+	.
+    chr1	.	exon	8	100	.	+	.
+    chr1	.	exon	102	150	.	+	.
 
-wi proc wo is h ook ik:
+will produce two files that look like:
 
-    000001.chnk:
-    chr1	.	xon	1	10	.	+	.
-    chr1	.	xon	8	100	.	+	.
+    000001.chunk:
+    chr1	.	exon	1	10	.	+	.
+    chr1	.	exon	8	100	.	+	.
 
-    000002.chnk:
-    chr1	.	xon	102	150	.	+	.
+    000002.chunk:
+    chr1	.	exon	102	150	.	+	.
 
-Usg
+Usage
 -----
 
-   cg spig [OPTIONS]
+   cgat splitgff [OPTIONS]
 
-Wi r  g i rom sin n spi ino mip g is.
+Will read a gff file from stdin and split into multiple gff files.
 
-   cg spi_g -I GFF [OPTIONS]
+   cgat split_gff -I GFF [OPTIONS]
 
-Wi r h g i GFF n spi ino mip g is.
+Will read the gff file GFF and split into multiple gff files.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor os
-impor cg.GTF s GTF
-impor cgcor.iooos s iooos
-impor cgcor.xprimn s E
+import sys
+import os
+import cgat.GTF as GTF
+import cgatcore.iotools as iotools
+import cgatcore.experiment as E
 
 
-css OpChnk:
+class OutputChunk:
 
-     __ini__(s, op_inm_prn, ry_rnFs):
-        s.nchnk  0
-        s.op_inm_prn  op_inm_prn
-        s.ry_rn  ry_rn
+    def __init__(self, output_filename_pattern, dry_run=False):
+        self.nchunk = 0
+        self.output_filename_pattern = output_filename_pattern
+        self.dry_run = dry_run
 
-     crOpn(s, mo"w", hrNon):
-        """opn i. Chck irs, i ircory xiss.
+    def createOpen(self, mode="w", header=None):
+        """open file. Check first, if directory exists.
         """
 
-        s.nchnk + 1
-        inm  s.op_inm_prn  s.nchnk
+        self.nchunk += 1
+        filename = self.output_filename_pattern % self.nchunk
 
-        i s.ry_rn:
-            E.ino("opning i s"  inm)
-            rrniooos.opn_i("/v/n", mo)
+        if self.dry_run:
+            E.info("opening file %s" % filename)
+            returniotools.open_file("/dev/null", mode)
 
-        i mo in ("w", ""):
-            irnm  os.ph.irnm(inm)
-            i irnm n no os.ph.xiss(irnm):
-                os.mkirs(irnm)
+        if mode in ("w", "a"):
+            dirname = os.path.dirname(filename)
+            if dirname and not os.path.exists(dirname):
+                os.makedirs(dirname)
 
-        i os.ph.xiss(inm):
-            xis  Tr
-        s:
-            xis  Fs
+        if os.path.exists(filename):
+            existed = True
+        else:
+            existed = False
 
-          iooos.opn_i(inm, mo)
+        f = iotools.open_file(filename, mode)
 
-        i hr n no xis:
-            .wri(hr + "\n")
+        if header and not existed:
+            f.write(header + "\n")
 
-        rrn 
+        return f
 
-     __c__(s, chnk):
-        """op  chnk ino  nw i."""
-        oi  s.crOpn()
-        or c in chnk:
-            oi.wri(sr(c) + "\n")
-        oi.cos()
-        rrn n(chnk)
+    def __call__(self, chunk):
+        """output a chunk into a new file."""
+        outfile = self.createOpen()
+        for c in chunk:
+            outfile.write(str(c) + "\n")
+        outfile.close()
+        return len(chunk)
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I$",
-        sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id$",
+        usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-i", "--min-chnk-siz", s"min_chnk_siz", yp"in",
-        hp"minimm chnk siz [].")
+    parser.add_argument(
+        "-i", "--min-chunk-size", dest="min_chunk_size", type="int",
+        help="minimum chunk size [default=%default].")
 
-    prsr._rgmn(
-        "-n", "--ry-rn", s"ry_rn", cion"sor_r",
-        hp"o no cr ny is [].")
+    parser.add_argument(
+        "-n", "--dry-run", dest="dry_run", action="store_true",
+        help="do not create any files [default=%default].")
 
-    prsr.s_s(
-        mho"ovrp",
-        ry_rnFs,
-        min_chnk_siz2,
-        op_inm_prn"06i.chnk",
+    parser.set_defaults(
+        method="overlap",
+        dry_run=False,
+        min_chunk_size=2,
+        output_filename_pattern="%06i.chunk",
     )
 
-    (opions, rgs)  E.sr(prsr, _op_opionsTr)
+    (options, args) = E.start(parser, add_output_options=True)
 
-    gs  GTF.iror(opions.sin)
+    gffs = GTF.iterator(options.stdin)
 
-    ninp, nop, nchnks  0, 0, 0
+    ninput, noutput, nchunks = 0, 0, 0
 
-    opChnk  OpChnk(opions.op_inm_prn,
-                              ry_rnopions.ry_rn)
+    outputChunk = OutputChunk(options.output_filename_pattern,
+                              dry_run=options.dry_run)
 
-    i opions.mho  "ovrp":
+    if options.method == "overlap":
 
-        s_conig, s_o  Non, 0
-        chnk  []
-        or g in gs:
-            ninp + 1
-            i n(chnk) > opions.min_chnk_siz n \
-                    (g.conig ! s_conig or
-                     g.sr > s_o):
-                nop + opChnk(chnk)
-                nchnks + 1
-                chnk  []
-                s_conig, s_o  g.conig, g.n
+        last_contig, last_to = None, 0
+        chunk = []
+        for gff in gffs:
+            ninput += 1
+            if len(chunk) >= options.min_chunk_size and \
+                    (gff.contig != last_contig or
+                     gff.start > last_to):
+                noutput += outputChunk(chunk)
+                nchunks += 1
+                chunk = []
+                last_contig, last_to = gff.contig, gff.end
 
-            chnk.ppn(g)
-            s_o  mx(g.n, s_o)
+            chunk.append(gff)
+            last_to = max(gff.end, last_to)
 
-        nop + opChnk(chnk)
-        nchnks + 1
+        noutput += outputChunk(chunk)
+        nchunks += 1
 
-    E.ino("ninpi, nopi, nchnksi"  (ninp, nop, nchnks))
+    E.info("ninput=%i, noutput=%i, nchunks=%i" % (ninput, noutput, nchunks))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

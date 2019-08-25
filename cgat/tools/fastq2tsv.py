@@ -1,55 +1,55 @@
-"""moiy  sq i.
+"""modify a fastq file.
 """
 
-impor cocions
-impor sys
-impor pysm
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import collections
+import sys
+import pysam
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
- min(rgvsys.rgv):
+def main(argv=sys.argv):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-i", "--inp-sq-i", s"inp_sq_i", yp"sring",
-        hp"inp sq i. "
-        "[]")
+    parser.add_argument(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        help="input fastq file. "
+        "[%default]")
 
-    prsr._rgmn(
-        "-m", "--mho", s"mhos", cion"ppn", yp"choic",
-        choics("ngh", ),
-        hp"mhos o ppy []")
+    parser.add_argument(
+        "-m", "--method", dest="methods", action="append", type="choice",
+        choices=("length", ),
+        help="methods to apply [%default]")
 
-    prsr.s_s(
-        mhos[],
-        inp_sq_iNon,
+    parser.set_defaults(
+        methods=[],
+        input_fastq_file=None,
     )
 
-    (opions, rgs)  E.sr(prsr, rgv)
+    (options, args) = E.start(parser, argv)
 
-    i n(rgs)  1:
-        opions.inp_sq_i  rgs[0]
+    if len(args) == 1:
+        options.input_fastq_file = args[0]
 
-    i opions.inp_sq_i is Non:
-        ris VError("missing inp sq i")
+    if options.input_fastq_file is None:
+        raise ValueError("missing input fastq file")
 
-    conr  E.Conr()
+    counter = E.Counter()
 
-    # no: comp rwri wih Conrs, crrny ony ngh
-    i opions.mhos ! ["ngh"]:
-        ris NoImpmnError()
+    # note: complete rewrite with Counters, currently only length
+    if options.methods != ["length"]:
+        raise NotImplementedError()
 
-    wih pysm.FsqFi(opions.inp_sq_i) s in:
+    with pysam.FastqFile(options.input_fastq_file) as inf:
 
-        or r in in:
-            conr.inp + 1
-            opions.so.wri("\".join(
-                mp(sr, (r.nm, n(r.sqnc)))) + "\n")
+        for read in inf:
+            counter.input += 1
+            options.stdout.write("\t".join(
+                map(str, (read.name, len(read.sequence)))) + "\n")
 
-            conr.op + 1
+            counter.output += 1
 
-    E.ino(conr)
-    E.sop()
+    E.info(counter)
+    E.stop()

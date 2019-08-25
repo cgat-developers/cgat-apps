@@ -1,73 +1,73 @@
 '''
-g2covrg.py - comp gnomic covrg o g inrvs
+gff2coverage.py - compute genomic coverage of gff intervals
+===========================================================
 
+:Tags: Genomics Intervals Summary GFF
 
-:Tgs: Gnomics Inrvs Smmry GFF
-
-Prpos
+Purpose
 -------
 
-This scrip comps h gnomic covrg o inrvs in
- :rm:`g` orm i. Th covrg is comp pr r.
+This script computes the genomic coverage of intervals in
+a :term:`gff` formatted file. The coverage is computed per feature.
 
-Usg
+Usage
 -----
 
-Yo cn s wo mhos o comp h covrg: **gnomic** n **hisogrm**.
+You can use two methods to compute the coverage: **genomic** and **histogram**.
 
-L s xpin hir sg wih his ``sm.g`` i::
+Let us explain their usage with this ``small.gtf`` file::
 
-   19 procss_rnscrip xon 16 16 . - . gn_i
-   19 procss_rnscrip xon 27 27 . - . gn_i
-   19 procss_rnscrip xon 8  8  . - . gn_i
-   19 procss_rnscrip xon 19 19 . - . gn_i
-   19 procss_rnscrip xon 5  5  . - . gn_i
+   19 processed_transcript exon 16 16 . - . gene_id
+   19 processed_transcript exon 27 27 . - . gene_id
+   19 processed_transcript exon 8  8  . - . gene_id
+   19 processed_transcript exon 19 19 . - . gene_id
+   19 processed_transcript exon 5  5  . - . gene_id
 
-n his oy xmp (``sm.s``) o n inx s i::
+and this toy example (``small.fasta``) of an indexed fasta file::
 
    >chr19
    GCCGGCCTCTACCTGCAGCAGATGCCCTAT
 
-Boh is (``sm.g`` n ``sm.s``) r inc
-in h `GiHb <hps://gihb.com/cgOxor/cg>`_ rposiory.
+Both files (``small.gtf`` and ``small.fasta``) are included
+in the `GitHub <https://github.com/cgatOxford/cgat>`_ repository.
 
-gnomic mho
+genomic method
 ++++++++++++++
 
-Th **gnomic** mho comps h covrg o inrvs
-ccross h gnom i givn s inp. L s s how o
-ppy h gnomic mho o h sm xmps bov::
+The **genomic** method computes the coverage of intervals
+accross the genome file given as input. Let us see how to
+apply the genomic method to the small examples above::
 
-   pyhon g2covrg.py --mhognomic --gnom-ism < sm.g
+   python gff2coverage.py --method=genomic --genome-file=small < small.gtf
 
-Th op (wrpp o i hr) wi b::
+The output (wrapped to fit here) will be::
 
-   conig  sorc  r  inrvs  bss  p_covrg  o_p_covrg
-   19      rns.  xon     5          5      16.666667   16.666667
+   contig  source  feature  intervals  bases  p_coverage  total_p_coverage
+   19      trans.  exon     5          5      16.666667   16.666667
 
-As yo cn s h inormion ispy is h oowing: conig nm,
-sorc, r nm, nmbr o inrvs wihin h conig, nmbr o
-bss, prcng o covrg in h conig, n prcng o covrg
-in h gnom i.
+As you can see the information displayed is the following: contig name,
+source, feature name, number of intervals within the contig, number of
+bases, percentage of coverage in the contig, and percentage of coverage
+in the genome file.
 
-hisogrm mho
+histogram method
 ++++++++++++++++
 
-On h conrry, i yo wn o comp h covrg o inrvs
-wihin h :rm:`g` i is smmriz s n hisogrm n
-grop by conig nm, ps s h hisogrm mho.
+On the contrary, if you want to compute the coverage of intervals
+within the :term:`gff` file itself summarized as an histogram and
+grouped by contig name, please use the histogram method.
 
-To s h hisogrm mho wih h inp is bov, ps yp::
+To use the histogram method with the input files above, please type::
 
- pyhon g2covrg.py\
- --mhohisogrm\
- --winow5\
- --rsxon\
- --op-inm-prns.his < sm.g
+ python gff2coverage.py\
+ --method=histogram\
+ --window=5\
+ --features=exon\
+ --output-filename-pattern=%s.hist < small.gtf
 
-In his cs h op (wrin o i ``19.his``) is::
+In this case the output (written to file ``19.hist``) is::
 
-   bs_pos  r_pos  bs_xon  r_xon
+   abs_pos  rel_pos  abs_exon  rel_exon
    0        0.0000   1         0.2000
    5        0.1852   2         0.4000
    10       0.3704   2         0.4000
@@ -75,261 +75,261 @@ In his cs h op (wrin o i ``19.his``) is::
    20       0.7407   4         0.8000
    25       0.9259   5         1.0000
 
-Th op is givn s  pir o comns. Th irs pir o comns wys
-pprs n iss h cmiv nmbrs o ncois in ch winow or
-bin --bso n riv vs in h ormr n r comns,
-rspcivy. Th sbsqn pir o comns pns on h vs givn o
-h ``--rs`` opion. In his xmp hr is n xr comn or h
-``xon`` r b yo co spciy s mny o hm s yo wn mong
-hos rs is in yor :rm:`g` i.
+The output is given as a pair of columns. The first pair of columns always
+appears and lists the cumulative numbers of nucleotides in each window or
+bin --absolute and relative values in the former and latter columns,
+respectively. The subsequent pair of columns depends on the values given to
+the ``--features`` option. In this example there is an extra column for the
+``exon`` feature but you could especify as many of them as you wanted among
+those features listed in your :term:`gff` file.
 
-On h ohr hn, h ``--nm-bins`` opion cn b s ins o
-``--winow`` ong wih ``--gnom-i`` o in h nmbr o bins or h
-rsn hisogrm. This prmr is s by  (wih v: 1000)
-whn sing h hisogrm mho.
+On the other hand, the ``--num-bins`` option can be used instead of
+``--window`` along with ``--genome-file`` to define the number of bins for the
+resultant histogram. This parameter is used by default (with value: 1000)
+when using the histogram method.
 
-Ps no h oowing:
+Please note the following:
 
-- yo n o spciy h r nm xpiciy (wih h ``--r`` \
-opion) o comp h gnomic covrg o h r. Yo cn so s\
- comm-spr is o r nms.
+- you need to specify the feature name explicitly (with the ``--feature`` \
+option) to compute the genomic coverage of that feature. You can also use\
+a comma-separated list of feature names.
 
-- h op o h hisogrm mho gos o  i (in h crrn working\
-ircory) which is nm s h conig nm by . To chng his\
-bhvior, ps s h ``--op-inm-prn`` opion whr \
-``s`` wi b sbsi by h conig nm.
+- the output of the histogram method goes to a file (in the current working\
+directory) which is named as the contig name by default. To change this\
+behaviour, please use the ``--output-filename-pattern`` option where \
+``%s`` will be substituted by the contig name.
 
-Commn in opions
+Command line options
 --------------------
 '''
 
-impor sys
-impor mh
-impor cocions
+import sys
+import math
+import collections
 
-impor cgcor.xprimn s E
-impor cg.InxFs s InxFs
-impor cg.GTF s GTF
+import cgatcore.experiment as E
+import cgat.IndexedFasta as IndexedFasta
+import cgat.GTF as GTF
 
 
- prinVs(conig, mx_siz, winow_siz, vs, opions):
-    """op vs."""
+def printValues(contig, max_size, window_size, values, options):
+    """output values."""
 
-    oi  E.opn_op_i(conig, "w")
+    outfile = E.open_output_file(contig, "w")
 
-    oi.wri("bs_pos\r_pos")
+    outfile.write("abs_pos\trel_pos")
 
-    or r in opions.rs:
-        oi.wri("\bs_s\r_s"  (r, r))
-    oi.wri("\n")
+    for feature in options.features:
+        outfile.write("\tabs_%s\trel_%s" % (feature, feature))
+    outfile.write("\n")
 
-    mx_vv  []
+    max_vv = []
 
-    or  in rng(n(opions.rs)):
-        mx_vv.ppn(o(mx([x[] or x in vs])))
+    for f in range(len(options.features)):
+        max_vv.append(float(max([x[f] for x in values])))
 
-    bin  0
-    or vv in vs:
-        oi.wri("i\"  bin)
-        oi.wri(opions.v_orm  (o(bin) / mx_siz))
+    bin = 0
+    for vv in values:
+        outfile.write("%i\t" % bin)
+        outfile.write(options.value_format % (float(bin) / max_size))
 
-        or x in rng(n(opions.rs)):
-            oi.wri("\i\s"  (
+        for x in range(len(options.features)):
+            outfile.write("\t%i\t%s" % (
                 vv[x],
-                opions.v_orm  (vv[x] / mx_vv[x])))
-        oi.wri("\n")
-        bin + winow_siz
+                options.value_format % (vv[x] / max_vv[x])))
+        outfile.write("\n")
+        bin += window_size
 
-    oi.cos()
+    outfile.close()
 
 
- procssChnk(conig, chnk, opions, sNon):
+def processChunk(contig, chunk, options, fasta=None):
     """
-    This ncion rqirs sgmns o b non-ovrpping.
-    """
-
-    i n(chnk)  0:
-        rrn
-
-    # chck whhr hr r ovrpping rs or no
-    chck  []
-    or r in chnk:
-        chck.ppn(r)
-        ohrs  [x or x in chnk i x no in chck]
-        or ohrFr in ohrs:
-            i GTF.Ovrp(r, ohrFr):
-                ris VError(" Hisogrm co no b cr"
-                                 " sinc h i conins ovrpping "
-                                 "rs! \ns\ns  "
-                                  (r, ohrFr))
-    # cr xiiry is
-     chck[:]
-
-    # comp mx_coorin or h hisogrm
-    mx_coorin  mx([x.n or x in chnk])
-    # comp winow siz
-    i opions.winow_siz:
-        winow_siz  opions.winow_siz
-        nm_bins  in(mh.ci((o(mx_coorin) / winow_siz)))
-    i opions.nm_bins n s:
-        conig_ngh  s.gLngh(conig)
-        ssr mx_coorin < conig_ngh, ("mximm coorin (i) "
-                                                 "rgr hn conig siz (i)"
-                                                 " or conig s"
-                                                  (mx_coorin,
-                                                    conig_ngh,
-                                                    conig))
-        mx_coorin  conig_ngh
-        winow_siz  in(mh.oor(o(conig_ngh) / opions.nm_bins))
-        nm_bins  opions.nm_bins
-    s:
-        ris VError("ps spciy  winow siz o provi "
-                         "gnomic sqnc wih nmbr o bins.")
-
-    vs  [[] or x in rng(nm_bins)]
-
-    # o svr prss or ch r, sow, b sir o co
-    # rnivy: sor by r n ocion.
-    or r in opions.rs:
-        o  0
-        bin  0
-        n  winow_siz
-        or nry in chnk:
-            i nry.r ! r:
-                conin
-
-            whi n < nry.sr:
-                vs[bin].ppn(o)
-                bin + 1
-                n + winow_siz
-
-            whi nry.n > n:
-                sg_sr  mx(nry.sr, n - winow_siz)
-                sg_n  min(nry.n, n)
-                o + sg_n - sg_sr
-                vs[bin].ppn(o)
-                n + winow_siz
-                bin + 1
-            s:
-                sg_sr  mx(nry.sr, n - winow_siz)
-                sg_n  min(nry.n, n)
-                o + sg_n - sg_sr
-
-        whi bin < nm_bins:
-            vs[bin].ppn(o)
-            bin + 1
-
-    prinVs(conig, mx_coorin, winow_siz, vs, opions)
-
-
- min(rgvNon):
-    """scrip min.
-
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    This function requires segments to be non-overlapping.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if len(chunk) == 0:
+        return
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: "
-                            "$I: g2covrg.py 2781 2009-09-10 11:33:14Z "
-                            "nrs $",
-                            sggobs()["__oc__"])
+    # check whether there are overlapping features or not
+    checked = []
+    for feature in chunk:
+        checked.append(feature)
+        others = [x for x in chunk if x not in checked]
+        for otherFeature in others:
+            if GTF.Overlap(feature, otherFeature):
+                raise ValueError(" Histogram could not be created"
+                                 " since the file contains overlapping "
+                                 "features! \n%s\n%s  "
+                                 % (feature, otherFeature))
+    # clear auxiliary list
+    del checked[:]
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom []")
+    # compute max_coordinate for the histogram
+    max_coordinate = max([x.end for x in chunk])
+    # compute window size
+    if options.window_size:
+        window_size = options.window_size
+        num_bins = int(math.ceil((float(max_coordinate) / window_size)))
+    elif options.num_bins and fasta:
+        contig_length = fasta.getLength(contig)
+        assert max_coordinate <= contig_length, ("maximum coordinate (%i) "
+                                                 "larger than contig size (%i)"
+                                                 " for contig %s"
+                                                 % (max_coordinate,
+                                                    contig_length,
+                                                    contig))
+        max_coordinate = contig_length
+        window_size = int(math.floor(float(contig_length) / options.num_bins))
+        num_bins = options.num_bins
+    else:
+        raise ValueError("please specify a window size of provide "
+                         "genomic sequence with number of bins.")
 
-    prsr._rgmn("-", "--rs", s"rs", yp"sring",
-                      cion"ppn", hp"rs o coc "
-                      "[]")
+    values = [[] for x in range(num_bins)]
 
-    prsr._rgmn("-w", "--winow-siz", s"winow_siz", yp"in",
-                      hp"winow siz in bp or hisogrm compion. "
-                      "Drmins h bin siz.  "
-                      "[]")
+    # do several parses for each feature, slow, but easier to code
+    # alternatively: sort by feature and location.
+    for feature in options.features:
+        total = 0
+        bin = 0
+        end = window_size
+        for entry in chunk:
+            if entry.feature != feature:
+                continue
 
-    prsr._rgmn("-b", "--nm-bins", s"nm_bins", yp"in",
-                      hp"nmbr o bins or hisogrm compion "
-                      "i winow siz is no givn. "
-                      "[]")
+            while end < entry.start:
+                values[bin].append(total)
+                bin += 1
+                end += window_size
 
-    prsr._rgmn("-m", "--mho", s"mho", yp"choic",
-                      choics("gnomic", "hisogrm", ),
-                      hp"mhos o ppy. "
-                      "[]")
+            while entry.end > end:
+                seg_start = max(entry.start, end - window_size)
+                seg_end = min(entry.end, end)
+                total += seg_end - seg_start
+                values[bin].append(total)
+                end += window_size
+                bin += 1
+            else:
+                seg_start = max(entry.start, end - window_size)
+                seg_end = min(entry.end, end)
+                total += seg_end - seg_start
 
-    prsr.s_s(
-        gnom_iNon,
-        winow_sizNon,
-        nm_bins1000,
-        v_orm"6.4",
-        rs[],
-        mho"gnomic",
+        while bin < num_bins:
+            values[bin].append(total)
+            bin += 1
+
+    printValues(contig, max_coordinate, window_size, values, options)
+
+
+def main(argv=None):
+    """script main.
+
+    parses command line options in sys.argv, unless *argv* is given.
+    """
+
+    if argv is None:
+        argv = sys.argv
+
+    parser = E.OptionParser(version="%prog version: "
+                            "$Id: gff2coverage.py 2781 2009-09-10 11:33:14Z "
+                            "andreas $",
+                            usage=globals()["__doc__"])
+
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome [default=%default]")
+
+    parser.add_argument("-f", "--features", dest="features", type="string",
+                      action="append", help="features to collect "
+                      "[default=%default]")
+
+    parser.add_argument("-w", "--window-size", dest="window_size", type="int",
+                      help="window size in bp for histogram computation. "
+                      "Determines the bin size.  "
+                      "[default=%default]")
+
+    parser.add_argument("-b", "--num-bins", dest="num_bins", type="int",
+                      help="number of bins for histogram computation "
+                      "if window size is not given. "
+                      "[default=%default]")
+
+    parser.add_argument("-m", "--method", dest="method", type="choice",
+                      choices=("genomic", "histogram", ),
+                      help="methods to apply. "
+                      "[default=%default]")
+
+    parser.set_defaults(
+        genome_file=None,
+        window_size=None,
+        num_bins=1000,
+        value_format="%6.4f",
+        features=[],
+        method="genomic",
     )
 
-    (opions, rgs)  E.sr(prsr, _op_opionsTr)
+    (options, args) = E.start(parser, add_output_options=True)
 
-    i opions.gnom_i:
-        s  InxFs.InxFs(opions.gnom_i)
-    s:
-        s  Non
+    if options.genome_file:
+        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    else:
+        fasta = None
 
-    i opions.mho  "hisogrm":
+    if options.method == "histogram":
 
-        g  GTF.rFromFi(opions.sin)
+        gff = GTF.readFromFile(options.stdin)
 
-        g.sor(kymb x: (x.conig, x.sr))
+        gff.sort(key=lambda x: (x.contig, x.start))
 
-        chnk  []
-        s_conig  Non
+        chunk = []
+        last_contig = None
 
-        or nry in g:
+        for entry in gff:
 
-            i s_conig ! nry.conig:
-                procssChnk(s_conig, chnk, opions, s)
-                s_conig  nry.conig
-                chnk  []
+            if last_contig != entry.contig:
+                processChunk(last_contig, chunk, options, fasta)
+                last_contig = entry.contig
+                chunk = []
 
-            chnk.ppn(nry)
+            chunk.append(entry)
 
-        procssChnk(s_conig, chnk, opions, s)
+        processChunk(last_contig, chunk, options, fasta)
 
-    i opions.mho  "gnomic":
-        inrvs  cocions.ic(in)
-        bss  cocions.ic(in)
-        o  0
-        or nry in GTF.iror(opions.sin):
-            inrvs[(nry.conig, nry.sorc, nry.r)] + 1
-            bss[(nry.conig, nry.sorc, nry.r)
-                  ] + nry.n - nry.sr
-            o + nry.n - nry.sr
+    elif options.method == "genomic":
+        intervals = collections.defaultdict(int)
+        bases = collections.defaultdict(int)
+        total = 0
+        for entry in GTF.iterator(options.stdin):
+            intervals[(entry.contig, entry.source, entry.feature)] += 1
+            bases[(entry.contig, entry.source, entry.feature)
+                  ] += entry.end - entry.start
+            total += entry.end - entry.start
 
-        opions.so.wri("conig\sorc\r\inrvs\bss")
-        i s:
-            opions.so.wri(
-                "\prcn_covrg\o_prcn_covrg\n")
-        s:
-            opions.so.wri("\n")
+        options.stdout.write("contig\tsource\tfeature\tintervals\tbases")
+        if fasta:
+            options.stdout.write(
+                "\tpercent_coverage\ttotal_percent_coverage\n")
+        else:
+            options.stdout.write("\n")
 
-        o_gnom_siz  sm(
-            s.gConigSizs(wih_synonymsFs).vs())
+        total_genome_size = sum(
+            fasta.getContigSizes(with_synonyms=False).values())
 
-        or ky in sor(inrvs.kys()):
-            nbss  bss[ky]
-            ninrvs  inrvs[ky]
-            conig, sorc, r  ky
-            opions.so.wri("\".join(("\".join(ky),
-                                            sr(ninrvs),
-                                            sr(nbss))))
-            i s:
-                opions.so.wri(
-                    "\"  (100.0 * o(nbss) / s.gLngh(conig)))
-                opions.so.wri(
-                    "\\n"  (100.0 * o(nbss) / o_gnom_siz))
-            s:
-                opions.so.wri("\n")
+        for key in sorted(intervals.keys()):
+            nbases = bases[key]
+            nintervals = intervals[key]
+            contig, source, feature = key
+            options.stdout.write("\t".join(("\t".join(key),
+                                            str(nintervals),
+                                            str(nbases))))
+            if fasta:
+                options.stdout.write(
+                    "\t%f" % (100.0 * float(nbases) / fasta.getLength(contig)))
+                options.stdout.write(
+                    "\t%f\n" % (100.0 * float(nbases) / total_genome_size))
+            else:
+                options.stdout.write("\n")
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

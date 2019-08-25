@@ -1,297 +1,297 @@
-'''combin_bs.py - join bs
+'''combine_tables.py - join tables
+==================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip rs svr b-spr bs n joins hm ino 
-sing on.
+This script reads several tab-separated tables and joins them into a
+single one.
 
-Usg
+Usage
 -----
 
-Th opion ``--hr-nms`` ss h comn is xpiciy. A
-``--skip-is`` i yo wn o voi choing h origin i in
-h inp is.
+The option ``--header-names`` sets the column titles explicitely. Add
+``--skip-titles`` if you want to avoid echoing the original title in
+the input files.
 
 
-Exmp::
+Example::
 
-   pyhon combin_bs.py --hp
+   python combine_tables.py --help
 
-Typ::
+Type::
 
-   pyhon combin_bs.py --hp
+   python combine_tables.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor r
-impor os
-impor gob
-impor cocions
-impor pns
+import sys
+import re
+import os
+import glob
+import collections
+import pandas
 
-impor cgcor.iooos s iooos
-impor cgcor.xprimn s E
-
-
- r_bs(inms, *rgs, **kwrgs):
-
-    bs  []
-    or inm in inms:
-        ry:
-            b  pns.r_csv(inm, *rgs, **kwrgs)
-        xcp pns.rrors.EmpyDError:
-            E.wrn("i '{}' is mpy".orm(inm))
-            conin
-        xcp pns.rrors.PrsrError s x:
-            E.wrn("i '{}' hs prsing rror: {}".orm(inm, x))
-            conin
-        i n(b)  0:
-            E.wrn("b '{}' is mpy".orm(inm))
-            conin
-        bs.ppn((b, inm))
-    rrn zip(*bs)
+import cgatcore.iotools as iotools
+import cgatcore.experiment as E
 
 
- concn_bs(inms,
-                       rgx_inm"(\S+)",
-                       spror"\",
-                       hrsNon,
-                       missing_vNon,
-                       cNon):
+def read_tables(filenames, *args, **kwargs):
 
-    '''concn bs.'''
-
-    rx  r.compi(rgx_inm)
-
-    bs, inms  r_bs(inms, spspror)
-
-    i hrs is Non or hrs  "o":
-        row_hrs  [
-            [y or y in rx.srch(x).grops()] or x in inms]
-    s:
-        row_hrs  [hrs]
-
-    i c is Non:
-        i n(row_hrs)  1:
-            row_h_is  ["inm"]
-        s:
-            row_h_is  ["prn" + sr(x) or x in rng(n(row_hrs))]
-    s:
-        row_h_is  [x.srip() or x in c.spi(",")]
-        i n(row_hrs[0]) ! n(row_h_is):
-            ris VError(
-                "row hr (i) hs irn nmbr o is in "
-                "rgr xprssion hn sppi by h --c opion (i)" 
-                (n(row_hrs[0]), n(row_h_is)))
-
-    # voi MiInx i ony sing v
-    i n(row_h_is)  1:
-        row_h_is  row_h_is
-        row_hrs  [x[0] or x in row_hrs]
-
-      pns.conc(bs, xis0, kysrow_hrs, nmsrow_h_is) \
-               .rs_inx() \
-               .rop(["v_1"], xis1)
-    rrn 
+    tables = []
+    for filename in filenames:
+        try:
+            table = pandas.read_csv(filename, *args, **kwargs)
+        except pandas.errors.EmptyDataError:
+            E.warn("file '{}' is empty".format(filename))
+            continue
+        except pandas.errors.ParserError as ex:
+            E.warn("file '{}' has parsing error: {}".format(filename, ex))
+            continue
+        if len(table) == 0:
+            E.warn("table '{}' is empty".format(filename))
+            continue
+        tables.append((table, filename))
+    return zip(*tables)
 
 
- min(rgvsys.rgv):
+def concatenate_tables(filenames,
+                       regex_filename="(\S+)",
+                       separator="\t",
+                       headers=None,
+                       missing_value=None,
+                       cat=None):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    '''concatenate tables.'''
 
-    prsr._rgmn("-", "--no-is",
-                      s"inp_hs_is",
-                      cion"sor_s",
-                      hp"no is in inp [].")
+    rx = re.compile(regex_filename)
 
-    prsr._rgmn("--ignor-is",
-                      s"ignor_is",
-                      cion"sor_r",
-                      hp"ignor is in inp []")
+    tables, filenames = read_tables(filenames, sep=separator)
 
-    prsr._rgmn("-i", "--skip-is",
-                      s"skip_is",
-                      cion"sor_r",
-                      hp"skip op o is.")
+    if headers is None or headers == "auto":
+        row_headers = [
+            [y for y in rx.search(x).groups()] for x in filenames]
+    else:
+        row_headers = [headers]
 
-    prsr._rgmn("-m", "--missing-v",
-                      s"missing_v",
-                      yp"sring",
-                      hp"nry o s or missing vs.")
+    if cat is None:
+        if len(row_headers) == 1:
+            row_head_titles = ["filename"]
+        else:
+            row_head_titles = ["pattern" + str(x) for x in range(len(row_headers))]
+    else:
+        row_head_titles = [x.strip() for x in cat.split(",")]
+        if len(row_headers[0]) != len(row_head_titles):
+            raise ValueError(
+                "row header (%i) has different number of fields in "
+                "regular expression than supplied by the --cat option (%i)" %
+                (len(row_headers[0]), len(row_head_titles)))
 
-    prsr._rgmn("--hr-nms", s"hrs", yp"sring",
-                      hp" hrs or is s  ,-spr "
-                      "is [].")
+    # avoid MultiIndex if only single level
+    if len(row_head_titles) == 1:
+        row_head_titles = row_head_titles
+        row_headers = [x[0] for x in row_headers]
 
-    prsr._rgmn("-c", "--comns", s"comns", yp"sring",
-                      hp"comns o s or joining. Mip comns "
-                      "cn b spcii s  comm-spr is "
-                      "[].")
+    df = pandas.concat(tables, axis=0, keys=row_headers, names=row_head_titles) \
+               .reset_index() \
+               .drop(["level_1"], axis=1)
+    return df
 
-    prsr._rgmn("-k", "--k",
-                      s"k",
-                      yp"sring",
-                      cion"ppn",
-                      hp"comns o k. I no s,  comns "
-                      "xcp or "
-                      "h join comns r kn []")
 
-    prsr._rgmn("-g", "--gob", s"gob", yp"sring",
-                      hp"wicr xprssion or b nms.")
+def main(argv=sys.argv):
 
-    prsr._rgmn(
-        "-s", "--sor-orr", s"sor", yp"sring",
-        hp"sor by comn is in pricr givn orr: "
-        "phbic|nmric|is o comns.")
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--mrg-ovrpping", s"mrg", cion"sor_r",
-        hp"simpy mrg bs wiho mching p "
-        "rows. [].")
+    parser.add_argument("-t", "--no-titles",
+                      dest="input_has_titles",
+                      action="store_false",
+                      help="no titles in input [%default].")
 
-    prsr._rgmn("-", "--c", s"c", yp"sring",
-                      hp"simpy concn bs. As n "
-                      "iion comn c X wih h inm "
-                      " [].")
+    parser.add_argument("--ignore-titles",
+                      dest="ignore_titles",
+                      action="store_true",
+                      help="ignore titles in input [%default]")
 
-    prsr._rgmn("--sor-kys", s"sor_kys", yp"choic",
-                      choics("nmric", "phbic"),
-                      hp"sor ky comns by v.")
+    parser.add_argument("-i", "--skip-titles",
+                      dest="skip_titles",
+                      action="store_true",
+                      help="skip output of titles.")
 
-    prsr._rgmn("--kp-mpy", s"ignor_mpy",
-                      cion"sor_s",
-                      hp"kp mpy bs. Th  is "
-                      "o ignor hm.")
+    parser.add_argument("-m", "--missing-value",
+                      dest="missing_value",
+                      type="string",
+                      help="entry to use for missing values.")
 
-    prsr._rgmn("--ignor-mpy",
-                      s"ignor_mpy",
-                      cion"sor_r",
-                      hp"ignor mpy bs - his is "
-                      "h  [].")
+    parser.add_argument("--header-names", dest="headers", type="string",
+                      help="add headers for files as a ,-separated "
+                      "list [%default].")
 
-    prsr._rgmn("---i-prix",
-                      s"_i_prix",
-                      cion"sor_r",
-                      hp" i prix o "
-                      "comns hrs. Sib or mi-comn"
-                      "bs []")
+    parser.add_argument("-c", "--columns", dest="columns", type="string",
+                      help="columns to use for joining. Multiple columns "
+                      "can be specified as a comma-separated list "
+                      "[default=%default].")
 
-    prsr._rgmn("--s-i-prix",
-                      s"s_i_prix",
-                      cion"sor_r",
-                      hp"s i prix s comn hrs. "
-                      "Sib or wo-comn bs "
-                      "[]")
+    parser.add_argument("-k", "--take",
+                      dest="take",
+                      type="string",
+                      action="append",
+                      help="columns to take. If not set, all columns "
+                      "except for "
+                      "the join columns are taken [%default]")
 
-    prsr._rgmn("--prixs", s"prixs", yp"sring",
-                      hp"is o prixs o s. "
-                      ", spr is o prixs. "
-                      "Th nmbr o prixs n o corrspon o h "
-                      "nmbr o inp is []")
+    parser.add_argument("-g", "--glob", dest="glob", type="string",
+                      help="wildcard expression for table names.")
 
-    prsr._rgmn("--rgx-inm", s"rgx_inm",
-                      yp"sring",
-                      hp"prn o ppy o inm o "
-                      "bi prix []")
+    parser.add_argument(
+        "-s", "--sort-order", dest="sort", type="string",
+        help="sort by column titles in particular given order: "
+        "alphabetical|numeric|list of columns.")
 
-    prsr._rgmn("--rgx-sr",
-                      s"rgx_sr",
-                      yp"sring",
-                      hp"rgr xprssion o sr "
-                      "cocing b in  i []")
+    parser.add_argument(
+        "-e", "--merge-overlapping", dest="merge", action="store_true",
+        help="simply merge tables without matching up "
+        "rows. [default=%default].")
 
-    prsr._rgmn("--rgx-n",
-                      s"rgx_n",
-                      yp"sring",
-                      hp"rgr xprssion o n cocing "
-                      "b in  i []")
+    parser.add_argument("-a", "--cat", dest="cat", type="string",
+                      help="simply concatenate tables. Adds an "
+                      "additional column called X with the filename "
+                      " [default=%default].")
 
-    prsr._rgmn("--sp",
-                      s"spror",
-                      yp"sring",
-                      hp"b spror o s. Th  is o s bs. "
-                      "[]")
+    parser.add_argument("--sort-keys", dest="sort_keys", type="choice",
+                      choices=("numeric", "alphabetic"),
+                      help="sort key columns by value.")
 
-    prsr._rgmn("--s", s"s",
-                      yp"in",
-                      hp"s combining bs wih "
-                      "irs X rows []")
+    parser.add_argument("--keep-empty", dest="ignore_empty",
+                      action="store_false",
+                      help="keep empty tables. The default is "
+                      "to ignore them.")
 
-    prsr.s_s(
-        inp_hs_isTr,
-        skip_isFs,
-        missing_vNon,
-        hrsNon,
-        sorNon,
-        gobNon,
-        comns"1",
-        sor_kysFs,
-        mrgFs,
-        ignor_mpyTr,
-        rgx_srNon,
-        rgx_nNon,
-        _i_prixFs,
-        s_i_prixFs,
-        cNon,
-        k[],
-        rgx_inm"(.*)",
-        prixsNon,
-        s0,
-        spror"\",
+    parser.add_argument("--ignore-empty",
+                      dest="ignore_empty",
+                      action="store_true",
+                      help="ignore empty tables - this is "
+                      "the default [%default].")
+
+    parser.add_argument("--add-file-prefix",
+                      dest="add_file_prefix",
+                      action="store_true",
+                      help="add file prefix to "
+                      "columns headers. Suitable for multi-column"
+                      "tables [default=%default]")
+
+    parser.add_argument("--use-file-prefix",
+                      dest="use_file_prefix",
+                      action="store_true",
+                      help="use file prefix as column headers. "
+                      "Suitable for two-column tables "
+                      "[default=%default]")
+
+    parser.add_argument("--prefixes", dest="prefixes", type="string",
+                      help="list of prefixes to use. "
+                      ", separated list of prefixes. "
+                      "The number of prefixes need to correspond to the "
+                      "number of input files [default=%default]")
+
+    parser.add_argument("--regex-filename", dest="regex_filename",
+                      type="string",
+                      help="pattern to apply to filename to "
+                      "build prefix [default=%default]")
+
+    parser.add_argument("--regex-start",
+                      dest="regex_start",
+                      type="string",
+                      help="regular expression to start "
+                      "collecting table in a file [default=%default]")
+
+    parser.add_argument("--regex-end",
+                      dest="regex_end",
+                      type="string",
+                      help="regular expression to end collecting "
+                      "table in a file [default=%default]")
+
+    parser.add_argument("--sep",
+                      dest="separator",
+                      type="string",
+                      help="table separator to use. The default is to use tabs. "
+                      "[default=%default]")
+
+    parser.add_argument("--test", dest="test",
+                      type="int",
+                      help="test combining tables with "
+                      "first X rows [default=%default]")
+
+    parser.set_defaults(
+        input_has_titles=True,
+        skip_titles=False,
+        missing_value=None,
+        headers=None,
+        sort=None,
+        glob=None,
+        columns="1",
+        sort_keys=False,
+        merge=False,
+        ignore_empty=True,
+        regex_start=None,
+        regex_end=None,
+        add_file_prefix=False,
+        use_file_prefix=False,
+        cat=None,
+        take=[],
+        regex_filename="(.*)",
+        prefixes=None,
+        test=0,
+        separator="\t",
     )
 
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    (options, args) = E.start(parser, argv=argv)
 
-    i opions.hrs:
-        i "," in opions.hrs:
-            opions.hrs  opions.hrs.spi(",")
-        s:
-            opions.hrs  r.spi("\s+", opions.hrs.srip())
+    if options.headers:
+        if "," in options.headers:
+            options.headers = options.headers.split(",")
+        else:
+            options.headers = re.split("\s+", options.headers.strip())
 
-    i opions.sor n opions.sor no in ("nmric", "phbic"):
-        i "," in opions.sor:
-            opions.sor  opions.sor.spi(",")
-        s:
-            opions.sor  r.spi("\s+", opions.sor)
+    if options.sort and options.sort not in ("numeric", "alphabetic"):
+        if "," in options.sort:
+            options.sort = options.sort.split(",")
+        else:
+            options.sort = re.split("\s+", options.sort)
 
-    i opions.mrg:
-        opions.comns  []
-    s:
-        opions.comns  [in(x) - 1 or x in opions.comns.spi(",")]
+    if options.merge:
+        options.columns = []
+    else:
+        options.columns = [int(x) - 1 for x in options.columns.split(",")]
 
-    opions.inms  []
+    options.filenames = []
 
-    i opions.gob:
-        opions.inms + gob.gob(opions.gob)
+    if options.glob:
+        options.filenames += glob.glob(options.glob)
 
-    opions.inms + rgs
+    options.filenames += args
 
-    i n(opions.inms) < 1:
-        ris VError("no bs on.")
+    if len(options.filenames) < 1:
+        raise ValueError("no tables found.")
 
-    E.ino("combining i bs"  n(opions.inms))
+    E.info("combining %i tables" % len(options.filenames))
 
-    i opions.c:
-        b  concn_bs(opions.inms,
-                                   rgx_inmopions.rgx_inm,
-                                   sproropions.spror,
-                                   hrsopions.hrs,
-                                   missing_vopions.missing_v,
-                                   copions.c)
+    if options.cat:
+        table = concatenate_tables(options.filenames,
+                                   regex_filename=options.regex_filename,
+                                   separator=options.separator,
+                                   headers=options.headers,
+                                   missing_value=options.missing_value,
+                                   cat=options.cat)
 
-    b.o_csv(opions.so, spopions.spror, inxFs)
-    E.sop()
+    table.to_csv(options.stdout, sep=options.separator, index=False)
+    E.stop()
 
 
-i __nm__  '__min__':
-    sys.xi(min(sys.rgv))
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

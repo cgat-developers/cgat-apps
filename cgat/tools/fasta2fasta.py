@@ -1,697 +1,697 @@
-'''s2s.py - opr on sqncs
+'''fasta2fasta.py - operate on sequences
+=====================================
 
+:Tags: Sequences
 
-:Tgs: Sqncs
-
-Prpos
+Purpose
 -------
 
-prorm oprions (msking, rnming) on  srm o s orm sqncs.
+perform operations (masking, renaming) on a stream of fasta formatted sequences.
 
-Avib i oprions r:
+Available edit operations are:
 
-rns
-   rns sqncs sing h snr gnic co.
+translate
+   translate sequences using the standard genetic code.
 
-rns-o-sop
-   rns ni irs sop coon
+translate-to-stop
+   translate until first stop codon
 
-rnc--sop
-   rnc sqnc  irs sop coon
+truncate-at-stop
+   truncate sequence at first stop codon
 
-bck-rns
-   convr ncoi sqnc o ppi sqnc
-   Rqirs prmr o scon s i wih ppi sqncs.
+back-translate
+   convert nucleotide sequence to peptide sequence
+   Requires parameter of second fasta file with peptide sequences.
 
-mrk-coons
-   s  spc r ch coon
+mark-codons
+   adds a space after each codon
 
-ppy-mp
-   rnm sqnc iniirs rom  givn mp Rqirs prmr
-   wih inm o  mp. Th mp is  b-spr i mpping o
-   o nw nms.
+apply-map
+   rename sequence identifiers from a given map Requires parameter
+   with filename of a map. The map is a tab-separated file mapping old
+   to new names.
 
-bi-mp
-   rnm sqnc iniirs nmricy n sv op in 
-   b-spr i.  Rqirs prmr wih inm o  mp. Th
-   mp is  b-spr i mpping nw o o nms n wi b
-   nwy cr. Any xiing i o h sm nm wi b
-   ovrwrin.
+build-map
+   rename sequence identifiers numerically and save output in a
+   tab-separated file.  Requires parameter with filename of a map. The
+   map is a tab-separated file mapping new to old names and will be
+   newly created. Any exiting file of the same name will be
+   overwritten.
 
-pso-coons
-   rns, b kp rgisr wih coons
+pseudo-codons
+   translate, but keep register with codons
 
-inrv-coons
-   mix mino cis n coons
+interleaved-codons
+   mix amino acids and codons
 
-ir
-   rmov sqnc ccoring o crin criri. For xmp,
-   --mhoir --ir-mhomin-ngh5  --ir-mhomx-ngh10
+filter
+   remove sequence according to certain criteria. For example,
+   --method=filter --filter-method=min-length=5  --filter-method=max-length=10
 
-mp-coons:
+map-codons:
 
-rmov-gps
-   rmov  gps in h sqnc
+remove-gaps
+   remove all gaps in the sequence
 
-msk-sops
-   msk  sop coons
+mask-stops
+   mask all stop codons
 
-msk-sg
-   msk sqnc by rnning sg
+mask-seg
+   mask sequence by running seg
 
-msk-bis
-   msk sqnc by rnning bis
+mask-bias
+   mask sequence by running bias
 
-msk-coons
-   msk coon sqnc givn  msk mino ci sqnc.
-   Rqirs prmr wih msk mino cis in s orm.
+mask-codons
+   mask codon sequence given a masked amino acid sequence.
+   Requires parameter with masked amino acids in fasta format.
 
-msk-incomp-coons
-   msk coons h r priy msk or gpp
+mask-incomplete-codons
+   mask codons that are partially masked or gapped
 
-msk-so
-   combin hr-msk (NNN) sqncs wih nmsk sqncs o gnr
-   so msk sqnc (msk rgions in owr cs)
+mask-soft
+   combine hard-masked (NNN) sequences with unmasked sequences to generate
+   soft masked sequence (masked regions in lower case)
 
-rmov-sops
-   rmov sop coons
+remove-stops
+   remove stop codons
 
-ppr
-   convr sqnc o ppr cs
+upper
+   convert sequence to upper case
 
-owr
-   convr sqnc o owr cs
+lower
+   convert sequence to lower case
 
-rvrs-compmn
-   bi h rvrs compmn
+reverse-complement
+   build the reverse complement
 
-sh
-   sh ch sqnc
+shuffle
+   shuffle each sequence
 
-smp
-   sc  crin proporion o sqncs
+sample
+   select a certain proportion of sequences
 
-Prmrs r givn o h opion ``prmrs`` in  comm-spr
-is in h orr h h i oprions r c pon.
+Parameters are given to the option ``parameters`` in a comma-separated
+list in the order that the edit operations are called upon.
 
-Excsion/incsion is s bor ppying ny i mpping.
+Exclusion/inclusion is tested before applying any id mapping.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon s2s.py --mhorns < in.s > o.s
+   python fasta2fasta.py --method=translate < in.fasta > out.fasta
 
-Typ::
+Type::
 
-   pyhon s2s.py --hp
+   python fasta2fasta.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 ---------------------
 
 '''
-impor sys
-impor sring
-impor r
-impor rnom
-rom iroos impor zip_ongs
-impor pysm
+import sys
+import string
+import re
+import random
+from itertools import zip_longest
+import pysam
 
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor cg.Gnomics s Gnomics
-impor cg.FsIror s FsIror
-impor cg.Mskr s Mskr
-
-
- gCoons(sqnc, gp_chrs"-."):
-    """g coons in sqnc."""
-    coons, coon  [], []
-    _coons, _coon  [], []
-    or x in rng(n(sqnc)):
-        c  sqnc[x]
-        _coon.ppn(c)
-        i c no in gp_chrs:
-            coon.ppn(c)
-        i n(coon)  3  0:
-            coons.ppn(coon)
-            _coons.ppn(_coon)
-            coon  []
-            _coon  []
-
-    i _coon:
-        _coons.ppn(_coon)
-        coons.ppn(coon)
-
-    rrn _coons, coons
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import cgat.Genomics as Genomics
+import cgat.FastaIterator as FastaIterator
+import cgat.Masker as Masker
 
 
- min(rgvNon):
-    i rgv is Non:
-        rgv  sys.rgv
+def getCodons(sequence, gap_chars="-."):
+    """get codons in sequence."""
+    codons, codon = [], []
+    full_codons, full_codon = [], []
+    for x in range(len(sequence)):
+        c = sequence[x]
+        full_codon.append(c)
+        if c not in gap_chars:
+            codon.append(c)
+        if len(codon) % 3 == 0:
+            codons.append(codon)
+            full_codons.append(full_codon)
+            codon = []
+            full_codon = []
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion",
-                            sggobs()["__oc__"])
+    if full_codon:
+        full_codons.append(full_codon)
+        codons.append(codon)
 
-    prsr._rgmn(
-        "-m", "--mho", s"mhos", yp"choic", cion"ppn",
-        choics("rns",
-                 "rns-o-sop",
-                 "rnc--sop",
-                 "bck-rns",
-                 "mrk-coons",
-                 "ppy-mp",
-                 "bi-mp",
-                 "pso-coons",
-                 "ir",
-                 "inrv-coons",
-                 "mp-coons",
-                 "rmov-gps",
-                 "msk-sg",
-                 "msk-bis",
-                 "msk-coons",
-                 "msk-incomp-coons",
-                 "msk-sops",
-                 "msk-so",
-                 "mp-iniir",
+    return full_codons, codons
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    parser = E.OptionParser(version="%prog version",
+                            usage=globals()["__doc__"])
+
+    parser.add_argument(
+        "-m", "--method", dest="methods", type="choice", action="append",
+        choices=("translate",
+                 "translate-to-stop",
+                 "truncate-at-stop",
+                 "back-translate",
+                 "mark-codons",
+                 "apply-map",
+                 "build-map",
+                 "pseudo-codons",
+                 "filter",
+                 "interleaved-codons",
+                 "map-codons",
+                 "remove-gaps",
+                 "mask-seg",
+                 "mask-bias",
+                 "mask-codons",
+                 "mask-incomplete-codons",
+                 "mask-stops",
+                 "mask-soft",
+                 "map-identifier",
                  "nop",
-                 "rmov-sops",
-                 "ppr",
-                 "owr",
-                 "rvrs-compmn",
-                 "smp",
-                 "sh"),
-        hp"mho o ppy o sqncs.")
+                 "remove-stops",
+                 "upper",
+                 "lower",
+                 "reverse-complement",
+                 "sample",
+                 "shuffle"),
+        help="method to apply to sequences.")
 
-    prsr._rgmn(
-        "-p", "--prmrs", s"prmrs", yp"sring",
-        hp"prmr sck or mhos h rqir on "
-        "[].")
+    parser.add_argument(
+        "-p", "--parameters", dest="parameters", type="string",
+        help="parameter stack for methods that require one "
+        "[default=%default].")
 
-    prsr._rgmn(
-        "-x", "--ignor-rrors", s"ignor_rrors", cion"sor_r",
-        hp"ignor rrors [  ].")
+    parser.add_argument(
+        "-x", "--ignore-errors", dest="ignore_errors", action="store_true",
+        help="ignore errors [default = %default].")
 
-    prsr._rgmn("--smp-proporion", s"smp_proporion",
-                      yp"o",
-                      hp"smp proporion [  ].")
+    parser.add_argument("--sample-proportion", dest="sample_proportion",
+                      type="float",
+                      help="sample proportion [default = %default].")
 
-    prsr._rgmn(
-        "--xc-prn", s"xc_prn", yp"sring",
-        hp"xc  sqncs wih is mching prn "
-        "[  ].")
+    parser.add_argument(
+        "--exclude-pattern", dest="exclude_pattern", type="string",
+        help="exclude all sequences with ids matching pattern "
+        "[default = %default].")
 
-    prsr._rgmn(
-        "--inc-prn", s"inc_prn", yp"sring",
-        hp"inc ony sqncs wih is mching prn "
-        "[  ].")
+    parser.add_argument(
+        "--include-pattern", dest="include_pattern", type="string",
+        help="include only sequences with ids matching pattern "
+        "[default = %default].")
 
-    prsr._rgmn(
-        "--ir-mho", s"ir_mhos", yp"sring",
-        cion"ppn",
-        hp"iring mhos o ppy "
-        "[  ].")
+    parser.add_argument(
+        "--filter-method", dest="filter_methods", type="string",
+        action="append",
+        help="filtering methods to apply "
+        "[default = %default].")
 
-    prsr._rgmn(
-        "-", "--sqnc-yp", s"yp", yp"choic",
-        choics("", "n"),
-        hp"sqnc yp ( or n) []. This opion rmins "
-        "which chrcrs o s or msking [  ].")
+    parser.add_argument(
+        "-t", "--sequence-type", dest="type", type="choice",
+        choices=("aa", "na"),
+        help="sequence type (aa or na) [%default]. This option determines "
+        "which characters to use for masking [default = %default].")
 
-    prsr._rgmn(
-        "-", "--mp-iniir", s"mp_iniir",
-        yp"sring",
-        hp"mp or nmric iniir [  ] "
-        "or h oprion --bi-mp. A i is rpc by h posiion "
-        "o h sqnc in h i.")
+    parser.add_argument(
+        "-l", "--template-identifier", dest="template_identifier",
+        type="string",
+        help="template for numerical identifier [default = %default] "
+        "for the operation --build-map. A %i is replaced by the position "
+        "of the sequence in the file.")
 
-    prsr._rgmn(
-        "--mp-sv-i", s"mp_sv_i",
-        yp"sring",
-        hp"inp inm wih mp or iniirs. Th irs row is  hr")
+    parser.add_argument(
+        "--map-tsv-file", dest="map_tsv_file",
+        type="string",
+        help="input filename with map for identifiers. The first row is a header")
 
-    prsr._rgmn(
-        "--o-wih", s"o_wih", yp"in",
-        hp"o wih or sqnc op. 0 is no []")
+    parser.add_argument(
+        "--fold-width", dest="fold_width", type="int",
+        help="fold width for sequence output. 0 is unfolded [%default]")
     
-    prsr.s_s(
-        mhos[],
-        prmrs"",
-        yp"n",
-        _msk_chrs"xX",
-        _msk_chr"x",
-        n_msk_chrs"nN",
-        n_msk_chr"n",
-        gp_chrs"-.",
-        gp_chr"-",
-        mp_iniir"ID06i",
-        ignor_rrorsFs,
-        xc_prnNon,
-        inc_prnNon,
-        smp_proporionNon,
-        ir_mhos[],
-        inp_inm_s"-",
-        inp_inm_mpNon,
-        o_wih80
+    parser.set_defaults(
+        methods=[],
+        parameters="",
+        type="na",
+        aa_mask_chars="xX",
+        aa_mask_char="x",
+        na_mask_chars="nN",
+        na_mask_char="n",
+        gap_chars="-.",
+        gap_char="-",
+        template_identifier="ID%06i",
+        ignore_errors=False,
+        exclude_pattern=None,
+        include_pattern=None,
+        sample_proportion=None,
+        filter_methods=[],
+        input_filename_fasta="-",
+        input_filename_map=None,
+        fold_width=80
     )
     
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i n(rgs) > 0:
-        opions.inp_inm_s  rgs[0]
+    if len(args) > 0:
+        options.input_filename_fasta = args[0]
     
-    opions.prmrs  opions.prmrs.spi(",")
+    options.parameters = options.parameters.split(",")
 
-    rx_inc, rx_xc  Non, Non
-    i opions.inc_prn:
-        rx_inc  r.compi(opions.inc_prn)
-    i opions.xc_prn:
-        rx_xc  r.compi(opions.xc_prn)
+    rx_include, rx_exclude = None, None
+    if options.include_pattern:
+        rx_include = re.compile(options.include_pattern)
+    if options.exclude_pattern:
+        rx_exclude = re.compile(options.exclude_pattern)
 
-    iror  FsIror.FsIror(opions.sin)
+    iterator = FastaIterator.FastaIterator(options.stdin)
 
-    nsq  0
+    nseq = 0
 
-    mp_sq2ni  {}
+    map_seq2nid = {}
 
-    mp_iniir  ("ppy-mp" in opions.mhos or
-                      "mp-iniir" in opions.mhos)
-    i mp_iniir:
-        i opions.inp_inm_mp is Non:
-            ris VError("or mhomp-iniir s --mp-sv-i")
-        wih iooos.opn_i(opions.inp_inm_mp) s ini:
-            mp_iniir  iooos.r_mp(ini, hs_hrTr)
+    map_identifier = ("apply-map" in options.methods or
+                      "map-identifier" in options.methods)
+    if map_identifier:
+        if options.input_filename_map is None:
+            raise ValueError("for method=map-identifier use --map-tsv-file")
+        with iotools.open_file(options.input_filename_map) as infile:
+            map_identifier = iotools.read_map(infile, has_header=True)
 
-    i opions.yp  "n":
-        msk_chrs  opions.n_msk_chrs
-        msk_chr  opions.n_msk_chr
-    s:
-        msk_chrs  opions._msk_chrs
-        msk_chr  opions._msk_chr
+    if options.type == "na":
+        mask_chars = options.na_mask_chars
+        mask_char = options.na_mask_char
+    else:
+        mask_chars = options.aa_mask_chars
+        mask_char = options.aa_mask_char
 
-    i "mp-coons" in opions.mhos:
-        mp_coon2co  iooos.RMp(opn(opions.prmrs[0], "r"))
-         opions.prmrs[0]
+    if "map-codons" in options.methods:
+        map_codon2code = iotools.ReadMap(open(options.parameters[0], "r"))
+        del options.parameters[0]
 
-    i "msk-so" in opions.mhos:
-          opions.prmrs[0]
-         opions.prmrs[0]
-        hr_msk_iror  FsIror.FsIror(opn(, "r"))
+    if "mask-soft" in options.methods:
+        f = options.parameters[0]
+        del options.parameters[0]
+        hard_masked_iterator = FastaIterator.FastaIterator(open(f, "r"))
 
-    i "msk-coons" in opions.mhos or "bck-rns" in opions.mhos:
+    if "mask-codons" in options.methods or "back-translate" in options.methods:
 
-        # opn  scon srm o r sqncs rom
-          opions.prmrs[0]
-         opions.prmrs[0]
+        # open a second stream to read sequences from
+        f = options.parameters[0]
+        del options.parameters[0]
 
-        ohr_iror  FsIror.FsIror(opn(, "r"))
+        other_iterator = FastaIterator.FastaIterator(open(f, "r"))
 
-    i "smp" in opions.mhos:
-        i no opions.smp_proporion:
-            ris VError("spciy  smp proporion")
-        smp_proporion  opions.smp_proporion
-    s:
-        smp_proporion  Non
+    if "sample" in options.methods:
+        if not options.sample_proportion:
+            raise ValueError("specify a sample proportion")
+        sample_proportion = options.sample_proportion
+    else:
+        sample_proportion = None
 
-    ir_min_sqnc_ngh  Non
-    ir_mx_sqnc_ngh  Non
-    ir_i_is  Non
-    or  in opions.ir_mhos:
-        i .srswih("min-ngh"):
-            ir_min_sqnc_ngh  in(.spi("")[1])
-        i .srswih("mx-ngh"):
-            ir_mx_sqnc_ngh  in(.spi("")[1])
-        i .srswih("i-i"):
-            ir_i_is  [in[:-1] or in in iooos.opn_i(.spi("")[1])]
+    filter_min_sequence_length = None
+    filter_max_sequence_length = None
+    filter_id_list = None
+    for f in options.filter_methods:
+        if f.startswith("min-length"):
+            filter_min_sequence_length = int(f.split("=")[1])
+        elif f.startswith("max-length"):
+            filter_max_sequence_length = int(f.split("=")[1])
+        elif f.startswith("id-file"):
+            filter_id_list = [line[:-1] for line in iotools.open_file(f.split("=")[1])]
 
-     risINoCoon(, i):
-        '''ris VError i sqnc ngh  is no ivisib by
+    def raiseIfNotCodon(l, title):
+        '''raise ValueError if sequence length l is not divisible by
         3'''
 
-        i   3 ! 0:
-            ris VError(
-                "ngh o sqnc s no ivisib by 3"  (i))
+        if l % 3 != 0:
+            raise ValueError(
+                "length of sequence %s not divisible by 3" % (title))
 
-    iror  pysm.FsxFi(opions.inp_inm_s)
+    iterator = pysam.FastxFile(options.input_filename_fasta)
 
-    c  E.Conr()
+    c = E.Counter()
 
-    o_wih  opions.o_wih
+    fold_width = options.fold_width
 
-     o(s, w):
-        rrn "\n".join([s[x:x+w] or x in rng(0, n(s), w)])
+    def fold(s, w):
+        return "\n".join([s[x:x+w] for x in range(0, len(s), w)])
 
-    or rcor in iror:
-        c.nsq + 1
-        c.inp + 1
+    for record in iterator:
+        c.nseq += 1
+        c.input += 1
 
-        sqnc  r.sb(" ", "", rcor.sqnc)
-          n(sqnc)
+        sequence = re.sub(" ", "", record.sequence)
+        l = len(sequence)
 
-        i rx_inc n no rx_inc.srch(rcor.nm):
-            c.skipp + 1
-            conin
+        if rx_include and not rx_include.search(record.name):
+            c.skipped += 1
+            continue
 
-        i rx_xc n rx_xc.srch(rcor.nm):
-            c.skipp + 1
-            conin
+        if rx_exclude and rx_exclude.search(record.name):
+            c.skipped += 1
+            continue
 
-        i smp_proporion:
-            i rnom.rnom() > smp_proporion:
-                conin
+        if sample_proportion:
+            if random.random() > sample_proportion:
+                continue
 
-        i no (ir_i_is is Non or rcor.nm in ir_i_is):
-            c.skipp + 1
-            conin
+        if not (filter_id_list is None or record.name in filter_id_list):
+            c.skipped += 1
+            continue
 
-        or mho in opions.mhos:
+        for method in options.methods:
 
-            i mho  "rns":
-                # rns sch h gps r prsrv
-                sq  []
+            if method == "translate":
+                # translate such that gaps are preserved
+                seq = []
 
-                s  n(r.sb('[s]'  opions.gp_chrs, sqnc, ""))
+                ls = len(re.sub('[%s]' % options.gap_chars, sequence, ""))
 
-                i s  3 ! 0:
-                    msg  "ngh o sqnc s (i) no ivisib by 3"  (
-                        rcor.nm, s)
-                    c.rrors + 1
-                    i opions.ignor_rrors:
-                        E.wrn(msg)
-                        conin
-                    s:
-                        ris VError(msg)
+                if ls % 3 != 0:
+                    msg = "length of sequence %s (%i) not divisible by 3" % (
+                        record.name, ls)
+                    c.errors += 1
+                    if options.ignore_errors:
+                        E.warn(msg)
+                        continue
+                    else:
+                        raise ValueError(msg)
 
-                or coon in [sqnc[x:x + 3] or x in rng(0, , 3)]:
-                      Gnomics.MpCoon2AA(coon)
-                    sq.ppn()
+                for codon in [sequence[x:x + 3] for x in range(0, l, 3)]:
+                    aa = Genomics.MapCodon2AA(codon)
+                    seq.append(aa)
 
-                sqnc  "".join(sq)
+                sequence = "".join(seq)
 
-            i mho  "bck-rns":
-                # rns rom n mino ci ignmn o coon ignmn
-                sq  []
+            elif method == "back-translate":
+                # translate from an amino acid alignment to codon alignment
+                seq = []
 
-                ry:
-                    ohr_rcor  nx(ohr_iror)
-                xcp SopIrion:
-                    ris VError("rn o o sqncs")
+                try:
+                    other_record = next(other_iterator)
+                except StopIteration:
+                    raise ValueError("run out of sequences")
 
-                i rcor.nm ! ohr_rcor.i:
-                    ris "sqnc is on' mch: s s"  (
-                        rcor.nm, ohr_rcor.i)
-
-                ohr_sqnc  r.sb(
-                    "[ s]"  opions.gp_chrs, "", ohr_rcor.sqnc)
-
-                i n(ohr_sqnc)  3 ! 0:
-                    ris VError(
-                        "ngh o sqnc s no ivisib by 3" 
-                        (ohr_rcor.i))
-
-                r  r.sb("[s]"  opions.gp_chrs, "", sqnc)
-                i n(ohr_sqnc) ! n(r) * 3:
-                    ris VError(
-                        "ngh o sqncs o no mch: i vs i" 
-                        (n(ohr_sqnc), n(r)))
-
-                x  0
-                or  in sqnc:
-                    i  in opions.gp_chrs:
-                        c  opions.gp_chr * 3
-                    s:
-                        c  ohr_sqnc[x:x + 3]
-                        x + 3
-                    sq.ppn(c)
-
-                sqnc  "".join(sq)
-
-            i mho  "pso-coons":
-                risINoCoon(, rcor.nm)
-                sq  []
-
-                or coon in [sqnc[x:x + 3] or x in rng(0, , 3)]:
-
-                      Gnomics.MpCoon2AA(coon)
-                    sq.ppn()
-
-                sqnc  "   ".join(sq)
+                if record.name != other_record.title:
+                    raise "sequence titles don't match: %s %s" % (
+                        record.name, other_record.title)
+
+                other_sequence = re.sub(
+                    "[ %s]" % options.gap_chars, "", other_record.sequence)
+
+                if len(other_sequence) % 3 != 0:
+                    raise ValueError(
+                        "length of sequence %s not divisible by 3" %
+                        (other_record.title))
+
+                r = re.sub("[%s]" % options.gap_chars, "", sequence)
+                if len(other_sequence) != len(r) * 3:
+                    raise ValueError(
+                        "length of sequences do not match: %i vs %i" %
+                        (len(other_sequence), len(r)))
+
+                x = 0
+                for aa in sequence:
+                    if aa in options.gap_chars:
+                        c = options.gap_char * 3
+                    else:
+                        c = other_sequence[x:x + 3]
+                        x += 3
+                    seq.append(c)
+
+                sequence = "".join(seq)
+
+            elif method == "pseudo-codons":
+                raiseIfNotCodon(l, record.name)
+                seq = []
+
+                for codon in [sequence[x:x + 3] for x in range(0, l, 3)]:
+
+                    aa = Genomics.MapCodon2AA(codon)
+                    seq.append(aa)
+
+                sequence = "   ".join(seq)
 
-            i mho  "rvrs-compmn":
-                sqnc  sqnc.rns(sr.mkrns("ACGTcg", "TGCAgc"))[::-1]
+            elif method == "reverse-complement":
+                sequence = sequence.translate(str.maketrans("ACGTacgt", "TGCAtgca"))[::-1]
 
-            i mho in ("msk-sops", "rmov-sops"):
-                c  []
-                coon  []
-                nw_sqnc  []
+            elif method in ("mask-stops", "remove-stops"):
+                c = []
+                codon = []
+                new_sequence = []
 
-                i mho  "msk-sops":
-                    chr  opions.n_msk_chr
-                i mho  "rmov-sops":
-                    chr  opions.gp_chr
+                if method == "mask-stops":
+                    char = options.na_mask_char
+                elif method == "remove-stops":
+                    char = options.gap_char
 
-                or x in sqnc:
+                for x in sequence:
 
-                    i x no in opions.gp_chrs:
-                        coon.ppn(x.ppr())
+                    if x not in options.gap_chars:
+                        codon.append(x.upper())
 
-                    c.ppn(x)
+                    c.append(x)
 
-                    i n(coon)  3:
-                        coon  "".join(coon).ppr()
-                        # msk  non-gps
-                        i Gnomics.IsSopCoon(coon):
+                    if len(codon) == 3:
+                        codon = "".join(codon).upper()
+                        # mask all non-gaps
+                        if Genomics.IsStopCodon(codon):
 
-                            or x in c:
-                                i x in opions.gp_chrs:
-                                    nw_sqnc.ppn(x)
-                                s:
-                                    nw_sqnc.ppn(chr)
-                        s:
-                            nw_sqnc + c
+                            for x in c:
+                                if x in options.gap_chars:
+                                    new_sequence.append(x)
+                                else:
+                                    new_sequence.append(char)
+                        else:
+                            new_sequence += c
 
-                        c  []
-                        coon  []
+                        c = []
+                        codon = []
 
-                nw_sqnc + c
+                new_sequence += c
 
-                sqnc  "".join(nw_sqnc)
+                sequence = "".join(new_sequence)
 
-            i mho  "msk-so":
-                # G nx hr msk rcor n xrc sqnc n ngh
-                ry:
-                    cr_hm_rcor  nx(hr_msk_iror)
-                xcp SopIrion:
-                    brk
-                hm_sqnc  r.sb(" ", "", cr_hm_rcor.sqnc)
-                hm  n(hm_sqnc)
-                nw_sqnc  []
+            elif method == "mask-soft":
+                # Get next hard masked record and extract sequence and length
+                try:
+                    cur_hm_record = next(hard_masked_iterator)
+                except StopIteration:
+                    break
+                hm_sequence = re.sub(" ", "", cur_hm_record.sequence)
+                lhm = len(hm_sequence)
+                new_sequence = []
 
-                # Chck nghs o nmsk n so msk sqncs h sm
-                i  ! hm:
-                    ris VError(
-                        "ngh o nmsk n hr msk sqncs no "
-                        "inic or rcor s" 
-                        (rcor.nm))
+                # Check lengths of unmasked and soft masked sequences the same
+                if l != lhm:
+                    raise ValueError(
+                        "length of unmasked and hard masked sequences not "
+                        "identical for record %s" %
+                        (record.name))
 
-                # Chck i hr msk sq conins rp (N), i so rpc N
-                # wih owrcs sqnc rom nmsk vrsion
-                i sqnc  hm_sqnc:
-                    pss
-                s:
-                    or x, y in zip_ongs(sqnc, hm_sqnc):
-                        i y  "N":
-                            nw_sqnc + x.owr()
-                        s:
-                            nw_sqnc + x.ppr()
-                sqnc  "".join(nw_sqnc)
+                # Check if hard masked seq contains repeat (N), if so replace N
+                # with lowercase sequence from unmasked version
+                if sequence == hm_sequence:
+                    pass
+                else:
+                    for x, y in zip_longest(sequence, hm_sequence):
+                        if y == "N":
+                            new_sequence += x.lower()
+                        else:
+                            new_sequence += x.upper()
+                sequence = "".join(new_sequence)
 
-            i mho  "mp-coons":
-                risINoCoon(, rcor.nm)
-                sq  []
+            elif method == "map-codons":
+                raiseIfNotCodon(l, record.name)
+                seq = []
 
-                or coon in (sqnc[x:x + 3].ppr()
-                              or x in rng(0, , 3)):
+                for codon in (sequence[x:x + 3].upper()
+                              for x in range(0, l, 3)):
 
-                    i coon no in mp_coon2co:
-                          "X"
-                    s:
-                          mp_coon2co[coon]
-                    sq.ppn()
+                    if codon not in map_codon2code:
+                        aa = "X"
+                    else:
+                        aa = map_codon2code[codon]
+                    seq.append(aa)
 
-                sqnc  "".join(sq)
+                sequence = "".join(seq)
 
-            i mho  "inrv-coons":
-                risINoCoon(, rcor.nm)
-                sq  []
+            elif method == "interleaved-codons":
+                raiseIfNotCodon(l, record.name)
+                seq = []
 
-                or coon in [sqnc[x:x + 3] or x in rng(0, , 3)]:
+                for codon in [sequence[x:x + 3] for x in range(0, l, 3)]:
 
-                      Gnomics.MpCoon2AA(coon)
-                    sq.ppn("s:s"  (, coon))
+                    aa = Genomics.MapCodon2AA(codon)
+                    seq.append("%s:%s" % (aa, codon))
 
-                sqnc  " ".join(sq)
+                sequence = " ".join(seq)
 
-            i mho  "rns-o-sop":
-                sq  []
+            elif method == "translate-to-stop":
+                seq = []
 
-                or coon in [sqnc[x:x + 3] or x in rng(0, , 3)]:
+                for codon in [sequence[x:x + 3] for x in range(0, l, 3)]:
 
-                    i Gnomics.IsSopCoon(coon):
-                        brk
+                    if Genomics.IsStopCodon(codon):
+                        break
 
-                      Gnomics.MpCoon2AA(coon)
-                    sq.ppn()
-
-                sqnc  "".join(sq)
-
-            i mho  "rnc--sop":
-                sq  []
-
-                or coon in [sqnc[x:x + 3] or x in rng(0, , 3)]:
-
-                    i Gnomics.IsSopCoon(coon):
-                        brk
-                    sq.ppn(coon)
-
-                sqnc  "".join(sq)
-
-            i mho  "rmov-gps":
-
-                sq  []
-                or s in sqnc:
-                    i s in opions.gp_chrs:
-                        conin
-                    sq.ppn(s)
-
-                sqnc  "".join(sq)
-
-            i mho  "ppr":
-                sqnc  sqnc.ppr()
-
-            i mho  "owr":
-                sqnc  sqnc.owr()
-
-            i mho  "mrk-coons":
-                risINoCoon(, rcor.nm)
-                sq  []
-
-                sqnc  " ".join([sqnc[x:x + 3]
-                                     or x in rng(0, , 3)])
-
-            i mho  "ppy-mp":
-                i  r.mch("^(\S+)", rcor.nm).grops()[0]
-                i i in mp_sq2ni:
-                    rs  rcor.nm[n(i):]
-                    rcor.nm  mp_sq2ni[i] + rs
-
-            i mho  "bi-mp":
-                # bi  mp o iniirs
-                i  r.mch("^(\S+)", rcor.nm).grops()[0]
-                nw_i  opions.mp_iniir  nsq
-                i i in mp_sq2ni:
-                    ris "pic s nris - cn' mp hos: s"  i
-                mp_sq2ni[i]  nw_i
-                rcor.nm  nw_i
-
-            i mho  "msk-bis":
-                mskr  Mskr.MskrBis()
-                sqnc  mskr(sqnc)
-
-            i mho  "msk-sg":
-                mskr  Mskr.MskrSg()
-                sqnc  mskr(sqnc)
-
-            i mho  "sh":
-                s  is(sqnc)
-                rnom.sh(s)
-                sqnc  "".join(s)
-
-            i mho  "msk-incomp-coons":
-                sq  is(sqnc)
-                or x in rng(0, , 3):
-                    nm  n([x or x in sq[x:x + 3] i x in msk_chrs])
-                    i 0 < nm < 3:
-                        sq[x:x + 3]  [msk_chr] * 3
-                sqnc  "".join(sq)
-
-            i mho  "msk-coons":
-                # msk coons bs on mino cis givn s rrnc
-                # sqncs.
-                ohr_rcor  nx(ohr_iror)
-
-                i ohr_rcor is Non:
-                    ris VError("rn o o sqncs.")
-
-                i rcor.nm ! ohr_rcor.i:
-                    ris VError(
-                        "sqnc is on' mch: s s" 
-                        (rcor.nm, ohr_rcor.i))
-
-                ohr_sqnc  r.sb(" ", "", ohr_rcor.sqnc)
-
-                i n(ohr_sqnc) * 3 ! n(sqnc):
-                    ris VError(
-                        "sqncs or s on' hv mching nghs i - i" 
-                        (rcor.nm, n(ohr_sqnc) * 3,
-                         n(sqnc)))
-
-                sq  is(sqnc)
-                c  0
-                or x in ohr_sqnc:
-                    i x in opions._msk_chrs:
-                        i x.isppr():
-                            sq[c:c + 3]  [opions.n_msk_chr.ppr()] * 3
-                        s:
-                            sq[c:c + 3]  [opions.n_msk_chr.owr()] * 3
-                    c + 3
-
-                sqnc  "".join(sq)
-
-          n(sqnc)
-        i ir_min_sqnc_ngh is no Non n \
-            < ir_min_sqnc_ngh:
-            c.skipp + 1
-
-        i ir_mx_sqnc_ngh is no Non n \
-            > ir_mx_sqnc_ngh:
-            c.skipp + 1
-            conin
-
-        rcor.sqnc  sqnc
-        i o_wih > 0:
-            i rcor.commn:
-                opions.so.wri(">{} {}\n{}\n".orm(
-                    rcor.nm,
-                    rcor.commn,
-                    o(rcor.sqnc, o_wih)))
-            s:
-                opions.so.wri(">{}\n{}\n".orm(
-                    rcor.nm,
-                    o(rcor.sqnc, o_wih)))
-        s:
-            opions.so.wri(sr(rcor) + "\n")
-
-        c.op + 1
-
-    i "bi-mp" in opions.mhos:
-        p  opions.prmrs[0]
-        i p:
-            oi  iooos.opn_i(p, "w")
-        s:
-            oi  opions.so
-
-        oi.wri("o\nw\n")
-        or o_i, nw_i in is(mp_sq2ni.ims()):
-            oi.wri("s\s\n"  (o_i, nw_i))
-        i p:
-            oi.cos()
-
-    E.ino(c)
-    E.sop()
-
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+                    aa = Genomics.MapCodon2AA(codon)
+                    seq.append(aa)
+
+                sequence = "".join(seq)
+
+            elif method == "truncate-at-stop":
+                seq = []
+
+                for codon in [sequence[x:x + 3] for x in range(0, l, 3)]:
+
+                    if Genomics.IsStopCodon(codon):
+                        break
+                    seq.append(codon)
+
+                sequence = "".join(seq)
+
+            elif method == "remove-gaps":
+
+                seq = []
+                for s in sequence:
+                    if s in options.gap_chars:
+                        continue
+                    seq.append(s)
+
+                sequence = "".join(seq)
+
+            elif method == "upper":
+                sequence = sequence.upper()
+
+            elif method == "lower":
+                sequence = sequence.lower()
+
+            elif method == "mark-codons":
+                raiseIfNotCodon(l, record.name)
+                seq = []
+
+                sequence = " ".join([sequence[x:x + 3]
+                                     for x in range(0, l, 3)])
+
+            elif method == "apply-map":
+                id = re.match("^(\S+)", record.name).groups()[0]
+                if id in map_seq2nid:
+                    rest = record.name[len(id):]
+                    record.name = map_seq2nid[id] + rest
+
+            elif method == "build-map":
+                # build a map of identifiers
+                id = re.match("^(\S+)", record.name).groups()[0]
+                new_id = options.template_identifier % nseq
+                if id in map_seq2nid:
+                    raise "duplicate fasta entries - can't map those: %s" % id
+                map_seq2nid[id] = new_id
+                record.name = new_id
+
+            elif method == "mask-bias":
+                masker = Masker.MaskerBias()
+                sequence = masker(sequence)
+
+            elif method == "mask-seg":
+                masker = Masker.MaskerSeg()
+                sequence = masker(sequence)
+
+            elif method == "shuffle":
+                s = list(sequence)
+                random.shuffle(s)
+                sequence = "".join(s)
+
+            elif method == "mask-incomplete-codons":
+                seq = list(sequence)
+                for x in range(0, l, 3):
+                    nm = len([x for x in seq[x:x + 3] if x in mask_chars])
+                    if 0 < nm < 3:
+                        seq[x:x + 3] = [mask_char] * 3
+                sequence = "".join(seq)
+
+            elif method == "mask-codons":
+                # mask codons based on amino acids given as reference
+                # sequences.
+                other_record = next(other_iterator)
+
+                if other_record is None:
+                    raise ValueError("run out of sequences.")
+
+                if record.name != other_record.title:
+                    raise ValueError(
+                        "sequence titles don't match: %s %s" %
+                        (record.name, other_record.title))
+
+                other_sequence = re.sub(" ", "", other_record.sequence)
+
+                if len(other_sequence) * 3 != len(sequence):
+                    raise ValueError(
+                        "sequences for %s don't have matching lengths %i - %i" %
+                        (record.name, len(other_sequence) * 3,
+                         len(sequence)))
+
+                seq = list(sequence)
+                c = 0
+                for x in other_sequence:
+                    if x in options.aa_mask_chars:
+                        if x.isupper():
+                            seq[c:c + 3] = [options.na_mask_char.upper()] * 3
+                        else:
+                            seq[c:c + 3] = [options.na_mask_char.lower()] * 3
+                    c += 3
+
+                sequence = "".join(seq)
+
+        l = len(sequence)
+        if filter_min_sequence_length is not None and \
+           l < filter_min_sequence_length:
+            c.skipped += 1
+
+        if filter_max_sequence_length is not None and \
+           l > filter_max_sequence_length:
+            c.skipped += 1
+            continue
+
+        record.sequence = sequence
+        if fold_width >= 0:
+            if record.comment:
+                options.stdout.write(">{} {}\n{}\n".format(
+                    record.name,
+                    record.comment,
+                    fold(record.sequence, fold_width)))
+            else:
+                options.stdout.write(">{}\n{}\n".format(
+                    record.name,
+                    fold(record.sequence, fold_width)))
+        else:
+            options.stdout.write(str(record) + "\n")
+
+        c.output += 1
+
+    if "build-map" in options.methods:
+        p = options.parameters[0]
+        if p:
+            outfile = iotools.open_file(p, "w")
+        else:
+            outfile = options.stdout
+
+        outfile.write("old\tnew\n")
+        for old_id, new_id in list(map_seq2nid.items()):
+            outfile.write("%s\t%s\n" % (old_id, new_id))
+        if p:
+            outfile.close()
+
+    E.info(c)
+    E.stop()
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

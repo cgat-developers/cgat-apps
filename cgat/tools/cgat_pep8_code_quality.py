@@ -1,117 +1,117 @@
 '''
-cg_pp8_chck_co_qiy.py - chck PEP8 conormnc o cg Co
+cgat_pep8_check_code_quality.py - check PEP8 conformance of cgat Code
+=====================================================================
 
+:Author:
+:Tags: Python
 
-:Ahor:
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip rns pp8.py on h cg co cocion n ops
-smmry sisics o co qiy ono so.
+This script runs pep8.py on the cgat code collection and outputs
+summary statistics of code quality onto stdout.
 
-Usg
+Usage
 -----
 
-To s, simpy rn h scrip rom h roo ircory o h
-cg co cocion::
+To use, simply run the script from the root directory of the
+cgat code collection::
 
-   pyhon cg_pp8_chck_co_qiy.py
+   python cgat_pep8_check_code_quality.py
 
-Typ::
+Type::
 
-   pyhon cg_pp8_chck_co_qiy.py --hp
+   python cgat_pep8_check_code_quality.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 
 '''
 
-impor cocions
-impor sys
-impor cgcor.xprimn s E
-impor cg.Sy
+import collections
+import sys
+import cgatcore.experiment as E
+import cgat.Style
 
-DATA  cocions.nmp('DATA', 'con co scripion')
+DATA = collections.namedtuple('DATA', 'count code description')
 
-xprssions  (
-    ('ss', 'ss/*.py'),
-    ('scrips', 'scrips/*.py'),
-    ('opic', 'scrips/opic/*.py'),
-    ('gpip', 'scrips/gpip/*.py'),
-    ('cg', 'cg/*.py'),
-    ('cgPipins', 'cgPipins/*.py'),
-    ('rckrs', 'cgPipins/pipin_ocs/*/rckrs/*.py'))
+expressions = (
+    ('tests', 'tests/*.py'),
+    ('scripts', 'scripts/*.py'),
+    ('optic', 'scripts/optic/*.py'),
+    ('gpipe', 'scripts/gpipe/*.py'),
+    ('cgat', 'cgat/*.py'),
+    ('cgatPipelines', 'cgatPipelines/*.py'),
+    ('trackers', 'cgatPipelines/pipeline_docs/*/trackers/*.py'))
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    rows  []
-    bs  {}
-    or b, xpr in xprssions:
-        nchck,   cg.Sy.rnPp8(xpr)
-        rows.ppn((b, nchck, ))
-        bs.p(ic([(x.co, x.scripion) or x in ]))
+    rows = []
+    labels = {}
+    for label, expr in expressions:
+        nchecked, data = cgat.Style.runPep8(expr)
+        rows.append((label, nchecked, data))
+        labels.update(dict([(x.code, x.description) for x in data]))
 
-    # bi b
+    # build table
     #
-    # ch row is  s n ch comn is  Wrning/Error yp
-    # wih som iion comns sch s o n n.
+    # each row is data set and each column is a Warning/Error type
+    # with some additional columns such as total and n.
 
-    # bi icionry mpping rror cos o comns
-    # consisny cross smps
-    mp_co2comn  ic([(y, x + 3) or x, y in nmr(bs.kys())])
+    # build dictionary mapping error codes to columns
+    # consistently across samples
+    map_code2column = dict([(y, x + 3) for x, y in enumerate(labels.keys())])
 
-    # bi irs row conining h comn bs
-    rss  [['co', 'n', 'o'] + is(bs.kys())]
+    # build first row containing the column labels
+    results = [['code', 'n', 'total'] + list(labels.keys())]
 
-    # bi rry wih comn os
-    comn_os  [0] * (n(mp_co2comn) + 3)
-    or b, nchck,  in rows:
-        row  [b, nchck, 0] + [0] * n(mp_co2comn)
-        comn_os[1] + nchck
-        or x in :
-            c  mp_co2comn[x.co]
-            row[c]  x.con
-            row[2] + in(x.con)
-            comn_os[2] + in(x.con)
-            comn_os[c] + in(x.con)
+    # build array with column totals
+    column_totals = [0] * (len(map_code2column) + 3)
+    for label, nchecked, data in rows:
+        row = [label, nchecked, 0] + [0] * len(map_code2column)
+        column_totals[1] += nchecked
+        for x in data:
+            c = map_code2column[x.code]
+            row[c] = x.count
+            row[2] += int(x.count)
+            column_totals[2] += int(x.count)
+            column_totals[c] += int(x.count)
 
-        rss.ppn(row)
-    #  comn os
-    comn_os[0]  'o'
-    rss.ppn(comn_os)
+        results.append(row)
+    # add column totals
+    column_totals[0] = 'total'
+    results.append(column_totals)
 
-    #  scripions s s row
-    rss.ppn(['scripion',
-                    'nmbr o is chck',
-                    'o rrors/wrnings in s'] + is(bs.vs()))
+    # add descriptions as last row
+    results.append(['description',
+                    'number of files checked',
+                    'total errors/warnings in set'] + list(labels.values()))
 
-    # op rnspos b
-    oi  sys.so
-    or row in zip(*rss):
-        oi.wri('s\n'  ('\'.join(mp(sr, row))))
+    # output transposed table
+    outfile = sys.stdout
+    for row in zip(*results):
+        outfile.write('%s\n' % ('\t'.join(map(str, row))))
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

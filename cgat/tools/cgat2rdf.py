@@ -1,766 +1,766 @@
-'''cg2r.py - cr r scripion o cg scrip
+'''cgat2rdf.py - create rdf description of cgat script
+====================================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip crs n r scripion o  cg
-scrip.
+This script creates an rdf description of a cgat
+script.
 
-Opiony, h scrip ops so  gxy xm
-scripion o h scrips' inrc.
+Optionally, the script outputs also a galaxy xml
+description of the scripts' interface.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon cg2r.py bm2ss.py
+   python cgat2rdf.py bam2stats.py
 
-Typ::
+Type::
 
-   pyhon cg2r.py --hp
+   python cgat2rdf.py --help
 
-or commn in hp.
+for command line help.
 
-Docmnion
+Documentation
 -------------
 
-This scrip ks  cg scrip n mps o wri n inrc
-iniion or his scrip. In orr o gss h i yps
-corrcy, :i:`cg2r.py` mks s o h oowing inormion:
+This script takes a cgat script and attempts to write an interface
+definition for this script. In order to guess the file types
+correctly, :file:`cgat2rdf.py` makes use of the following information:
 
-1. Th scrip nm. I h nm o h scrip conins 
-   "orm2orm.py", :i:`cg2r.py` wi ssm h h scrip
-   works wihin  pip: i ks sin n so s inp n op,
-   rspcivy, n ch r orm ccoring o h orms.  For
-   xmp, ``b2b.py`` hs  :rm:`b` orm i s inp
-   n op, whi ``g2g.py`` hs  :rm:`g` orm i
-   s inp n ops  :rm:`g` i. Mos orms r no
-   prs, hogh :i:`cg2r.py` conins som yp mppings:
+1. The script name. If the name of the script contains a
+   "format2format.py", :file:`cgat2rdf.py` will assume that the script
+   works within a pipe: it takes stdin and stdout as input and output,
+   respectively, and each are formatted according to the formats.  For
+   example, ``bed2bed.py`` has a :term:`bed` formatted file as input
+   and output, while ``gtf2gff.py`` has a :term:`gtf` formatted file
+   as input and outputs a :term:`gff` file. Most formats are not
+   parsed, though :file:`cgat2rdf.py` contains some type mappings:
 
 +--------------------+--------------------+--------------------+
-|Form              |Mps o             |Conn             |
+|Format              |Maps to             |Content             |
 +--------------------+--------------------+--------------------+
-|sv                 |br             |Tb-spr vs|
+|tsv                 |tabular             |Tab-separated values|
 +--------------------+--------------------+--------------------+
-|b               |br             |io               |
+|table               |tabular             |ditto               |
 +--------------------+--------------------+--------------------+
-|ss               |br             |io               |
+|stats               |tabular             |ditto               |
 +--------------------+--------------------+--------------------+
-|csv                 |br             |io               |
+|csv                 |tabular             |ditto               |
 +--------------------+--------------------+--------------------+
 
-2. Th commn in opions. :i:`cg2r.py` wi impor h
-   scrip i rns n cprs h commn in opion prsr
-   inormion. Bs on hs , opions r  o h
-   inrc. Aomic vs sch s in, o, c, r inrpr
-   ircy. For x rgmns, :i:`cg2r.py` ss i h
-   :r:`mvr` rib hs bn s. Whn s, h conn o
-   his rib wi rmin h i yp.
+2. The command line options. :file:`cgat2rdf.py` will import the
+   script it runs and captures the command line option parser
+   information. Based on these data, options are added to the
+   interface. Atomic values such as int, float, etc, are interpreted
+   directly. For textual arguments, :file:`cgat2rdf.py` tests if the
+   :attr:`metavar` attribute has been set. When set, the content of
+   this attribute will determine the file type.
 
-Th inrc cripion cn b xpor ihr s :rm:`RDF` or in  vriy
-o ohr orms:
+The interface decription can be exported either as :term:`RDF` or in a variety
+of other formats:
 
-gxy
-    Gxy xm i.
+galaxy
+    Galaxy xml file.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor os
-impor sys
-impor r
-impor im
-impor cocions
-rom jinj2 impor Tmp
-rom rib impor Grph
-rom rib impor Nmspc
-rom rib.nmspc impor RDF, RDFS, DCTERMS
-rom rib impor Lir, BNo, URIR
-rom rib.cocion impor Cocion
-impor cgcor.xprimn s E
+import os
+import sys
+import re
+import datetime
+import collections
+from jinja2 import Template
+from rdflib import Graph
+from rdflib import Namespace
+from rdflib.namespace import RDF, RDFS, DCTERMS
+from rdflib import Literal, BNode, URIRef
+from rdflib.collection import Collection
+import cgatcore.experiment as E
 
-ORIGINAL_START  Non
+ORIGINAL_START = None
 
-PARSER  Non
-
-
-FOAF  Nmspc('hp://xmns.com/o/1.1/')
-Componn  Nmspc('hp://www.isi./ikcp/Wings/componnOnoogy.ow#')
-FO  Nmspc('hp://www.isi./ikcp/Wings/iOnoogy.ow#')
-CLP  Nmspc('hp://www.hmgn.n/cim/onoogis/cp#')
+PARSER = None
 
 
- _(sring):
-    rrn sring.rpc(' ', '_')
+FOAF = Namespace('http://xmlns.com/foaf/1.1/')
+Component = Namespace('http://www.isi.edu/ikcap/Wingse/componentOntology.owl#')
+FO = Namespace('http://www.isi.edu/ikcap/Wingse/fileOntology.owl#')
+CLP = Namespace('http://www.humgen.nl/climate/ontologies/clp#')
 
-MAP_FORMATS  {
-    'sv': 'br',
-    'b': 'br',
-    'ss': 'br',
-    'csv': 'br',
+
+def _e(string):
+    return string.replace(' ', '_')
+
+MAP_FORMATS = {
+    'tsv': 'tabular',
+    'table': 'tabular',
+    'stats': 'tabular',
+    'csv': 'tabular',
 }
 
-MAP_TYPE2FORMAT  {
-    'g': 'g,g',
-    'g': 'g,g',
-    'bm': 'bm',
-    'sm': 'sm',
+MAP_TYPE2FORMAT = {
+    'gff': 'gff,gtf',
+    'gtf': 'gff,gtf',
+    'bam': 'bam',
+    'sam': 'sam',
     'bigwig': 'bigWig',
-    'b': 'b',
+    'bed': 'bed',
 }
 
 
-css DmmyError(Excpion):
-    pss
+class DummyError(Exception):
+    pass
 
 
-css Gnror:
+class Generator:
 
-    '''inspir by:
-    hps://gihb.com/zoin/CLI-m/bob/msr/cim/is/gcy_prsr.py
+    '''inspired by:
+    https://github.com/zuotian/CLI-mate/blob/master/climate/utils/legacy_parser.py
     '''
 
-     __ini__(s):
-        s.grph  Grph()
+    def __init__(self):
+        self.graph = Graph()
 
-     _Trip(s, s, p, o):
-        i yp(o) in [BNo, URIR]:
-            s.grph.((s, p, o))
-        i yp(o) is is:
-            o_is  BNo()
-            s.grph.((s, p, o_is))
-            os  Cocion(s.grph, o_is)
-            or im in o:
-                os.ppn(Lir(im))
-        i o ! '':
-            s.grph.((s, p, Lir(o)))
+    def _addTriple(self, s, p, o):
+        if type(o) in [BNode, URIRef]:
+            self.graph.add((s, p, o))
+        elif type(o) is list:
+            o_list = BNode()
+            self.graph.add((s, p, o_list))
+            os = Collection(self.graph, o_list)
+            for item in o:
+                os.append(Literal(item))
+        elif o != '':
+            self.graph.add((s, p, Literal(o)))
 
-     _gnrSmns(s, sbjc_no, propris):
+    def _generateStatements(self, subject_node, properties):
         """
-        propris  {"rom_oc" : ["_b", "no"]
-        "ccss_ocion : ["/ph/o/somwhr/", "ys"]}
+        properties = {"from_loc" : ["data_table", "no"]
+        "access_location : ["/path/to/somewhere/", "yes"]}
         """
-        or (ky, vs) in is(propris.ims()):
-            i vs[1]  'no':  # no  voi propry.
-                _no  BNo()
-                s._Trip(_no, RDF['yp'], RDF['Smn'])
-                s._Trip(_no, CLP['rTo'], Lir(ky))
-                s._Trip(_no, RDF['sbjc'], sbjc_no)
-                s._Trip(_no, RDF['pric'], CLP['hsPropry'])
-                s._Trip(_no, RDF['objc'], vs[0])
+        for (key, values) in list(properties.items()):
+            if values[1] == 'no':  # not a volatile property.
+                a_node = BNode()
+                self._addTriple(a_node, RDF['type'], RDF['Statement'])
+                self._addTriple(a_node, CLP['relatedTo'], Literal(key))
+                self._addTriple(a_node, RDF['subject'], subject_node)
+                self._addTriple(a_node, RDF['predicate'], CLP['hasProperty'])
+                self._addTriple(a_node, RDF['object'], values[0])
 
-     _gnrDpnncis(s, p_no, pnncis):
-        i pnncis:
-            or p in pnncis:
-                _no  BNo()
-                s._Trip(_no, RDF.yp, CLP['pnncy'])
-                s._Trip(
-                    _no, CLP['hsDpningIm'],
-                    BNo(_(p['pning_prmr'])))
-                s._Trip(
-                    _no, CLP['pningConiion'],
-                    p['pning_coniion'])
-                s._Trip(_no, CLP['hsDpnnIm'], p_no)
-                s._Trip(
-                    _no, CLP['pnnScop'], p['pnn_scop'])
-                s._Trip(_no, CLP['c'], p['pnn_c'])
+    def _generateDependencies(self, ap_node, dependencies):
+        if dependencies:
+            for dep in dependencies:
+                d_node = BNode()
+                self._addTriple(d_node, RDF.type, CLP['dependency'])
+                self._addTriple(
+                    d_node, CLP['hasDependingItem'],
+                    BNode(_e(dep['depending_parameter'])))
+                self._addTriple(
+                    d_node, CLP['dependingCondition'],
+                    dep['depending_condition'])
+                self._addTriple(d_node, CLP['hasDependentItem'], ap_node)
+                self._addTriple(
+                    d_node, CLP['dependentScope'], dep['dependent_scope'])
+                self._addTriple(d_node, CLP['effect'], dep['dependent_effect'])
 
-     _Dic(s, ):
-        '''convr  icionry o n RDF grph.'''
+    def _addDict(self, data):
+        '''convert a dictionary to an RDF graph.'''
 
-        _no  BNo(_(['nm']))
-        s._Trip(
-            _no, RDF.yp, CLP['CommnLinProgrmComponnTyp'])
-        s._Trip(_no, DCTERMS['b'], ['nm'])
-        s._Trip(_no, DCTERMS['i'], ['binry'])
-        s._Trip(_no, DCTERMS['scripion'], ['scripion'])
-        s._Trip(_no, Componn['hsVrsion'], ['vrsion'])
-        s._Trip(_no, DCTERMS['commn'], ['hp'])
-        s._gnrSmns(_no, ['propry_bg'])
+        t_node = BNode(_e(data['name']))
+        self._addTriple(
+            t_node, RDF.type, CLP['CommandLineProgramComponentType'])
+        self._addTriple(t_node, DCTERMS['label'], data['name'])
+        self._addTriple(t_node, DCTERMS['title'], data['binary'])
+        self._addTriple(t_node, DCTERMS['description'], data['description'])
+        self._addTriple(t_node, Component['hasVersion'], data['version'])
+        self._addTriple(t_node, DCTERMS['comment'], data['help'])
+        self._generateStatements(t_node, data['property_bag'])
 
-        r_no  BNo()
-        s._Trip(_no, Componn['hsExcionRqirmns'], r_no)
-        s._Trip(r_no, RDF.yp, Componn['ExcionRqirmns'])
-        s._Trip(
-            r_no, Componn['rqirsOprionSysm'],
-            Componn['Linx'])  # TODO
-        i ['inrprr'] ! '(binry)':
-            s._Trip(
-                r_no, Componn['rqirsSowr'],
-                Componn[['inrprr']])
-        i ['gri_ccss_yp'] ! '-':
-            s._Trip(
-                r_no, CLP['griAccssTyp'], ['gri_ccss_yp'])
-            s._Trip(
-                r_no, Componn['griID'], ['gri_ccss_ocion'])
-        or rq in ['rqirmns']:
-            rq_no  BNo()
-            s._Trip(r_no, CLP['rqirsSowr'], rq_no)
-            s._Trip(rq_no, RDF.yp, CLP['Sowr'])
-            s._Trip(rq_no, DCTERMS['i'], rq['rq_nm'])
-            s._Trip(rq_no, CLP['griID'], rq['rq_ocion'])
-            s._Trip(rq_no, CLP['sowrTyp'], rq['rq_yp'])
+        r_node = BNode()
+        self._addTriple(t_node, Component['hasExecutionRequirements'], r_node)
+        self._addTriple(r_node, RDF.type, Component['ExecutionRequirements'])
+        self._addTriple(
+            r_node, Component['requiresOperationSystem'],
+            Component['Linux'])  # TODO
+        if data['interpreter'] != '(binary)':
+            self._addTriple(
+                r_node, Component['requiresSoftware'],
+                Component[data['interpreter']])
+        if data['grid_access_type'] != '-':
+            self._addTriple(
+                r_node, CLP['gridAccessType'], data['grid_access_type'])
+            self._addTriple(
+                r_node, Component['gridID'], data['grid_access_location'])
+        for req in data['requirements']:
+            req_node = BNode()
+            self._addTriple(r_node, CLP['requiresSoftware'], req_node)
+            self._addTriple(req_node, RDF.type, CLP['Software'])
+            self._addTriple(req_node, DCTERMS['title'], req['req_name'])
+            self._addTriple(req_node, CLP['gridID'], req['req_location'])
+            self._addTriple(req_node, CLP['softwareType'], req['req_type'])
 
-        rgmn_is  BNo('rgmn_is')
-        s._Trip(_no, Componn['hsArgmns'], rgmn_is)
-        # s._Trip(rgmn_is, RDF.yp,
-        # Componn['rgmnAnPrixLis'])
-        rgmn_nos  Cocion(s.grph, rgmn_is)
+        argument_list = BNode('argument_list')
+        self._addTriple(t_node, Component['hasArguments'], argument_list)
+        # self._addTriple(argument_list, RDF.type,
+        # Component['argumentAndPrefixList'])
+        argument_nodes = Collection(self.graph, argument_list)
 
-        inp_is  BNo('inp_is')
-        s._Trip(_no, Componn['hsInps'], inp_is)
-        # s._Trip(inp_is, RDF.yp,
-        # Componn['FiOrCocionLis'])
-        inp_nos  Cocion(s.grph, inp_is)
+        input_list = BNode('input_list')
+        self._addTriple(t_node, Component['hasInputs'], input_list)
+        # self._addTriple(input_list, RDF.type,
+        # Component['FileOrCollectionList'])
+        input_nodes = Collection(self.graph, input_list)
 
-        op_is  BNo('op_is')
-        s._Trip(_no, Componn['hsOps'], op_is)
-        # s._Trip(op_is, RDF.yp,
-        # Componn['FiOrCocionLis'])
-        op_nos  Cocion(s.grph, op_is)
+        output_list = BNode('output_list')
+        self._addTriple(t_node, Component['hasOutputs'], output_list)
+        # self._addTriple(output_list, RDF.type,
+        # Component['FileOrCollectionList'])
+        output_nodes = Collection(self.graph, output_list)
 
-        or p in ['prmrs']:
-            p_no  BNo(_(p['nm']))
-            rgmn_nos.ppn(p_no)
-            s._Trip(p_no, RDF.yp, Componn['ArgmnAnPrix'])
+        for p in data['parameters']:
+            ap_node = BNode(_e(p['name']))
+            argument_nodes.append(ap_node)
+            self._addTriple(ap_node, RDF.type, Component['ArgumentAndPrefix'])
 
-            _no  BNo(_(p['nm']) + '_rg')
-            s._Trip(p_no, Componn['hsArgmn'], _no)
+            a_node = BNode(_e(p['name']) + '_arg')
+            self._addTriple(ap_node, Component['hasArgument'], a_node)
 
-            choics  []
-            i 'choics' in p n p['choics']:
-                choics  [x.srip() or x in p['choics'].spi(',')]
+            choices = []
+            if 'choices' in p and p['choices']:
+                choices = [x.strip() for x in p['choices'].split(',')]
 
-            p_yp  p['yp']
-            i p_yp  'ingr':
-                s._Trip(_no, RDF.yp, FO['In'])
-                ry:
-                    s._Trip(_no, FO['hsInV'], in(p['v']))
-                    choics  [in(x) or x in choics]
-                xcp VError:
-                    pss  # o nohing i v is no n ingr
-            i p_yp  'o':
-                s._Trip(_no, RDF.yp, FO['Fo'])
-                ry:
-                    s._Trip(
-                        _no, FO['hsFoV'], o(p['v']))
-                    choics  [o(x) or x in choics]
-                xcp VError:
-                    pss  # o nohing i v is no  o
-            i p_yp in ['sring', 'sc']:
-                s._Trip(_no, RDF.yp, FO['Sring'])
-                s._Trip(_no, FO['hsSringV'], p['v'])
-            i p_yp in ['inp', 'sin']:
-                s._Trip(_no, RDF.yp, FO['Fi'])
-                s._Trip(_no, DCTERMS['orm'], p['orm'])
-                s._Trip(_no, Componn['hsV'], p['v'])
-                inp_nos.ppn(_no)
-            i p_yp in ['op', 'so', 'srr']:
-                s._Trip(_no, RDF.yp, FO['Fi'])
-                s._Trip(_no, DCTERMS['orm'], p['orm'])
-                s._Trip(_no, Componn['hsV'], p['v'])
-                op_nos.ppn(_no)
-            s:
-                s._Trip(_no, Componn['hsV'], p['v'])
+            p_type = p['type']
+            if p_type == 'integer':
+                self._addTriple(a_node, RDF.type, FO['Int'])
+                try:
+                    self._addTriple(a_node, FO['hasIntValue'], int(p['value']))
+                    choices = [int(x) for x in choices]
+                except ValueError:
+                    pass  # do nothing if value is not an integer
+            elif p_type == 'float':
+                self._addTriple(a_node, RDF.type, FO['Float'])
+                try:
+                    self._addTriple(
+                        a_node, FO['hasFloatValue'], float(p['value']))
+                    choices = [float(x) for x in choices]
+                except ValueError:
+                    pass  # do nothing if value is not a float
+            elif p_type in ['string', 'select']:
+                self._addTriple(a_node, RDF.type, FO['String'])
+                self._addTriple(a_node, FO['hasStringValue'], p['value'])
+            elif p_type in ['input', 'stdin']:
+                self._addTriple(a_node, RDF.type, FO['File'])
+                self._addTriple(a_node, DCTERMS['format'], p['format'])
+                self._addTriple(a_node, Component['hasValue'], p['value'])
+                input_nodes.append(a_node)
+            elif p_type in ['output', 'stdout', 'stderr']:
+                self._addTriple(a_node, RDF.type, FO['File'])
+                self._addTriple(a_node, DCTERMS['format'], p['format'])
+                self._addTriple(a_node, Component['hasValue'], p['value'])
+                output_nodes.append(a_node)
+            else:
+                self._addTriple(a_node, Component['hasValue'], p['value'])
 
-            i choics:
-                choics  [Lir(x) or x in choics]
-                choic_is  BNo(_(p['nm'] + '_choic_is'))
-                choic_nos  Cocion(s.grph, choic_is, choics)
-                s._Trip(_no, CLP['hsVChoics'], choic_is)
+            if choices:
+                choices = [Literal(x) for x in choices]
+                choice_list = BNode(_e(p['name'] + '_choice_list'))
+                choice_nodes = Collection(self.graph, choice_list, choices)
+                self._addTriple(a_node, CLP['hasValueChoices'], choice_list)
 
-            s._Trip(p_no, DCTERMS['i'], p['nm'])
-            s._Trip(p_no, DCTERMS['scripion'], p['scripion'])
-            s._Trip(p_no, RDFS.b, p['b'])
-            s._Trip(p_no, Componn['hsPrix'], p['rg'])
-            s._Trip(
-                p_no, CLP['hsArnivPrix'], p['rg_ong'])
-            s._Trip(p_no, CLP['orr'], in(p['rnk']))
-            s._Trip(p_no, CLP['ispy'], p['ispy'])
-            s._Trip(p_no, CLP['minOccrrnc'], p['min_occrrnc'])
-            s._Trip(p_no, CLP['mxOccrrnc'], p['mx_occrrnc'])
+            self._addTriple(ap_node, DCTERMS['title'], p['name'])
+            self._addTriple(ap_node, DCTERMS['description'], p['description'])
+            self._addTriple(ap_node, RDFS.label, p['label'])
+            self._addTriple(ap_node, Component['hasPrefix'], p['arg'])
+            self._addTriple(
+                ap_node, CLP['hasAlternativePrefix'], p['arg_long'])
+            self._addTriple(ap_node, CLP['order'], int(p['rank']))
+            self._addTriple(ap_node, CLP['display'], p['display'])
+            self._addTriple(ap_node, CLP['minOccurrence'], p['min_occurrence'])
+            self._addTriple(ap_node, CLP['maxOccurrence'], p['max_occurrence'])
 
-            s._gnrSmns(p_no, p['propry_bg'])
-            s._gnrDpnncis(p_no, p['pnncis'])
-        # or
+            self._generateStatements(ap_node, p['property_bag'])
+            self._generateDependencies(ap_node, p['dependencies'])
+        # for
 
-     _MIno(s, ):
+    def _addMetaInfo(self, data):
 
-        # m  no bo h Inrc Gnror is.
-        ig_no  URIR('hp://cim.hos.r')
-        s._Trip(ig_no, RDF.yp, FOAF['Agn'])
-        s._Trip(ig_no, DCTERMS['i'], ['m_i'])
-        s._Trip(ig_no, DCTERMS['cror'], ['m_i'])
-        s._Trip(ig_no, DCTERMS['hsVrsion'], ['m_i'])
+        # meta data node about the Interface Generator itself.
+        ig_node = URIRef('http://climate.host.url')
+        self._addTriple(ig_node, RDF.type, FOAF['Agent'])
+        self._addTriple(ig_node, DCTERMS['title'], data['meta_title'])
+        self._addTriple(ig_node, DCTERMS['creator'], data['meta_title'])
+        self._addTriple(ig_node, DCTERMS['hasVersion'], data['meta_title'])
 
-        m_no  URIR('')
-        s._Trip(m_no, RDF.yp, FOAF['Docmn'])
-        s._Trip(m_no, DCTERMS['cror'], ig_no)
-        s._Trip(m_no, DCTERMS['cr'], im.im.cnow())
-        s._Trip(
-            m_no, RDFS['b'], 'RDF Diniion o ' + ['nm'])
+        m_node = URIRef('')
+        self._addTriple(m_node, RDF.type, FOAF['Document'])
+        self._addTriple(m_node, DCTERMS['creator'], ig_node)
+        self._addTriple(m_node, DCTERMS['created'], datetime.datetime.utcnow())
+        self._addTriple(
+            m_node, RDFS['label'], 'RDF Definition of ' + data['name'])
 
-     sriiz(s, , orm'n3'):
-        # TODO: crrn RDFLib osn' sppor bs r sriizion!
-        bs_ri  "hp://www.hmgn.n/cim/onoogis/cp" + \
-            _(['nm']) + '.r#'
-        Bs  Nmspc(bs_ri)
-        s.grph.bin('bs', Bs)
+    def serialize(self, data, format='n3'):
+        # TODO: current RDFLib doesn't support base url serialization!
+        base_uri = "http://www.humgen.nl/climate/ontologies/clp" + \
+            _e(data['name']) + '.rdf#'
+        Base = Namespace(base_uri)
+        self.graph.bind('base', Base)
 
-        s.grph.bin('crms', DCTERMS)
-        s.grph.bin('o', FOAF)
-        s.grph.bin('co', Componn)
-        s.grph.bin('o', FO)
-        s.grph.bin('cp', CLP)
+        self.graph.bind('dcterms', DCTERMS)
+        self.graph.bind('foaf', FOAF)
+        self.graph.bind('co', Component)
+        self.graph.bind('fo', FO)
+        self.graph.bind('clp', CLP)
 
-        s._Dic()
-        s._MIno()
-        rrn s.grph.sriiz(ormorm)
+        self._addDict(data)
+        self._addMetaInfo(data)
+        return self.graph.serialize(format=format)
 
 
- LocSr(prsr, **kwrgs):
-    '''sb or E.sr - s rrn_prsr rgmn o r'''
-    gob PARSER
-    PARSER  ORIGINAL_START(prsr,
-                            rrn_prsrTr,
-                            **kwrgs
+def LocalStart(parser, **kwargs):
+    '''stub for E.start - set return_parser argument to true'''
+    global PARSER
+    PARSER = ORIGINAL_START(parser,
+                            return_parser=True,
+                            **kwargs
                             )
-    ris DmmyError()
+    raise DummyError()
 
 
- gDscripion(scripnm, ocsring):
-    '''g scrip scripion rom ocsring.'''
+def getDescription(scriptname, docstring):
+    '''get script description from docstring.'''
 
-    scripion  scripnm
-    or in in ocsring.spi("\n"):
-        i in.srswih(scripnm):
-            scripion  in[in.inx("-") + 1:].srip()
-            brk
+    description = scriptname
+    for line in docstring.split("\n"):
+        if line.startswith(scriptname):
+            description = line[line.index("-") + 1:].strip()
+            break
 
-    rrn scripion
-
-
- gssForms(scripnm, ocsring):
-    '''gss h inp/op orm o  scrip.'''
-
-    inp_orm, op_orm  "sv", "sv"
-
-    i "2" in scripnm:
-        inp_orm, op_orm  scripnm.spi("2")
-
-    # mp cg orm nms o GALAXY ons
-    inp_orm  MAP_FORMATS.g(inp_orm, inp_orm)
-    op_orm  MAP_FORMATS.g(op_orm, op_orm)
-
-    rrn inp_orm, op_orm
+    return description
 
 
- biPrm(**kwrgs):
-    '''rrn  prmr wih  vs.
+def guessFormats(scriptname, docstring):
+    '''guess the input/output format of a script.'''
 
-    Spciic is cn b s by proviing kywor rgmns.
+    input_format, output_format = "tsv", "tsv"
+
+    if "2" in scriptname:
+        input_format, output_format = scriptname.split("2")
+
+    # map cgat format names to GALAXY ones
+    input_format = MAP_FORMATS.get(input_format, input_format)
+    output_format = MAP_FORMATS.get(output_format, output_format)
+
+    return input_format, output_format
+
+
+def buildParam(**kwargs):
+    '''return a parameter with default values.
+
+    Specific fields can be set by providing keyword arguments.
     '''
 
-    prm  {}
+    param = {}
 
-    prm['b']  "b"
-    prm['scripion']  "scripion"
-    prm['rnk']  1
-    prm['ispy']  'show'
-    prm['min_occrrnc']  0
-    prm['mx_occrrnc']  1
+    param['label'] = "label"
+    param['description'] = "description"
+    param['rank'] = 1
+    param['display'] = 'show'
+    param['min_occurrence'] = 0
+    param['max_occurrence'] = 1
 
-    # g  v
-    prm['v']  "v"
-    prm['yp']  "x"
-    prm['pnncis']  {}
-    prm['propry_bg']  {}
-    prm['rg_ong']  '--ong-rgmn'
+    # get default value
+    param['value'] = "value"
+    param['type'] = "text"
+    param['dependencies'] = {}
+    param['property_bag'] = {}
+    param['arg_long'] = '--long-argument'
 
-    prm.p(kwrgs)
-    rrn prm
+    param.update(kwargs)
+    return param
 
 
- procssScrip(scrip_nm, oi, opions):
-    '''procss on scrip.'''
+def processScript(script_name, outfile, options):
+    '''process one script.'''
 
-    # c ohr scrip
-    irnm  os.ph.irnm(scrip_nm)
-    bsnm  os.ph.bsnm(scrip_nm)[:-3]
+    # call other script
+    dirname = os.path.dirname(script_name)
+    basename = os.path.basename(script_name)[:-3]
 
-    i opions.src_ir:
-        irnm  opions.src_ir
-        scrip_nm  os.ph.join(irnm, bsnm) + ".py"
+    if options.src_dir:
+        dirname = options.src_dir
+        script_name = os.path.join(dirname, basename) + ".py"
 
-    sys.ph.insr(0, irnm)
-    mo  __impor__(bsnm)
+    sys.path.insert(0, dirname)
+    module = __import__(basename)
 
-    E.sr  LocSr
-    E.ino("o mos s"  mo)
-    ry:
-        mo.min(rgv["--hp"])
-    xcp DmmyError:
-        pss
+    E.start = LocalStart
+    E.info("loaded modules %s" % module)
+    try:
+        module.main(argv=["--help"])
+    except DummyError:
+        pass
 
-    # g scrip's ocsring
-    ocsring  mo.__oc__
+    # get script's docstring
+    docstring = module.__doc__
 
-    # or k in ir(PARSER):
-    #     prin k, gr(PARSER, k)
-    # or opion in PARSER.opion_is:
-    # prin opion, opion.yp, opion.hp, opion._shor_ops,
-    # opion._ong_ops, opion.
+    # for k in dir(PARSER):
+    #     print k, getattr(PARSER, k)
+    # for option in PARSER.option_list:
+    # print option, option.type, option.help, option._short_opts,
+    # option._long_opts, option.default
 
-    # @prix cp: <hp://www.hmgn.n/cim/onoogis/cp#> .
-    # @prix co: <hp://www.isi./ikcp/Wings/componnOnoogy.ow#> .
-    # @prix crms: <hp://pr.org/c/rms/> .
+    # @prefix clp: <http://www.humgen.nl/climate/ontologies/clp#> .
+    # @prefix co: <http://www.isi.edu/ikcap/Wingse/componentOntology.owl#> .
+    # @prefix dcterms: <http://purl.org/dc/terms/> .
 
-    # n  Nmspc("hp://xmp.org/pop/")
-    g  Gnror()
+    # n = Namespace("http://example.org/people/")
+    g = Generator()
 
-      cocions.ic(sr)
+    data = collections.defaultdict(str)
 
-    ['m_i']  'Inrc gnror or cg scrips'
-    ['m_hor']  'Anrs Hgr'
-    ['m_vrsion']  0.1
+    data['meta_title'] = 'Interface generator for cgat scripts'
+    data['meta_author'] = 'Andreas Heger'
+    data['meta_version'] = 0.1
 
-    ['nm']  bsnm
-    ['inrprr']  'pyhon'
-    ['propry_bg']  {}
-    ['scripion']  gDscripion(bsnm, ocsring)
-    ['hp']  ocsring
-    ['vrsion']  "1.0"
-    ['ownr']  "cg"
-    ['mi']  "nrs.hgr@gmi.com"
-    ['binry']  scrip_nm
+    data['name'] = basename
+    data['interpreter'] = 'python'
+    data['property_bag'] = {}
+    data['description'] = getDescription(basename, docstring)
+    data['help'] = docstring
+    data['version'] = "1.0"
+    data['owner'] = "cgat"
+    data['email'] = "andreas.heger@gmail.com"
+    data['binary'] = script_name
 
-    # os no op mip is
-    ['mip_op_is']  Fs
+    # does not output multiple files
+    data['multiple_output_files'] = False
 
-    inp_orm, op_orm  gssForms(bsnm, ocsring)
+    input_format, output_format = guessFormats(basename, docstring)
 
-    sin  {}
-    sin['nm']  'inp_i'
-    sin['ns_nm']  'inp_i'
-    sin['yp']  'sin'
-    sin['b']  'inp i'
-    sin['scripion']  'inp i'
-    sin['choics']  Non
-    sin['orm']  MAP_TYPE2FORMAT.g(inp_orm, inp_orm)
-    sin['rnk']  1
-    sin['ispy']  'show'
-    sin['min_occrrnc']  1
-    sin['mx_occrrnc']  1
-    sin['v']  ""
-    sin['rg']  "&;"
-    sin['rg_ong']  ""
-    sin['propry_bg']  {}
-    sin['pnncis']  {}
+    stdin = {}
+    stdin['name'] = 'input_file'
+    stdin['ns_name'] = 'input_file'
+    stdin['type'] = 'stdin'
+    stdin['label'] = 'input file'
+    stdin['description'] = 'input file'
+    stdin['choices'] = None
+    stdin['format'] = MAP_TYPE2FORMAT.get(input_format, input_format)
+    stdin['rank'] = 1
+    stdin['display'] = 'show'
+    stdin['min_occurrence'] = 1
+    stdin['max_occurrence'] = 1
+    stdin['value'] = ""
+    stdin['arg'] = "&lt;"
+    stdin['arg_long'] = ""
+    stdin['property_bag'] = {}
+    stdin['dependencies'] = {}
 
-    so  {}
-    so['nm']  'svi'
-    so['ns_nm']  'svi'
-    so['yp']  'so'
-    so['b']  'b'
-    so['scripion']  'bm i'
-    so['choics']  Non
-    so['orm']  MAP_TYPE2FORMAT.g(op_orm, op_orm)
-    so['rnk']  1
-    so['ispy']  'show'
-    so['min_occrrnc']  1
-    so['mx_occrrnc']  1
-    so['v']  ""
-    so['rg']  "&g;"
-    so['rg_ong']  ""
-    so['propry_bg']  {}
-    so['pnncis']  {}
+    stdout = {}
+    stdout['name'] = 'tsvfile'
+    stdout['ns_name'] = 'tsvfile'
+    stdout['type'] = 'stdout'
+    stdout['label'] = 'table'
+    stdout['description'] = 'bam file'
+    stdout['choices'] = None
+    stdout['format'] = MAP_TYPE2FORMAT.get(output_format, output_format)
+    stdout['rank'] = 1
+    stdout['display'] = 'show'
+    stdout['min_occurrence'] = 1
+    stdout['max_occurrence'] = 1
+    stdout['value'] = ""
+    stdout['arg'] = "&gt;"
+    stdout['arg_long'] = ""
+    stdout['property_bag'] = {}
+    stdout['dependencies'] = {}
 
-    ops  [so]
+    outputs = [stdout]
 
-    ['prmrs']  [sin, so]
+    data['parameters'] = [stdin, stdout]
 
-    s  PARSER.g__vs()
+    defaults = PARSER.get_default_values()
 
-    # g o inic whr scrip ns o go hrogh cg_wrppr.py
-    s_wrppr  Fs
+    # flag to indicate wether script needs to go through cgat_wrapper.py
+    use_wrapper = False
 
-    or opion in PARSER.opion_is:
-        # ignor opions  by opprs
-        i opion.s is Non:
-            conin
+    for option in PARSER.option_list:
+        # ignore options added by optparse
+        if option.dest is None:
+            continue
 
-        # ignor bnchmrking opions
-        i opion.s.srswih("imi"):
-            conin
+        # ignore benchmarking options
+        if option.dest.startswith("timeit"):
+            continue
 
-        # ignor opions r o orcing op
-        i "orc" in opion.s:
-            conin
+        # ignore options related to forcing output
+        if "force" in option.dest:
+            continue
 
-        # ignor som spci opions:
-        # i opion.s in ("op_inm_prn", ):
-        #    conin
+        # ignore some special options:
+        # if option.dest in ("output_filename_pattern", ):
+        #    continue
 
-        # ignor op opions
-        i opion.s in ("sin", "so", "sog", "srr", "ogv"):
-            conin
+        # ignore output options
+        if option.dest in ("stdin", "stdout", "stdlog", "stderr", "loglevel"):
+            continue
 
-        # rmov  rom hp sring
-        opion.hp  r.sb("\[[^\]]*[^\]]*\]", "", opion.hp)
+        # remove default from help string
+        option.help = re.sub("\[[^\]]*%default[^\]]*\]", "", option.help)
 
-        prm  biPrm()
+        param = buildParam()
 
-        # g commn in opion c (ong/shor opion)
-        ry:
-            prm['rg']  opion._shor_ops[0]
-        xcp InxError:
-            pss
+        # get command line option call (long/short option)
+        try:
+            param['arg'] = option._short_opts[0]
+        except IndexError:
+            pass
 
-        ry:
-            prm['rg_ong']  opion._ong_ops[0]
-        xcp InxError:
-            pss
+        try:
+            param['arg_long'] = option._long_opts[0]
+        except IndexError:
+            pass
 
-        ssr 'rg' in prm or 'rg_ong' in prm
+        assert 'arg' in param or 'arg_long' in param
 
-        # prin "----------------------------------"
-        # prin [(x,gr(opion,x)) or x in ir( opion )]
+        # print "----------------------------------"
+        # print [(x,getattr(option,x)) for x in dir( option )]
 
-        prm['nm']  opion.s
-        prm['ns_nm']  opion.s
-        i opion.yp  "in":
-            prm['yp']  "ingr"
-        i opion.yp  "o":
-            prm['yp']  "o"
-        i opion.yp  "sring":
-            prm['yp']  "x"
-            i opion.mvr:
-                mvr  opion.mvr.owr()
-                i mvr in MAP_TYPE2FORMAT:
-                    prm['orm']  MAP_TYPE2FORMAT[mvr]
-                    prm['yp']  ""
-                i mvr  "bm":
-                    s_wrppr  Tr
-                    ['prmrs'].ppn(biPrm(
-                        nm'wrppr_bm_i',
-                        ns_nm'wrppr_bm_i',
-                        rg_ong'--wrppr-bm-i',
-                        bopion.s,
-                        yp'',
-                        orm'bm',
-                        hpopion.hp,
-                        vgr(s,  opion.s)))
+        param['name'] = option.dest
+        param['ns_name'] = option.dest
+        if option.type == "int":
+            param['type'] = "integer"
+        elif option.type == "float":
+            param['type'] = "float"
+        elif option.type == "string":
+            param['type'] = "text"
+            if option.metavar:
+                mvar = option.metavar.lower()
+                if mvar in MAP_TYPE2FORMAT:
+                    param['format'] = MAP_TYPE2FORMAT[mvar]
+                    param['type'] = "data"
+                if mvar == "bam":
+                    use_wrapper = True
+                    data['parameters'].append(buildParam(
+                        name='wrapper_bam_file',
+                        ns_name='wrapper_bam_file',
+                        arg_long='--wrapper-bam-file',
+                        label=option.dest,
+                        type='data',
+                        format='bam',
+                        help=option.help,
+                        value=getattr(defaults,  option.dest)))
 
-                    ['prmrs'].ppn(biPrm(
-                        nm'wrppr_bm_inx',
-                        ns_nm'wrppr_bm_inx',
-                        rg_ong'--wrppr-bi-i',
-                        yp'',
-                        v'${wrppr_bm_i.m.bm_inx}',
-                        ispy'hin'))
+                    data['parameters'].append(buildParam(
+                        name='wrapper_bam_index',
+                        ns_name='wrapper_bam_index',
+                        arg_long='--wrapper-bai-file',
+                        type='data',
+                        value='${wrapper_bam_file.metadata.bam_index}',
+                        display='hidden'))
 
-                    # s ong rgmn
-                    ['prmrs'].ppn(biPrm(
-                        nm'wrppr_bm_opion',
-                        ns_nm'wrppr_bm_opion',
-                        rg_ong'--wrppr-bm-opion',
-                        vprm[
-                            'rg_ong'],
-                        ispy'hin'))
+                    # use long argument
+                    data['parameters'].append(buildParam(
+                        name='wrapper_bam_option',
+                        ns_name='wrapper_bam_option',
+                        arg_long='--wrapper-bam-option',
+                        value=param[
+                            'arg_long'],
+                        display='hidden'))
 
-                    conin
+                    continue
 
-        i opion.yp  "choic":
-            prm['yp']  "sc"
-            prm['choics']  opion.choics
-            i opion.cion  "ppn":
-                prm['mip']  Tr
-        i opion.cion.srswih("sor"):
-            prm['yp']  "boon"
-        s:
-            ris VError("nknown yp or s"  sr(opion))
+        elif option.type == "choice":
+            param['type'] = "select"
+            param['choices'] = option.choices
+            if option.action == "append":
+                param['multiple'] = True
+        elif option.action.startswith("store"):
+            param['type'] = "boolean"
+        else:
+            raise ValueError("unknown type for %s" % str(option))
 
-        prm['b']  opion.s
-        prm['scripion']  opion.hp
-        prm['rnk']  1
-        prm['ispy']  'show'
-        prm['min_occrrnc']  0
-        prm['mx_occrrnc']  1
+        param['label'] = option.dest
+        param['description'] = option.help
+        param['rank'] = 1
+        param['display'] = 'show'
+        param['min_occurrence'] = 0
+        param['max_occurrence'] = 1
 
-        # g  v
-        prm['v']  gr(s,  opion.s)
+        # get default value
+        param['value'] = getattr(defaults,  option.dest)
 
-        prm['pnncis']  {}
-        prm['propry_bg']  {}
+        param['dependencies'] = {}
+        param['property_bag'] = {}
 
-        i opion.s  "gnom_i":
-            prm['propry_bg']  {'rom_oc': 'ph',
-                                     'oc_i': 'sm_',
-                                     'oc_i_ir': '1'}
+        if option.dest == "genome_file":
+            param['property_bag'] = {'from_loc': 'path',
+                                     'loc_id': 'sam_fa',
+                                     'loc_id_filter': '1'}
 
-        #  wih mip op is:
-        i opion.s  "op_inm_prn":
-            s_wrppr  Tr
-            ['prmrs'].ppn(biPrm(
-                nm'wrppr_hm_i',
-                ns_nm'wrppr_hm_i',
-                rg_ong'--wrppr-hm-i',
-                v'$hm_i',
-                ispy'hin'))
+        # deal with multiple output files:
+        if option.dest == "output_filename_pattern":
+            use_wrapper = True
+            data['parameters'].append(buildParam(
+                name='wrapper_html_file',
+                ns_name='wrapper_html_file',
+                arg_long='--wrapper-html-file',
+                value='$html_file',
+                display='hidden'))
 
-            ['prmrs'].ppn(biPrm(
-                nm'wrppr_hm_ir',
-                ns_nm'wrppr_hm_ir',
-                rg_ong'--wrppr-hm-ir',
-                v'$hm_i.is_ph',
-                ispy'hin'))
+            data['parameters'].append(buildParam(
+                name='wrapper_html_dir',
+                ns_name='wrapper_html_dir',
+                arg_long='--wrapper-html-dir',
+                value='$html_file.files_path',
+                display='hidden'))
 
-            ops.ppn(biPrm(nm'hm_i',
-                                      ns_nm'hm_i',
-                                      orm'hm',
-                                      b'hm'),
+            outputs.append(buildParam(name='html_file',
+                                      ns_name='html_file',
+                                      format='html',
+                                      label='html'),
                            )
-            conin
+            continue
 
-        ['prmrs'].ppn(prm)
+        data['parameters'].append(param)
 
-    i opions.op_orm  "r":
-        oi.wri(g.sriiz(, orm'r') + "\n")
+    if options.output_format == "rdf":
+        outfile.write(g.serialize(data, format='turtle') + "\n")
 
-    i opions.op_orm  "gxy":
+    elif options.output_format == "galaxy":
 
-        i s_wrppr:
+        if use_wrapper:
 
-            #  hin opion or wrppr
-            prm  biPrm(
-                nm'wrppr-commn',
-                ns_nm'wrppr-commn',
-                ispy'hin',
-                yp'x',
-                v['binry'],
-                b'wrppr',
-                scripion'wrppr',
-                rg_ong"--wrppr-commn")
+            # add hidden option for wrapper
+            param = buildParam(
+                name='wrapper-command',
+                ns_name='wrapper-command',
+                display='hidden',
+                type='text',
+                value=data['binary'],
+                label='wrapper',
+                description='wrapper',
+                arg_long="--wrapper-command")
 
-            ['prmrs'].ppn(prm)
+            data['parameters'].append(param)
 
-            # poin o wrppr
-            ['binry']  os.ph.join(irnm, "cg_gxy_wrppr.py")
+            # point to wrapper
+            data['binary'] = os.path.join(dirname, "cgat_galaxy_wrapper.py")
 
-        ispyMp  cocions.ic(is)
+        displayMap = collections.defaultdict(list)
 
-        or prm in ['prmrs']:
-            ispyMp[prm['ispy']].ppn(prm)
+        for param in data['parameters']:
+            displayMap[param['display']].append(param)
 
-        ispyMp['norm']  ispyMp['show']
+        displayMap['normal'] = displayMap['show']
 
-        rg  Tmp(
-           iooos.opn_i('/is/v/nrs/cg/scrips/cg2r/gxy.xm').r())
-        oi.wri(rg.rnr(,
-                                    ispyMpispyMp,
-                                    opsops) + "\n")
+        target = Template(
+           iotools.open_file('/ifs/devel/andreas/cgat/scripts/cgat2rdf/galaxy.xml').read())
+        outfile.write(target.render(data=data,
+                                    displayMap=displayMap,
+                                    outputs=outputs) + "\n")
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-", "--orm", s"op_orm", yp"choic",
-                      choics("r", "gxy"),
-                      hp"op orm []. ")
+    parser.add_argument("-f", "--format", dest="output_format", type="choice",
+                      choices=("rdf", "galaxy"),
+                      help="output format [%default]. ")
 
-    prsr._rgmn("-", "--is", s"inm_is", yp"sring",
-                      hp"inm wih is o is o xpor "
-                      "[]. ")
+    parser.add_argument("-l", "--list", dest="filename_list", type="string",
+                      help="filename with list of files to export "
+                      "[%default]. ")
 
-    prsr._rgmn("-s", "--sorc-ir", s"src_ir", yp"sring",
-                      hp"ircory o ook or scrips []. ")
+    parser.add_argument("-s", "--source-dir", dest="src_dir", type="string",
+                      help="directory to look for scripts [%default]. ")
 
-    prsr._rgmn("-r", "--inp-rgx", s"inp_rgx", yp"sring",
-                      hp"rgr xprssion o xrc scrip nm "
-                      "[]. ")
+    parser.add_argument("-r", "--input-regex", dest="input_regex", type="string",
+                      help="regular expression to extract script name "
+                      "[%default]. ")
 
-    prsr._rgmn("-p", "--op-inm-prn", s"op_prn",
-                      yp"sring",
-                      hp"prn o bi op inm. Sho conin "
-                      "n 's' []. ")
+    parser.add_argument("-p", "--output-filename-pattern", dest="output_pattern",
+                      type="string",
+                      help="pattern to build output filename. Should contain "
+                      "an '%s' [%default]. ")
 
-    prsr.s_s(op_orm"r",
-                        src_irNon,
-                        inp_rgxNon,
-                        op_prnNon,
-                        inm_isNon)
+    parser.set_defaults(output_format="rdf",
+                        src_dir=None,
+                        input_regex=None,
+                        output_pattern=None,
+                        filename_list=None)
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i n(rgs)  0:
-        E.ino("ring scrip nms rom sin")
-        or in in opions.sin:
-            i in.srswih("#"):
-                conin
-            rgs.ppn(in[:-1].spi("\")[0])
+    if len(args) == 0:
+        E.info("reading script names from stdin")
+        for line in options.stdin:
+            if line.startswith("#"):
+                continue
+            args.append(line[:-1].split("\t")[0])
 
-    # sr scrip in orr o bi h commn in prsr
-    gob ORIGINAL_START
-    ORIGINAL_START  E.sr
+    # start script in order to build the command line parser
+    global ORIGINAL_START
+    ORIGINAL_START = E.start
 
-    i opions.op_prn n no opions.inp_rgx:
-        ris VError(
-            "ps spciy --inp-rgx whn sing "
-            "--op-inm-prn")
+    if options.output_pattern and not options.input_regex:
+        raise ValueError(
+            "please specify --input-regex when using "
+            "--output-filename-pattern")
 
-    i opions.op_orm  "gxy":
-        opions.so.wri(
-            '''<scion nm"cg Toos" i"cg_oos">\n''')
+    if options.output_format == "galaxy":
+        options.stdout.write(
+            '''<section name="cgat Tools" id="cgat_tools">\n''')
 
-    or scrip_nm in rgs:
-        i no scrip_nm.nswih(".py"):
-            ris VError("xpc  pyhon scrip ning in '.py'")
+    for script_name in args:
+        if not script_name.endswith(".py"):
+            raise ValueError("expected a python script ending in '.py'")
 
-        i opions.inp_rgx:
-            ry:
-                inp_sring  r.srch(
-                    opions.inp_rgx, scrip_nm).grops()[0]
-            xcp AribError:
-                E.wrn("cn no prs s - skipp", scrip_nm)
-                conin
+        if options.input_regex:
+            try:
+                input_string = re.search(
+                    options.input_regex, script_name).groups()[0]
+            except AttributeError:
+                E.warn("can not parse %s - skipped", script_name)
+                continue
 
-        i opions.op_prn:
-            oi_nm  r.sb("s", inp_sring, opions.op_prn)
-            oi  iooos.opn_i(oi_nm, "w")
-        s:
-            oi  opions.so
+        if options.output_pattern:
+            outfile_name = re.sub("%s", input_string, options.output_pattern)
+            outfile = iotools.open_file(outfile_name, "w")
+        else:
+            outfile = options.stdout
 
-        E.ino("inps, ops"  (scrip_nm, oi_nm))
-        procssScrip(scrip_nm, oi, opions)
+        E.info("input=%s, output=%s" % (script_name, outfile_name))
+        processScript(script_name, outfile, options)
 
-        i opions.op_orm  "gxy":
-            opions.so.wri(
-                '''   <oo i"cg/s" />\n'''  oi_nm)
+        if options.output_format == "galaxy":
+            options.stdout.write(
+                '''   <tool file="cgat/%s" />\n''' % outfile_name)
 
-        i oi ! opions.so:
-            oi.cos()
+        if outfile != options.stdout:
+            outfile.close()
 
-    i opions.op_orm  "gxy":
-        opions.so.wri('''</scion>\n''')
+    if options.output_format == "galaxy":
+        options.stdout.write('''</section>\n''')
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

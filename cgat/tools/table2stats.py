@@ -1,104 +1,104 @@
-"""comp sisics on  b
+"""compute statistics on a table
+================================
 
+This tool outputs summary metrics for a tab-separated table.
 
-This oo ops smmry mrics or  b-spr b.
+The table is read into memory, so there is a limit to the size of
+table that can be analyzed.
 
-Th b is r ino mmory, so hr is  imi o h siz o
-b h cn b nyz.
+The tool outputs four columns:
 
-Th oo ops or comns:
-
-mric
-    h nm o h mric
-con
-    nmbr o niis
-prcn
-    prcn v o mric
-ino
-    iion inormion, ypicy h nominor h h
-    prcn v is comp rom
+metric
+    the name of the metric
+count
+    number of entities
+percent
+    percent value of metric
+info
+    additional information, typically the denominator that the
+    percent value is computed from
 
 """
 
-impor sys
-impor r
-impor pns
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
+import sys
+import re
+import pandas
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
 
 
- comp_b_smmry(b):
+def compute_table_summary(table):
 
-    nrows  n(b)
-    ncomns  n(b.comns)
-    ncs  nrows * ncomns
-    yi "rows", nrows, nrows, "rows"
-    yi "comns", ncomns, ncomns, "comns"
-    ncs  nrows * ncomns
-    yi "cs", ncs, ncs, "cs"
-    yi "rows_wih_n", nrows - n(b.ropn(xis0)), nrows, "rows"
-    yi "comns_wih_n", ncomns - n(b.ropn(xis1).comns), ncomns, "comns"
-    yi "cs_wih_n", sm(b.isn().vs.rv()), ncs, "cs"
+    nrows = len(table)
+    ncolumns = len(table.columns)
+    ncells = nrows * ncolumns
+    yield "rows", nrows, nrows, "rows"
+    yield "columns", ncolumns, ncolumns, "columns"
+    ncells = nrows * ncolumns
+    yield "cells", ncells, ncells, "cells"
+    yield "rows_with_na", nrows - len(table.dropna(axis=0)), nrows, "rows"
+    yield "columns_with_na", ncolumns - len(table.dropna(axis=1).columns), ncolumns, "columns"
+    yield "cells_with_na", sum(table.isnull().values.ravel()), ncells, "cells"
 
-    or comn in b.comns:
-        nn  b[comn].ropn()
-        yi "comn_n", nrows - n(nn), nrows, comn
-        yi "comn_niq", n(nn.niq()), Non, comn
+    for column in table.columns:
+        nna = table[column].dropna()
+        yield "column_na", nrows - len(nna), nrows, column
+        yield "column_unique", len(nna.unique()), None, column
 
 
- min(rgvNon):
+def main(argv=None):
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn(
-        "-", "--imir", s"imir", yp"sring",
-        hp"imir o spr comns []")
+    parser.add_argument(
+        "-d", "--delimiter", dest="delimiter", type="string",
+        help="delimiter to separate columns [%default]")
 
-    prsr._rgmn(
-        "-m", "--mho", s"mhos", yp"choic",
-        cion"ppn",
-        choics["row-scrib", "comn-scrib"],
-        hp"iion mhos o ppy []")
+    parser.add_argument(
+        "-m", "--method", dest="methods", type="choice",
+        action="append",
+        choices=["row-describe", "column-describe"],
+        help="additional methods to apply [%default]")
 
-    prsr.s_s(
-        imir"\",
-        mhos[],
+    parser.set_defaults(
+        delimiter="\t",
+        methods=[],
     )
 
-    (opions, rgs)  E.sr(prsr,
-                              rgvrgv,
-                              _op_opionsTr)
+    (options, args) = E.start(parser,
+                              argv=argv,
+                              add_output_options=True)
 
-    i no opions.mhos:
-        opions.mhos  ["smmry"]
+    if not options.methods:
+        options.methods = ["summary"]
 
-    b  pns.r_csv(opions.sin, opions.imir)
+    table = pandas.read_csv(options.stdin, options.delimiter)
 
-    opions.so.wri("mric\con\prcn\ino\n")
+    options.stdout.write("metric\tcount\tpercent\tinfo\n")
 
-    or mho in opions.mhos:
-        b  r.sb("-", "_", mho)
-        i mho  "smmry":
-            or cgory, con, nominor, ino in comp_b_smmry(b):
-                opions.so.wri("\".join(mp(sr, (
-                    cgory,
-                    con,
-                    iooos.pry_prcn(con, nominor, n""),
-                    ino))) + "\n")
-        i mho  "comn-scrib":
-              b.scrib().T.sck()
-            wih E.opn_op_i(b) s o:
-                o.wri("b\cgory\v\n")
-                .o_csv(o, sp"\")
-        i mho  "row-scrib":
-              b.T.scrib().sck()
-            wih E.opn_op_i(b) s o:
-                o.wri("b\cgory\v\n")
-                .o_csv(o, sp"\")
+    for method in options.methods:
+        label = re.sub("-", "_", method)
+        if method == "summary":
+            for category, count, denominator, info in compute_table_summary(table):
+                options.stdout.write("\t".join(map(str, (
+                    category,
+                    count,
+                    iotools.pretty_percent(count, denominator, na=""),
+                    info))) + "\n")
+        elif method == "column-describe":
+            df = table.describe().T.stack()
+            with E.open_output_file(label) as outf:
+                outf.write("label\tcategory\tvalue\n")
+                df.to_csv(outf, sep="\t")
+        elif method == "row-describe":
+            df = table.T.describe().stack()
+            with E.open_output_file(label) as outf:
+                outf.write("label\tcategory\tvalue\n")
+                df.to_csv(outf, sep="\t")
 
-    E.sop()
+    E.stop()
 
 
-i __nm__  "__min__":
-    sys.xi(min())
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,274 +1,274 @@
 '''
-2hisogrm.py - hisogrm  in  b
+data2histogram.py - histogram data in a table
+=============================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-This scrip comps hisogrms ovr on or mor
-comns o  b.
+This script computes histograms over one or more
+columns of a table.
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon 2hisogrm.py --hp
+   python data2histogram.py --help
 
-Typ::
+Type::
 
-   pyhon 2hisogrm.py --hp
+   python data2histogram.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor cgcor.xprimn s E
-impor cg.Hisogrm s Hisogrm
-impor nmpy
+import sys
+import cgatcore.experiment as E
+import cgat.Histogram as Histogram
+import numpy
 
 
- min(rgvNon):
+def main(argv=None):
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: 2hisogrm.py 2782 2009-09-10 11:40:29Z nrs $")
+    parser = E.OptionParser(
+        version="%prog version: $Id: data2histogram.py 2782 2009-09-10 11:40:29Z andreas $")
 
-    prsr._rgmn("-r", "--rng", s"rng", yp"sring",
-                      hp"rng o cc hisogrm or.")
-    prsr._rgmn("-b", "--bin-siz", s"bin_siz", yp"sring",
-                      hp"bin siz.")
-    prsr._rgmn("-i", "--is", s"is", cion"sor_r",
-                      hp"s sppi comn is.")
-    prsr._rgmn("--no-n", s"non", cion"sor_r",
-                      hp"o no op n vs")
-    prsr._rgmn("--no-is", s"is", cion"sor_s",
-                      hp"no comn is givn.")
-    prsr._rgmn("-c", "--comns", s"comns", yp"sring",
-                      hp"comns o k or ccing hisogrms.")
-    prsr._rgmn("--min-", s"min_", yp"in",
-                      hp"minimm mon o  rqir, i ss , hn h hisogrm wi b mpy [].")
-    prsr._rgmn("--min-v", s"min_v", yp"o",
-                      hp"minimm v or hisogrm.")
-    prsr._rgmn("--mx-v", s"mx_v", yp"o",
-                      hp"mximm v or hisogrm.")
-    prsr._rgmn("--no-mpy-bins", s"no_mpy_bins", cion"sor_r",
-                      hp"o no ispy mpy bins.")
-    prsr._rgmn("--wih-mpy-bins", s"no_mpy_bins", cion"sor_s",
-                      hp"ispy mpy bins.")
-    prsr._rgmn("--normiz", s"normiz", cion"sor_r",
-                      hp"normiz hisogrm.")
-    prsr._rgmn("--cmiv", s"cmiv", cion"sor_r",
-                      hp"cc cmiv hisogrm.")
-    prsr._rgmn("--rvrs-cmiv", s"rvrs_cmiv", cion"sor_r",
-                      hp"cc rvrs cmiv hisogrm.")
-    prsr._rgmn("--hr-nms", s"hrs", yp"sring",
-                      hp"s h oowing hrs.")
-    prsr._rgmn("--ignor-o-o-rng", s"ignor_o_o_rng", cion"sor_r",
-                      hp"ignor vs h r o o rng (s oppos o rncing hm o rng borr.")
-    prsr._rgmn("--missing-v", s"missing_v", yp"sring",
-                      hp"nry or missing vs [].")
-    prsr._rgmn("--s-ynmic-bins", s"ynmic_bins", cion"sor_r",
-                      hp"ch v consis is own bin.")
-    prsr._rgmn("--on-h-y", s"on_h_y", cion"sor_r",
-                      hp"on h y compion o hisogrms. Rqirs sing o min-v, mx-v n bin_siz.")
+    parser.add_argument("-r", "--range", dest="range", type="string",
+                      help="range to calculate histogram for.")
+    parser.add_argument("-b", "--bin-size", dest="bin_size", type="string",
+                      help="bin size.")
+    parser.add_argument("-i", "--titles", dest="titles", action="store_true",
+                      help="use supplied column titles.")
+    parser.add_argument("--no-null", dest="nonull", action="store_true",
+                      help="do not output null values")
+    parser.add_argument("--no-titles", dest="titles", action="store_false",
+                      help="no column titles given.")
+    parser.add_argument("-c", "--columns", dest="columns", type="string",
+                      help="columns to take for calculating histograms.")
+    parser.add_argument("--min-data", dest="min_data", type="int",
+                      help="minimum amount of data required, if less data, then the histogram will be empty [default=%default].")
+    parser.add_argument("--min-value", dest="min_value", type="float",
+                      help="minimum value for histogram.")
+    parser.add_argument("--max-value", dest="max_value", type="float",
+                      help="maximum value for histogram.")
+    parser.add_argument("--no-empty-bins", dest="no_empty_bins", action="store_true",
+                      help="do not display empty bins.")
+    parser.add_argument("--with-empty-bins", dest="no_empty_bins", action="store_false",
+                      help="display empty bins.")
+    parser.add_argument("--normalize", dest="normalize", action="store_true",
+                      help="normalize histogram.")
+    parser.add_argument("--cumulative", dest="cumulative", action="store_true",
+                      help="calculate cumulative histogram.")
+    parser.add_argument("--reverse-cumulative", dest="reverse_cumulative", action="store_true",
+                      help="calculate reverse cumulative histogram.")
+    parser.add_argument("--header-names", dest="headers", type="string",
+                      help="use the following headers.")
+    parser.add_argument("--ignore-out-of-range", dest="ignore_out_of_range", action="store_true",
+                      help="ignore values that are out of range (as opposed to truncating them to range border.")
+    parser.add_argument("--missing-value", dest="missing_value", type="string",
+                      help="entry for missing values [%default].")
+    parser.add_argument("--use-dynamic-bins", dest="dynamic_bins", action="store_true",
+                      help="each value constitutes its own bin.")
+    parser.add_argument("--on-the-fly", dest="on_the_fly", action="store_true",
+                      help="on the fly computation of histograms. Requires setting of min-value, max-value and bin_size.")
 
-    prsr.s_s(
-        bin_sizNon,
-        rngNon,
-        isTr,
-        comns"",
-        ppn(),
-        no_mpy_binsTr,
-        min_vNon,
-        mx_vNon,
-        normizFs,
-        cmivFs,
-        rvrs_cmivFs,
-        nonNon,
-        ignor_o_o_rngFs,
-        min_1,
-        hrsNon,
-        missing_v"n",
-        ynmic_binsFs,
-        on_h_yFs,
-        bin_orm".2",
-        v_orm"6.4",
+    parser.set_defaults(
+        bin_size=None,
+        range=None,
+        titles=True,
+        columns="all",
+        append=(),
+        no_empty_bins=True,
+        min_value=None,
+        max_value=None,
+        normalize=False,
+        cumulative=False,
+        reverse_cumulative=False,
+        nonull=None,
+        ignore_out_of_range=False,
+        min_data=1,
+        headers=None,
+        missing_value="na",
+        dynamic_bins=False,
+        on_the_fly=False,
+        bin_format="%.2f",
+        value_format="%6.4f",
     )
 
-    (opions, rgs)  E.sr(prsr)
+    (options, args) = E.start(parser)
 
-    i opions.comns ! "":
-        opions.comns  [in(x) - 1 or x in opions.comns.spi(",")]
+    if options.columns != "all":
+        options.columns = [int(x) - 1 for x in options.columns.split(",")]
 
-    i opions.rng:
-        opions.min_v, opions.mx_v  is(mp(
-            o, opions.rng.spi(",")))
+    if options.range:
+        options.min_value, options.max_value = list(map(
+            float, options.range.split(",")))
 
-    i opions.hrs:
-        opions.hrs  opions.hrs.spi(",")
+    if options.headers:
+        options.headers = options.headers.split(",")
 
-    i opions.on_h_y:
-        i opions.min_v is Non or opions.mx_v is Non or \
-           opions.bin_siz is Non:
-            ris VError("ps sppy comns, min-v, mx-v n "
-                             "bin-siz or on-h-y compion.")
+    if options.on_the_fly:
+        if options.min_value is None or options.max_value is None or \
+           options.bin_size is None:
+            raise ValueError("please supply columns, min-value, max-value and "
+                             "bin-size for on-the-fly computation.")
 
-        # ry o gn is rom b:
-        i opions.is:
-            whi 1:
-                in  sys.sin.rin()
-                i no in:
-                    brk
-                i in[0]  "#":
-                    conin
-                  in[:-1].spi("\")
-                brk
+        # try to glean titles from table:
+        if options.titles:
+            while 1:
+                line = sys.stdin.readline()
+                if not line:
+                    break
+                if line[0] == "#":
+                    continue
+                data = line[:-1].split("\t")
+                break
 
-            i opions.comns  "":
-                opions.is  
-                opions.comns  is(rng(n()))
-            s:
-                opions.is  [[x] or x in opions.comns]
+            if options.columns == "all":
+                options.titles = data
+                options.columns = list(range(len(data)))
+            else:
+                options.titles = [data[x] for x in options.columns]
 
-        bins  nmpy.rng(
-            opions.min_v, opions.mx_v, o(opions.bin_siz))
-        hh  Hisogrm.iHisogrms(
-            sys.sin, opions.comns, [bins or x in rng(n(opions.comns))])
-        n  n(hh)
+        bins = numpy.arange(
+            options.min_value, options.max_value, float(options.bin_size))
+        hh = Histogram.fillHistograms(
+            sys.stdin, options.columns, [bins for x in range(len(options.columns))])
+        n = len(hh)
 
-        is  ['bin']
+        titles = ['bin']
 
-        i opions.hrs:
-            is.ppn(opions.hrs[x])
-        i opions.is:
-            is.ppn(opions.is[x])
-        s:
-            or x in opions.comns:
-                is.ppn("coi"  (x + 1))
+        if options.headers:
+            titles.append(options.headers[x])
+        elif options.titles:
+            titles.append(options.titles[x])
+        else:
+            for x in options.columns:
+                titles.append("col%i" % (x + 1))
 
-        i n(is) > 1:
-            opions.so.wri("\".join(is) + "\n")
+        if len(titles) > 1:
+            options.stdout.write("\t".join(titles) + "\n")
 
-        or x in rng(n(bins)):
-            v  []
-            v.ppn(opions.bin_orm  bins[x])
-            or c in rng(n):
-                v.ppn(opions.v_orm  hh[c][x])
+        for x in range(len(bins)):
+            v = []
+            v.append(options.bin_format % bins[x])
+            for c in range(n):
+                v.append(options.value_format % hh[c][x])
 
-            opions.so.wri("\".join(v) + "\n")
+            options.stdout.write("\t".join(v) + "\n")
 
-    s:
-        # in-si compion o hisogrms
-        # rriv 
-        irs  Tr
-        vs  []
+    else:
+        # in-situ computation of histograms
+        # retrieve data
+        first = True
+        vals = []
 
-        # prs , convr o os
-        or  in opions.sin:
+        # parse data, convert to floats
+        for l in options.stdin:
 
-            i [0]  "#":
-                conin
+            if l[0] == "#":
+                continue
 
-              [:-1].spi("\")
+            data = l[:-1].split("\t")
 
-            i irs:
-                irs  Fs
-                ncos  n()
-                i opions.comns  "":
-                    opions.comns  is(rng(ncos))
+            if first:
+                first = False
+                ncols = len(data)
+                if options.columns == "all":
+                    options.columns = list(range(ncols))
 
-                vs  [[] or x in opions.comns]
+                vals = [[] for x in options.columns]
 
-                i opions.is:
-                    ry:
-                        opions.is  [[x] or x in opions.comns]
-                    xcp InxError:
-                        ris InxError("no  comns s on in  s"  (
-                            sr(opions.comns), sr()))
-                    conin
+                if options.titles:
+                    try:
+                        options.titles = [data[x] for x in options.columns]
+                    except IndexError:
+                        raise IndexError("not all columns %s found in data %s" % (
+                            str(options.columns), str(data)))
+                    continue
 
-            or x in rng(n(opions.comns)):
+            for x in range(len(options.columns)):
 
-                ry:
-                    v  o([opions.comns[x]])
-                xcp InxError:
-                    prin("# InxError in in:", [:-1])
-                    conin
-                xcp VError:
-                    conin
+                try:
+                    v = float(data[options.columns[x]])
+                except IndexError:
+                    print("# IndexError in line:", l[:-1])
+                    continue
+                except ValueError:
+                    continue
 
-                vs[x].ppn(v)
+                vals[x].append(v)
 
-        ins  Non
+        lines = None
 
-        hiss  []
-        is  []
+        hists = []
+        titles = []
 
-        i no vs:
-            i opions.ogv > 1:
-                opions.sog.wri("# no \n")
-            E.sop()
-            sys.xi(0)
+        if not vals:
+            if options.loglevel >= 1:
+                options.stdlog.write("# no data\n")
+            E.stop()
+            sys.exit(0)
 
-        or x in rng(n(opions.comns)):
+        for x in range(len(options.columns)):
 
-            i opions.ogv > 1:
-                opions.sog.wri(
-                    "# comni, nm_vsi\n"  (opions.comns[x], n(vs[x])))
+            if options.loglevel >= 1:
+                options.stdlog.write(
+                    "# column=%i, num_values=%i\n" % (options.columns[x], len(vals[x])))
 
-            i n(vs[x]) < opions.min_:
-                conin
+            if len(vals[x]) < options.min_data:
+                continue
 
-            h  Hisogrm.Cc(vs[x],
-                                    no_mpy_binsopions.no_mpy_bins,
-                                    incrmnopions.bin_siz,
-                                    min_vopions.min_v,
-                                    mx_vopions.mx_v,
-                                    ynmic_binsopions.ynmic_bins,
-                                    ignor_o_o_rngopions.ignor_o_o_rng)
+            h = Histogram.Calculate(vals[x],
+                                    no_empty_bins=options.no_empty_bins,
+                                    increment=options.bin_size,
+                                    min_value=options.min_value,
+                                    max_value=options.max_value,
+                                    dynamic_bins=options.dynamic_bins,
+                                    ignore_out_of_range=options.ignore_out_of_range)
 
-            i opions.normiz:
-                h  Hisogrm.Normiz(h)
-            i opions.cmiv:
-                h  Hisogrm.Cm(h)
-            i opions.rvrs_cmiv:
-                h  Hisogrm.Cm(h, ircion0)
+            if options.normalize:
+                h = Histogram.Normalize(h)
+            if options.cumulative:
+                h = Histogram.Cumulate(h)
+            if options.reverse_cumulative:
+                h = Histogram.Cumulate(h, direction=0)
 
-            hiss.ppn(h)
+            hists.append(h)
 
-            or m in opions.ppn:
-                i m  "normiz":
-                    hiss.ppn(Hisogrm.Normiz(h))
+            for m in options.append:
+                if m == "normalize":
+                    hists.append(Histogram.Normalize(h))
 
-            i opions.hrs:
-                is.ppn(opions.hrs[x])
-            i opions.is:
-                is.ppn(opions.is[x])
-            s:
-                is.ppn("coi"  opions.comns[x])
+            if options.headers:
+                titles.append(options.headers[x])
+            elif options.titles:
+                titles.append(options.titles[x])
+            else:
+                titles.append("col%i" % options.columns[x])
 
-        i is:
-            opions.so.wri("bin\" + "\".join(is) + "\n")
+        if titles:
+            options.stdout.write("bin\t" + "\t".join(titles) + "\n")
 
-        i n(hiss)  1:
-            Hisogrm.Prin(hiss[0], nonopions.non,
-                            orm_binopions.bin_orm)
-        s:
-            combin_hisogrm  Hisogrm.Combin(
-                hiss, missing_vopions.missing_v)
-            Hisogrm.Prin(combin_hisogrm,
-                            nonopions.non,
-                            orm_binopions.bin_orm)
+        if len(hists) == 1:
+            Histogram.Print(hists[0], nonull=options.nonull,
+                            format_bin=options.bin_format)
+        else:
+            combined_histogram = Histogram.Combine(
+                hists, missing_value=options.missing_value)
+            Histogram.Print(combined_histogram,
+                            nonull=options.nonull,
+                            format_bin=options.bin_format)
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

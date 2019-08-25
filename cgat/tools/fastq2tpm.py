@@ -1,374 +1,374 @@
 '''
-sq2pm.py - s rpi/ighwigh ignmn RNA sq qniicion mhos
+fastq2tpm.py - use rapid/lightweight alignment RNA seq quantification methods
+=============================================================================
 
-
-Prpos
+Purpose
 -------
 
-.. Wrppr or kiso & siish, n o  in Smon
-NB: I wro his bor Tom impmn his mppr-css bs
-pproch, so h sho sprs his.  I js n o g ron o
-cy oing i.
+.. Wrapper for kallisto & sailfish, need to add in Salmon
+NB: I wrote this before Tom implemented his mapper-class based
+approach, so that should supersede this.  I just need to get round to
+actually doing it.
 
-Usg
+Usage
 -----
 
-.. This migh chng, or now sg is imi o cring n inx wih ihr
-Kiso or Siish n qniying rom sq is.
+.. This might change, for now usage is limited to creating an index with either
+Kallisto or Sailfish and quantifying from fastq files.
 
-Exmp::
+Example::
 
-   pyhon sq2pm.py
+   python fastq2tpm.py
 
-Typ::
+Type::
 
-   pyhon sq2pm.py --hp
+   python fastq2tpm.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor cgcor.xprimn s E
-impor os
-impor sbprocss
-impor r
+import sys
+import cgatcore.experiment as E
+import os
+import subprocess
+import re
 
 
 # ------------------------------------------------------- #
-# Fncions or xprssion qniicion
+# Functions for expression quantification
 # ------------------------------------------------------- #
 
- rnSiishInx(s_i, oir, hrs,
-                     kmr):
+def runSailfishIndex(fasta_file, outdir, threads,
+                     kmer):
     '''
-    Wrppr or siish inx
-    '''
-
-    i s_i.nswih("."):
-        pss
-    i s_i.nswih(".s"):
-        pss
-    s:
-        E.wrn("r yo sr his is  s i?")
-
-    commn  '''
-    siish inx --rnscrips s --o s --hrs i --kmrSiz i
-    '''  (s_i, oir, hrs, kmr)
-
-    os.sysm(commn)
-
-
- rnSiishQn(s_inx, sq_is, op_ir,
-                     pirFs, ibrry"ISF", hrs4,
-                     gn_gNon):
-    '''
-    Wrppr or siish qn commn
+    Wrapper for sailfish index
     '''
 
-    comprss  Fs
-    i n(sq_is) > 1:
-        i sq_is[0].nswih(".gz"):
-            comprss  Tr
-        s:
-            pss
-    s:
-        i sq_is[0].nswih(".gz"):
-            comprss  Tr
-        s:
-            pss
+    if fasta_file.endswith(".fa"):
+        pass
+    elif fasta_file.endswith(".fasta"):
+        pass
+    else:
+        E.warn("are you sure this is a fasta file?")
 
-    # chck op ircory is n bso ph
-    i os.ph.isbs(op_ir):
-        pss
-    s:
-        o_ir  os.ph.bsph(op_ir)
+    command = '''
+    sailfish index --transcripts %s --out %s --threads %i --kmerSize %i
+    ''' % (fasta_file, outdir, threads, kmer)
 
-    ss  []
-    commn  " siish qn --inx s - s  -o s "  (s_inx,
-                                                            ibrry,
-                                                            op_ir)
+    os.system(command)
 
-    ss.ppn(commn)
 
-    i hrs:
-        ss.ppn(" --hrs i "  hrs)
-    s:
-        pss
+def runSailfishQuant(fasta_index, fastq_files, output_dir,
+                     paired=False, library="ISF", threads=4,
+                     gene_gtf=None):
+    '''
+    Wrapper for sailfish quant command
+    '''
 
-    i gn_g:
-        ss.ppn(" --gnMp s "  gn_g)
-    s:
-        pss
+    decompress = False
+    if len(fastq_files) > 1:
+        if fastq_files[0].endswith(".gz"):
+            decompress = True
+        else:
+            pass
+    else:
+        if fastq_files[0].endswith(".gz"):
+            decompress = True
+        else:
+            pass
 
-    # siish os no hn comprss is nivy,
-    # n o comprss on h y wih vnc
-    # bsh synx
-    i comprss n pir:
-        irs_ms  p([q or q in sq_is i r.srch("sq.1.gz",
-                                                                   q)])
-        sr_orm  " ".join(["s" or hq in irs_ms])
-        comp_orm  sr_orm  irs_ms
-        comp_irs  " -1 <( zc s )"  comp_orm
+    # check output directory is an absolute path
+    if os.path.isabs(output_dir):
+        pass
+    else:
+        out_dir = os.path.abspath(output_dir)
 
-        ss.ppn(comp_irs)
+    states = []
+    command = " sailfish quant --index %s -l %s  -o %s " % (fasta_index,
+                                                            library,
+                                                            output_dir)
 
-        scon_ms  p([sq or sq in sq_is i r.srch("sq.2.gz",
+    states.append(command)
+
+    if threads:
+        states.append(" --threads %i " % threads)
+    else:
+        pass
+
+    if gene_gtf:
+        states.append(" --geneMap %s " % gene_gtf)
+    else:
+        pass
+
+    # sailfish does not handle compress files natively,
+    # need to decompress on the fly with advanced
+    # bash syntax
+    if decompress and paired:
+        first_mates = tuple([fq for fq in fastq_files if re.search("fastq.1.gz",
+                                                                   fq)])
+        fstr_format = " ".join(["%s" for hq in first_mates])
+        fdecomp_format = fstr_format % first_mates
+        decomp_first = " -1 <( zcat %s )" % fdecomp_format
+
+        states.append(decomp_first)
+
+        second_mates = tuple([sq for sq in fastq_files if re.search("fastq.2.gz",
                                                                     sq)])
-        ssr_orm  " ".join(["s" or q in scon_ms])
-        scomp_orm  ssr_orm  scon_ms
-        comp_scon  " -2 <( zc s )"  scomp_orm
+        sstr_format = " ".join(["%s" for aq in second_mates])
+        sdecomp_format = sstr_format % second_mates
+        decomp_second = " -2 <( zcat %s )" % sdecomp_format
 
-        ss.ppn(comp_scon)
+        states.append(decomp_second)
 
-    i comprss n no pir:
-        irs_ms  p([q or q in sq_is i r.srch("sq.gz",
-                                                                   q)])
-        sr_orm  " ".join(["s" or sq in irs_ms])
-        comp_orm  sr_orm  irs_ms
-        comp_irs  " -r <( zc s )"  comp_orm
+    elif decompress and not paired:
+        first_mates = tuple([fq for fq in fastq_files if re.search("fastq.gz",
+                                                                   fq)])
+        fstr_format = " ".join(["%s" for sq in first_mates])
+        fdecomp_format = fstr_format % first_mates
+        decomp_first = " -r <( zcat %s )" % fdecomp_format
 
-        ss.ppn(comp_irs)
+        states.append(decomp_first)
 
-    i pir n no comprss:
-        irs_ms  p([q or q in sq_is i r.srch("sq.1",
-                                                                   q)])
-        sr_orm  " ".join(["s" or sq in irs_ms])
-        comp_orm  sr_orm  irs_ms
-        comp_irs  " -1 s "  comp_orm
+    elif paired and not decompress:
+        first_mates = tuple([fq for fq in fastq_files if re.search("fastq.1",
+                                                                   fq)])
+        fstr_format = " ".join(["%s" for sq in first_mates])
+        fdecomp_format = fstr_format % first_mates
+        decomp_first = " -1 %s " % fdecomp_format
 
-        ss.ppn(comp_irs)
+        states.append(decomp_first)
 
-        scon_ms  p([sq or sq in sq_is i r.srch("sq.2",
+        second_mates = tuple([sq for sq in fastq_files if re.search("fastq.2",
                                                                     sq)])
-        ssr_orm  " ".join(["s" or q in scon_ms])
-        scomp_orm  ssr_orm  scon_ms
-        comp_scon  " -2 s "  scomp_orm
+        sstr_format = " ".join(["%s" for aq in second_mates])
+        sdecomp_format = sstr_format % second_mates
+        decomp_second = " -2 %s " % sdecomp_format
 
-        ss.ppn(comp_scon)
+        states.append(decomp_second)
 
-    smn  " ".join(ss)
+    statement = " ".join(states)
 
-    # sbprocss cnno hn procss sbsiion
-    # hror ns o b wrpp in /bin/bsh -c '...'
-    # or bsh o inrpr h sbsiion corrcy
-    procss  sbprocss.Popn(smn, shTr,
-                               xcb"/bin/bsh")
+    # subprocess cannot handle process substitution
+    # therefore needs to be wrapped in /bin/bash -c '...'
+    # for bash to interpret the substitution correctly
+    process = subprocess.Popen(statement, shell=True,
+                               executable="/bin/bash")
 
-    so, srr  procss.commnic()
+    stdout, stderr = process.communicate()
 
-    i procss.rrnco ! 0:
-        ris OSError(
+    if process.returncode != 0:
+        raise OSError(
             "-------------------------------------------\n"
-            "Chi ws rmin by sign i: \n"
-            "Th srr ws \ns\ns\n"
-            "-------------------------------------------" 
-            (-procss.rrnco, srr, smn))
+            "Child was terminated by signal %i: \n"
+            "The stderr was \n%s\n%s\n"
+            "-------------------------------------------" %
+            (-process.returncode, stderr, statement))
 
 
- rnKisoInx(s_i, oi, kmr31):
+def runKallistoIndex(fasta_file, outfile, kmer=31):
     '''
-    Wrppr or kiso inx
-    '''
-
-    i s_i.nswih("."):
-        pss
-    i s_i.nswih(".s"):
-        pss
-    s:
-        E.wrn("r yo sr his is  s i?")
-
-    commn  "kiso inx --inxs  s"  (oi,
-                                                 s_i)
-
-    os.sysm(commn)
-
-
- rnKisoQn(s_inx, sq_is, op_ir,
-                     bisFs, boosrpNon,
-                     s1245, hrsNon, pinxFs):
-    '''
-    Wrppr or kiso qn commn
+    Wrapper for kallisto index
     '''
 
-    i n(sq_is) > 1:
-        sqs  " ".join(sq_is)
-    s:
-        sqs  sq_is
+    if fasta_file.endswith(".fa"):
+        pass
+    elif fasta_file.endswith(".fasta"):
+        pass
+    else:
+        E.warn("are you sure this is a fasta file?")
 
-    # chck op ircory is n bso ph
-    i os.ph.isbs(op_ir):
-        pss
-    s:
-        o_ir  os.ph.bsph(op_ir)
+    command = "kallisto index --index=%s  %s" % (outfile,
+                                                 fasta_file)
 
-    ss  []
-    commn  " kiso qn --inxs --op-irs"  (s_inx,
-                                                              op_ir)
-    ss.ppn(commn)
-
-    i bis:
-        ss.ppn(" --s-bis ")
-    s:
-        pss
-
-    i boosrp:
-        ss.ppn(" --boosrpi --si "  (boosrp,
-                                                      s))
-    s:
-        pss
-
-    i pinx:
-        ss.ppn(" --pinx ")
-    s:
-        pss
-
-    i hrs:
-        ss.ppn(" --hrsi "  hrs)
-    s:
-        pss
-
-    ss.ppn(" s "  sqs)
-
-    smn  " ".join(ss)
-
-    # n o rnm op is o conorm o inp/op
-    # prn s rqir.  D nm is bnnc*.x
-    # whn sing pinx op
-    # kiiso rqirs n op ircory - cr mny sm
-    # ircoris, on or ch i.
-    # hn xrc h bnnc.x i n rnm sing h
-    # inp/op prn
-
-    os.sysm(smn)
+    os.system(command)
 
 
- min(rgvNon):
-    """scrip min.
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+def runKallistoQuant(fasta_index, fastq_files, output_dir,
+                     bias=False, bootstrap=None,
+                     seed=1245, threads=None, plaintext=False):
+    '''
+    Wrapper for kallisto quant command
+    '''
+
+    if len(fastq_files) > 1:
+        fastqs = " ".join(fastq_files)
+    else:
+        fastqs = fastq_files
+
+    # check output directory is an absolute path
+    if os.path.isabs(output_dir):
+        pass
+    else:
+        out_dir = os.path.abspath(output_dir)
+
+    states = []
+    command = " kallisto quant --index=%s --output-dir=%s" % (fasta_index,
+                                                              output_dir)
+    states.append(command)
+
+    if bias:
+        states.append(" --use-bias ")
+    else:
+        pass
+
+    if bootstrap:
+        states.append(" --bootstrap=%i --seed=%i " % (bootstrap,
+                                                      seed))
+    else:
+        pass
+
+    if plaintext:
+        states.append(" --plaintext ")
+    else:
+        pass
+
+    if threads:
+        states.append(" --threads=%i " % threads)
+    else:
+        pass
+
+    states.append(" %s " % fastqs)
+
+    statement = " ".join(states)
+
+    # need to rename output files to conform to input/output
+    # pattern as required.  Default name is abundance*.txt
+    # when using plaintext output
+    # kaliisto requires an output directory - create many small
+    # directories, one for each file.
+    # then extract the abundance.txt file and rename using the
+    # input/output pattern
+
+    os.system(statement)
+
+
+def main(argv=None):
+    """script main.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-", "--s", s"s", yp"sring",
-                      hp"sppy hp")
+    parser.add_argument("-t", "--test", dest="test", type="string",
+                      help="supply help")
 
-    prsr._rgmn("--progrm", s"progrm", yp"choic",
-                      choics["kiso", "siish"],
-                      hp"s ihr kiso or siish, "
-                      "or ignmn-r qniicion")
+    parser.add_argument("--program", dest="program", type="choice",
+                      choices=["kallisto", "sailfish"],
+                      help="use either kallisto or sailfish, "
+                      "for alignment-free quantification")
 
-    prsr._rgmn("--mho", s"mho", yp"choic",
-                      choics["mk_inx", "qn"],
-                      hp"mho o kiso o rn")
+    parser.add_argument("--method", dest="method", type="choice",
+                      choices=["make_index", "quant"],
+                      help="method of kallisto to run")
 
-    prsr._rgmn("--inx-s", s"_inx", yp"sring",
-                      hp"mi-s o s o mk inx or kiso")
+    parser.add_argument("--index-fasta", dest="fa_index", type="string",
+                      help="multi-fasta to use to make index for kallisto")
 
-    prsr._rgmn("--inx-i", s"inx_i", yp"sring",
-                      hp"kiso inx i o s or qniicion")
+    parser.add_argument("--index-file", dest="index_file", type="string",
+                      help="kallisto index file to use for quantificaiton")
 
-    prsr._rgmn("--s-bis", s"bis", cion"sor_r",
-                      hp"s kiso's bis corrcion")
+    parser.add_argument("--use-bias", dest="bias", action="store_true",
+                      help="use kallisto's bias correction")
 
-    prsr._rgmn("--boosrps", s"boosrp", yp"in",
-                      hp"nmbr o boosrps o ppy o qniicion")
+    parser.add_argument("--bootstraps", dest="bootstrap", type="int",
+                      help="number of bootstraps to apply to quantification")
 
-    prsr._rgmn("--s", s"s", yp"in",
-                      hp"s nmbr or rnom nmbr gnrion "
-                      "n boosrpping")
+    parser.add_argument("--seed", dest="seed", type="int",
+                      help="seed number for random number genration "
+                      "and bootstrapping")
 
-    prsr._rgmn("--js-x", s"x_ony", cion"sor_r",
-                      hp"ony op is in pin x, no HDF5")
+    parser.add_argument("--just-text", dest="text_only", action="store_true",
+                      help="only output files in plain text, not HDF5")
 
-    prsr._rgmn("--ibrry-yp", s"ibrry", yp"choic",
-                      choics["ISF", "ISR", "IU", "MSF", "MSR", "MU",
+    parser.add_argument("--library-type", dest="library", type="choice",
+                      choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
                                "OSF", "OSR", "OU", "SR", "SF", "U"],
-                      hp"siish rgmn ibrry yp co")
+                      help="sailfish fragment library type code")
 
-    prsr._rgmn("--pir-n", s"pir", cion"sor_r",
-                      hp" r pir n")
+    parser.add_argument("--paired-end", dest="paired", action="store_true",
+                      help="data are paired end")
 
-    prsr._rgmn("--kmr-siz", s"kmr", yp"in",
-                      hp"kmr siz o s or inx gnrion")
+    parser.add_argument("--kmer-size", dest="kmer", type="int",
+                      help="kmer size to use for index generation")
 
-    prsr._rgmn("--gn-g", s"gn_g", yp"sring",
-                      hp"GTF i conining rnscrips n gn "
-                      "iniirs o cc gn-v sims")
+    parser.add_argument("--gene-gtf", dest="gene_gtf", type="string",
+                      help="GTF file containing transcripts and gene "
+                      "identifiers to calculate gene-level estimates")
 
-    prsr._rgmn("--hrs", s"hrs", yp"in",
-                      hp"nmbr o hrs o s or kiso "
-                      "qniicion")
+    parser.add_argument("--threads", dest="threads", type="int",
+                      help="number of threads to use for kallisto "
+                      "quantificaion")
 
-    prsr._rgmn("--op-ircory", s"oir", yp"sring",
-                      hp"ircory o op rnscrip bnnc "
-                      "sims o")
+    parser.add_argument("--output-directory", dest="outdir", type="string",
+                      help="directory to output transcript abundance "
+                      "estimates to")
 
-    prsr._rgmn("--op-i", s"oi", yp"sring",
-                      hp"op inm")
+    parser.add_argument("--output-file", dest="outfile", type="string",
+                      help="output filename")
 
-    prsr.s_s(pirFs)
+    parser.set_defaults(paired=False)
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    i opions.mho  "mk_inx":
-        i opions.progrm  "kiso":
-            rnKisoInx(s_iopions._inx,
-                             oiopions.oi,
-                             kmropions.kmr)
-        i opions.progrm  "siish":
-            rnSiishInx(s_iopions._inx,
-                             oiropions.oir,
-                             hrsopions.hrs,
-                             kmropions.kmr)
-        s:
-            E.wrn("progrm no rcognis, xiing.")
+    if options.method == "make_index":
+        if options.program == "kallisto":
+            runKallistoIndex(fasta_file=options.fa_index,
+                             outfile=options.outfile,
+                             kmer=options.kmer)
+        elif options.program == "sailfish":
+            runSailfishIndex(fasta_file=options.fa_index,
+                             outdir=options.outdir,
+                             threads=options.threads,
+                             kmer=options.kmer)
+        else:
+            E.warn("program not recognised, exiting.")
 
-    i opions.mho  "qn":
-        inis  rgv[-1]
-        qis  inis.spi(",")
-        # mk h op ircory i i osn' xis
-        i os.ph.xiss(opions.oir):
-            pss
-        s:
-            os.sysm("mkir s"  opions.oir)
+    elif options.method == "quant":
+        infiles = argv[-1]
+        qfiles = infiles.split(",")
+        # make the output directory if it doesn't exist
+        if os.path.exists(options.outdir):
+            pass
+        else:
+            os.system("mkdir %s" % options.outdir)
 
-        i opions.progrm  "kiso":
-            rnKisoQn(s_inxopions.inx_i,
-                             sq_isqis,
-                             op_iropions.oir,
-                             bisopions.bis,
-                             boosrpopions.boosrp,
-                             sopions.s,
-                             hrsopions.hrs,
-                             pinxopions.x_ony)
-        i opions.progrm  "siish":
-            inis  rgv[-1]
-            qis  inis.spi(",")
-            rnSiishQn(s_inxopions.inx_i,
-                             sq_isqis,
-                             op_iropions.oir,
-                             piropions.pir,
-                             ibrryopions.ibrry,
-                             hrsopions.hrs,
-                             gn_gopions.gn_g)
+        if options.program == "kallisto":
+            runKallistoQuant(fasta_index=options.index_file,
+                             fastq_files=qfiles,
+                             output_dir=options.outdir,
+                             bias=options.bias,
+                             bootstrap=options.bootstrap,
+                             seed=options.seed,
+                             threads=options.threads,
+                             plaintext=options.text_only)
+        elif options.program == "sailfish":
+            infiles = argv[-1]
+            qfiles = infiles.split(",")
+            runSailfishQuant(fasta_index=options.index_file,
+                             fastq_files=qfiles,
+                             output_dir=options.outdir,
+                             paired=options.paired,
+                             library=options.library,
+                             threads=options.threads,
+                             gene_gtf=options.gene_gtf)
 
-        s:
-            E.wrn("progrm no rcognis, xiing.")
-    s:
-        pss
+        else:
+            E.warn("program not recognised, exiting.")
+    else:
+        pass
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

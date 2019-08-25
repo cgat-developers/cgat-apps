@@ -1,268 +1,268 @@
-'''bm_vs_b.py - con conx h rs mp o
+'''bam_vs_bed.py - count context that reads map to
+======================================================
 
+:Tags: Genomics NGS Intervals BAM BED Counting
 
-:Tgs: Gnomics NGS Inrvs BAM BED Coning
-
-Prpos
+Purpose
 -------
 
-This scrip ks s inp  :rm:`BAM` i rom n RNA-sq or
-simir xprimn n  :rm:`b` orm i. Th :rm:`b`
-orm i ns  s or comns. Th orh (nm) comn
-is s o grop cons.
+This script takes as input a :term:`BAM` file from an RNA-seq or
+similar experiment and a :term:`bed` formatted file. The :term:`bed`
+formatted file needs at least four columns. The fourth (name) column
+is used to group counts.
 
-Th scrip cons h nmbr o ignmns ovrpping in h irs
-inp i h ovrp ch r in h scon i. Annoions
-in h :rm:`b` i cn b ovrpping - hy r con
-inpnny.
+The script counts the number of alignments overlapping in the first
+input file that overlap each feature in the second file. Annotations
+in the :term:`bed` file can be overlapping - they are counted
+independently.
 
-No h pic inrvs wi b con mip ims. This
-siion cn siy ris whn biing  s o gnomic nnoions
-bs on  gns wih rniv rnscrips. For xmp::
+Note that duplicate intervals will be counted multiple times. This
+situation can easily arise when building a set of genomic annotations
+based on a geneset with alternative transcripts. For example::
 
-   chr1     10000     20000     proin_coing            # gn1, rnsrcip1
-   chr1     10000     20000     proin_coing            # gn1, rnscrip2
+   chr1     10000     20000     protein_coding            # gene1, transrcipt1
+   chr1     10000     20000     protein_coding            # gene1, transcript2
 
-Any rs ovrpping h inrv chr1:10000-20000 wi b con
-wic ino h proin_coing bin by boos. To voi his, rmov ny
-pics rom h :rm:`b` i::
+Any reads overlapping the interval chr1:10000-20000 will be counted
+twice into the protein_coding bin by bedtools. To avoid this, remove any
+duplicates from the :term:`bed` file::
 
-   zc inp_wih_pics.b.gz | cg b2b --mrg-by-nm | bgzip > inp_wiho_pics.b.gz
+   zcat input_with_duplicates.bed.gz | cgat bed2bed --merge-by-name | bgzip > input_without_duplicates.bed.gz
 
-This scrips rqirs boos_ o b ins.
+This scripts requires bedtools_ to be installed.
 
-Opions
+Options
 -------
 
--, --bm-i / -b, --b-i
-    Ths r h inp is. Thy cn so b provi s provi s
-    posiion rgmns, wih h bm i bing irs n h (gzip
-    or ncomprss) b i coming scon
+-a, --bam-file / -b, --bed-file
+    These are the input files. They can also be provided as provided as
+    positional arguements, with the bam file being first and the (gziped
+    or uncompressed) bed file coming second
 
--m, --min-ovrp
-    Using his opion wi ony con rs i hy ovrp wih  b nry
-    by  crin minimm rcion o h r.
+-m, --min-overlap
+    Using this option will only count reads if they overlap with a bed entry
+    by a certain minimum fraction of the read.
 
-Exmp
+Example
 -------
 
-Exmp::
+Example::
 
-   pyhon bm_vs_b.py in.bm in.b.gz
+   python bam_vs_bed.py in.bam in.bed.gz
 
-Usg
+Usage
 -----
 
-Typ::
+Type::
 
-   cg bm_vs_b BAM BED [OPTIONS]
-   cg bm_vs_b --bm-iBAM --b-iBED [OPTIONS]
+   cgat bam_vs_bed BAM BED [OPTIONS]
+   cgat bam_vs_bed --bam-file=BAM --bed-file=BED [OPTIONS]
 
-whr BAM is ihr  bm or b i n BED is  b i.
+where BAM is either a bam or bed file and BED is a bed file.
 
-Typ::
+Type::
 
-   cg bm_vs_b --hp
+   cgat bam_vs_bed --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
 
-impor sys
-impor cocions
-impor iroos
-impor sbprocss
-impor cgcor.xprimn s E
-impor cgcor.iooos s iooos
-impor pysm
-impor cg.B s B
+import sys
+import collections
+import itertools
+import subprocess
+import cgatcore.experiment as E
+import cgatcore.iotools as iotools
+import pysam
+import cgat.Bed as Bed
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i no rgv:
-        rgv  sys.rgv
+    if not argv:
+        argv = sys.argv
 
-    # sp commn in prsr
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I$",
-                            sggobs()["__oc__"])
+    # setup command line parser
+    parser = E.OptionParser(version="%prog version: $Id$",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-m", "--min-ovrp", s"min_ovrp",
-                      yp"o",
-                      hp"minimm ovrp []")
+    parser.add_argument("-m", "--min-overlap", dest="min_overlap",
+                      type="float",
+                      help="minimum overlap [%default]")
 
-    prsr._rgmn("-", "--bm-i", s"inm_bm",
-                      mvr"bm", yp"sring",
-                      hp"bm-i o s (rqir) []")
+    parser.add_argument("-a", "--bam-file", dest="filename_bam",
+                      metavar="bam", type="string",
+                      help="bam-file to use (required) [%default]")
 
-    prsr._rgmn("-b", "--b-i", s"inm_b",
-                      mvr"b", yp"sring",
-                      hp"b-i o s (rqir) []")
+    parser.add_argument("-b", "--bed-file", dest="filename_bed",
+                      metavar="bed", type="string",
+                      help="bed-file to use (required) [%default]")
 
-    prsr._rgmn(
-        "-s", "--sor-b", s"sor_b",
-        cion"sor_r",
-        hp"sor h b i by chromosom ocion bor "
-        "procssing. "
-        "[]")
+    parser.add_argument(
+        "-s", "--sort-bed", dest="sort_bed",
+        action="store_true",
+        help="sort the bed file by chromosomal location before "
+        "processing. "
+        "[%default]")
 
-    prsr._rgmn(
-        "--ssm-sor", s"sor_b",
-        cion"sor_s",
-        hp"ssm h h b-i is sor by chromosom ocion. "
-        "[]")
+    parser.add_argument(
+        "--assume-sorted", dest="sort_bed",
+        action="store_false",
+        help="assume that the bed-file is sorted by chromosomal location. "
+        "[%default]")
 
-    prsr._rgmn(
-        "--spi-inrvs", s"spi_inrvs",
-        cion"sor_r",
-        hp"r spi BAM inrvs, or xmp spic inrvs, "
-        "s spr inrvs. No h  sing ignmn migh b "
-        "con svr ims s  rs. "
-        "[]")
+    parser.add_argument(
+        "--split-intervals", dest="split_intervals",
+        action="store_true",
+        help="treat split BAM intervals, for example spliced intervals, "
+        "as separate intervals. Note that a single alignment might be "
+        "counted several times as a result. "
+        "[%default]")
 
-    prsr.s_s(
-        min_ovrp0.5,
-        inm_bmNon,
-        inm_bNon,
-        sor_bTr,
-        spi_inrvsFs,
+    parser.set_defaults(
+        min_overlap=0.5,
+        filename_bam=None,
+        filename_bed=None,
+        sort_bed=True,
+        split_intervals=False,
     )
 
-    #  common opions (-h/--hp, ...) n prs commn in
-    (opions, rgs)  E.sr(prsr, rgvrgv)
+    # add common options (-h/--help, ...) and parse command line
+    (options, args) = E.start(parser, argv=argv)
 
-    inm_bm  opions.inm_bm
-    inm_b  opions.inm_b
+    filename_bam = options.filename_bam
+    filename_bed = options.filename_bed
 
-    i inm_bm is Non n inm_b is Non:
-        i n(rgs) ! 2:
-            ris VError(
-                "ps sppy  bm n  b i or wo b-is.")
+    if filename_bam is None and filename_bed is None:
+        if len(args) != 2:
+            raise ValueError(
+                "please supply a bam and a bed file or two bed-files.")
 
-        inm_bm, inm_b  rgs
+        filename_bam, filename_bed = args
 
-    i inm_b is Non:
-        ris VError("ps sppy  b i o compr o.")
+    if filename_bed is None:
+        raise ValueError("please supply a bed file to compare to.")
 
-    i inm_bm is Non:
-        ris VError("ps sppy  bm i o compr wih.")
+    if filename_bam is None:
+        raise ValueError("please supply a bam file to compare with.")
 
-    E.ino("inrscing h wo is")
+    E.info("intersecting the two files")
 
-    min_ovrp  opions.min_ovrp
+    min_overlap = options.min_overlap
 
-    opions.so.wri("cgory\ignmns\n")
+    options.stdout.write("category\talignments\n")
 
-    # g nmbr o comns o rrnc b i
-    or b in B.iror(iooos.opn_i(inm_b)):
-        ncomns_b  b.comns
-        brk
-    E.ino("ssming s is bi orm"  (inm_b, ncomns_b))
+    # get number of columns of reference bed file
+    for bed in Bed.iterator(iotools.open_file(filename_bed)):
+        ncolumns_bed = bed.columns
+        break
+    E.info("assuming %s is bed%i format" % (filename_bed, ncolumns_bed))
 
-    i ncomns_b < 4:
-        ris VError("ps sppy  nm rib in h b i")
+    if ncolumns_bed < 4:
+        raise ValueError("please supply a name attribute in the bed file")
 
-    # g inormion bo
-    i inm_bm.nswih(".bm"):
-        orm  "-bm"
-        smi  pysm.AignmnFi(inm_bm, "rb")
-        o  smi.mpp
-        # s boos ss b12 orm whn bm is inp
-        ncomns_bm  12
-        # con pr r
-        sor_ky  mb x: x.nm
-    s:
-        orm  "-"
-        o  iooos.g_nm_ins(inm_bm)
-        # g b orm
-        ncomns_bm  0
-        or b in B.iror(iooos.opn_i(inm_bm)):
-            ncomns_bm  b.comns
-            brk
+    # get information about
+    if filename_bam.endswith(".bam"):
+        format = "-abam"
+        samfile = pysam.AlignmentFile(filename_bam, "rb")
+        total = samfile.mapped
+        # latest bedtools uses bed12 format when bam is input
+        ncolumns_bam = 12
+        # count per read
+        sort_key = lambda x: x.name
+    else:
+        format = "-a"
+        total = iotools.get_num_lines(filename_bam)
+        # get bed format
+        ncolumns_bam = 0
+        for bed in Bed.iterator(iotools.open_file(filename_bam)):
+            ncolumns_bam = bed.columns
+            break
 
-        i ncomns_bm > 0:
-            E.ino("ssming s is bi om"  (inm_bm, ncomns_bm))
-            i ncomns_bm  3:
-                # con pr inrv
-                sor_ky  mb x: (x.conig, x.sr, x.n)
-            s:
-                # con pr inrv cgory
-                sor_ky  mb x: x.nm
+        if ncolumns_bam > 0:
+            E.info("assuming %s is bed%i fomat" % (filename_bam, ncolumns_bam))
+            if ncolumns_bam == 3:
+                # count per interval
+                sort_key = lambda x: (x.contig, x.start, x.end)
+            else:
+                # count per interval category
+                sort_key = lambda x: x.name
 
-    # s is or bm/b i (rgions o con wih)
-    _is  [
-        "conig", "sr", "n", "nm",
-        "scor", "srn", "hicksr", "hickn", "rgb",
-        "bockcon", "bocksrs", "bockns"][:ncomns_bm]
+    # use fields for bam/bed file (regions to count with)
+    data_fields = [
+        "contig", "start", "end", "name",
+        "score", "strand", "thickstart", "thickend", "rgb",
+        "blockcount", "blockstarts", "blockends"][:ncolumns_bam]
 
-    #  is or scon b (rgions o con in)
-    _is.xn([
-        "conig2", "sr2", "n2", "nm2",
-        "scor2", "srn2", "hicksr2", "hickn2", "rgb2",
-        "bockcon2", "bocksrs2", "bockns2"][:ncomns_b])
+    # add fields for second bed (regions to count in)
+    data_fields.extend([
+        "contig2", "start2", "end2", "name2",
+        "score2", "strand2", "thickstart2", "thickend2", "rgb2",
+        "blockcount2", "blockstarts2", "blockends2"][:ncolumns_bed])
 
-    #  bss ovrp
-    _is.ppn("bss_ovrp")
+    # add bases overlap
+    data_fields.append("bases_overlap")
 
-      cocions.nmp("", _is)
+    data = collections.namedtuple("data", data_fields)
 
-    opions.so.wri("o\i\n"  o)
+    options.stdout.write("total\t%i\n" % total)
 
-    i o  0:
-        E.wrn("no  in s"  inm_bm)
-        rrn
+    if total == 0:
+        E.warn("no data in %s" % filename_bam)
+        return
 
-    # SNS: soring opion, o by 
-    i opions.sor_b:
-        bcm  "<( gnzip < s | sor -k1,1 -k2,2n)"  inm_b
-    s:
-        bcm  inm_b
+    # SNS: sorting optional, off by default
+    if options.sort_bed:
+        bedcmd = "<( gunzip < %s | sort -k1,1 -k2,2n)" % filename_bed
+    else:
+        bedcmd = filename_bed
 
-    i opions.spi_inrvs:
-        spi  "-spi"
-    s:
-        spi  ""
+    if options.split_intervals:
+        split = "-split"
+    else:
+        split = ""
 
-    # IMS: nwr vrsions o inrscB hv  vry high mmory
-    #      rqirmn nss pss sor b is.
-    smn  """boos inrsc (orm)s (inm_bm)s
-    -b (bcm)s
-    (spi)s
-    -sor -b -wo - (min_ovrp)"""  ocs()
+    # IMS: newer versions of intersectBed have a very high memory
+    #      requirement unless passed sorted bed files.
+    statement = """bedtools intersect %(format)s %(filename_bam)s
+    -b %(bedcmd)s
+    %(split)s
+    -sorted -bed -wo -f %(min_overlap)f""" % locals()
 
-    E.ino("sring coning procss: s"  smn)
-    proc  E.rn(smn,
-                 rrn_popnTr,
-                 sosbprocss.PIPE)
+    E.info("starting counting process: %s" % statement)
+    proc = E.run(statement,
+                 return_popen=True,
+                 stdout=subprocess.PIPE)
 
-    E.ino("coning")
-    cons_pr_ignmn  cocions.ic(in)
-    k_comns  n(._is)
+    E.info("counting")
+    counts_per_alignment = collections.defaultdict(int)
+    take_columns = len(data._fields)
 
-     ir(ini):
-        or in in ini:
-            i no in.srip():
-                conin
-            yi ._mk(in[:-1].spi()[:k_comns])
+    def iterate(infile):
+        for line in infile:
+            if not line.strip():
+                continue
+            yield data._make(line[:-1].split()[:take_columns])
 
-    or r, ovrps in iroos.gropby(
-            ir(iooos.orc_sr(proc.so)), kysor_ky):
-        nnoions  [x.nm2 or x in ovrps]
-        or nno in nnoions:
-            cons_pr_ignmn[nno] + 1
+    for read, overlaps in itertools.groupby(
+            iterate(iotools.force_str(proc.stdout)), key=sort_key):
+        annotations = [x.name2 for x in overlaps]
+        for anno in annotations:
+            counts_per_alignment[anno] += 1
 
-    or ky, cons in sor(cons_pr_ignmn.ims()):
-        opions.so.wri("s\i\n"  (ky, cons))
+    for key, counts in sorted(counts_per_alignment.items()):
+        options.stdout.write("%s\t%i\n" % (key, counts))
 
-    # wri oor n op bnchmrk inormion.
-    E.sop()
+    # write footer and output benchmark information.
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

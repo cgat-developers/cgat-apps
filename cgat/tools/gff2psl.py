@@ -1,155 +1,155 @@
 '''
-g2ps.py - convr rom g o ps
+gff2psl.py - convert from gff to psl
+====================================
 
+:Tags: Genomics Intervals GFF PSL Conversion
 
-:Tgs: Gnomics Inrvs GFF PSL Convrsion
-
-Prpos
+Purpose
 -------
 
-This scrips convrs rom  :rm:`g` orm
-i o  :rm:`ps` orm i.
-Th op cn b moii by h oowing commn in opions:
+This scripts converts from a :term:`gff` formatted
+file to a :term:`psl` formatted file.
+The output can be modified by the following command line options:
 
---ow-pics
-    kp pic nris rom g/g inp i
+--allow-duplicates
+    keep duplicate entries from gff/gtf input file
 
---gnom-i
-    rsric op o g/g nris wih conigs in s i
+--genome-file
+    restrict output to gff/gtf entries with contigs in fasta file
 
---qris-sv-i
-    rsric op o qris in s i
+--queries-tsv-file
+    restrict output to queries in fasta file
 
-Usg
+Usage
 -----
 
-Exmp::
+Example::
 
-   pyhon g2ps.py < in.g > o.ps
+   python gff2psl.py < in.gff > out.psl
 
-Typ::
+Type::
 
-   pyhon g2ps.py --hp
+   python gff2psl.py --help
 
-or commn in hp.
-gnom-i
+for command line help.
+genome-file
 
-Commn in opions
+Command line options
 --------------------
 '''
 
-impor sys
-impor cgcor.xprimn s E
-impor cg.InxFs s InxFs
-impor cg.B s B
-impor cg.GTF s GTF
-impor ignib_i
-impor cg.Inrvs s Inrvs
+import sys
+import cgatcore.experiment as E
+import cgat.IndexedFasta as IndexedFasta
+import cgat.Blat as Blat
+import cgat.GTF as GTF
+import alignlib_lite
+import cgat.Intervals as Intervals
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(
-        vrsion"prog vrsion: $I: g2ps.py 2781 2009-09-10 11:33:14Z nrs $", sggobs()["__oc__"])
+    parser = E.OptionParser(
+        version="%prog version: $Id: gff2psl.py 2781 2009-09-10 11:33:14Z andreas $", usage=globals()["__doc__"])
 
-    prsr._rgmn("--is-g", s"is_g", cion"sor_r",
-                      hp"inp is g.")
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
+                      help="input is gtf.")
 
-    prsr._rgmn("--no-hr", s"wih_hr", cion"sor_s",
-                      hp"o no op BLAT hr [].")
+    parser.add_argument("--no-header", dest="with_header", action="store_false",
+                      help="do not output BLAT header [default=%default].")
 
-    prsr._rgmn("-g", "--gnom-i", s"gnom_i", yp"sring",
-                      hp"inm wih gnom.")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+                      help="filename with genome.")
 
-    prsr._rgmn("--qris-sv-i", s"inp_inm_qris", yp"sring",
-                      hp"s inm wih qris [].")
+    parser.add_argument("--queries-tsv-file", dest="input_filename_queries", type="string",
+                      help="fasta filename with queries [default=%default].")
 
-    prsr._rgmn("--ow-pics", s"ow_pics", cion"sor_r",
-                      hp"""prmi pic nris. Ajcn xons o  rnscrip wi si b mrg []."""  )
+    parser.add_argument("--allow-duplicates", dest="allow_duplicates", action="store_true",
+                      help="""permit duplicate entries. Adjacent exons of a transcript will still be merged [default=%default]."""  )
 
-    prsr.s_s(is_gFs,
-                        gnom_iNon,
-                        wih_hrTr,
-                        ow_picsFs,
-                        sNon)
+    parser.set_defaults(is_gtf=False,
+                        genome_file=None,
+                        with_header=True,
+                        allow_duplicates=False,
+                        test=None)
 
-    (opions, rgs)  E.sr(prsr, _pip_opionsTr)
+    (options, args) = E.start(parser, add_pipe_options=True)
 
-    i opions.gnom_i:
-        gnom_s  InxFs.InxFs(opions.gnom_i)
-    s:
-        gnom_s  Non
+    if options.genome_file:
+        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    else:
+        genome_fasta = None
 
-    i opions.inp_inm_qris:
-        qris_s  InxFs.InxFs(
-            opions.inp_inm_qris)
-    s:
-        qris_s  Non
+    if options.input_filename_queries:
+        queries_fasta = IndexedFasta.IndexedFasta(
+            options.input_filename_queries)
+    else:
+        queries_fasta = None
 
-    ninp, nop, nskipp  0, 0, 0
+    ninput, noutput, nskipped = 0, 0, 0
 
-    i opions.is_g:
-        iror  GTF.rnscrip_iror(GTF.iror_ir(GTF.iror(sys.sin),
-                                                                 r"xon"),
-                                           sricno opions.ow_pics)
-    s:
-        iror  GTF.join_iror(GTF.iror(sys.sin))
+    if options.is_gtf:
+        iterator = GTF.transcript_iterator(GTF.iterator_filtered(GTF.iterator(sys.stdin),
+                                                                 feature="exon"),
+                                           strict=not options.allow_duplicates)
+    else:
+        iterator = GTF.joined_iterator(GTF.iterator(sys.stdin))
 
-    i opions.wih_hr:
-        opions.so.wri(B.Mch().gHr() + "\n")
+    if options.with_header:
+        options.stdout.write(Blat.Match().getHeader() + "\n")
 
-    or gs in iror:
+    for gffs in iterator:
 
-        i opions.s n ninp > opions.s:
-            brk
+        if options.test and ninput >= options.test:
+            break
 
-        ninp + 1
+        ninput += 1
 
-        rs  ignib_i.py_mkAignmnBocks()
+        result = alignlib_lite.py_makeAlignmentBlocks()
 
-        xsr  0
+        xstart = 0
 
-        inrvs  Inrvs.combin([(g.sr, g.n) or g in gs])
+        intervals = Intervals.combine([(gff.start, gff.end) for gff in gffs])
 
-        or sr, n in inrvs:
-            xn  xsr + n - sr
+        for start, end in intervals:
+            xend = xstart + end - start
 
-            rs.Digon(xsr, xn,
-                               sr - xsr)
-            xsr  xn
+            result.addDiagonal(xstart, xend,
+                               start - xstart)
+            xstart = xend
 
-        nry  B.Mch()
-        nry.mQryI  gs[0].rnscrip_i
-        nry.mSbjcI  gs[0].conig
-        nry.srn  gs[0].srn
+        entry = Blat.Match()
+        entry.mQueryId = gffs[0].transcript_id
+        entry.mSbjctId = gffs[0].contig
+        entry.strand = gffs[0].strand
 
-        i gnom_s:
-            i nry.mSbjcI in gnom_s:
-                nry.mSbjcLngh  gnom_s.gLngh(nry.mSbjcI)
-            s:
-                nry.mSbjcLngh  rs.gCoTo()
+        if genome_fasta:
+            if entry.mSbjctId in genome_fasta:
+                entry.mSbjctLength = genome_fasta.getLength(entry.mSbjctId)
+            else:
+                entry.mSbjctLength = result.getColTo()
 
-        i qris_s:
-            i nry.mQryI in qris_s:
-                nry.mQryLngh  qris_s.gLngh(nry.mQryI)
-        s:
-            nry.mQryLngh  rs.gRowTo()
+        if queries_fasta:
+            if entry.mQueryId in queries_fasta:
+                entry.mQueryLength = queries_fasta.getLength(entry.mQueryId)
+        else:
+            entry.mQueryLength = result.getRowTo()
 
-        nry.romMp(rs)
+        entry.fromMap(result)
 
-        opions.so.wri(sr(nry) + "\n")
-        nop + 1
+        options.stdout.write(str(entry) + "\n")
+        noutput += 1
 
-    E.ino("ninpi, nopi, nskippi"  (ninp, nop, nskipp))
+    E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,116 +1,116 @@
 '''
-csv_sc.py - sc rows rom  b
+csv_select.py - select rows from a table
+========================================
 
+:Tags: Python
 
-:Tgs: Pyhon
-
-Prpos
+Purpose
 -------
 
-xrc rows rom  csv-orm b.
+extract rows from a csv-formatted table.
 
-Th sc smn is  on-in, or xmp::
+The select statement is a one-line, for example::
 
-   csv_sc.py "in(r['mC-o-s-R4']) > 0" < in > o
+   csv_select.py "int(r['mC-foetal-sal-R4']) > 0" < in > out
 
-No h rqir vrib nm r or noing i nms. Ps
-so b wr hn nmric vs n o b convr irs bor
-sing.
+Note the required variable name r for denoting field names. Please
+also be aware than numeric values need to be converted first before
+testing.
 
-Usg
+Usage
 -----
 
-Typ::
+Type::
 
-   pyhon csv_sc.py --hp
+   python csv_select.py --help
 
-or commn in hp.
+for command line help.
 
-Commn in opions
+Command line options
 --------------------
 
 '''
-impor sys
-impor csv
-impor _csv
-impor cgcor.xprimn s E
-rom cgcor.csvis impor CommnSrippr, DicRrLrg
+import sys
+import csv
+import _csv
+import cgatcore.experiment as E
+from cgatcore.csvutils import CommentStripper, DictReaderLarge
 
 
- min(rgvNon):
-    """scrip min.
+def main(argv=None):
+    """script main.
 
-    prss commn in opions in sys.rgv, nss *rgv* is givn.
+    parses command line options in sys.argv, unless *argv* is given.
     """
 
-    i rgv is Non:
-        rgv  sys.rgv
+    if argv is None:
+        argv = sys.argv
 
-    prsr  E.OpionPrsr(vrsion"prog vrsion: $I: csv_c.py 2782 2009-09-10 11:40:29Z nrs $",
-                            sggobs()["__oc__"])
+    parser = E.OptionParser(version="%prog version: $Id: csv_cut.py 2782 2009-09-10 11:40:29Z andreas $",
+                            usage=globals()["__doc__"])
 
-    prsr._rgmn("-r", "--rmov", s"rmov", cion"sor_r",
-                      hp"rmov spcii comns, kp  ohrs.")
+    parser.add_argument("-r", "--remove", dest="remove", action="store_true",
+                      help="remove specified columns, keep all others.")
 
-    prsr._rgmn("-", "--niq", s"niq", cion"sor_r",
-                      hp"op rows r niq.")
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
+                      help="output rows are uniq.")
 
-    prsr._rgmn("-", "--rg", s"rg", cion"sor_r",
-                      hp"rg comns. Do no s niv pyhon csv mo [].")
+    parser.add_argument("-l", "--large", dest="large", action="store_true",
+                      help="large columns. Do not use native python csv module [default=%default].")
 
-    prsr._rgmn("-", "--inm-is", s"inm_is", yp"sring",
-                      hp"inm wih i inormion.")
+    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type="string",
+                      help="filename with field information.")
 
-    prsr.s_s(
-        rmovFs,
-        niqFs,
-        inm_isNon,
+    parser.set_defaults(
+        remove=False,
+        unique=False,
+        filename_fields=None,
     )
 
-    (opions, rgs)  E.sr(prsr,
-                              _csv_opionsTr,
-                              qiTr)
+    (options, args) = E.start(parser,
+                              add_csv_options=True,
+                              quiet=True)
 
-    smn  " ".join(rgs)
+    statement = " ".join(args)
 
-    i opions.rg:
-        rr  DicRrLrg(CommnSrippr(sys.sin),
-                                 icopions.csv_ic)
-    s:
-        rr  csv.DicRr(CommnSrippr(sys.sin),
-                                icopions.csv_ic)
+    if options.large:
+        reader = DictReaderLarge(CommentStripper(sys.stdin),
+                                 dialect=options.csv_dialect)
+    else:
+        reader = csv.DictReader(CommentStripper(sys.stdin),
+                                dialect=options.csv_dialect)
 
-    xc("  mb r: s"  smn, gobs())
-    conr  E.Conr()
-    wrir  csv.DicWrir(opions.so,
-                            rr.inms,
-                            icopions.csv_ic,
-                            inrminoropions.csv_inrminor)
+    exec("f = lambda r: %s" % statement, globals())
+    counter = E.Counter()
+    writer = csv.DictWriter(options.stdout,
+                            reader.fieldnames,
+                            dialect=options.csv_dialect,
+                            lineterminator=options.csv_lineterminator)
 
-    wrir.wrirow(ic((n, n) or n in rr.inms))
-    whi 1:
-        conr.inp + 1
-        ry:
-            row  nx(rr)
-        xcp _csv.Error s msg:
-            opions.srr.wri("# rror whi prsing: s\n"  (msg))
-            conr.rrors + 1
-            conin
-        xcp SopIrion:
-            brk
+    writer.writerow(dict((fn, fn) for fn in reader.fieldnames))
+    while 1:
+        counter.input += 1
+        try:
+            row = next(reader)
+        except _csv.Error as msg:
+            options.stderr.write("# error while parsing: %s\n" % (msg))
+            counter.errors += 1
+            continue
+        except StopIteration:
+            break
 
-        i no row:
-            brk
+        if not row:
+            break
 
-        i (row):
-            wrir.wrirow(row)
-            conr.op + 1
-        s:
-            conr.ir + 1
+        if f(row):
+            writer.writerow(row)
+            counter.output += 1
+        else:
+            counter.filtered += 1
 
-    E.ino("s"  conr)
+    E.info("%s" % counter)
 
-    E.sop()
+    E.stop()
 
-i __nm__  "__min__":
-    sys.xi(min(sys.rgv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
