@@ -141,20 +141,20 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id: split_fasta.py 1714 2007-12-11 16:51:12Z andreas $")
 
-    parser.add_argument("-f", "--file", dest="input_filename", type="string",
+    parser.add_argument("-f", "--file", dest="input_filename", type=str,
                       help="input filename. If not given, stdin is used.",
                       metavar="FILE")
 
-    parser.add_argument("-i", "--input-pattern", dest="input_pattern", type="string",
+    parser.add_argument("-i", "--input-pattern", dest="input_pattern", type=str,
                       help="input pattern. Parses description line in order to extract id.")
 
-    parser.add_argument("-o", "--output-filename-pattern", dest="output_pattern", type="string",
+    parser.add_argument("-o", "--output-filename-pattern", dest="output_pattern", type=str,
                       help="output pattern. Gives filename for a given sequence.")
 
     parser.add_argument("-n", "--num-sequences", dest="num_sequences", type="int",
                       help="split by number of sequences (not implemented yet).")
 
-    parser.add_argument("-m", "--map", dest="map_filename", type="string",
+    parser.add_argument("-m", "--map", dest="map_filename", type=str,
                       help="map filename. Map identifiers to filenames",
                       metavar="FILE")
 

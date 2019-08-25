@@ -83,7 +83,7 @@ def main(argv=None):
                       help="""output the percent of
                               alignments for each read = best hit""")
 
-    parser.add_argument("--cog-map", dest="cog_map", type="string",
+    parser.add_argument("--cog-map", dest="cog_map", type=str,
                       help="file with gene to cog map")
 
     parser.add_argument("-n", "--nsamples", dest="nsamples", type="int",

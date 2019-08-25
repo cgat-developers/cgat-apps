@@ -79,34 +79,34 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-g", "--gtf-file", dest="filename_gtf", type="string",
+        "-g", "--gtf-file", dest="filename_gtf", type=str,
         help="filename with gene models in gtf format [%default]")
 
     parser.add_argument(
-        "-m", "--filename-mismapped", dest="filename_mismapped", type="string",
+        "-m", "--filename-mismapped", dest="filename_mismapped", type=str,
         help="output bam file for mismapped reads [%default]")
 
     parser.add_argument(
-        "-j", "--junctions-bed-file", dest="filename_junctions", type="string",
+        "-j", "--junctions-bed-file", dest="filename_junctions", type=str,
         help="bam file with reads mapped across junctions [%default]")
 
     parser.add_argument(
-        "-r", "--filename-regions", dest="filename_regions", type="string",
+        "-r", "--filename-regions", dest="filename_regions", type=str,
         help="filename with regions to remove in bed format [%default]")
 
     parser.add_argument(
         "-t", "--transcripts-gtf-file", dest="filename_transcriptome",
-        type="string",
+        type=str,
         help="bam file with reads mapped against transcripts [%default]")
 
     parser.add_argument(
-        "-p", "--map-tsv-file", dest="filename_map", type="string",
+        "-p", "--map-tsv-file", dest="filename_map", type=str,
         help="filename mapping transcript numbers (used by "
         "--filename-transciptome) to transcript names "
         "(used by --filename-gtf) [%default]")
 
     parser.add_argument(
-        "-s", "--filename-stats", dest="filename_stats", type="string",
+        "-s", "--filename-stats", dest="filename_stats", type=str,
         help="filename to output stats to [%default]")
 
     parser.add_argument(
@@ -120,7 +120,7 @@ def main(argv=None):
         help="ignore mismatches [%default]")
 
     parser.add_argument(
-        "-c", "--remove-contigs", dest="remove_contigs", type="string",
+        "-c", "--remove-contigs", dest="remove_contigs", type=str,
         help="','-separated list of contigs to remove [%default]")
 
     parser.add_argument(

@@ -520,16 +520,16 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome [default=%default].")
 
     parser.add_argument(
-        "-b", "--bam-file", dest="bam_files", type="string",
+        "-b", "--bam-file", dest="bam_files", type=str,
         help="filename with read mapping information. Multiple files can be "
         "submitted in a comma-separated list [default=%default].")
 
     parser.add_argument(
-        "--control-bam-file", dest="control_bam_files", type="string",
+        "--control-bam-file", dest="control_bam_files", type=str,
         help="filename with read mapping information for input/control. "
         "Multiple files can be submitted in a comma-separated list "
         "[default=%default].")
@@ -551,7 +551,7 @@ def main(argv=None):
         help="select counters to apply [default=%default].")
 
     parser.add_argument(
-        "--motif-sequence", dest="motif_sequence", type="string",
+        "--motif-sequence", dest="motif_sequence", type=str,
         help="specify a sequence to search for"
         "[default=%default].")
 
@@ -572,12 +572,12 @@ def main(argv=None):
         "the first 4 are output [default=%default].")
 
     parser.add_argument(
-        "--output-bed-headers", dest="bed_headers", type="string",
+        "--output-bed-headers", dest="bed_headers", type=str,
         help="supply ',' separated list of headers for bed component "
         "[default=%default].")
 
     parser.add_argument(
-        "-f", "--gff-file", dest="filename_gff", type="string",
+        "-f", "--gff-file", dest="filename_gff", type=str,
         action="append", metavar='bed',
         help="filename with extra gff files. The order is important "
         "[default=%default].")

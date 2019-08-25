@@ -126,7 +126,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-w", "--weights-tsv-file", dest="filename_weights",
-        type="string",
+        type=str,
         help="filename with codon frequencies. Multiple filenames "
         "can be separated by comma.")
 
@@ -143,7 +143,7 @@ def main(argv=None):
         help="type of sequence: na=nucleotides, aa=amino acids [%default].")
 
     parser.add_argument(
-        "-e", "--regex-identifier", dest="regex_identifier", type="string",
+        "-e", "--regex-identifier", dest="regex_identifier", type=str,
         help="regular expression to extract identifier from fasta "
         "description line.")
 

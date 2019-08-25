@@ -514,7 +514,7 @@ def main(argv=sys.argv):
                       help="number of bins into which to merge (used for "
                       "method `bins) [default=%default]")
 
-    parser.add_argument("--bin-edges", dest="bin_edges", type="string",
+    parser.add_argument("--bin-edges", dest="bin_edges", type=str,
                       help="bin_edges for binning method [default=%default]")
 
     parser.add_argument(
@@ -559,16 +559,16 @@ def main(argv=sys.argv):
         "--offset", dest="offset",  type="int",
         help="offset for shifting intervals [default=%default]")
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome.")
 
-    parser.add_argument("-b", "--bam-file", dest="bam_file", type="string",
+    parser.add_argument("-b", "--bam-file", dest="bam_file", type=str,
                       help="bam-formatted filename with genome.")
 
-    parser.add_argument("--filter-names-file", dest="names", type="string",
+    parser.add_argument("--filter-names-file", dest="names", type=str,
                       help="list of names to keep. One per line")
 
-    parser.add_argument("--rename-chr-file", dest="rename_chr_file", type="string",
+    parser.add_argument("--rename-chr-file", dest="rename_chr_file", type=str,
                       help="mapping table between old and new chromosome names."
                       "TAB separated 2-column file.")
 

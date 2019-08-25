@@ -59,7 +59,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-i", "--test-option", dest="test_option", type="string",
+    parser.add_argument("-i", "--test-option", dest="test_option", type=str,
                       help="test option [default=%default].")
 
     parser.set_defaults(

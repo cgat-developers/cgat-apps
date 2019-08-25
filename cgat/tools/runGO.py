@@ -171,22 +171,22 @@ def main(argv=None):
         usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-s", "--species", dest="species", type="string",
+        "-s", "--species", dest="species", type=str,
         help="species to use [default=%default].")
 
     parser.add_argument(
-        "-i", "--slims", dest="filename_slims", type="string",
+        "-i", "--slims", dest="filename_slims", type=str,
         help="filename with GO SLIM categories "
         "[default=%default].")
 
     parser.add_argument(
-        "-g", "--genes-tsv-file", dest="filename_genes", type="string",
+        "-g", "--genes-tsv-file", dest="filename_genes", type=str,
         help="filename with genes to analyse "
         "[default=%default].")
 
     parser.add_argument(
         "-b", "--background-tsv-file", dest="filename_background",
-        type="string",
+        type=str,
         help="filename with background genes to analyse "
         "[default=%default].")
 
@@ -203,7 +203,7 @@ def main(argv=None):
         help="output sort order [default=%default].")
 
     parser.add_argument(
-        "--ontology", dest="ontology", type="string",
+        "--ontology", dest="ontology", type=str,
         action="append",
         help="go ontologies to analyze. Ontologies are tested "
         "separately [default=%default].")
@@ -214,21 +214,21 @@ def main(argv=None):
         "refers to the fdr, otherwise it is a cutoff for p-values.")
 
     parser.add_argument(
-        "--filename-dump", dest="filename_dump", type="string",
+        "--filename-dump", dest="filename_dump", type=str,
         help="dump GO category assignments into a flatfile "
         "[default=%default].")
 
     parser.add_argument(
-        "--gene2name-map-tsv-file", dest="filename_gene2name", type="string",
+        "--gene2name-map-tsv-file", dest="filename_gene2name", type=str,
         help="optional filename mapping gene identifiers to gene names "
         "[default=%default].")
 
     parser.add_argument(
-        "--filename-ontology", dest="filename_ontology", type="string",
+        "--filename-ontology", dest="filename_ontology", type=str,
         help="filename with ontology in OBO format [default=%default].")
 
     parser.add_argument(
-        "--filename-input", dest="filename_input", type="string",
+        "--filename-input", dest="filename_input", type=str,
         help="read GO category assignments from a flatfile "
         "[default=%default].")
 
@@ -238,7 +238,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--filename-output-pattern", "--output-filename-pattern",
-        dest="output_filename_pattern", type="string",
+        dest="output_filename_pattern", type=str,
         help="pattern with output filename pattern "
         "(should contain: %(go)s and %(section)s ) [default=%default]")
 
@@ -252,17 +252,17 @@ def main(argv=None):
         "write to STDOUT [default=%default].")
 
     parser.add_argument(
-        "--gene-pattern", dest="gene_pattern", type="string",
+        "--gene-pattern", dest="gene_pattern", type=str,
         help="pattern to transform identifiers to GO gene names "
         "[default=%default].")
 
     parser.add_argument(
-        "--filename-map-slims", dest="filename_map_slims", type="string",
+        "--filename-map-slims", dest="filename_map_slims", type=str,
         help="write mapping between GO categories and GOSlims "
         "[default=%default].")
 
     parser.add_argument(
-        "--get-genes", dest="get_genes", type="string",
+        "--get-genes", dest="get_genes", type=str,
         help="list all genes in the with a certain GOID [default=%default].")
 
     parser.add_argument(

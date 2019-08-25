@@ -474,28 +474,28 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome [default=%default].")
 
     parser.add_argument("-q", "--quality-file",
                       dest="quality_file",
-                      type="string",
+                      type=str,
                       help="filename with genomic base quality "
                       "information [default=%default].")
 
     parser.add_argument("-b", "--bam-file", dest="bam_files",
-                      type="string", metavar="bam",
+                      type=str, metavar="bam",
                       help="filename with read mapping information. "
                       "Multiple files can be submitted in a "
                       "comma-separated list [default=%default].")
 
     parser.add_argument("-i", "--bigwig-file", dest="bigwig_file",
-                      type="string", metavar="bigwig",
+                      type=str, metavar="bigwig",
                       help="filename with bigwig information "
                       "[default=%default].")
 
     parser.add_argument("-f", "--gff-file", dest="filename_gff",
-                      type="string", action="append", metavar='bed',
+                      type=str, action="append", metavar='bed',
                       help="filename with extra gff files. The order "
                       "is important [default=%default].")
 
@@ -504,12 +504,12 @@ def main(argv=None):
                       choices=("bed", "gff", "gtf"),
                       help="format of secondary stream [default=%default].")
 
-    parser.add_argument("--restrict-source", dest="gff_sources", type="string",
+    parser.add_argument("--restrict-source", dest="gff_sources", type=str,
                       action="append",
                       help="restrict input to this 'source' in extra "
                       "gff file (for counter: overlap) [default=%default].")
 
-    parser.add_argument("--restrict-feature", dest="gff_features", type="string",
+    parser.add_argument("--restrict-feature", dest="gff_features", type=str,
                       action="append",
                       help="restrict input to this 'feature' in extra gff "
                       "file (for counter: overlap) [default=%default].")
@@ -603,7 +603,7 @@ def main(argv=None):
                       "Currently only compatible with count-reads")
 
     parser.add_argument("--column-prefix", dest="prefixes",
-                      type="string",
+                      type=str,
                       action="append",
                       help="add prefix to column headers - prefixes "
                       "are used in the same order as the counters "

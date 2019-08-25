@@ -41,9 +41,9 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id: data2histogram.py 2782 2009-09-10 11:40:29Z andreas $")
 
-    parser.add_argument("-r", "--range", dest="range", type="string",
+    parser.add_argument("-r", "--range", dest="range", type=str,
                       help="range to calculate histogram for.")
-    parser.add_argument("-b", "--bin-size", dest="bin_size", type="string",
+    parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
                       help="bin size.")
     parser.add_argument("-i", "--titles", dest="titles", action="store_true",
                       help="use supplied column titles.")
@@ -51,7 +51,7 @@ def main(argv=None):
                       help="do not output null values")
     parser.add_argument("--no-titles", dest="titles", action="store_false",
                       help="no column titles given.")
-    parser.add_argument("-c", "--columns", dest="columns", type="string",
+    parser.add_argument("-c", "--columns", dest="columns", type=str,
                       help="columns to take for calculating histograms.")
     parser.add_argument("--min-data", dest="min_data", type="int",
                       help="minimum amount of data required, if less data, then the histogram will be empty [default=%default].")
@@ -69,11 +69,11 @@ def main(argv=None):
                       help="calculate cumulative histogram.")
     parser.add_argument("--reverse-cumulative", dest="reverse_cumulative", action="store_true",
                       help="calculate reverse cumulative histogram.")
-    parser.add_argument("--header-names", dest="headers", type="string",
+    parser.add_argument("--header-names", dest="headers", type=str,
                       help="use the following headers.")
     parser.add_argument("--ignore-out-of-range", dest="ignore_out_of_range", action="store_true",
                       help="ignore values that are out of range (as opposed to truncating them to range border.")
-    parser.add_argument("--missing-value", dest="missing_value", type="string",
+    parser.add_argument("--missing-value", dest="missing_value", type=str,
                       help="entry for missing values [%default].")
     parser.add_argument("--use-dynamic-bins", dest="dynamic_bins", action="store_true",
                       help="each value constitutes its own bin.")

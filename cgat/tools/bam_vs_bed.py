@@ -99,11 +99,11 @@ def main(argv=None):
                       help="minimum overlap [%default]")
 
     parser.add_argument("-a", "--bam-file", dest="filename_bam",
-                      metavar="bam", type="string",
+                      metavar="bam", type=str,
                       help="bam-file to use (required) [%default]")
 
     parser.add_argument("-b", "--bed-file", dest="filename_bed",
-                      metavar="bed", type="string",
+                      metavar="bed", type=str,
                       help="bed-file to use (required) [%default]")
 
     parser.add_argument(

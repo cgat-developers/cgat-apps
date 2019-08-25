@@ -58,7 +58,7 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genomic sequence to retrieve "
                       "sequences from.")
 

@@ -333,15 +333,15 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
+        "-g", "--genome-file", dest="genome_file", type=str,
         help="filename with genome (indexed).")
 
     parser.add_argument(
-        "-w", "--windows-bed-file", dest="filename_windows", type="string",
+        "-w", "--windows-bed-file", dest="filename_windows", type=str,
         help="gff file with windows to use.")
 
     parser.add_argument(
-        "-d", "--filename-data", dest="filename_data", type="string",
+        "-d", "--filename-data", dest="filename_data", type=str,
         help="gff file with data to use.")
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",

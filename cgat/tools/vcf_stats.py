@@ -101,21 +101,21 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--input-vcf", dest="input_vcf_file", type="string",
+        "-i", "--input-vcf", dest="input_vcf_file", type=str,
         help="input vcf file")
 
     parser.add_argument(
-        "-f", "--input-fasta", dest="input_fasta_file", type="string",
+        "-f", "--input-fasta", dest="input_fasta_file", type=str,
         help="input fasta file. faidx indexed reference sequence file to "
         "determine INDEL context [%default]")
 
     parser.add_argument(
-        "-e", "--input-bed", dest="input_bed_file", type="string",
+        "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
         "in bed format to restrict analysis to. [%default]")
 
     parser.add_argument(
-        "-r", "--region", dest="region", type="string",
+        "-r", "--region", dest="region", type=str,
         help="Region string to restrict analysis to. Takes precedence "
         "over --input-bed. [%default]")
 
@@ -131,7 +131,7 @@ def main(argv=sys.argv):
 
     parser.add_argument(
         "--format-distribution", dest="format_distributions", action="append",
-        type="string",
+        type=str,
         help="format to compute histograms on. Option can specified multiple times. "
         "At the moment, only integer metrics are supported [%default]")
 

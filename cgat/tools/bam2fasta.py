@@ -173,7 +173,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-e", "--input-bed-file", dest="input_bed_file", type="string",
+        "-e", "--input-bed-file", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
         "in bed format to restrict analysis to. [%default]")
 

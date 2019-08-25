@@ -120,7 +120,7 @@ def main(argv=sys.argv):
                           "multiple-of-mean"),
                       help="method to apply [default=%default]")
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome.")
 
     parser.add_argument("-t", "--threshold", dest="threshold", type="float",
@@ -128,7 +128,7 @@ def main(argv=sys.argv):
 
     parser.add_argument(
         "-i", "--bigwig-file", dest="bigwig_file",
-        type="string", metavar="bigwig",
+        type=str, metavar="bigwig",
         help="filename with bigwig information [default=%default].")
 
     parser.set_defaults(methods=[],

@@ -222,7 +222,7 @@ def buildOptionParser(argv):
         "-c", "--control-bam-file", "--control-bigwig-file",
         action="append",
         dest="control_files",
-        type="string",
+        type=str,
         help="control file. If given, two peakshapes are computed, "
         "one for the primary data and one for the control data. "
         "The control file is centered around the same "

@@ -132,11 +132,11 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
+        "--input-filename-fasta", dest="input_filename_fasta", type=str,
         help="filename with reference sequence in fasta format [%default]")
 
     parser.add_argument(
-        "--input-filename-bam", dest="input_filename_bam", type="string",
+        "--input-filename-bam", dest="input_filename_bam", type=str,
         help="filename with aligned reads [%default]")
 
     parser.add_argument(
@@ -146,16 +146,16 @@ def main(argv=None):
         help="methods to apply [%default]")
 
     parser.add_argument(
-        "--input-filename-chain", dest="input_filename_chain", type="string",
+        "--input-filename-chain", dest="input_filename_chain", type=str,
         help="filename with alignment chain for lift-over [%default]")
 
     parser.add_argument(
-        "--normal-sample-regex", dest="normal_sample_regex", type="string",
+        "--normal-sample-regex", dest="normal_sample_regex", type=str,
         help="regular expression to apply to header to identify normal "
         "sample id [%default]")
 
     parser.add_argument(
-        "--output-filename-unmapped", dest="output_filename_unmapped", type="string",
+        "--output-filename-unmapped", dest="output_filename_unmapped", type=str,
         help="filename with variants that could not be lifted over [%default]")
 
     parser.set_defaults(

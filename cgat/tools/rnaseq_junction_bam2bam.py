@@ -67,10 +67,10 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-t", "--template-bam-file", dest="filename_genome_bam", type="string",
+    parser.add_argument("-t", "--template-bam-file", dest="filename_genome_bam", type=str,
                       help="input bam file for header information [%default]")
 
-    parser.add_argument("-s", "--contigs-tsv-file", dest="filename_contigs", type="string",
+    parser.add_argument("-s", "--contigs-tsv-file", dest="filename_contigs", type=str,
                       help="filename with contig sizes [%default]")
 
     parser.add_argument("-o", "--colour", dest="colour_mismatches", action="store_true",
@@ -79,7 +79,7 @@ def main(argv=None):
     parser.add_argument("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
                       help="ignore mismatches [%default]")
 
-    parser.add_argument("-c", "--remove-contigs", dest="remove_contigs", type="string",
+    parser.add_argument("-c", "--remove-contigs", dest="remove_contigs", type=str,
                       help="','-separated list of contigs to remove [%default]")
 
     parser.add_argument("-f", "--force-output", dest="force", action="store_true",

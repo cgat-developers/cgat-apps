@@ -17,11 +17,11 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--input-bam", dest="input_bam_file", type="string",
+        "-i", "--input-bam", dest="input_bam_file", type=str,
         help="input bam file [%default]")
 
     parser.add_argument(
-        "-o", "--output-bam", dest="output_bam_file", type="string",
+        "-o", "--output-bam", dest="output_bam_file", type=str,
         help="input bam file [%default].")
 
     parser.add_argument(
@@ -36,7 +36,7 @@ def main(argv=sys.argv):
         "[%default].")
 
     parser.add_argument(
-        "--region", dest="region", type="string",
+        "--region", dest="region", type=str,
         help="genomic region, only split in BAM file within this region [%default].")
 
     parser.set_defaults(

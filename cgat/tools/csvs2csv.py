@@ -60,23 +60,23 @@ def main(argv=None):
         help="skip output of titles.")
 
     parser.add_argument(
-        "-m", "--missing-value", dest="missing_value", type="string",
+        "-m", "--missing-value", dest="missing_value", type=str,
         help="entry to use for missing values.")
 
-    parser.add_argument("--header-names", dest="headers", type="string",
+    parser.add_argument("--header-names", dest="headers", type=str,
                       help="add headers for files.")
 
     parser.add_argument(
-        "-c", "--columns", dest="columns", type="string",
+        "-c", "--columns", dest="columns", type=str,
         help="columns to use for joining. Multiple columns can be specified "
         "as a comma-separated list [default=%default].")
 
     parser.add_argument(
-        "-g", "--glob", dest="glob", type="string",
+        "-g", "--glob", dest="glob", type=str,
         help="wildcard expression for table names.")
 
     parser.add_argument(
-        "-s", "--sort-order", dest="sort", type="string",
+        "-s", "--sort-order", dest="sort", type=str,
         help="sort by column titles alphabetical|numeric|list of columns.")
 
     parser.add_argument(
@@ -99,7 +99,7 @@ def main(argv=None):
         "[default=%default]")
 
     parser.add_argument(
-        "--regex-filename", dest="regex_filename", type="string",
+        "--regex-filename", dest="regex_filename", type=str,
         help="pattern to apply to filename to build prefix "
         "[default=%default]")
 

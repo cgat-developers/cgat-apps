@@ -96,7 +96,7 @@ def main(argv=None):
         help="dataframe transformation options [%default]")
 
     parser.add_argument(
-        "-r", "--regex-filename", dest="regex_filename", type="string",
+        "-r", "--regex-filename", dest="regex_filename", type=str,
         help="[%default]")
 
     parser.add_argument(
@@ -111,7 +111,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "--plot-options", dest="plot_options", type="string",
+        "--plot-options", dest="plot_options", type=str,
         help="plot options to pass through to the plotter. The string is "
         "eval'ed, for example: --plot-options='window_size=3, ylabel=\"12\"' "
         "[%default]")

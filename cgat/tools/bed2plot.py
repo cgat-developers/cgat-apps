@@ -137,19 +137,19 @@ def main(argv=sys.argv):
         version="%prog version: $Id$", usage=globals()["__doc__"])
 
     parser.add_argument("-s", "--session", dest="session",
-                      type="string",
+                      type=str,
                       help="load session before creating plots "
                       "[%default]")
 
     parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
-                      type="string",
+                      type=str,
                       help="directory to save snapshots in [%default]")
 
     parser.add_argument("-f", "--format", dest="format", type="choice",
                       choices=("png", "eps", "svg"),
                       help="output file format [%default]")
 
-    parser.add_argument("-o", "--host", dest="host", type="string",
+    parser.add_argument("-o", "--host", dest="host", type=str,
                       help="host that IGV is running on [%default]")
 
     parser.add_argument("-p", "--port", dest="port", type="int",

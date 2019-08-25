@@ -149,7 +149,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--input-filename-fasta",
-        dest="input_filename_fasta", type="string",
+        dest="input_filename_fasta", type=str,
         help="input filename of FASTA formatted sequence "
         "for method 'filter-by-sequence' [default=%default].")
 

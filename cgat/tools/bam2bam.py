@@ -572,7 +572,7 @@ def main(argv=None):
                       "[%default]")
 
     parser.add_argument("--reference-bam-file", dest="reference_bam",
-                      type="string",
+                      type=str,
                       help="bam-file to filter with [%default]")
 
     parser.add_argument("--force-output", dest="force", action="store_true",
@@ -585,13 +585,13 @@ def main(argv=None):
                       help="output in sam format [%default]")
 
     parser.add_argument(
-        "--first-fastq-file", "-1", dest="fastq_pair1", type="string",
+        "--first-fastq-file", "-1", dest="fastq_pair1", type=str,
         help="fastq file with read information for first "
         "in pair or unpaired. Used for unstripping sequence "
         "and quality scores [%default]")
 
     parser.add_argument(
-        "--second-fastq-file", "-2", dest="fastq_pair2", type="string",
+        "--second-fastq-file", "-2", dest="fastq_pair2", type=str,
         help="fastq file with read information for second "
         "in pair. Used for unstripping sequence "
         "and quality scores  [%default]")
@@ -603,7 +603,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--filename-read-list", dest="filename_read_list",
-        type="string",
+        type=str,
         help="Filename with list of reads to filter if 'keep-list' or 'remove-list' "
         "filter method is chosen [%default]")
 

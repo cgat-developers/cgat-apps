@@ -241,11 +241,11 @@ def main(argv=None):
         help="phred quality score [default = %default].")
 
     parser.add_argument(
-        "--output-counts", dest="output_counts", type="string",
+        "--output-counts", dest="output_counts", type=str,
         help="name for counts outfile [default=%default].")
 
     parser.add_argument(
-        "--output-fastq2", dest="fastq2_out", type="string",
+        "--output-fastq2", dest="fastq2_out", type=str,
         help="filename for second fastq outfile [default=%default].")
 
     parser.add_argument(
@@ -254,7 +254,7 @@ def main(argv=None):
         "[default= % default].")
 
     parser.add_argument(
-        "--infile-premrna-fasta", dest="premrna_fasta", type="string",
+        "--infile-premrna-fasta", dest="premrna_fasta", type=str,
         help="filename for pre-mRNA fasta[default=%default].")
 
     parser.set_defaults(

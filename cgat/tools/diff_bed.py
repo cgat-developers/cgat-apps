@@ -249,10 +249,10 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id: diff_bed.py 2866 2010-03-03 10:18:49Z andreas $", usage=globals()["__doc__"])
 
-    parser.add_argument("-u", "--update", dest="filename_update", type="string",
+    parser.add_argument("-u", "--update", dest="filename_update", type=str,
                       help="if filename is given, previous results will be read from there and only changed sets will be computed [default=%default].")
 
-    parser.add_argument("-p", "--pattern-identifier", dest="pattern_id", type="string",
+    parser.add_argument("-p", "--pattern-identifier", dest="pattern_id", type=str,
                       help="pattern to convert a filename to an id [default=%default].")
 
     parser.add_argument("-t", "--tracks", dest="tracks", action="store_true",

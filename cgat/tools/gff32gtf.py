@@ -269,22 +269,22 @@ def main(argv=None):
                           "hierarchy", "set-field", "set-pattern", "set-none"),
                       help="Method to use for conversion")
 
-    parser.add_argument("-g", "--gene-type", dest="gene_type", type="string",
+    parser.add_argument("-g", "--gene-type", dest="gene_type", type=str,
                       help="feature type to get gene_id from if possible [%default]")
 
-    parser.add_argument("-t", "--transcript-type", dest="transcript_type", type="string",
+    parser.add_argument("-t", "--transcript-type", dest="transcript_type", type=str,
                       help="feature type to get transcript_id from if possible [%default]")
 
     parser.add_argument("-d", "--no-discard", dest="discard", action="store_false",
                       help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
 
-    parser.add_argument("--gene-id", dest="gene_field_or_pattern", type="string",
+    parser.add_argument("--gene-id", dest="gene_field_or_pattern", type=str,
                       help="Either field or pattern for the gene_id [%default]")
 
-    parser.add_argument("--transcript-id", dest="transcript_field_or_pattern", type="string",
+    parser.add_argument("--transcript-id", dest="transcript_field_or_pattern", type=str,
                       help="Either field or pattern for the transcript_id [%default]")
 
-    parser.add_argument("--parent-field", dest="parent", type="string",
+    parser.add_argument("--parent-field", dest="parent", type=str,
                       help="field that specifies the parent relationship. Currently only"
                       "if left as Parent will features with multiple parents be parsed"
                       "correctly""")

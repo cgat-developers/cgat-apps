@@ -107,7 +107,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-e", "--exons-file", "--gtf-file",
-        dest="filename_exons", type="string", metavar="gtf",
+        dest="filename_exons", type=str, metavar="gtf",
         help="gtf formatted file with non-overlapping exon "
         "locations (required). [%default]")
 

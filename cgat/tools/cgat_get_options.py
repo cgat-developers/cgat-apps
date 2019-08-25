@@ -139,7 +139,7 @@ def main(argv=None):
         "Options will only be added, not removed [%default]")
 
     parser.add_argument(
-        "--options-tsv-file", dest="tsv_file", type="string",
+        "--options-tsv-file", dest="tsv_file", type=str,
         help="existing table with options. Will be updated if "
         "--in-place is set [default]")
 

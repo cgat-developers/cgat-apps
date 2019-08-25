@@ -127,12 +127,12 @@ def main(argv=None):
         "Requires alignlib_lite.py [%default]")
 
     parser.add_argument(
-        "-1", "--pattern1", dest="pattern1", type="string",
+        "-1", "--pattern1", dest="pattern1", type=str,
         help="pattern to extract identifier from in identifiers1. "
         "[%default]")
 
     parser.add_argument(
-        "-2", "--pattern2", dest="pattern2", type="string",
+        "-2", "--pattern2", dest="pattern2", type=str,
         help="pattern to extract identifier from in identifiers2. "
         "[%default]")
 

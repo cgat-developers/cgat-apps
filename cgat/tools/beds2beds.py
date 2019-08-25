@@ -199,7 +199,7 @@ def main(argv=None):
         "other sets [default=%default].")
 
     parser.add_argument(
-        "-p", "--pattern-identifier", dest="pattern_id", type="string",
+        "-p", "--pattern-identifier", dest="pattern_id", type=str,
         help="pattern to convert a filename "
         "to an id [default=%default].")
 

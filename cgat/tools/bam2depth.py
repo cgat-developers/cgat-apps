@@ -25,7 +25,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
+        "--input-filename-fasta", dest="input_filename_fasta", type=str,
         help="filename with reference sequence in fasta format [%default]")
 
     parser.add_argument(
@@ -36,7 +36,7 @@ def main(argv=None):
         "--mpileup-options. [%default].")
 
     parser.add_argument(
-        "--mpileup-options", dest="mpileup_options", type="string",
+        "--mpileup-options", dest="mpileup_options", type=str,
         help="pileup options to use [%default]")
 
     parser.set_defaults(

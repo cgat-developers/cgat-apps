@@ -92,7 +92,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-e", "--extract", dest="extract", type="string",
+        "-e", "--extract", dest="extract", type=str,
         help="extract region for testing purposes. Format is "
         "contig:strand:from:to. "
         "The default coordinates are 0-based "
@@ -112,7 +112,7 @@ def main(argv=None):
                       ", ".join(input_format_choices))
 
     parser.add_argument(
-        "-s", "--synonyms", dest="synonyms", type="string",
+        "-s", "--synonyms", dest="synonyms", type=str,
         help="list of synonyms. This is a comma separated with list "
         "of equivalence relations. For example, chrM=chrMT "
         "means that chrMT will refer to chrM and either "
@@ -136,7 +136,7 @@ def main(argv=None):
     parser.add_argument_group(group)
 
     group = E.OptionGroup(parser, "Validation options")
-    group.add_argument("--verify", dest="verify", type="string",
+    group.add_argument("--verify", dest="verify", type=str,
                      help="verify against other database [default=%default].")
 
     group.add_argument("--verify-iterations", dest="verify_num_iterations",
@@ -165,7 +165,7 @@ def main(argv=None):
                       "[default=%default].")
 
     parser.add_argument("--regex-identifier", dest="regex_identifier",
-                      type="string",
+                      type=str,
                       help="regular expression for extracting the "
                       "identifier from fasta description line "
                       "[default=%default].")

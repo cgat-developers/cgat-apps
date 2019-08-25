@@ -116,7 +116,7 @@ def main(argv=None):
         usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
+        "-g", "--genome-file", dest="genome_file", type=str,
         help="filename with genome [default=%default].")
 
     parser.add_argument(

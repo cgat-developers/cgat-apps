@@ -52,7 +52,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-d", "--delimiter", dest="delimiter", type="string",
+        "-d", "--delimiter", dest="delimiter", type=str,
         help="delimiter to separate columns [%default]")
 
     parser.add_argument(

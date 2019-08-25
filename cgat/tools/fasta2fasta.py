@@ -187,7 +187,7 @@ def main(argv=None):
         help="method to apply to sequences.")
 
     parser.add_argument(
-        "-p", "--parameters", dest="parameters", type="string",
+        "-p", "--parameters", dest="parameters", type=str,
         help="parameter stack for methods that require one "
         "[default=%default].")
 
@@ -200,17 +200,17 @@ def main(argv=None):
                       help="sample proportion [default = %default].")
 
     parser.add_argument(
-        "--exclude-pattern", dest="exclude_pattern", type="string",
+        "--exclude-pattern", dest="exclude_pattern", type=str,
         help="exclude all sequences with ids matching pattern "
         "[default = %default].")
 
     parser.add_argument(
-        "--include-pattern", dest="include_pattern", type="string",
+        "--include-pattern", dest="include_pattern", type=str,
         help="include only sequences with ids matching pattern "
         "[default = %default].")
 
     parser.add_argument(
-        "--filter-method", dest="filter_methods", type="string",
+        "--filter-method", dest="filter_methods", type=str,
         action="append",
         help="filtering methods to apply "
         "[default = %default].")
@@ -223,14 +223,14 @@ def main(argv=None):
 
     parser.add_argument(
         "-l", "--template-identifier", dest="template_identifier",
-        type="string",
+        type=str,
         help="template for numerical identifier [default = %default] "
         "for the operation --build-map. A %i is replaced by the position "
         "of the sequence in the file.")
 
     parser.add_argument(
         "--map-tsv-file", dest="map_tsv_file",
-        type="string",
+        type=str,
         help="input filename with map for identifiers. The first row is a header")
 
     parser.add_argument(

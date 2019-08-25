@@ -107,10 +107,10 @@ def main(argv=None):
         usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-a", "--first-fastq-file", dest="fastq1", type="string",
+        "-a", "--first-fastq-file", dest="fastq1", type=str,
         help="supply read1 fastq file")
     parser.add_argument(
-        "-b", "--second-fastq-file", dest="fastq2", type="string",
+        "-b", "--second-fastq-file", dest="fastq2", type=str,
         help="supply read2 fastq file")
 
     # add common options (-h/--help, ...) and parse command line

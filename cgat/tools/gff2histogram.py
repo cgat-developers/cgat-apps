@@ -122,7 +122,7 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_argument("-b", "--bin-size", dest="bin_size", type="string",
+    parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
                       help="bin size.")
 
     parser.add_argument("--min-value", dest="min_value", type="float",
@@ -146,7 +146,7 @@ def main(argv=None):
         help="ignore values that are out of range (as opposed to truncating "
         "them to range border.")
 
-    parser.add_argument("--missing-value", dest="missing_value", type="string",
+    parser.add_argument("--missing-value", dest="missing_value", type=str,
                       help="entry for missing values [%default].")
 
     parser.add_argument("--use-dynamic-bins", dest="dynamic_bins",

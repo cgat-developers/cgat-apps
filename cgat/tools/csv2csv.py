@@ -45,7 +45,7 @@ def main(argv=None):
         version="%prog version: $Id$")
 
     parser.add_argument(
-        "-s", "--method=sort --sort-order", dest="sort", type="string",
+        "-s", "--method=sort --sort-order", dest="sort", type=str,
         help="fields to take (in sorted order).")
 
     (options, args) = E.start(parser, add_csv_options=True)

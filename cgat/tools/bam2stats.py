@@ -384,7 +384,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type="string",
+        "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type=str,
         metavar='GFF',
         help="gff formatted file with masking locations. The number of "
         "reads overlapping the intervals in the given file will be "

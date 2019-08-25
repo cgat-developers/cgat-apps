@@ -427,28 +427,28 @@ def main(argv=None):
 
     parser.add_argument(
         "-c", "--contigs-tsv-file", dest="input_filename_contigs",
-        type="string",
+        type=str,
         help="filename with contig lengths.")
 
     parser.add_argument(
-        "--agp-file", dest="input_filename_agp", type="string",
+        "--agp-file", dest="input_filename_agp", type=str,
         help="agp file to map coordinates from contigs to scaffolds.")
 
     parser.add_argument(
-        "-g", "--genome-file", dest="genome_file", type="string",
+        "-g", "--genome-file", dest="genome_file", type=str,
         help="filename with genome.")
 
     parser.add_argument(
-        "--crop-gff-file", dest="filename_crop_gff", type="string",
+        "--crop-gff-file", dest="filename_crop_gff", type=str,
         help="GFF/GTF file to crop against.")
 
     parser.add_argument(
-        "--group-field", dest="group_field", type="string",
+        "--group-field", dest="group_field", type=str,
         help="""gff field/attribute to group by such as gene_id, "
         "transcript_id, ... [%default].""")
 
     parser.add_argument(
-        "--filter-range", dest="filter_range", type="string",
+        "--filter-range", dest="filter_range", type=str,
         help="extract all elements overlapping a range. A range is "
         "specified by eithor 'contig:from..to', 'contig:+:from..to', "
         "or 'from,to' .")
@@ -472,12 +472,12 @@ def main(argv=None):
         "exception is raised [%default].")
 
     parser.add_argument(
-        "--contig-pattern", dest="contig_pattern", type="string",
+        "--contig-pattern", dest="contig_pattern", type=str,
         help="a comma separated list of regular expressions specifying "
         "contigs to be removed when running method sanitize [%default].")
 
     parser.add_argument(
-        "--assembly-report", dest="assembly_report", type="string",
+        "--assembly-report", dest="assembly_report", type=str,
         help="path to assembly report file which allows mapping of "
         "ensembl to ucsc contigs when running method sanitize [%default].")
 
@@ -530,7 +530,7 @@ def main(argv=None):
         help="maximum number of features to merge/join [%default].")
 
     parser.add_argument(
-        "--rename-chr-file", dest="rename_chr_file", type="string",
+        "--rename-chr-file", dest="rename_chr_file", type=str,
         help="mapping table between old and new chromosome names."
         "TAB separated 2-column file.")
 

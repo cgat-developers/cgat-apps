@@ -368,7 +368,7 @@ def main(argv=None):
                       help="distance in nucleotides between "
                       "exons to be merged [%default].")
 
-    parser.add_argument("--pattern-identifier", dest="pattern", type="string",
+    parser.add_argument("--pattern-identifier", dest="pattern", type=str,
                       help="pattern to use for renaming genes/transcripts. "
                       "The pattern should contain a %i, for example "
                       "--pattern-identifier=ENSG%010i [%default].")
@@ -425,12 +425,12 @@ def main(argv=None):
         "[%default].")
 
     parser.add_argument("-a", "--map-tsv-file", dest="filename_filter",
-                      type="string",
+                      type=str,
                       metavar="tsv",
                       help="filename of ids to map/filter [%default].")
 
     parser.add_argument(
-        "--gff-file", dest="filename_gff", type="string",
+        "--gff-file", dest="filename_gff", type=str,
         metavar="GFF",
         help="second filename of features (see --remove-overlapping) "
         "[%default]")

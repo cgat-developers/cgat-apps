@@ -211,7 +211,7 @@ def main(argv=None):
                                "clean_table"],
                       help="task to perform")
 
-    parser.add_argument("-t", "--table-name", dest="table", type="string",
+    parser.add_argument("-t", "--table-name", dest="table", type=str,
                       help="table in SQLite DB to extract")
 
     # add common options (-h/--help, ...) and parse command line

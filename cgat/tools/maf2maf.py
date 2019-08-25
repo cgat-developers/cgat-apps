@@ -67,12 +67,12 @@ def main(argv=sys.argv):
 
     parser.add_argument(
         "-f", "--input-filter-tsv",
-        dest="input_filter_tsv", type="string",
+        dest="input_filter_tsv", type=str,
         help="list with identifiers to remove. "
         "[%default]")
 
     parser.add_argument(
-        "--set-prefix", dest="set_prefix", type="string",
+        "--set-prefix", dest="set_prefix", type=str,
         help="set sequence prefix [%default]")
 
     parser.add_argument(

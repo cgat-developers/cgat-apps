@@ -121,15 +121,15 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--input-bam", dest="input_bam_file", type="string",
+        "-i", "--input-bam", dest="input_bam_file", type=str,
         help="input bam file")
 
     parser.add_argument(
-        "-f", "--reference-bam", dest="reference_bam_file", type="string",
+        "-f", "--reference-bam", dest="reference_bam_file", type=str,
         help="reference BAM file [%default]")
 
     parser.add_argument(
-        "-q", "--query-name-regex", dest="query_name_regex", type="string",
+        "-q", "--query-name-regex", dest="query_name_regex", type=str,
         help="regular expression to apply on query name. "
         "Potentially required to match samtools sort order and should "
         "evaluate to an integer [%default]")

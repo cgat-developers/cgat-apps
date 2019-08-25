@@ -340,13 +340,13 @@ def main(argv=None):
                       help="ignore strand information [default=%default].")
 
     parser.add_argument(
-        "-u", "--update", dest="filename_update", type="string",
+        "-u", "--update", dest="filename_update", type=str,
         help="if filename is given, previous results will be read"
         "from there and only changed sets will be computed "
         "[default=%default].")
 
     parser.add_argument(
-        "-p", "--pattern-identifier", dest="pattern_id", type="string",
+        "-p", "--pattern-identifier", dest="pattern_id", type=str,
         help="pattern to convert a filename to an id"
         "[default=%default].")
 

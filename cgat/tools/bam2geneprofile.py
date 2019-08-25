@@ -340,18 +340,18 @@ def main(argv=None):
     parser.add_argument("-b", "--bam-file", "--bedfile", "--bigwigfile",
                       dest="infiles",
                       metavar="BAM",
-                      type="string", action="append",
+                      type=str, action="append",
                       help="BAM/bed/bigwig files to use. Do not mix "
                       "different types [%default]")
 
     parser.add_argument("-c", "--control-bam-file", dest="controlfiles",
                       metavar="BAM",
-                      type="string", action="append",
+                      type=str, action="append",
                       help="control/input to use. Should be of the same "
                       "type as the bam/bed/bigwig file"
                       " [%default]")
 
-    parser.add_argument("-g", "--gtf-file", dest="gtffile", type="string",
+    parser.add_argument("-g", "--gtf-file", dest="gtffile", type=str,
                       metavar="GTF",
                       help="GTF file to use. "
                       "[%default]")
@@ -515,7 +515,7 @@ def main(argv=None):
                       "[%default]")
 
     parser.add_argument("--counts-tsv-file", dest="input_filename_counts",
-                      type="string",
+                      type=str,
                       help="filename with count data for each transcript. "
                       "Use this instead "
                       "of recomputing the profile. Useful for plotting the "
@@ -536,7 +536,7 @@ def main(argv=None):
                       help="the output dpi for the figure plot - will default to "
                       "[%default]")
 
-    parser.add_argument("--image-format", dest="image_format", type="string",
+    parser.add_argument("--image-format", dest="image_format", type=str,
                       help="The output format for the figure plot - defaults to "
                       "[%default]")                      
 

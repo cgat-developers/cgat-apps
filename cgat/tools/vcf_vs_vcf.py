@@ -66,7 +66,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--regex-filename", dest="regex_filename", type="string",
+        "--regex-filename", dest="regex_filename", type=str,
         help="extract column name from filename via regular expression "
         "[%default]")
 

@@ -74,7 +74,7 @@ def main(argv=sys.argv):
                       help="output as gtf.")
 
     parser.add_argument(
-        "-f", "--id-format", dest="id_format", type="string",
+        "-f", "--id-format", dest="id_format", type=str,
         help="format for numeric identifier if --as-gtf is set and "
         "no name in bed file [%default].")
 

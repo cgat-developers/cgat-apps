@@ -126,31 +126,31 @@ def main(argv=sys.argv):
 
     parser.add_argument("-m", "--missing-value",
                       dest="missing_value",
-                      type="string",
+                      type=str,
                       help="entry to use for missing values.")
 
-    parser.add_argument("--header-names", dest="headers", type="string",
+    parser.add_argument("--header-names", dest="headers", type=str,
                       help="add headers for files as a ,-separated "
                       "list [%default].")
 
-    parser.add_argument("-c", "--columns", dest="columns", type="string",
+    parser.add_argument("-c", "--columns", dest="columns", type=str,
                       help="columns to use for joining. Multiple columns "
                       "can be specified as a comma-separated list "
                       "[default=%default].")
 
     parser.add_argument("-k", "--take",
                       dest="take",
-                      type="string",
+                      type=str,
                       action="append",
                       help="columns to take. If not set, all columns "
                       "except for "
                       "the join columns are taken [%default]")
 
-    parser.add_argument("-g", "--glob", dest="glob", type="string",
+    parser.add_argument("-g", "--glob", dest="glob", type=str,
                       help="wildcard expression for table names.")
 
     parser.add_argument(
-        "-s", "--sort-order", dest="sort", type="string",
+        "-s", "--sort-order", dest="sort", type=str,
         help="sort by column titles in particular given order: "
         "alphabetical|numeric|list of columns.")
 
@@ -159,7 +159,7 @@ def main(argv=sys.argv):
         help="simply merge tables without matching up "
         "rows. [default=%default].")
 
-    parser.add_argument("-a", "--cat", dest="cat", type="string",
+    parser.add_argument("-a", "--cat", dest="cat", type=str,
                       help="simply concatenate tables. Adds an "
                       "additional column called X with the filename "
                       " [default=%default].")
@@ -193,32 +193,32 @@ def main(argv=sys.argv):
                       "Suitable for two-column tables "
                       "[default=%default]")
 
-    parser.add_argument("--prefixes", dest="prefixes", type="string",
+    parser.add_argument("--prefixes", dest="prefixes", type=str,
                       help="list of prefixes to use. "
                       ", separated list of prefixes. "
                       "The number of prefixes need to correspond to the "
                       "number of input files [default=%default]")
 
     parser.add_argument("--regex-filename", dest="regex_filename",
-                      type="string",
+                      type=str,
                       help="pattern to apply to filename to "
                       "build prefix [default=%default]")
 
     parser.add_argument("--regex-start",
                       dest="regex_start",
-                      type="string",
+                      type=str,
                       help="regular expression to start "
                       "collecting table in a file [default=%default]")
 
     parser.add_argument("--regex-end",
                       dest="regex_end",
-                      type="string",
+                      type=str,
                       help="regular expression to end collecting "
                       "table in a file [default=%default]")
 
     parser.add_argument("--sep",
                       dest="separator",
-                      type="string",
+                      type=str,
                       help="table separator to use. The default is to use tabs. "
                       "[default=%default]")
 

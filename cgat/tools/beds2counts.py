@@ -82,7 +82,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--bed-file", dest="infiles", type="string",
+        "--bed-file", dest="infiles", type=str,
         metavar="bed",
         help="supply list of bed files",
         action="append")

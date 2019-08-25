@@ -345,7 +345,7 @@ def main(argv=None):
     parser.add_argument("-u", "--output-unique", dest="output_unique", action="store_true",
                       help="output unique positions [%default]")
 
-    parser.add_argument("-r", "--restrict", dest="restrict", type="string",
+    parser.add_argument("-r", "--restrict", dest="restrict", type=str,
                       help="restrict analysis to a chromosome pair (chr1:chr1:+) [%default]")
 
     parser.set_defaults(

@@ -63,9 +63,9 @@ def main(argv=None):
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                       help="output rows are uniq.")
 
-    parser.add_argument("-1", "--join-fields1", dest="join_fields1", type="string",
+    parser.add_argument("-1", "--join-fields1", dest="join_fields1", type=str,
                       help="join fields in first table.")
-    parser.add_argument("-2", "--join-fields2", dest="join_fields2", type="string",
+    parser.add_argument("-2", "--join-fields2", dest="join_fields2", type=str,
                       help="join fields in second table.")
     parser.add_argument("-m", "--method", dest="method", type="choice",
                       help="set operation to perform.", choices=("intersection", "rest", "union"))

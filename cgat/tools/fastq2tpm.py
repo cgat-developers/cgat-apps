@@ -258,7 +258,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-t", "--test", dest="test", type="string",
+    parser.add_argument("-t", "--test", dest="test", type=str,
                       help="supply help")
 
     parser.add_argument("--program", dest="program", type="choice",
@@ -270,10 +270,10 @@ def main(argv=None):
                       choices=["make_index", "quant"],
                       help="method of kallisto to run")
 
-    parser.add_argument("--index-fasta", dest="fa_index", type="string",
+    parser.add_argument("--index-fasta", dest="fa_index", type=str,
                       help="multi-fasta to use to make index for kallisto")
 
-    parser.add_argument("--index-file", dest="index_file", type="string",
+    parser.add_argument("--index-file", dest="index_file", type=str,
                       help="kallisto index file to use for quantificaiton")
 
     parser.add_argument("--use-bias", dest="bias", action="store_true",
@@ -300,7 +300,7 @@ def main(argv=None):
     parser.add_argument("--kmer-size", dest="kmer", type="int",
                       help="kmer size to use for index generation")
 
-    parser.add_argument("--gene-gtf", dest="gene_gtf", type="string",
+    parser.add_argument("--gene-gtf", dest="gene_gtf", type=str,
                       help="GTF file containing transcripts and gene "
                       "identifiers to calculate gene-level estimates")
 
@@ -308,11 +308,11 @@ def main(argv=None):
                       help="number of threads to use for kallisto "
                       "quantificaion")
 
-    parser.add_argument("--output-directory", dest="outdir", type="string",
+    parser.add_argument("--output-directory", dest="outdir", type=str,
                       help="directory to output transcript abundance "
                       "estimates to")
 
-    parser.add_argument("--output-file", dest="outfile", type="string",
+    parser.add_argument("--output-file", dest="outfile", type=str,
                       help="output filename")
 
     parser.set_defaults(paired=False)

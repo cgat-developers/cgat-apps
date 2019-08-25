@@ -65,10 +65,10 @@ def main(argv=None):
     parser.add_argument("--no-header", dest="with_header", action="store_false",
                       help="do not output BLAT header [default=%default].")
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome.")
 
-    parser.add_argument("--queries-tsv-file", dest="input_filename_queries", type="string",
+    parser.add_argument("--queries-tsv-file", dest="input_filename_queries", type=str,
                       help="fasta filename with queries [default=%default].")
 
     parser.add_argument("--allow-duplicates", dest="allow_duplicates", action="store_true",

@@ -98,7 +98,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-w", "--pattern-window",
-        dest="pattern_window", type="string",
+        dest="pattern_window", type=str,
         help="regular expression to extract window coordinates from "
         "test id [%default]")
 

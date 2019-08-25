@@ -25,12 +25,12 @@ def main(argv=None):
 
     parser.add_argument(
         "-f", "--fasta", dest="input_filename_fasta",
-        type="string",
+        type=str,
         help="filename with fasta sequences. ")
 
     parser.add_argument(
         "-o", "--output-filename-sequences", dest="output_filename_sequences",
-        type="string",
+        type=str,
         help="output per sequence information to filename")
 
     parser.set_defaults(

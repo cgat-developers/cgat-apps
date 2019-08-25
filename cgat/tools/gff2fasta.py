@@ -144,7 +144,7 @@ def main(argv=None):
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input is gtf instead of gff.")
 
-    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genome [default=%default].")
 
     parser.add_argument(
@@ -153,14 +153,14 @@ def main(argv=None):
         " [default=%default]")
 
     parser.add_argument(
-        "-e", "--feature", dest="feature", type="string",
+        "-e", "--feature", dest="feature", type=str,
         help="filter by a feature, for example 'exon', 'CDS'."
         " If set to the empty string, all entries are output "
         "[%default].")
 
     parser.add_argument(
         "-f", "--maskregions-bed-file", dest="filename_masks",
-        type="string", metavar="gff",
+        type=str, metavar="gff",
         help="mask sequences with regions given in gff file "
         "[%default].")
 
@@ -197,7 +197,7 @@ def main(argv=None):
         help="extend by # bases [default=%default]")
 
     parser.add_argument(
-        "--extend-with", dest="extend_with", type="string",
+        "--extend-with", dest="extend_with", type=str,
         help="extend using base [default=%default]")
 
     parser.add_argument(
@@ -210,7 +210,7 @@ def main(argv=None):
         help="fold sequence every n bases[%default].")
 
     parser.add_argument(
-        "--fasta-name-attribute", dest="naming_attribute", type="string",
+        "--fasta-name-attribute", dest="naming_attribute", type=str,
         help="use attribute to name fasta entry. Currently only compatable"
         " with gff format [%default].")
 

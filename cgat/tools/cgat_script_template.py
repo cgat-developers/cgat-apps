@@ -46,7 +46,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-t", "--test", dest="test", type="string",
+    parser.add_argument("-t", "--test", dest="test", type=str,
                       help="supply help")
 
     # add common options (-h/--help, ...) and parse command line

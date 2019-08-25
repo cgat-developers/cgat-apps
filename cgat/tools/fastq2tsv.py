@@ -14,7 +14,7 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
         "[%default]")
 

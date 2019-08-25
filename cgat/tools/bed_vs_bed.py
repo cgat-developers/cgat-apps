@@ -23,7 +23,7 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-b", "--reference-bed-file", dest="reference_bed_file", type="string",
+        "-b", "--reference-bed-file", dest="reference_bed_file", type=str,
         help="reference bed file "
         "[%default]")
 

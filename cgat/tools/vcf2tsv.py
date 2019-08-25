@@ -271,11 +271,11 @@ def main(argv=None):
         "If greater than 0, take a fixed number of variants [%default]")
 
     parser.add_argument(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
+        "--input-filename-fasta", dest="input_filename_fasta", type=str,
         help="filename with reference sequence in fasta format [%default]")
 
     parser.add_argument(
-        "--input-filename-bam", dest="input_filename_bam", type="string",
+        "--input-filename-bam", dest="input_filename_bam", type=str,
         help="filename with aligned reads [%default]")
 
     parser.add_argument(

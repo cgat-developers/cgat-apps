@@ -48,7 +48,7 @@ def main(argv=None):
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                       help="output rows are uniq.")
 
-    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type="string",
+    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type=str,
                       help="filename with field information.")
 
     parser.set_defaults(

@@ -154,7 +154,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--header-names", dest="headers", type="string",
+        "--header-names", dest="headers", type=str,
         help="',' separated list of labels used as headers. "
         " Should correspond in order to command line arguments [%default]")
 

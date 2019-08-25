@@ -379,22 +379,22 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
         "[%default]")
 
     parser.add_argument(
-        "--output-removed-tsv", dest="output_removed_tsv", type="string",
+        "--output-removed-tsv", dest="output_removed_tsv", type=str,
         help="if given, sequence identifiers of removed sequences will "
         "be stored in this file [%default]")
 
     parser.add_argument(
-        "--output-stats-tsv", dest="output_stats_tsv", type="string",
+        "--output-stats-tsv", dest="output_stats_tsv", type=str,
         help="if given, output statistics will be written to this file. "
         "[%default]")
 
     parser.add_argument(
-        "--output-removed-fastq", dest="output_removed_fastq", type="string",
+        "--output-removed-fastq", dest="output_removed_fastq", type=str,
         help="if given, removed fastq records will "
         "be stored in this file [%default]")
 
@@ -417,11 +417,11 @@ def main(argv=sys.argv):
         help="methods to apply [%default]")
 
     parser.add_argument(
-        "--set-prefix", dest="set_prefix", type="string",
+        "--set-prefix", dest="set_prefix", type=str,
         help="set sequence prefix [%default]")
 
     parser.add_argument(
-        "--input-filter-tsv", dest="input_filter_tsv", type="string",
+        "--input-filter-tsv", dest="input_filter_tsv", type=str,
         help="list of sequence ides to filter [%default]")
 
     parser.add_argument(
@@ -454,12 +454,12 @@ def main(argv=sys.argv):
         "0.5 for 50%, etc [default=%default].")
 
     parser.add_argument(
-        "--pair-fastq-file", dest="pair", type="string",
+        "--pair-fastq-file", dest="pair", type=str,
         help="if data is paired, filename with second pair. "
         "Implemented for sampling [default=%default].")
 
     parser.add_argument(
-        "--map-tsv-file", dest="map_tsv_file", type="string",
+        "--map-tsv-file", dest="map_tsv_file", type=str,
         help="filename with tab-separated identifiers mapping for "
         "method apply [default=%default].")
 
@@ -472,11 +472,11 @@ def main(argv=sys.argv):
         help="seed for random number generator [default=%default].")
 
     parser.add_argument(
-        "--pattern-identifier", dest="renumber_pattern", type="string",
+        "--pattern-identifier", dest="renumber_pattern", type=str,
         help="rename reads in file by pattern [default=%default]")
 
     parser.add_argument(
-        "--grep-pattern", dest="grep_pattern", type="string",
+        "--grep-pattern", dest="grep_pattern", type=str,
         help="subset to reads matching pattern [default=%default]")
 
     parser.set_defaults(

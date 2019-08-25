@@ -27,7 +27,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--region", dest="region", type="string",
+        "--region", dest="region", type=str,
         help="region to restrict analysis to [%default]")
 
     parser.add_argument(
@@ -41,7 +41,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--reference-fasta", "--input-filename-fasta",
-        dest="input_filename_fasta", type="string",
+        dest="input_filename_fasta", type=str,
         help="filename with reference sequence. If given, used to "
         "compute G+C content in windows [%default]")
 

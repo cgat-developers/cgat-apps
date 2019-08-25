@@ -62,7 +62,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+        "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
         "[%default]")
 
@@ -72,12 +72,12 @@ def main(argv=None):
         help="method to apply [%default]")
 
     parser.add_argument(
-        "-e", "--input-bed", dest="input_bed_file", type="string",
+        "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
         "in bed format to restrict analysis to. [%default]")
 
     parser.add_argument(
-        "-r", "--region-string", dest="region_string", type="string",
+        "-r", "--region-string", dest="region_string", type=str,
         help="region string. Only apply method in specified region. "
         "[%default]")
 
