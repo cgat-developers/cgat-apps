@@ -67,7 +67,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
+        "-m", "--method", dest="method", type=str,
         choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf", "barcode"),
         help="method to apply [%default]")
 
@@ -92,7 +92,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "-s", "--stepper", dest="stepper", type="choice",
+        "-s", "--stepper", dest="stepper", type=str,
         choices=("nofilter", "samtools", "all"))
 
     parser.set_defaults(

@@ -157,7 +157,7 @@ def main(argv=None):
         usage=globals()["__doc__"])
 
     parser.add_argument("-o", "--output-format", dest="output_format",
-                      type="choice",
+                      type=str,
                       choices=(
                           "bedgraph", "wiggle", "bigbed",
                           "bigwig", "bed"),
@@ -185,7 +185,7 @@ def main(argv=None):
                       "The default is to scale to 1M reads "
                       "[default=%default]")
 
-    parser.add_argument("--scale-method", dest="scale_method", type="choice",
+    parser.add_argument("--scale-method", dest="scale_method", type=str,
                       choices=("none", "reads",),
                       help="scale bigwig output. 'reads' will normalize by "
                       "the total number reads in the bam file that are used "

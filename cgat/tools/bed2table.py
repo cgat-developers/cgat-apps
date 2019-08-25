@@ -535,12 +535,12 @@ def main(argv=None):
         "[default=%default].")
 
     parser.add_argument(
-        "--filename-format", dest="filename_format", type="choice",
+        "--filename-format", dest="filename_format", type=str,
         choices=("bed", "gff", "gtf"),
         help="format of secondary stream [default=%default].")
 
     parser.add_argument(
-        "-c", "--counter", dest="counters", type="choice", action="append",
+        "-c", "--counter", dest="counters", type=str, action="append",
         choices=("length",
                  "overlap",
                  "peaks",

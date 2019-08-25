@@ -204,7 +204,7 @@ def main(argv=None):
         "to an id [default=%default].")
 
     parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
+        "-m", "--method", dest="method", type=str,
         choices=("merged-combinations",
                  "unmerged-combinations"),
         help="method to perform [default=%default]")

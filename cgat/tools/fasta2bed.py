@@ -242,7 +242,7 @@ def main(argv=None):
         usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
+        "-m", "--method", dest="method", type=str,
         choices=(
             "fixed-width-windows-gc",
             "cpg",

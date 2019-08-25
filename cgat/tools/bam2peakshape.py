@@ -177,7 +177,7 @@ def buildOptionParser(argv):
     parser = E.OptionParser(version="%prog version: $Id",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-f", "--format", dest="format", type="choice",
+    parser.add_argument("-f", "--format", dest="format", type=str,
                       choices=("bam", "bigwig"),
                       help="format of genomic input files for densities "
                       "[%default]")
@@ -203,7 +203,7 @@ def buildOptionParser(argv):
         "[%default]")
 
     parser.add_argument(
-        "--smooth-method", dest="smooth_method", type="choice",
+        "--smooth-method", dest="smooth_method", type=str,
         choices=("none", "sum", "sg"),
         help="smooting method to apply to density data before sampling "
         "according to ``bin-size``. sg=SavitzkyGolay, sum=sum density in bin, "
@@ -211,7 +211,7 @@ def buildOptionParser(argv):
         "[%default]")
 
     parser.add_argument("-s", "--sort-order", dest="sort_orders",
-                      type="choice",
+                      type=str,
                       action="append",
                       choices=("peak-height", "peak-width", "unsorted",
                                "interval-width", "interval-score"),
@@ -239,7 +239,7 @@ def buildOptionParser(argv):
         "[%default]")
 
     parser.add_argument(
-        "-e", "--centring-method", dest="centring_method", type="choice",
+        "-e", "--centring-method", dest="centring_method", type=str,
         choices=("reads", "middle"),
         help="centring method. Available are: "
         "reads=use density to determine peak, "
@@ -247,7 +247,7 @@ def buildOptionParser(argv):
         "[%default]")
 
     parser.add_argument(
-        "-n", "--normalize-matrix", dest="normalization", type="choice",
+        "-n", "--normalize-matrix", dest="normalization", type=str,
         choices=("none", "sum"),
         help="matrix normalisation to perform. "
         "[%default]")

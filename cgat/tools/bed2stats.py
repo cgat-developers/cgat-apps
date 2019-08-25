@@ -120,7 +120,7 @@ def main(argv=None):
         help="filename with genome [default=%default].")
 
     parser.add_argument(
-        "-a", "--aggregate-by", dest="aggregate", type="choice",
+        "-a", "--aggregate-by", dest="aggregate", type=str,
         choices=("name", "contig", "track", "none"),
         help="aggregate counts by feature [default=%default].")
 

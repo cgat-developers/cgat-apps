@@ -29,7 +29,7 @@ def main(argv=None):
         help="filename with reference sequence in fasta format [%default]")
 
     parser.add_argument(
-        "--counting-mode", dest="counting_mode", type="choice",
+        "--counting-mode", dest="counting_mode", type=str,
         choices=("all", "pileup_defaults"),
         help="counting mode. all=all reads/bases. pileup-defaults= "
         "use default pileup thresholds. Options will be added to "

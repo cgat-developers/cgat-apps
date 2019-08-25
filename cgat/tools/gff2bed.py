@@ -108,14 +108,14 @@ def main(argv=sys.argv):
                       help="input file is in gtf format [default=%default] ")
 
     parser.add_argument(
-        "--set-name", dest="name", type="choice",
+        "--set-name", dest="name", type=str,
         help="field from the GFF/GTF file to use as the "
         "name field in the BED file [%default]",
         choices=("gene_id", "transcript_id", "class", "family",
                  "feature", "source", "repName", "gene_biotype"))
 
     parser.add_argument(
-        "--track", dest="track", type="choice",
+        "--track", dest="track", type=str,
         choices=("feature", "source", None),
         help="use feature/source field to define BED tracks "
         "[default=%default]")

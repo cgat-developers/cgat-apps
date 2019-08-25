@@ -157,7 +157,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-m", "--method", dest="methods", type="choice", action="append",
+        "-m", "--method", dest="methods", type=str, action="append",
         choices=("translate",
                  "translate-to-stop",
                  "truncate-at-stop",
@@ -216,7 +216,7 @@ def main(argv=None):
         "[default = %default].")
 
     parser.add_argument(
-        "-t", "--sequence-type", dest="type", type="choice",
+        "-t", "--sequence-type", dest="type", type=str,
         choices=("aa", "na"),
         help="sequence type (aa or na) [%default]. This option determines "
         "which characters to use for masking [default = %default].")

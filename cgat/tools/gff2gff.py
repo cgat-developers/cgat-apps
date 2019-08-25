@@ -400,7 +400,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: gff2gff.py$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type=str,
                       choices=(
                           "add-flank",
                           "add-upstream-flank",
@@ -454,13 +454,13 @@ def main(argv=None):
         "or 'from,to' .")
 
     parser.add_argument(
-        "--sanitize-method", dest="sanitize_method", type="choice",
+        "--sanitize-method", dest="sanitize_method", type=str,
         choices=("ucsc", "ensembl", "genome"),
         help="method to use for sanitizing chromosome names. "
         "[%default].")
 
     parser.add_argument(
-        "--flank-method", dest="flank_method", type="choice",
+        "--flank-method", dest="flank_method", type=str,
         choices=("add", "extend"),
         help="method to use for adding flanks. ``extend`` will "
         "extend existing features, while ``add`` will add new features. "

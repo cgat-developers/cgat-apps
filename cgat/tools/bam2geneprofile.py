@@ -321,7 +321,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-m", "--method", dest="methods", type="choice",
+    parser.add_argument("-m", "--method", dest="methods", type=str,
                       action="append",
                       choices=("geneprofile", "tssprofile", "utrprofile",
                                "intervalprofile", "midpointprofile",
@@ -359,7 +359,7 @@ def main(argv=None):
     parser.add_argument(
         "--normalize-transcript",
         dest="transcript_normalization",
-        type="choice",
+        type=str,
         choices=("none", "max", "sum", "total-max", "total-sum"),
         help="normalization to apply on each transcript "
         "profile before adding to meta-gene profile. "
@@ -368,14 +368,14 @@ def main(argv=None):
     parser.add_argument(
         "--normalize-profile",
         dest="profile_normalizations",
-        type="choice", action="append",
+        type=str, action="append",
         choices=("all", "none", "area", "counts", "background"),
         help="normalization to apply on meta-gene "
         "profile normalization. "
         "[%default]")
 
     parser.add_argument(
-        "-r", "--reporter", dest="reporter", type="choice",
+        "-r", "--reporter", dest="reporter", type=str,
         choices=("gene", "transcript"),
         help="report results for genes or transcripts."
         " When 'genes` is chosen, exons across all transcripts for"

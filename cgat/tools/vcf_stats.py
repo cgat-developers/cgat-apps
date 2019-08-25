@@ -120,7 +120,7 @@ def main(argv=sys.argv):
         "over --input-bed. [%default]")
 
     parser.add_argument(
-        "-m", "--method", dest="methods", action="append", type="choice",
+        "-m", "--method", dest="methods", action="append", type=str,
         choices=("mutational-signature",
                  "mutational-signature-profile",
                  "kinship",

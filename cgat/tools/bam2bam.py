@@ -536,7 +536,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-m", "--methods", dest="methods", type="choice",
+    parser.add_argument("-m", "--methods", dest="methods", type=str,
                       action="append",
                       choices=("filter",
                                "keep-first-base",
@@ -551,7 +551,7 @@ def main(argv=None):
                                "add-sequence-error"),
                       help="methods to apply [%default]")
 
-    parser.add_argument("--strip-method", dest="strip_method", type="choice",
+    parser.add_argument("--strip-method", dest="strip_method", type=str,
                       choices=("all", "match"),
                       help="define which sequences/qualities to strip. "
                       "match means that stripping only applies to entries "
@@ -559,7 +559,7 @@ def main(argv=None):
                       "[%default]")
 
     parser.add_argument("--filter-method", dest="filter_methods",
-                      action="append", type="choice",
+                      action="append", type=str,
                       choices=('NM', 'CM',
                                "mapped", "unique", "non-unique",
                                "remove-list",

@@ -399,7 +399,7 @@ def main(argv=sys.argv):
         "be stored in this file [%default]")
 
     parser.add_argument(
-        "-m", "--method", dest="methods", action="append", type="choice",
+        "-m", "--method", dest="methods", action="append", type=str,
         choices=("filter-N",
                  "filter-identifier",
                  "filter-ONT",
@@ -437,13 +437,13 @@ def main(argv=sys.argv):
         help="offset to modify quality values with [%default]")
 
     parser.add_argument(
-        "--target-format", dest="target_format", type="choice",
+        "--target-format", dest="target_format", type=str,
         choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
         help="guess quality score format and set quality scores "
         "to format [default=%default].")
 
     parser.add_argument(
-        "--guess-format", dest="guess_format", type="choice",
+        "--guess-format", dest="guess_format", type=str,
         choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
         help="quality score format to assume if ambiguous [default=%default].")
 

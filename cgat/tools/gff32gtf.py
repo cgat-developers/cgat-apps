@@ -264,7 +264,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-m", "--method", dest="method", type="choice", action="store",
+    parser.add_argument("-m", "--method", dest="method", type=str, action="store",
                       choices=(
                           "hierarchy", "set-field", "set-pattern", "set-none"),
                       help="Method to use for conversion")

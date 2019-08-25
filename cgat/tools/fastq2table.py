@@ -110,7 +110,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--guess-format", dest="guess_format", type="choice",
+        "--guess-format", dest="guess_format", type=str,
         choices=(
             'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),
         help="The default behaviour of the script is to guess the quality "
@@ -120,7 +120,7 @@ def main(argv=None):
         "sequence qualities are ambiguous.[default=%default].")
 
     parser.add_argument(
-        "--target-format", dest="target_format", type="choice",
+        "--target-format", dest="target_format", type=str,
         choices=(
             'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),
         help="The script will convert quality scores to the destination "

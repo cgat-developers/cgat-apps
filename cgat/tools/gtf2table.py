@@ -500,7 +500,7 @@ def main(argv=None):
                       "is important [default=%default].")
 
     parser.add_argument("--filename-format", dest="filename_format",
-                      type="choice",
+                      type=str,
                       choices=("bed", "gff", "gtf"),
                       help="format of secondary stream [default=%default].")
 
@@ -514,20 +514,20 @@ def main(argv=None):
                       help="restrict input to this 'feature' in extra gff "
                       "file (for counter: overlap) [default=%default].")
 
-    parser.add_argument("-r", "--reporter", dest="reporter", type="choice",
+    parser.add_argument("-r", "--reporter", dest="reporter", type=str,
                       choices=("genes", "transcripts"),
                       help="report results for 'genes' or 'transcripts' "
                       "[default=%default].")
 
     parser.add_argument("-s", "--section", dest="sections",
-                      type="choice",
+                      type=str,
                       action="append",
                       choices=("exons", "introns"),
                       help="select range on which counters will operate "
                       "[default=%default].")
 
     parser.add_argument("-c", "--counter", dest="counters",
-                      type="choice",
+                      type=str,
                       action="append",
                       choices=(	"bigwig-counts",
                                 "binding-pattern",
@@ -577,7 +577,7 @@ def main(argv=None):
 
     parser.add_argument("--multi-mapping-method",
                       dest="multi_mapping",
-                      type="choice",
+                      type=str,
                       choices=('all', 'ignore', 'weight'),
                       help="how to treat multi-mapping reads in "
                       "bam-files. Requires "
@@ -611,7 +611,7 @@ def main(argv=None):
 
     parser.add_argument("--library-type",
                       dest="library_type",
-                      type="choice",
+                      type=str,
                       choices=("unstranded",
                                "firststrand",
                                "secondstrand",

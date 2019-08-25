@@ -680,7 +680,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-f", "--format", dest="output_format", type="choice",
+    parser.add_argument("-f", "--format", dest="output_format", type=str,
                       choices=("rdf", "galaxy"),
                       help="output format [%default]. ")
 

@@ -375,7 +375,7 @@ def main(argv=None):
 
     parser.add_argument("--sort-order",
                       dest="sort_order",
-                      type="choice",
+                      type=str,
                       choices=("gene",
                                "gene+transcript",
                                "transcript",
@@ -403,7 +403,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--filter-method", dest="filter_method",
-        type="choice",
+        type=str,
         choices=("gene",
                  "transcript",
                  "longest-gene",
@@ -481,7 +481,7 @@ def main(argv=None):
     parser.add_argument(
         "--duplicate-feature",
         dest="duplicate_feature",
-        type="choice",
+        type=str,
         choices=("gene", "transcript", "both", "ucsc", "coordinates"),
         help="remove duplicates by gene/transcript. "
         "If ``ucsc`` is chosen, transcripts ending on _dup# are "
@@ -493,7 +493,7 @@ def main(argv=None):
                       help="when merging transcripts, exons or introns, use "
                       "the parent gene_id as the transcript id.")
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type=str,
                       action="append",
                       choices=(
                           "add-protein-id",

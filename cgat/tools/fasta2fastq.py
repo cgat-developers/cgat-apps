@@ -217,7 +217,7 @@ def main(argv=None):
         help="insert length standard deviation [default = %default].")
 
     parser.add_argument(
-        "--counts-method", dest="counts_method", type="choice",
+        "--counts-method", dest="counts_method", type=str,
         choices=("reads", "copies"),
         help="simulate a ground truth number of reads per entry or"
         "copies per entry [default = %default].")

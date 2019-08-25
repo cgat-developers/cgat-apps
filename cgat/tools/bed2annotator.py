@@ -79,7 +79,7 @@ def main(argv=None):
     parser.add_argument("-m", "--merge-overlapping", dest="merge", action="store_true",
                       help="merge overlapping bed segments [default=%default].")
 
-    parser.add_argument("-s", "--section", dest="section", type="choice",
+    parser.add_argument("-s", "--section", dest="section", type=str,
                       choices=("segments", "annotations", "workspace"),
                       help="annotator section [default=None].")
 

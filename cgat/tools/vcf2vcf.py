@@ -140,7 +140,7 @@ def main(argv=None):
         help="filename with aligned reads [%default]")
 
     parser.add_argument(
-        "--method", dest="methods", type="choice", action="append",
+        "--method", dest="methods", type=str, action="append",
         choices=["add-strelka-genotype",
                  "lift-over"],
         help="methods to apply [%default]")

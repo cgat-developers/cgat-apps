@@ -76,7 +76,7 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "--guess-format", dest="guess_format", type="choice",
+        "--guess-format", dest="guess_format", type=str,
         choices=('sanger', 'solexa', 'phred64',
                  'illumina-1.8', 'integer'),
         help="The default behaviour of the script is to guess \
@@ -87,7 +87,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-f", "--target-format", dest="change_format",
-        type="choice", choices=('sanger', 'solexa', 'phred64',
+        type=str, choices=('sanger', 'solexa', 'phred64',
                                 'illumina-1.8', 'integer'),
         help="The script guesses the quality format of the input \
         file and converts quality scores to the destination \

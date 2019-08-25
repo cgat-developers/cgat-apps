@@ -62,12 +62,12 @@ def main(argv=None):
                       help="filename with genomic sequence to retrieve "
                       "sequences from.")
 
-    parser.add_argument("-m", "--masker", dest="masker", type="choice",
+    parser.add_argument("-m", "--masker", dest="masker", type=str,
                       choices=("dust", "dustmasker", "softmask", "none"),
                       help="apply masker to mask output sequences "
                       "[%default].")
 
-    parser.add_argument("--output-mode", dest="output_mode", type="choice",
+    parser.add_argument("--output-mode", dest="output_mode", type=str,
                       choices=("intervals", "leftright", "segments"),
                       help="what to output. "
                       "'intervals' generates a single sequence for "
@@ -84,7 +84,7 @@ def main(argv=None):
                       help="require a maximum sequence length [%default]")
 
     parser.add_argument(
-        "--extend-at", dest="extend_at", type="choice",
+        "--extend-at", dest="extend_at", type=str,
         choices=("none", "3", "5", "both", "3only", "5only"),
         help="extend at 3', 5' or both or no ends. If 3only or 5only "
         "are set, only the added sequence is returned [default=%default]")

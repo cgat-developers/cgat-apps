@@ -153,16 +153,16 @@ def main(argv=None):
                       action="store_true",
                       help="each value constitutes its own bin.")
 
-    parser.add_argument("--format", dest="format", type="choice",
+    parser.add_argument("--format", dest="format", type=str,
                       choices=("gff", "gtf", "bed"),
                       help="input file format [%default].")
 
-    parser.add_argument("--method", dest="methods", type="choice",
+    parser.add_argument("--method", dest="methods", type=str,
                       action="append",
                       choices=("all", "hist", "stats", "overlaps", "values"),
                       help="methods to apply [%default].")
 
-    parser.add_argument("--output-section", dest="output_section", type="choice",
+    parser.add_argument("--output-section", dest="output_section", type=str,
                       choices=("all", "size", "distance"),
                       help="data to compute [%default].")
 

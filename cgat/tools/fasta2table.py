@@ -131,14 +131,14 @@ def main(argv=None):
         "can be separated by comma.")
 
     parser.add_argument(
-        "-s", "--section", dest="sections", type="choice", action="append",
+        "-s", "--section", dest="sections", type=str, action="append",
         choices=("length", "sequence", "hid", "na", "aa", "cpg", "dn",
                  "degeneracy", "gaps",
                  "codons", "codon-usage", "codon-translator", "codon-bias"),
         help="which sections to output [%default]")
 
     parser.add_argument(
-        "-t", "--sequence-type", dest="seqtype", type="choice",
+        "-t", "--sequence-type", dest="seqtype", type=str,
         choices=("na", "aa"),
         help="type of sequence: na=nucleotides, aa=amino acids [%default].")
 

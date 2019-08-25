@@ -283,7 +283,7 @@ def main(argv=None):
         help="do not output vcf columns")
 
     parser.add_argument(
-        "--counter", dest="counters", type="choice", action="append",
+        "--counter", dest="counters", type=str, action="append",
         choices=["context", "bam-indels", "bam-allelic-depth", "indel-type"],
         help="counters to apply [%default]")
 

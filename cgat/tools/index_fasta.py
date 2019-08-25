@@ -105,7 +105,7 @@ def main(argv=None):
 
     input_format_choices = ("one-forward-open", "zero-both-open")
     parser.add_argument("-i", "--input-format", dest="input_format",
-                      type="choice",
+                      type=str,
                       choices=input_format_choices,
                       help="coordinate format of input. Valid choices are "
                       "%s. See --extract. [default=%%default]." %
@@ -146,7 +146,7 @@ def main(argv=None):
     parser.add_argument_group(group)
 
     file_format_choices = ("fasta", "auto", "fasta.gz", "tar", "tar.gz")
-    parser.add_argument("--file-format", dest="file_format", type="choice",
+    parser.add_argument("--file-format", dest="file_format", type=str,
                       choices=file_format_choices,
                       help="file format of input. Supply if data comes "
                       "from stdin "
@@ -175,7 +175,7 @@ def main(argv=None):
                       "[default=%default].")
 
     translator_choices = ("solexa", "phred", "bytes", "range200")
-    parser.add_argument("-t", "--translator", dest="translator", type="choice",
+    parser.add_argument("-t", "--translator", dest="translator", type=str,
                       choices=translator_choices,
                       help="translate numerical quality scores. "
                       "Valid choices are %s [default=%%default]." %
@@ -183,7 +183,7 @@ def main(argv=None):
 
     group = E.OptionGroup(parser, 'Compression options')
     compression_choices = ("lzo", "zlib", "gzip", "dictzip", "bzip2", "debug")
-    group.add_argument("-c", "--compression", dest="compression", type="choice",
+    group.add_argument("-c", "--compression", dest="compression", type=str,
                      choices=compression_choices,
                      help="compress database, using specified compression "
                      "method. "

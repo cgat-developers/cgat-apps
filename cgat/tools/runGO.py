@@ -198,7 +198,7 @@ def main(argv=None):
         " [default=%default].")
 
     parser.add_argument(
-        "-o", "--sort-order", dest="sort_order", type="choice",
+        "-o", "--sort-order", dest="sort_order", type=str,
         choices=("fdr", "pvalue", "ratio"),
         help="output sort order [default=%default].")
 
@@ -272,7 +272,7 @@ def main(argv=None):
         "[default=%default].")
 
     parser.add_argument(
-        "-q", "--fdr-method", dest="qvalue_method", type="choice",
+        "-q", "--fdr-method", dest="qvalue_method", type=str,
         choices=("empirical", "storey", "BH"),
         help="method to perform multiple testing correction by controlling "
         "the fdr [default=%default].")
@@ -285,7 +285,7 @@ def main(argv=None):
     # parser.add_argument( "--fdr-lambda", dest="qvalue_lambda", type="float",
     #                   help="fdr computation: lambda [default=%default]."  )
 
-    # parser.add_argument( "--qvalue-pi0-method", dest="qvalue_pi0_method", type="choice",
+    # parser.add_argument( "--qvalue-pi0-method", dest="qvalue_pi0_method", type=str,
     #                    choices = ("smoother", "bootstrap" ),
     # help="fdr computation: method for estimating pi0 [default=%default]."  )
 

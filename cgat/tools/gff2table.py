@@ -348,12 +348,12 @@ def main(argv=None):
                       help="filename-data is gtf file [default=%default.")
 
     parser.add_argument(
-        "-f", "--features", dest="features", type="choice", action="append",
+        "-f", "--features", dest="features", type=str, action="append",
         choices=("GC", ),
         help="features to compute.")
 
     parser.add_argument(
-        "-c", "--decorator", dest="decorator", type="choice",
+        "-c", "--decorator", dest="decorator", type=str,
         choices=("counts", "gc", "gc3", "mean-length", "median-length",
                  "percent-coverage",
                  "median-score", "mean-score", "stddev-score", "min-score",
@@ -365,7 +365,7 @@ def main(argv=None):
         help="skip empty windows.")
 
     parser.add_argument(
-        "-t", "--transform=", dest="transform", type="choice",
+        "-t", "--transform=", dest="transform", type=str,
         choices=(
             "none", "overlap", "complement", "third_codon"),
         help="transform to use when mapping overlapping regions onto window.")

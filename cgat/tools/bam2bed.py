@@ -141,7 +141,7 @@ def main(argv=None):
                       "least # bases apart. "
                       " 0 turns off this filter [default=%default]. ")
 
-    parser.add_argument("--bed-format", dest="bed_format", type="choice",
+    parser.add_argument("--bed-format", dest="bed_format", type=str,
                       choices=('3', '4', '5', '6'),
                       help="bed format to output. "
                       " [default=%default]")

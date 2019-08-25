@@ -119,7 +119,7 @@ def main(argv=None):
         "[default=%default].")
 
     parser.add_argument(
-        "-m", "--output-map", dest="output_map", type="choice",
+        "-m", "--output-map", dest="output_map", type=str,
         choices=(
             "transcript2gene",
             "peptide2gene",

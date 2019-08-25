@@ -34,7 +34,7 @@ def main(argv=sys.argv):
         "in bed format to restrict analysis to. [%default]")
 
     parser.add_argument(
-        "-m", "--method", dest="methods", action="append", type="choice",
+        "-m", "--method", dest="methods", action="append", type=str,
         choices=("mutational-signature", "kinship"),
         help="methods to apply [%default]")
 

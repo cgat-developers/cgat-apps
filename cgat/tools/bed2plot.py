@@ -145,7 +145,7 @@ def main(argv=sys.argv):
                       type=str,
                       help="directory to save snapshots in [%default]")
 
-    parser.add_argument("-f", "--format", dest="format", type="choice",
+    parser.add_argument("-f", "--format", dest="format", type=str,
                       choices=("png", "eps", "svg"),
                       help="output file format [%default]")
 
@@ -169,7 +169,7 @@ def main(argv=sys.argv):
                       "ignore intervals "
                       "[%default]")
 
-    parser.add_argument("-n", "--name", dest="name", type="choice",
+    parser.add_argument("-n", "--name", dest="name", type=str,
                       choices=("bed-name", "increment"),
                       help="name to use for snapshot "
                       "[%default]")

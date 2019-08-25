@@ -180,7 +180,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "--extend-at", dest="extend_at", type="choice",
+        "--extend-at", dest="extend_at", type=str,
         choices=("none", "3", "5", "both", "3only", "5only"),
         help="extend at no end, 3', 5' or both ends. If "
         "3only or 5only are set, only the added sequence "
@@ -201,7 +201,7 @@ def main(argv=None):
         help="extend using base [default=%default]")
 
     parser.add_argument(
-        "--masker", dest="masker", type="choice",
+        "--masker", dest="masker", type=str,
         choices=("dust", "dustmasker", "softmask", "none"),
         help="apply masker [%default].")
 

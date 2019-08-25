@@ -137,7 +137,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "-o", "--output-section", dest="output", type="choice",
+        "-o", "--output-section", dest="output", type=str,
         action="append",
         choices=("diff", "missed", "seqdiff"),
         help="what to output [%default]")

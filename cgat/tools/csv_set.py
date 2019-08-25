@@ -67,7 +67,7 @@ def main(argv=None):
                       help="join fields in first table.")
     parser.add_argument("-2", "--join-fields2", dest="join_fields2", type=str,
                       help="join fields in second table.")
-    parser.add_argument("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type=str,
                       help="set operation to perform.", choices=("intersection", "rest", "union"))
 
     parser.set_defaults(

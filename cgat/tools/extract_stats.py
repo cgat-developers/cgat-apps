@@ -206,7 +206,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("--task", dest="task", type="choice",
+    parser.add_argument("--task", dest="task", type=str,
                       choices=["extract_table", "get_coverage",
                                "clean_table"],
                       help="task to perform")

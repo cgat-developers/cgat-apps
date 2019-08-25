@@ -261,12 +261,12 @@ def main(argv=None):
     parser.add_argument("-t", "--test", dest="test", type=str,
                       help="supply help")
 
-    parser.add_argument("--program", dest="program", type="choice",
+    parser.add_argument("--program", dest="program", type=str,
                       choices=["kallisto", "sailfish"],
                       help="use either kallisto or sailfish, "
                       "for alignment-free quantification")
 
-    parser.add_argument("--method", dest="method", type="choice",
+    parser.add_argument("--method", dest="method", type=str,
                       choices=["make_index", "quant"],
                       help="method of kallisto to run")
 
@@ -289,7 +289,7 @@ def main(argv=None):
     parser.add_argument("--just-text", dest="text_only", action="store_true",
                       help="only output files in plain text, not HDF5")
 
-    parser.add_argument("--library-type", dest="library", type="choice",
+    parser.add_argument("--library-type", dest="library", type=str,
                       choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
                                "OSF", "OSR", "OU", "SR", "SF", "U"],
                       help="sailfish fragment library type code")

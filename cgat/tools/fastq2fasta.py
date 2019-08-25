@@ -36,7 +36,7 @@ def main(argv=sys.argv):
         help="input fastq file")
 
     parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
+        "-m", "--method", dest="method", type=str,
         choices=["ont2pacbio"],
         help="methods to apply [%default]")
 

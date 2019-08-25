@@ -83,14 +83,14 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
+        "-m", "--method", dest="method", type=str,
         choices=["mutation-profile-bar-plot",
                  "depth-profile-line-plot",
                  "manhattan-plot"],
         help="methods to apply [%default]")
 
     parser.add_argument(
-        "-t", "--transformation", dest="transformations", type="choice",
+        "-t", "--transformation", dest="transformations", type=str,
         action="append",
         choices=["log-depth-ratio"],
         help="dataframe transformation options [%default]")
@@ -105,7 +105,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "--input-file-format", dest="input_file_format", type="choice",
+        "--input-file-format", dest="input_file_format", type=str,
         choices=("tsv", "bcftools-query"),
         help="input file format "
         "[%default]")

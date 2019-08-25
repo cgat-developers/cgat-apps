@@ -71,7 +71,7 @@ def main(argv=None):
         "[%default]")
 
     parser.add_argument(
-        "--filter", dest="filters", type="choice", action="append",
+        "--filter", dest="filters", type=str, action="append",
         choices=("PASS", "SNP"),
         help="apply filters to VCFs when reading "
         "[%default]")

@@ -503,7 +503,7 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     # IMS: new method: extend intervals by set amount
-    parser.add_argument("-m", "--method", dest="methods", type="choice",
+    parser.add_argument("-m", "--method", dest="methods", type=str,
                       action="append",
                       choices=("merge", "filter-genome", "bins",
                                "block", "sanitize-genome", "shift", "extend",
@@ -518,7 +518,7 @@ def main(argv=sys.argv):
                       help="bin_edges for binning method [default=%default]")
 
     parser.add_argument(
-        "--binning-method", dest="binning_method", type="choice",
+        "--binning-method", dest="binning_method", type=str,
         choices=(
             "equal-bases", "equal-intervals", "equal-range"),
         help="method used for binning (used for method `bins` if no "

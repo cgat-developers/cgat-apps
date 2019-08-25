@@ -164,7 +164,7 @@ def main(argv=sys.argv):
                       "additional column called X with the filename "
                       " [default=%default].")
 
-    parser.add_argument("--sort-keys", dest="sort_keys", type="choice",
+    parser.add_argument("--sort-keys", dest="sort_keys", type=str,
                       choices=("numeric", "alphabetic"),
                       help="sort key columns by value.")
 

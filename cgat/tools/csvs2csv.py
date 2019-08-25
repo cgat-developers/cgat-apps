@@ -85,7 +85,7 @@ def main(argv=None):
         "[default=%default].")
 
     parser.add_argument(
-        "--sort-keys", dest="sort_keys", type="choice",
+        "--sort-keys", dest="sort_keys", type=str,
         choices=("numeric", "alphabetic"),
         help="sort key columns by value.")
 

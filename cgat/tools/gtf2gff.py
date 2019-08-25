@@ -1093,11 +1093,11 @@ def main(argv=None):
                       "in the genome-file [default=%default].")
 
     parser.add_argument("-s", "--restrict-source", dest="restrict_source",
-                      type="choice",
+                      type=str,
                       choices=("protein_coding", "pseudogene", "lncRNA"),
                       help="restrict input by source [default=%default].")
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type=str,
                       choices=("full", "genome", "exons",
                                "promotors", "tts",
                                "regulons", "tts-regulons",
@@ -1133,7 +1133,7 @@ def main(argv=None):
         help="size of region downstream of tss [default=%default].")
 
     parser.add_argument(
-        "--gene-detail", dest="detail", type="choice",
+        "--gene-detail", dest="detail", type=str,
         choices=("introns+exons", "exons", "introns"),
         help="level of detail for gene structure annotation "
         "[default=%default].")

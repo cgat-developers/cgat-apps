@@ -28,7 +28,7 @@ def main(argv=sys.argv):
         "[%default]")
 
     parser.add_argument(
-        "-m", "--method", dest="method", type="choice",
+        "-m", "--method", dest="method", type=str,
         choices=("lvc-comparison", ),
         help="methods to apply [%default]")
 

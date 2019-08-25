@@ -113,7 +113,7 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_argument("-m", "--method", dest="methods", type="choice",
+    parser.add_argument("-m", "--method", dest="methods", type=str,
                       action="append",
                       choices=(
                           "threshold", "stddev-above-mean",

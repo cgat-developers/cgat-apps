@@ -253,7 +253,7 @@ def main(argv=None):
                       "if window size is not given. "
                       "[default=%default]")
 
-    parser.add_argument("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type=str,
                       choices=("genomic", "histogram", ),
                       help="methods to apply. "
                       "[default=%default]")

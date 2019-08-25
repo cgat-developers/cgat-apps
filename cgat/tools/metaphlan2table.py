@@ -51,7 +51,7 @@ def main(argv=None):
         version="%prog version: $Id: script_template.py 2871 2010-03-03 10:20:44Z andreas $",
         usage=globals()["__doc__"])
 
-    parser.add_argument("-t", "--sequence-type", dest="type", type="choice",
+    parser.add_argument("-t", "--sequence-type", dest="type", type=str,
                       choices=("read_map", "rel_ab"), help="type of file to be parsed to a table")
 
     # add common options (-h/--help, ...) and parse command line

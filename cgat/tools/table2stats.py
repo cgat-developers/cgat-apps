@@ -56,7 +56,7 @@ def main(argv=None):
         help="delimiter to separate columns [%default]")
 
     parser.add_argument(
-        "-m", "--method", dest="methods", type="choice",
+        "-m", "--method", dest="methods", type=str,
         action="append",
         choices=["row-describe", "column-describe"],
         help="additional methods to apply [%default]")

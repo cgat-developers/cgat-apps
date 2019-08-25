@@ -29,7 +29,7 @@ def main(argv=sys.argv):
         help="maximum read length [%default].")
 
     parser.add_argument(
-        "-m", "--output-mode", dest="output_mode", type="choice",
+        "-m", "--output-mode", dest="output_mode", type=str,
         choices=["buffered", "direct"],
         help="output mode for files. 'buffered' will output reads in correct "
         "sort order, 'direct' will require the output BAM file to be sorted separately."
