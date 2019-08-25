@@ -52,7 +52,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-c", "--is-cds", dest="is_cds", action="store_true",
+    parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
                       help="input are cds (nucleotide) sequences [%default]")
 
     parser.set_defaults(

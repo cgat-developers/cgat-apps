@@ -474,59 +474,59 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome [default=%default].")
 
-    parser.add_option("-q", "--quality-file",
+    parser.add_argument("-q", "--quality-file",
                       dest="quality_file",
                       type="string",
                       help="filename with genomic base quality "
                       "information [default=%default].")
 
-    parser.add_option("-b", "--bam-file", dest="bam_files",
+    parser.add_argument("-b", "--bam-file", dest="bam_files",
                       type="string", metavar="bam",
                       help="filename with read mapping information. "
                       "Multiple files can be submitted in a "
                       "comma-separated list [default=%default].")
 
-    parser.add_option("-i", "--bigwig-file", dest="bigwig_file",
+    parser.add_argument("-i", "--bigwig-file", dest="bigwig_file",
                       type="string", metavar="bigwig",
                       help="filename with bigwig information "
                       "[default=%default].")
 
-    parser.add_option("-f", "--gff-file", dest="filename_gff",
+    parser.add_argument("-f", "--gff-file", dest="filename_gff",
                       type="string", action="append", metavar='bed',
                       help="filename with extra gff files. The order "
                       "is important [default=%default].")
 
-    parser.add_option("--filename-format", dest="filename_format",
+    parser.add_argument("--filename-format", dest="filename_format",
                       type="choice",
                       choices=("bed", "gff", "gtf"),
                       help="format of secondary stream [default=%default].")
 
-    parser.add_option("--restrict-source", dest="gff_sources", type="string",
+    parser.add_argument("--restrict-source", dest="gff_sources", type="string",
                       action="append",
                       help="restrict input to this 'source' in extra "
                       "gff file (for counter: overlap) [default=%default].")
 
-    parser.add_option("--restrict-feature", dest="gff_features", type="string",
+    parser.add_argument("--restrict-feature", dest="gff_features", type="string",
                       action="append",
                       help="restrict input to this 'feature' in extra gff "
                       "file (for counter: overlap) [default=%default].")
 
-    parser.add_option("-r", "--reporter", dest="reporter", type="choice",
+    parser.add_argument("-r", "--reporter", dest="reporter", type="choice",
                       choices=("genes", "transcripts"),
                       help="report results for 'genes' or 'transcripts' "
                       "[default=%default].")
 
-    parser.add_option("-s", "--section", dest="sections",
+    parser.add_argument("-s", "--section", dest="sections",
                       type="choice",
                       action="append",
                       choices=("exons", "introns"),
                       help="select range on which counters will operate "
                       "[default=%default].")
 
-    parser.add_option("-c", "--counter", dest="counters",
+    parser.add_argument("-c", "--counter", dest="counters",
                       type="choice",
                       action="append",
                       choices=(	"bigwig-counts",
@@ -565,17 +565,17 @@ def main(argv=None):
                       help="select counters to apply to input "
                       "[default=%default].")
 
-    parser.add_option("--add-gtf-source", dest="add_gtf_source",
+    parser.add_argument("--add-gtf-source", dest="add_gtf_source",
                       action="store_true",
                       help="add gtf field of source to output "
                       "[default=%default].")
 
-    parser.add_option("--proximal-distance", dest="proximal_distance",
+    parser.add_argument("--proximal-distance", dest="proximal_distance",
                       type="int",
                       help="distance to be considered proximal to "
                       "an interval [default=%default].")
 
-    parser.add_option("--multi-mapping-method",
+    parser.add_argument("--multi-mapping-method",
                       dest="multi_mapping",
                       type="choice",
                       choices=('all', 'ignore', 'weight'),
@@ -584,7 +584,7 @@ def main(argv=None):
                       "the NH flag to be set by the mapper "
                       "[default=%default].")
 
-    parser.add_option("--use-barcodes",
+    parser.add_argument("--use-barcodes",
                       dest="use_barcodes",
                       action="store_true",
                       help="Use barcodes to count unique umi's. "
@@ -595,21 +595,21 @@ def main(argv=None):
                       "When true, unique counts are returned. "
                       "Currently only compatible with count-reads")
 
-    parser.add_option("--sample-probability",
+    parser.add_argument("--sample-probability",
                       dest="sample_probability",
                       type="float",
                       help="Specify the probability of whether any"
                       "given read or read pair in a file bam is counted"
                       "Currently only compatible with count-reads")
 
-    parser.add_option("--column-prefix", dest="prefixes",
+    parser.add_argument("--column-prefix", dest="prefixes",
                       type="string",
                       action="append",
                       help="add prefix to column headers - prefixes "
                       "are used in the same order as the counters "
                       "[default=%default].")
 
-    parser.add_option("--library-type",
+    parser.add_argument("--library-type",
                       dest="library_type",
                       type="choice",
                       choices=("unstranded",
@@ -621,7 +621,7 @@ def main(argv=None):
                       help="library type of reads in bam file. "
                       "[default=%default]")
 
-    parser.add_option("--min-mapping-quality",
+    parser.add_argument("--min-mapping-quality",
                       dest="minimum_mapping_quality",
                       type="float",
                       help="minimum mapping quality. Reads with a quality "

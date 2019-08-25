@@ -122,47 +122,47 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-b", "--bin-size", dest="bin_size", type="string",
+    parser.add_argument("-b", "--bin-size", dest="bin_size", type="string",
                       help="bin size.")
 
-    parser.add_option("--min-value", dest="min_value", type="float",
+    parser.add_argument("--min-value", dest="min_value", type="float",
                       help="minimum value for histogram.")
 
-    parser.add_option(
+    parser.add_argument(
         "--max-value", dest="max_value", type="float",
         help="maximum value for histogram.")
 
-    parser.add_option(
+    parser.add_argument(
         "--no-empty-bins", dest="no_empty_bins", action="store_true",
         help="do not display empty bins.")
 
-    parser.add_option(
+    parser.add_argument(
         "--with-empty-bins", dest="no_empty_bins", action="store_false",
         help="display empty bins.")
 
-    parser.add_option(
+    parser.add_argument(
         "--ignore-out-of-range", dest="ignore_out_of_range",
         action="store_true",
         help="ignore values that are out of range (as opposed to truncating "
         "them to range border.")
 
-    parser.add_option("--missing-value", dest="missing_value", type="string",
+    parser.add_argument("--missing-value", dest="missing_value", type="string",
                       help="entry for missing values [%default].")
 
-    parser.add_option("--use-dynamic-bins", dest="dynamic_bins",
+    parser.add_argument("--use-dynamic-bins", dest="dynamic_bins",
                       action="store_true",
                       help="each value constitutes its own bin.")
 
-    parser.add_option("--format", dest="format", type="choice",
+    parser.add_argument("--format", dest="format", type="choice",
                       choices=("gff", "gtf", "bed"),
                       help="input file format [%default].")
 
-    parser.add_option("--method", dest="methods", type="choice",
+    parser.add_argument("--method", dest="methods", type="choice",
                       action="append",
                       choices=("all", "hist", "stats", "overlaps", "values"),
                       help="methods to apply [%default].")
 
-    parser.add_option("--output-section", dest="output_section", type="choice",
+    parser.add_argument("--output-section", dest="output_section", type="choice",
                       choices=("all", "size", "distance"),
                       help="data to compute [%default].")
 

@@ -680,22 +680,22 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-f", "--format", dest="output_format", type="choice",
+    parser.add_argument("-f", "--format", dest="output_format", type="choice",
                       choices=("rdf", "galaxy"),
                       help="output format [%default]. ")
 
-    parser.add_option("-l", "--list", dest="filename_list", type="string",
+    parser.add_argument("-l", "--list", dest="filename_list", type="string",
                       help="filename with list of files to export "
                       "[%default]. ")
 
-    parser.add_option("-s", "--source-dir", dest="src_dir", type="string",
+    parser.add_argument("-s", "--source-dir", dest="src_dir", type="string",
                       help="directory to look for scripts [%default]. ")
 
-    parser.add_option("-r", "--input-regex", dest="input_regex", type="string",
+    parser.add_argument("-r", "--input-regex", dest="input_regex", type="string",
                       help="regular expression to extract script name "
                       "[%default]. ")
 
-    parser.add_option("-p", "--output-filename-pattern", dest="output_pattern",
+    parser.add_argument("-p", "--output-filename-pattern", dest="output_pattern",
                       type="string",
                       help="pattern to build output filename. Should contain "
                       "an '%s' [%default]. ")

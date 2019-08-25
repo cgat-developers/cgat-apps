@@ -321,7 +321,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--method", dest="methods", type="choice",
+    parser.add_argument("-m", "--method", dest="methods", type="choice",
                       action="append",
                       choices=("geneprofile", "tssprofile", "utrprofile",
                                "intervalprofile", "midpointprofile",
@@ -337,26 +337,26 @@ def main(argv=None):
                       'automatically turn on the --use-base-accuracy option'
                       '[%default].')
 
-    parser.add_option("-b", "--bam-file", "--bedfile", "--bigwigfile",
+    parser.add_argument("-b", "--bam-file", "--bedfile", "--bigwigfile",
                       dest="infiles",
                       metavar="BAM",
                       type="string", action="append",
                       help="BAM/bed/bigwig files to use. Do not mix "
                       "different types [%default]")
 
-    parser.add_option("-c", "--control-bam-file", dest="controlfiles",
+    parser.add_argument("-c", "--control-bam-file", dest="controlfiles",
                       metavar="BAM",
                       type="string", action="append",
                       help="control/input to use. Should be of the same "
                       "type as the bam/bed/bigwig file"
                       " [%default]")
 
-    parser.add_option("-g", "--gtf-file", dest="gtffile", type="string",
+    parser.add_argument("-g", "--gtf-file", dest="gtffile", type="string",
                       metavar="GTF",
                       help="GTF file to use. "
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--normalize-transcript",
         dest="transcript_normalization",
         type="choice",
@@ -365,7 +365,7 @@ def main(argv=None):
         "profile before adding to meta-gene profile. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--normalize-profile",
         dest="profile_normalizations",
         type="choice", action="append",
@@ -374,7 +374,7 @@ def main(argv=None):
         "profile normalization. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--reporter", dest="reporter", type="choice",
         choices=("gene", "transcript"),
         help="report results for genes or transcripts."
@@ -384,137 +384,137 @@ def main(argv=None):
         " contributing equally to the meta-gene profile."
         " [%default]")
 
-    parser.add_option("-i", "--shift-size", dest="shifts", type="int",
+    parser.add_argument("-i", "--shift-size", dest="shifts", type="int",
                       action="append",
                       help="shift reads in :term:`bam` formatted file "
                       "before computing densities (ChIP-Seq). "
                       "[%default]")
 
-    parser.add_option("-a", "--merge-pairs", dest="merge_pairs",
+    parser.add_argument("-a", "--merge-pairs", dest="merge_pairs",
                       action="store_true",
                       help="merge pairs in :term:`bam` formatted "
                       "file before computing "
                       "densities (ChIP-Seq). "
                       "[%default]")
 
-    parser.add_option("-u", "--use-base-accuracy", dest="base_accuracy",
+    parser.add_argument("-u", "--use-base-accuracy", dest="base_accuracy",
                       action="store_true",
                       help="compute densities with base accuracy. The default "
                       "is to only use the start and end of the aligned region "
                       "(RNA-Seq) "
                       "[%default]")
 
-    parser.add_option("-e", "--extend", dest="extends", type="int",
+    parser.add_argument("-e", "--extend", dest="extends", type="int",
                       action="append",
                       help="extend reads in :term:`bam` formatted file "
                       "(ChIP-Seq). "
                       "[%default]")
 
-    parser.add_option("--resolution-upstream", dest="resolution_upstream",
+    parser.add_argument("--resolution-upstream", dest="resolution_upstream",
                       type="int",
                       help="resolution of upstream region in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-downstream", dest="resolution_downstream",
+    parser.add_argument("--resolution-downstream", dest="resolution_downstream",
                       type="int",
                       help="resolution of downstream region in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-upstream-utr",
+    parser.add_argument("--resolution-upstream-utr",
                       dest="resolution_upstream_utr",
                       type="int",
                       help="resolution of upstream UTR region in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-downstream-utr",
+    parser.add_argument("--resolution-downstream-utr",
                       dest="resolution_downstream_utr",
                       type="int",
                       help="resolution of downstream UTR region in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-cds", dest="resolution_cds", type="int",
+    parser.add_argument("--resolution-cds", dest="resolution_cds", type="int",
                       help="resolution of cds region in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-first-exon", dest="resolution_first",
+    parser.add_argument("--resolution-first-exon", dest="resolution_first",
                       type="int",
                       help="resolution of first exon in gene, in bp"
                       "[%default]")
 
-    parser.add_option("--resolution-last-exon", dest="resolution_last",
+    parser.add_argument("--resolution-last-exon", dest="resolution_last",
                       type="int",
                       help="resolution of last exon in gene, in bp"
                       "[%default]")
 
-    parser.add_option("--resolution-introns",
+    parser.add_argument("--resolution-introns",
                       dest="resolution_introns", type="int",
                       help="resolution of introns region in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-exons-absolute-distance-topolya",
+    parser.add_argument("--resolution-exons-absolute-distance-topolya",
                       dest="resolution_exons_absolute_distance_topolya",
                       type="int",
                       help="resolution of exons absolute distance "
                       "topolya in bp "
                       "[%default]")
 
-    parser.add_option("--resolution-introns-absolute-distance-topolya",
+    parser.add_argument("--resolution-introns-absolute-distance-topolya",
                       dest="resolution_introns_absolute_distance_topolya",
                       type="int",
                       help="resolution of introns absolute distance "
                       "topolya in bp "
                       "[%default]")
 
-    parser.add_option("--extension-exons-absolute-distance-topolya",
+    parser.add_argument("--extension-exons-absolute-distance-topolya",
                       dest="extension_exons_absolute_distance_topolya",
                       type="int",
                       help="extension for exons from the absolute "
                       "distance from the topolya in bp "
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-introns-absolute-distance-topolya",
         dest="extension_introns_absolute_distance_topolya", type="int",
         help="extension for introns from the absolute distance from "
         "the topolya in bp [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-upstream", dest="extension_upstream", type="int",
         help="extension upstream from the first exon in bp"
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-downstream", dest="extension_downstream", type="int",
         help="extension downstream from the last exon in bp"
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-inward", dest="extension_inward", type="int",
         help="extension inward from a TSS start site in bp"
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-outward", dest="extension_outward", type="int",
         help="extension outward from a TSS start site in bp"
         "[%default]")
 
-    parser.add_option("--scale-flank-length", dest="scale_flanks", type="int",
+    parser.add_argument("--scale-flank-length", dest="scale_flanks", type="int",
                       help="scale flanks to (integer multiples of) gene length"
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--control-factor", dest="control_factor", type="float",
         help="factor for normalizing control and foreground data. "
         "Computed from data if not set. "
         "[%default]")
 
-    parser.add_option("--output-all-profiles", dest="output_all_profiles",
+    parser.add_argument("--output-all-profiles", dest="output_all_profiles",
                       action="store_true",
                       help="keep individual profiles for each "
                       "transcript and output. "
                       "[%default]")
 
-    parser.add_option("--counts-tsv-file", dest="input_filename_counts",
+    parser.add_argument("--counts-tsv-file", dest="input_filename_counts",
                       type="string",
                       help="filename with count data for each transcript. "
                       "Use this instead "
@@ -523,7 +523,7 @@ def main(argv=None):
                       "from previously computed counts "
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--background-region-bins",
         dest="background_region_bins",
         type="int",
@@ -531,12 +531,12 @@ def main(argv=None):
         "to be considered for background meta-gene normalization "
         "[%default]")
 
-    parser.add_option("--output-res",
+    parser.add_argument("--output-res",
                       dest="resolution_images", type="int",
                       help="the output dpi for the figure plot - will default to "
                       "[%default]")
 
-    parser.add_option("--image-format", dest="image_format", type="string",
+    parser.add_argument("--image-format", dest="image_format", type="string",
                       help="The output format for the figure plot - defaults to "
                       "[%default]")                      
 

@@ -59,19 +59,19 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id: gff2psl.py 2781 2009-09-10 11:33:14Z andreas $", usage=globals()["__doc__"])
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input is gtf.")
 
-    parser.add_option("--no-header", dest="with_header", action="store_false",
+    parser.add_argument("--no-header", dest="with_header", action="store_false",
                       help="do not output BLAT header [default=%default].")
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome.")
 
-    parser.add_option("--queries-tsv-file", dest="input_filename_queries", type="string",
+    parser.add_argument("--queries-tsv-file", dest="input_filename_queries", type="string",
                       help="fasta filename with queries [default=%default].")
 
-    parser.add_option("--allow-duplicates", dest="allow_duplicates", action="store_true",
+    parser.add_argument("--allow-duplicates", dest="allow_duplicates", action="store_true",
                       help="""permit duplicate entries. Adjacent exons of a transcript will still be merged [default=%default]."""  )
 
     parser.set_defaults(is_gtf=False,

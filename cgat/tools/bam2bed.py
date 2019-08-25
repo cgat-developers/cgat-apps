@@ -126,22 +126,22 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id$", usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--merge-pairs", dest="merge_pairs",
+    parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
                       action="store_true",
                       help="merge paired-ended reads and output interval "
                       "for entire fragment [default=%default]. ")
 
-    parser.add_option("--max-insert-size", dest="max_insert_size", type="int",
+    parser.add_argument("--max-insert-size", dest="max_insert_size", type="int",
                       help="only merge paired-end reads if they are less than "
                       "# bases apart. "
                       " 0 turns off this filter [default=%default]. ")
 
-    parser.add_option("--min-insert-size", dest="min_insert_size", type="int",
+    parser.add_argument("--min-insert-size", dest="min_insert_size", type="int",
                       help="only merge paired-end reads if they are at "
                       "least # bases apart. "
                       " 0 turns off this filter [default=%default]. ")
 
-    parser.add_option("--bed-format", dest="bed_format", type="choice",
+    parser.add_argument("--bed-format", dest="bed_format", type="choice",
                       choices=('3', '4', '5', '6'),
                       help="bed format to output. "
                       " [default=%default]")

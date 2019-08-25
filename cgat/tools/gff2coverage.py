@@ -236,24 +236,24 @@ def main(argv=None):
                             "andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome [default=%default]")
 
-    parser.add_option("-f", "--features", dest="features", type="string",
+    parser.add_argument("-f", "--features", dest="features", type="string",
                       action="append", help="features to collect "
                       "[default=%default]")
 
-    parser.add_option("-w", "--window-size", dest="window_size", type="int",
+    parser.add_argument("-w", "--window-size", dest="window_size", type="int",
                       help="window size in bp for histogram computation. "
                       "Determines the bin size.  "
                       "[default=%default]")
 
-    parser.add_option("-b", "--num-bins", dest="num_bins", type="int",
+    parser.add_argument("-b", "--num-bins", dest="num_bins", type="int",
                       help="number of bins for histogram computation "
                       "if window size is not given. "
                       "[default=%default]")
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       choices=("genomic", "histogram", ),
                       help="methods to apply. "
                       "[default=%default]")

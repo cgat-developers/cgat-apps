@@ -335,22 +335,22 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-s", "--ignore-strand", dest="ignore_strand",
+    parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
                       action="store_true",
                       help="ignore strand information [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-u", "--update", dest="filename_update", type="string",
         help="if filename is given, previous results will be read"
         "from there and only changed sets will be computed "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--pattern-identifier", dest="pattern_id", type="string",
         help="pattern to convert a filename to an id"
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--output-only-genes", dest="output_only_genes",
         action="store_true",
         help="only output gene stats (includes gene lists)"

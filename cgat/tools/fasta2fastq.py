@@ -199,61 +199,61 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--output-quality-format", dest="q_format", type="int",
         help="sequence quality format, e.g 33 = +33/Sanger"
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-paired-end", dest="paired", action="store_true",
         help="generate paired end reads [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--insert-length-mean", dest="insert_mean", type="float",
         help="mean insert length [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--insert-length-sd", dest="insert_sd", type="float",
         help="insert length standard deviation [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--counts-method", dest="counts_method", type="choice",
         choices=("reads", "copies"),
         help="simulate a ground truth number of reads per entry or"
         "copies per entry [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--counts-min", dest="counts_min", type="float",
         help="minimum number of reads/read pairs per fasta entry"
         "or copies per entry [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--counts-max", dest="counts_max", type="float",
         help="maximum number of reads/read pairs per fasta entry "
         "or copies per entry [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-read-length", dest="read_length", type="int",
         help="read length [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--sequence-error-phred", dest="phred", type="int",
         help="phred quality score [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-counts", dest="output_counts", type="string",
         help="name for counts outfile [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-fastq2", dest="fastq2_out", type="string",
         help="filename for second fastq outfile [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--premrna-fraction", dest="premrna_fraction", type="float",
         help="the fraction of reads to simulate from pre-mRNA"
         "[default= % default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--infile-premrna-fasta", dest="premrna_fasta", type="string",
         help="filename for pre-mRNA fasta[default=%default].")
 

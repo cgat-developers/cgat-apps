@@ -201,21 +201,21 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--output-equivalent", dest="write_equivalent",
         action="store_true",
         help="write equivalent entries [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--output-full", dest="write_full",
         action="store_true",
         help="write full gff entries [default=%default].")
 
-    parser.add_option("-p", "--add-percent", dest="add_percent",
+    parser.add_argument("-p", "--add-percent", dest="add_percent",
                       action="store_true",
                       help="add percentage columns [default=%default].")
 
-    parser.add_option("-s", "--ignore-strand", dest="ignore_strand",
+    parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
                       action="store_true",
                       help="ignore strand information [default=%default].")
 

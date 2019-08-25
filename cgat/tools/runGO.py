@@ -170,122 +170,122 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--species", dest="species", type="string",
         help="species to use [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--slims", dest="filename_slims", type="string",
         help="filename with GO SLIM categories "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--genes-tsv-file", dest="filename_genes", type="string",
         help="filename with genes to analyse "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-b", "--background-tsv-file", dest="filename_background",
         type="string",
         help="filename with background genes to analyse "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--min-counts", dest="minimum_counts",
         type="int",
         help="minimum count - ignore all categories that have "
         "fewer than # number of genes"
         " [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--sort-order", dest="sort_order", type="choice",
         choices=("fdr", "pvalue", "ratio"),
         help="output sort order [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--ontology", dest="ontology", type="string",
         action="append",
         help="go ontologies to analyze. Ontologies are tested "
         "separately [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--threshold", dest="threshold", type="float",
         help="significance threshold [>1.0 = all ]. If --fdr is set, this "
         "refers to the fdr, otherwise it is a cutoff for p-values.")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-dump", dest="filename_dump", type="string",
         help="dump GO category assignments into a flatfile "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--gene2name-map-tsv-file", dest="filename_gene2name", type="string",
         help="optional filename mapping gene identifiers to gene names "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-ontology", dest="filename_ontology", type="string",
         help="filename with ontology in OBO format [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-input", dest="filename_input", type="string",
         help="read GO category assignments from a flatfile "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--sample-size", dest="sample", type="int",
         help="do sampling (with # samples) [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-output-pattern", "--output-filename-pattern",
         dest="output_filename_pattern", type="string",
         help="pattern with output filename pattern "
         "(should contain: %(go)s and %(section)s ) [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--fdr", dest="fdr", action="store_true",
         help="calculate and filter by FDR default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--go2goslim", dest="go2goslim", action="store_true",
         help="convert go assignments in STDIN to goslim assignments and "
         "write to STDOUT [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--gene-pattern", dest="gene_pattern", type="string",
         help="pattern to transform identifiers to GO gene names "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-map-slims", dest="filename_map_slims", type="string",
         help="write mapping between GO categories and GOSlims "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--get-genes", dest="get_genes", type="string",
         help="list all genes in the with a certain GOID [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--strict", dest="strict", action="store_true",
         help="require all genes in foreground to be part of background. "
         "If not set, genes in foreground will be added to the background "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-q", "--fdr-method", dest="qvalue_method", type="choice",
         choices=("empirical", "storey", "BH"),
         help="method to perform multiple testing correction by controlling "
         "the fdr [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--pairwise", dest="compute_pairwise", action="store_true",
         help="compute pairwise enrichment for multiple gene lists. "
         "[default=%default].")
 
-    # parser.add_option( "--fdr-lambda", dest="qvalue_lambda", type="float",
+    # parser.add_argument( "--fdr-lambda", dest="qvalue_lambda", type="float",
     #                   help="fdr computation: lambda [default=%default]."  )
 
-    # parser.add_option( "--qvalue-pi0-method", dest="qvalue_pi0_method", type="choice",
+    # parser.add_argument( "--qvalue-pi0-method", dest="qvalue_pi0_method", type="choice",
     #                    choices = ("smoother", "bootstrap" ),
     # help="fdr computation: method for estimating pi0 [default=%default]."  )
 

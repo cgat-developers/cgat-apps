@@ -141,75 +141,75 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input is gtf instead of gff.")
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--merge-adjacent", dest="merge", action="store_true",
         help="merge adjacent intervals with the same attributes."
         " [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--feature", dest="feature", type="string",
         help="filter by a feature, for example 'exon', 'CDS'."
         " If set to the empty string, all entries are output "
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--maskregions-bed-file", dest="filename_masks",
         type="string", metavar="gff",
         help="mask sequences with regions given in gff file "
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--remove-masked-regions", dest="remove_masked_regions",
         action="store_true",
         help="remove regions instead of masking [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-interval-length", dest="min_length", type="int",
         help="set minimum length for sequences output "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--max-length", dest="max_length", type="int",
         help="set maximum length for sequences output "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extend-at", dest="extend_at", type="choice",
         choices=("none", "3", "5", "both", "3only", "5only"),
         help="extend at no end, 3', 5' or both ends. If "
         "3only or 5only are set, only the added sequence "
         "is returned [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--header-attributes", dest="header_attr",
         action="store_true",
         help="add GFF entry attributes to the FASTA record"
         " header section")
 
-    parser.add_option(
+    parser.add_argument(
         "--extend-by", dest="extend_by", type="int",
         help="extend by # bases [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extend-with", dest="extend_with", type="string",
         help="extend using base [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--masker", dest="masker", type="choice",
         choices=("dust", "dustmasker", "softmask", "none"),
         help="apply masker [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--fold-at", dest="fold_at", type="int",
         help="fold sequence every n bases[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--fasta-name-attribute", dest="naming_attribute", type="string",
         help="use attribute to name fasta entry. Currently only compatable"
         " with gff format [%default].")

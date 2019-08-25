@@ -105,7 +105,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--exons-file", "--gtf-file",
         dest="filename_exons", type="string", metavar="gtf",
         help="gtf formatted file with non-overlapping exon "

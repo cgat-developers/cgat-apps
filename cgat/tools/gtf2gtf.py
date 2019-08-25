@@ -362,18 +362,18 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("--merge-exons-distance",
+    parser.add_argument("--merge-exons-distance",
                       dest="merge_exons_distance",
                       type="int",
                       help="distance in nucleotides between "
                       "exons to be merged [%default].")
 
-    parser.add_option("--pattern-identifier", dest="pattern", type="string",
+    parser.add_argument("--pattern-identifier", dest="pattern", type="string",
                       help="pattern to use for renaming genes/transcripts. "
                       "The pattern should contain a %i, for example "
                       "--pattern-identifier=ENSG%010i [%default].")
 
-    parser.add_option("--sort-order",
+    parser.add_argument("--sort-order",
                       dest="sort_order",
                       type="choice",
                       choices=("gene",
@@ -386,13 +386,13 @@ def main(argv=None):
                                "gene+exon"),
                       help="sort input data [%default].")
 
-    parser.add_option("--mark-utr",
+    parser.add_argument("--mark-utr",
                       dest="mark_utr",
                       action="store_true",
                       help="mark utr for method --merge-exons. "
                       "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--without-utr",
         dest="with_utr",
         action="store_false",
@@ -401,7 +401,7 @@ def main(argv=None):
         "non-coding transcripts. "
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filter-method", dest="filter_method",
         type="choice",
         choices=("gene",
@@ -424,61 +424,61 @@ def main(argv=None):
         "'lincrna': only output lincRNA features. "
         "[%default].")
 
-    parser.add_option("-a", "--map-tsv-file", dest="filename_filter",
+    parser.add_argument("-a", "--map-tsv-file", dest="filename_filter",
                       type="string",
                       metavar="tsv",
                       help="filename of ids to map/filter [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--gff-file", dest="filename_gff", type="string",
         metavar="GFF",
         help="second filename of features (see --remove-overlapping) "
         "[%default]")
 
-    parser.add_option("--invert-filter",
+    parser.add_argument("--invert-filter",
                       dest="invert_filter",
                       action="store_true",
                       help="when using --filter, invert selection "
                       "(like grep -v). "
                       "[%default].")
 
-    parser.add_option("--sample-size", dest="sample_size", type="int",
+    parser.add_argument("--sample-size", dest="sample_size", type="int",
                       help="extract a random sample of size # if the option "
                       "'--method=filter --filter-method' is set "
                       "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--intron-min-length",
         dest="intron_min_length", type="int",
         help="minimum length for introns (for --exons-file2introns) "
         "[%default].")
 
-    parser.add_option("--min-exons-length",
+    parser.add_argument("--min-exons-length",
                       dest="min_exons_length",
                       type="int",
                       help="minimum length for gene (sum of exons) "
                       "(--sam-fileple-size) [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--intron-border",
         dest="intron_border",
         type="int",
         help="number of residues to exclude at intron at either end "
         "(--exons-file2introns) [%default].")
 
-    parser.add_option("--ignore-strand",
+    parser.add_argument("--ignore-strand",
                       dest="ignore_strand",
                       action="store_true",
                       help="remove strandedness of features (set to '.') when "
                       "using ``transcripts2genes`` or ``filter``"
                       "[%default].")
 
-    parser.add_option("--permit-duplicates", dest="strict",
+    parser.add_argument("--permit-duplicates", dest="strict",
                       action="store_false",
                       help="permit duplicate genes. "
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--duplicate-feature",
         dest="duplicate_feature",
         type="choice",
@@ -489,11 +489,11 @@ def main(argv=None):
         "that are next to each other in the sort order "
         "[%default]")
 
-    parser.add_option("--use-gene-id", dest="use_geneid", action="store_true",
+    parser.add_argument("--use-gene-id", dest="use_geneid", action="store_true",
                       help="when merging transcripts, exons or introns, use "
                       "the parent gene_id as the transcript id.")
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       action="append",
                       choices=(
                           "add-protein-id",

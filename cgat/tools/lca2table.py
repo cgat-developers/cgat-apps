@@ -46,11 +46,11 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-s", "--summarise", dest="summarise", type="choice",
+    parser.add_argument("-s", "--summarise", dest="summarise", type="choice",
                       choices=("level-counts", "taxa-counts", "individual"),
                       help="summarise the taxa counts - no. phyla etc")
 
-    parser.add_option("--output-map", dest="output_map", action="store_true",
+    parser.add_argument("--output-map", dest="output_map", action="store_true",
                       help="ouput map of taxonomy")
 
     # add common options (-h/--help, ...) and parse command line

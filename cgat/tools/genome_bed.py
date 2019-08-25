@@ -42,13 +42,13 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type="string",
         help="filename with Samtools indexed genome [default=%default].")
-    parser.add_option(
+    parser.add_argument(
         "-w", "--window-size", dest="window", type="int",
         help="Window size for tiling [default=%default].")
-    parser.add_option(
+    parser.add_argument(
         "-s", "--shift-size", dest="shift", type="int",
         help="Window shift for tiling [default=%default].")
 

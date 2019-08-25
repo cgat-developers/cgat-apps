@@ -18,7 +18,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type="float",
         help="sample size. If less than 0, take a proportion of the chromosome size. "
         "If greater than 0, take a fixed number of variants [%default]")

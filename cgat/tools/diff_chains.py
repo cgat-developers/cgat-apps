@@ -336,16 +336,16 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: chain2psl.py 2899 2010-04-13 14:37:37Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
+    parser.add_argument("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
                       help="output mismatches [%default]")
 
-    parser.add_option("-a", "--output-matches", dest="output_matches", action="store_true",
+    parser.add_argument("-a", "--output-matches", dest="output_matches", action="store_true",
                       help="output matches [%default]")
 
-    parser.add_option("-u", "--output-unique", dest="output_unique", action="store_true",
+    parser.add_argument("-u", "--output-unique", dest="output_unique", action="store_true",
                       help="output unique positions [%default]")
 
-    parser.add_option("-r", "--restrict", dest="restrict", type="string",
+    parser.add_argument("-r", "--restrict", dest="restrict", type="string",
                       help="restrict analysis to a chromosome pair (chr1:chr1:+) [%default]")
 
     parser.set_defaults(

@@ -60,14 +60,14 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id: csv_set.py 2782 2009-09-10 11:40:29Z andreas $")
 
-    parser.add_option("-u", "--unique", dest="unique", action="store_true",
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                       help="output rows are uniq.")
 
-    parser.add_option("-1", "--join-fields1", dest="join_fields1", type="string",
+    parser.add_argument("-1", "--join-fields1", dest="join_fields1", type="string",
                       help="join fields in first table.")
-    parser.add_option("-2", "--join-fields2", dest="join_fields2", type="string",
+    parser.add_argument("-2", "--join-fields2", dest="join_fields2", type="string",
                       help="join fields in second table.")
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       help="set operation to perform.", choices=("intersection", "rest", "union"))
 
     parser.set_defaults(

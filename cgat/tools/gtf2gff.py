@@ -1084,20 +1084,20 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome [default=%default].")
 
-    parser.add_option("-i", "--ignore-missing", dest="ignore_missing",
+    parser.add_argument("-i", "--ignore-missing", dest="ignore_missing",
                       action="store_true",
                       help="Ignore transcripts on contigs that are not "
                       "in the genome-file [default=%default].")
 
-    parser.add_option("-s", "--restrict-source", dest="restrict_source",
+    parser.add_argument("-s", "--restrict-source", dest="restrict_source",
                       type="choice",
                       choices=("protein_coding", "pseudogene", "lncRNA"),
                       help="restrict input by source [default=%default].")
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       choices=("full", "genome", "exons",
                                "promotors", "tts",
                                "regulons", "tts-regulons",
@@ -1107,50 +1107,50 @@ def main(argv=None):
                                ),
                       help="method for defining segments [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--territory-extension", dest="radius", type="int",
         help="radius of a territory [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--flank-size", dest="flank", type="int",
         help="size of the flanking region next to a gene [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--flank-increment-size", dest="increment", type="int",
         help="size of increment in flank in genestructure annotation "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--promotor-size", dest="promotor", type="int",
         help="size of a promotor region [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-u", "--upstream-extension", dest="upstream", type="int",
         help="size of region upstream of tss [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-d", "--downstream-extension", dest="downstream", type="int",
         help="size of region downstream of tss [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--gene-detail", dest="detail", type="choice",
         choices=("introns+exons", "exons", "introns"),
         help="level of detail for gene structure annotation "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-overlapping-promotors", dest="merge_promotors",
         action="store_true",
         help="merge overlapping promotors [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-intron-length", dest="min_intron_length",
         type="int",
         help="minimum intron length. If the distance between two "
         "consecutive exons is smaller, the region will be marked "
         "'unknown' [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--is-unsorted", dest="is_sorted", action="store_false",
         help="sort input before processing. Otherwise, the input is assumed "
         "to be sorted [default=%default].")

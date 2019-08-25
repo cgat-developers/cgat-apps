@@ -127,11 +127,11 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--min-chunk-size", dest="min_chunk_size", type="int",
         help="minimum chunk size [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-n", "--dry-run", dest="dry_run", action="store_true",
         help="do not create any files [default=%default].")
 

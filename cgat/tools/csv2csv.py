@@ -44,7 +44,7 @@ def main(argv=None):
     parser = E.OptionParser(
         version="%prog version: $Id$")
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--method=sort --sort-order", dest="sort", type="string",
         help="fields to take (in sorted order).")
 

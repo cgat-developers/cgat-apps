@@ -82,35 +82,35 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="method", type="choice",
         choices=["mutation-profile-bar-plot",
                  "depth-profile-line-plot",
                  "manhattan-plot"],
         help="methods to apply [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--transformation", dest="transformations", type="choice",
         action="append",
         choices=["log-depth-ratio"],
         help="dataframe transformation options [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--regex-filename", dest="regex_filename", type="string",
         help="[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--input-file-format", dest="input_file_format", type="choice",
         choices=("tsv", "bcftools-query"),
         help="input file format "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--plot-options", dest="plot_options", type="string",
         help="plot options to pass through to the plotter. The string is "
         "eval'ed, for example: --plot-options='window_size=3, ylabel=\"12\"' "

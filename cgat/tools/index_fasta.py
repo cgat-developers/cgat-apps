@@ -91,7 +91,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--extract", dest="extract", type="string",
         help="extract region for testing purposes. Format is "
         "contig:strand:from:to. "
@@ -104,14 +104,14 @@ def main(argv=None):
         "all of chromosome 'chr1'.")
 
     input_format_choices = ("one-forward-open", "zero-both-open")
-    parser.add_option("-i", "--input-format", dest="input_format",
+    parser.add_argument("-i", "--input-format", dest="input_format",
                       type="choice",
                       choices=input_format_choices,
                       help="coordinate format of input. Valid choices are "
                       "%s. See --extract. [default=%%default]." %
                       ", ".join(input_format_choices))
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--synonyms", dest="synonyms", type="string",
         help="list of synonyms. This is a comma separated with list "
         "of equivalence relations. For example, chrM=chrMT "
@@ -120,62 +120,62 @@ def main(argv=None):
         "[default=%default]")
 
     group = E.OptionGroup(parser, "Bencharking options")
-    group.add_option("-b", "--benchmark", dest="benchmark",
+    group.add_argument("-b", "--benchmark", dest="benchmark",
                      action="store_true",
                      help="benchmark time for read access "
                      "[default=%default].")
-    group.add_option("--benchmark-num-iterations",
+    group.add_argument("--benchmark-num-iterations",
                      dest="benchmark_num_iterations",
                      type="int",
                      help="number of iterations for benchmark "
                      "[default=%default].")
-    group.add_option("--benchmark-fragment-size",
+    group.add_argument("--benchmark-fragment-size",
                      dest="benchmark_fragment_size",
                      type="int",
                      help="benchmark: fragment size [default=%default].")
-    parser.add_option_group(group)
+    parser.add_argument_group(group)
 
     group = E.OptionGroup(parser, "Validation options")
-    group.add_option("--verify", dest="verify", type="string",
+    group.add_argument("--verify", dest="verify", type="string",
                      help="verify against other database [default=%default].")
 
-    group.add_option("--verify-iterations", dest="verify_num_iterations",
+    group.add_argument("--verify-iterations", dest="verify_num_iterations",
                      type="int",
                      help="number of iterations for verification "
                      "[default=%default].")
-    parser.add_option_group(group)
+    parser.add_argument_group(group)
 
     file_format_choices = ("fasta", "auto", "fasta.gz", "tar", "tar.gz")
-    parser.add_option("--file-format", dest="file_format", type="choice",
+    parser.add_argument("--file-format", dest="file_format", type="choice",
                       choices=file_format_choices,
                       help="file format of input. Supply if data comes "
                       "from stdin "
                       "Valid choices are %s [default=%%default]." %
                       ", ".join(file_format_choices))
 
-    parser.add_option("-a", "--clean-sequence", dest="clean_sequence",
+    parser.add_argument("-a", "--clean-sequence", dest="clean_sequence",
                       action="store_true",
                       help="remove X/x from DNA sequences - they cause "
                       "errors in exonerate [default=%default].")
 
-    parser.add_option("--allow-duplicates", dest="allow_duplicates",
+    parser.add_argument("--allow-duplicates", dest="allow_duplicates",
                       action="store_true",
                       help="allow duplicate identifiers. Further occurances "
                       "of an identifier are suffixed by an '_%i' "
                       "[default=%default].")
 
-    parser.add_option("--regex-identifier", dest="regex_identifier",
+    parser.add_argument("--regex-identifier", dest="regex_identifier",
                       type="string",
                       help="regular expression for extracting the "
                       "identifier from fasta description line "
                       "[default=%default].")
 
-    parser.add_option("--force-output", dest="force", action="store_true",
+    parser.add_argument("--force-output", dest="force", action="store_true",
                       help="force overwriting of existing files "
                       "[default=%default].")
 
     translator_choices = ("solexa", "phred", "bytes", "range200")
-    parser.add_option("-t", "--translator", dest="translator", type="choice",
+    parser.add_argument("-t", "--translator", dest="translator", type="choice",
                       choices=translator_choices,
                       help="translate numerical quality scores. "
                       "Valid choices are %s [default=%%default]." %
@@ -183,7 +183,7 @@ def main(argv=None):
 
     group = E.OptionGroup(parser, 'Compression options')
     compression_choices = ("lzo", "zlib", "gzip", "dictzip", "bzip2", "debug")
-    group.add_option("-c", "--compression", dest="compression", type="choice",
+    group.add_argument("-c", "--compression", dest="compression", type="choice",
                      choices=compression_choices,
                      help="compress database, using specified compression "
                      "method. "
@@ -191,19 +191,19 @@ def main(argv=None):
                      "system "
                      "[default=%%default]." % ", ".join(compression_choices))
 
-    group.add_option("--random-access-points", dest="random_access_points",
+    group.add_argument("--random-access-points", dest="random_access_points",
                      type="int",
                      help="set random access points every # number "
                      "of nucleotides for block compression schemes "
                      "[default=%default].")
 
-    group.add_option(
+    group.add_argument(
         "--compress-index", dest="compress_index",
         action="store_true",
         help="compress index. The default is to use a plain-text, "
         "human-readable index [default=%default].")
 
-    parser.add_option_group(group)
+    parser.add_argument_group(group)
 
     parser.set_defaults(
         extract=None,

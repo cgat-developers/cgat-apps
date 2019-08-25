@@ -109,7 +109,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--guess-format", dest="guess_format", type="choice",
         choices=(
             'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),
@@ -119,7 +119,7 @@ def main(argv=None):
         "The script will use this format if the "
         "sequence qualities are ambiguous.[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--target-format", dest="target_format", type="choice",
         choices=(
             'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),

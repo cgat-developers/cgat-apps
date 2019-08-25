@@ -193,7 +193,7 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id",
                             usage=globals()["__doc__"])
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input is gtf.")
 
     parser.set_defaults(

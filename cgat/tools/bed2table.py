@@ -520,26 +520,26 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-b", "--bam-file", dest="bam_files", type="string",
         help="filename with read mapping information. Multiple files can be "
         "submitted in a comma-separated list [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--control-bam-file", dest="control_bam_files", type="string",
         help="filename with read mapping information for input/control. "
         "Multiple files can be submitted in a comma-separated list "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-format", dest="filename_format", type="choice",
         choices=("bed", "gff", "gtf"),
         help="format of secondary stream [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--counter", dest="counters", type="choice", action="append",
         choices=("length",
                  "overlap",
@@ -550,39 +550,39 @@ def main(argv=None):
                  "motif"),
         help="select counters to apply [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--motif-sequence", dest="motif_sequence", type="string",
         help="specify a sequence to search for"
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--offset", dest="offsets", type="int", action="append",
         help="tag offsets for tag counting - supply as many as there "
         "are bam-files [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--control-offset", dest="control_offsets", type="int",
         action="append",
         help="control tag offsets for tag counting - supply as many as "
         "there are bam-files [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-a", "--output-all-fields", dest="all_fields", action="store_true",
         help="output all fields in original bed file, by default only "
         "the first 4 are output [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-bed-headers", dest="bed_headers", type="string",
         help="supply ',' separated list of headers for bed component "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--gff-file", dest="filename_gff", type="string",
         action="append", metavar='bed',
         help="filename with extra gff files. The order is important "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--has-header", dest="has_header", action="store_true",
         help="bed file with headers. Headers and first columns are "
         "preserved [default=%default]")

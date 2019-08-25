@@ -177,32 +177,32 @@ def buildOptionParser(argv):
     parser = E.OptionParser(version="%prog version: $Id",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-f", "--format", dest="format", type="choice",
+    parser.add_argument("-f", "--format", dest="format", type="choice",
                       choices=("bam", "bigwig"),
                       help="format of genomic input files for densities "
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--use-interval", dest="use_interval", action="store_true",
         help="only count tags that are in interval given "
         "in bed file. Otherwise, use a fixed width window (see --window-size) "
         "around peak [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-w", "--window-size", dest="window_size", type="int",
         help="window size in bp on either side of a peak used for getting "
         "read densities. If ``--window-size`` is 1000, the actual window size"
         "will be 2kb, 1kb on either side of the peak in an interval"
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-b", "--bin-size", dest="bin_size", type="int",
         help="bin-size in bp for computing read densities. "
         "If ``--window-size`` is set to 1000 and ``--bin-size`` to 10, "
         "there will be 100 bins on either side of a peak. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--smooth-method", dest="smooth_method", type="choice",
         choices=("none", "sum", "sg"),
         help="smooting method to apply to density data before sampling "
@@ -210,7 +210,7 @@ def buildOptionParser(argv):
         "none=no smoothing "
         "[%default]")
 
-    parser.add_option("-s", "--sort-order", dest="sort_orders",
+    parser.add_argument("-s", "--sort-order", dest="sort_orders",
                       type="choice",
                       action="append",
                       choices=("peak-height", "peak-width", "unsorted",
@@ -218,7 +218,7 @@ def buildOptionParser(argv):
                       help="output sort order for matrices. "
                       "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--control-bam-file", "--control-bigwig-file",
         action="append",
         dest="control_files",
@@ -233,12 +233,12 @@ def buildOptionParser(argv):
         "principal input file "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--random-shift", dest="random_shift", action="store_true",
         help="shift intervals in random direction up/downstream of interval "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--centring-method", dest="centring_method", type="choice",
         choices=("reads", "middle"),
         help="centring method. Available are: "
@@ -246,19 +246,19 @@ def buildOptionParser(argv):
         "middle=use middle of interval "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-n", "--normalize-matrix", dest="normalization", type="choice",
         choices=("none", "sum"),
         help="matrix normalisation to perform. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--use-strand", dest="strand_specific", action="store_true",
         help="use strand information in intervals. Intervals on the "
         "negative strand are flipped "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--shift-size", dest="shift", type="int",
         help="shift for reads. When processing bam files, "
         "reads will be shifted upstream/downstream by this amount. "

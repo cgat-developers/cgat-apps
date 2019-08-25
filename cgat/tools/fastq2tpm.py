@@ -258,61 +258,61 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-t", "--test", dest="test", type="string",
+    parser.add_argument("-t", "--test", dest="test", type="string",
                       help="supply help")
 
-    parser.add_option("--program", dest="program", type="choice",
+    parser.add_argument("--program", dest="program", type="choice",
                       choices=["kallisto", "sailfish"],
                       help="use either kallisto or sailfish, "
                       "for alignment-free quantification")
 
-    parser.add_option("--method", dest="method", type="choice",
+    parser.add_argument("--method", dest="method", type="choice",
                       choices=["make_index", "quant"],
                       help="method of kallisto to run")
 
-    parser.add_option("--index-fasta", dest="fa_index", type="string",
+    parser.add_argument("--index-fasta", dest="fa_index", type="string",
                       help="multi-fasta to use to make index for kallisto")
 
-    parser.add_option("--index-file", dest="index_file", type="string",
+    parser.add_argument("--index-file", dest="index_file", type="string",
                       help="kallisto index file to use for quantificaiton")
 
-    parser.add_option("--use-bias", dest="bias", action="store_true",
+    parser.add_argument("--use-bias", dest="bias", action="store_true",
                       help="use kallisto's bias correction")
 
-    parser.add_option("--bootstraps", dest="bootstrap", type="int",
+    parser.add_argument("--bootstraps", dest="bootstrap", type="int",
                       help="number of bootstraps to apply to quantification")
 
-    parser.add_option("--seed", dest="seed", type="int",
+    parser.add_argument("--seed", dest="seed", type="int",
                       help="seed number for random number genration "
                       "and bootstrapping")
 
-    parser.add_option("--just-text", dest="text_only", action="store_true",
+    parser.add_argument("--just-text", dest="text_only", action="store_true",
                       help="only output files in plain text, not HDF5")
 
-    parser.add_option("--library-type", dest="library", type="choice",
+    parser.add_argument("--library-type", dest="library", type="choice",
                       choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
                                "OSF", "OSR", "OU", "SR", "SF", "U"],
                       help="sailfish fragment library type code")
 
-    parser.add_option("--paired-end", dest="paired", action="store_true",
+    parser.add_argument("--paired-end", dest="paired", action="store_true",
                       help="data are paired end")
 
-    parser.add_option("--kmer-size", dest="kmer", type="int",
+    parser.add_argument("--kmer-size", dest="kmer", type="int",
                       help="kmer size to use for index generation")
 
-    parser.add_option("--gene-gtf", dest="gene_gtf", type="string",
+    parser.add_argument("--gene-gtf", dest="gene_gtf", type="string",
                       help="GTF file containing transcripts and gene "
                       "identifiers to calculate gene-level estimates")
 
-    parser.add_option("--threads", dest="threads", type="int",
+    parser.add_argument("--threads", dest="threads", type="int",
                       help="number of threads to use for kallisto "
                       "quantificaion")
 
-    parser.add_option("--output-directory", dest="outdir", type="string",
+    parser.add_argument("--output-directory", dest="outdir", type="string",
                       help="directory to output transcript abundance "
                       "estimates to")
 
-    parser.add_option("--output-file", dest="outfile", type="string",
+    parser.add_argument("--output-file", dest="outfile", type="string",
                       help="output filename")
 
     parser.set_defaults(paired=False)

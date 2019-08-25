@@ -265,24 +265,24 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type="float",
         help="sample size. If less than 0, take a proportion of the chromosome size. "
         "If greater than 0, take a fixed number of variants [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type="string",
         help="filename with reference sequence in fasta format [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-bam", dest="input_filename_bam", type="string",
         help="filename with aligned reads [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--no-vcf-columns", dest="no_vcf_columns", action="store_true",
         help="do not output vcf columns")
 
-    parser.add_option(
+    parser.add_argument(
         "--counter", dest="counters", type="choice", action="append",
         choices=["context", "bam-indels", "bam-allelic-depth", "indel-type"],
         help="counters to apply [%default]")

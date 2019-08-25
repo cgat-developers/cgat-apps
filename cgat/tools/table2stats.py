@@ -51,11 +51,11 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-d", "--delimiter", dest="delimiter", type="string",
         help="delimiter to separate columns [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="methods", type="choice",
         action="append",
         choices=["row-describe", "column-describe"],

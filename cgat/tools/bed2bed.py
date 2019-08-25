@@ -503,72 +503,72 @@ def main(argv=sys.argv):
                             usage=globals()["__doc__"])
 
     # IMS: new method: extend intervals by set amount
-    parser.add_option("-m", "--method", dest="methods", type="choice",
+    parser.add_argument("-m", "--method", dest="methods", type="choice",
                       action="append",
                       choices=("merge", "filter-genome", "bins",
                                "block", "sanitize-genome", "shift", "extend",
                                "filter-names", "rename-chr"),
                       help="method to apply [default=%default]")
 
-    parser.add_option("--num-bins", dest="num_bins", type="int",
+    parser.add_argument("--num-bins", dest="num_bins", type="int",
                       help="number of bins into which to merge (used for "
                       "method `bins) [default=%default]")
 
-    parser.add_option("--bin-edges", dest="bin_edges", type="string",
+    parser.add_argument("--bin-edges", dest="bin_edges", type="string",
                       help="bin_edges for binning method [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--binning-method", dest="binning_method", type="choice",
         choices=(
             "equal-bases", "equal-intervals", "equal-range"),
         help="method used for binning (used for method `bins` if no "
         "bin_edges is given) [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-distance", dest="merge_distance", type="int",
         help="distance in bases over which to merge that are not "
         "directly adjacent [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-min-intervals", dest="merge_min_intervals", type="int",
         help="only output merged intervals that are build from at least "
         "x intervals [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-by-name", dest="merge_by_name",
         action="store_true",
         help="only merge intervals with the same name [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-and-resolve-blocks", dest="resolve_blocks",
         action="store_true",
         help="When merging bed12 entrys, should blocks be resolved?")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-stranded", dest="stranded",
         action="store_true",
         help="Only merge intervals on the same strand")
 
-    parser.add_option(
+    parser.add_argument(
         "--remove-inconsistent-names", dest="remove_inconsistent_names",
         action="store_true",
         help="when merging, do not output intervals where the names of "
         "overlapping intervals do not match [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--offset", dest="offset",  type="int",
         help="offset for shifting intervals [default=%default]")
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome.")
 
-    parser.add_option("-b", "--bam-file", dest="bam_file", type="string",
+    parser.add_argument("-b", "--bam-file", dest="bam_file", type="string",
                       help="bam-formatted filename with genome.")
 
-    parser.add_option("--filter-names-file", dest="names", type="string",
+    parser.add_argument("--filter-names-file", dest="names", type="string",
                       help="list of names to keep. One per line")
 
-    parser.add_option("--rename-chr-file", dest="rename_chr_file", type="string",
+    parser.add_argument("--rename-chr-file", dest="rename_chr_file", type="string",
                       help="mapping table between old and new chromosome names."
                       "TAB separated 2-column file.")
 

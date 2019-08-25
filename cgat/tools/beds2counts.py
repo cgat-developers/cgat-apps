@@ -81,7 +81,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--bed-file", dest="infiles", type="string",
         metavar="bed",
         help="supply list of bed files",

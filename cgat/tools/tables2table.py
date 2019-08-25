@@ -109,36 +109,36 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-t", "--no-titles",
+    parser.add_argument("-t", "--no-titles",
                       dest="input_has_titles",
                       action="store_false",
                       help="no titles in input [%default].")
 
-    parser.add_option("--ignore-titles",
+    parser.add_argument("--ignore-titles",
                       dest="ignore_titles",
                       action="store_true",
                       help="ignore titles in input [%default]")
 
-    parser.add_option("-i", "--skip-titles",
+    parser.add_argument("-i", "--skip-titles",
                       dest="skip_titles",
                       action="store_true",
                       help="skip output of titles.")
 
-    parser.add_option("-m", "--missing-value",
+    parser.add_argument("-m", "--missing-value",
                       dest="missing_value",
                       type="string",
                       help="entry to use for missing values.")
 
-    parser.add_option("--header-names", dest="headers", type="string",
+    parser.add_argument("--header-names", dest="headers", type="string",
                       help="add headers for files as a ,-separated "
                       "list [%default].")
 
-    parser.add_option("-c", "--columns", dest="columns", type="string",
+    parser.add_argument("-c", "--columns", dest="columns", type="string",
                       help="columns to use for joining. Multiple columns "
                       "can be specified as a comma-separated list "
                       "[default=%default].")
 
-    parser.add_option("-k", "--take",
+    parser.add_argument("-k", "--take",
                       dest="take",
                       type="string",
                       action="append",
@@ -146,83 +146,83 @@ def main(argv=sys.argv):
                       "except for "
                       "the join columns are taken [%default]")
 
-    parser.add_option("-g", "--glob", dest="glob", type="string",
+    parser.add_argument("-g", "--glob", dest="glob", type="string",
                       help="wildcard expression for table names.")
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--sort-order", dest="sort", type="string",
         help="sort by column titles in particular given order: "
         "alphabetical|numeric|list of columns.")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--merge-overlapping", dest="merge", action="store_true",
         help="simply merge tables without matching up "
         "rows. [default=%default].")
 
-    parser.add_option("-a", "--cat", dest="cat", type="string",
+    parser.add_argument("-a", "--cat", dest="cat", type="string",
                       help="simply concatenate tables. Adds an "
                       "additional column called X with the filename "
                       " [default=%default].")
 
-    parser.add_option("--sort-keys", dest="sort_keys", type="choice",
+    parser.add_argument("--sort-keys", dest="sort_keys", type="choice",
                       choices=("numeric", "alphabetic"),
                       help="sort key columns by value.")
 
-    parser.add_option("--keep-empty", dest="ignore_empty",
+    parser.add_argument("--keep-empty", dest="ignore_empty",
                       action="store_false",
                       help="keep empty tables. The default is "
                       "to ignore them.")
 
-    parser.add_option("--ignore-empty",
+    parser.add_argument("--ignore-empty",
                       dest="ignore_empty",
                       action="store_true",
                       help="ignore empty tables - this is "
                       "the default [%default].")
 
-    parser.add_option("--add-file-prefix",
+    parser.add_argument("--add-file-prefix",
                       dest="add_file_prefix",
                       action="store_true",
                       help="add file prefix to "
                       "columns headers. Suitable for multi-column"
                       "tables [default=%default]")
 
-    parser.add_option("--use-file-prefix",
+    parser.add_argument("--use-file-prefix",
                       dest="use_file_prefix",
                       action="store_true",
                       help="use file prefix as column headers. "
                       "Suitable for two-column tables "
                       "[default=%default]")
 
-    parser.add_option("--prefixes", dest="prefixes", type="string",
+    parser.add_argument("--prefixes", dest="prefixes", type="string",
                       help="list of prefixes to use. "
                       ", separated list of prefixes. "
                       "The number of prefixes need to correspond to the "
                       "number of input files [default=%default]")
 
-    parser.add_option("--regex-filename", dest="regex_filename",
+    parser.add_argument("--regex-filename", dest="regex_filename",
                       type="string",
                       help="pattern to apply to filename to "
                       "build prefix [default=%default]")
 
-    parser.add_option("--regex-start",
+    parser.add_argument("--regex-start",
                       dest="regex_start",
                       type="string",
                       help="regular expression to start "
                       "collecting table in a file [default=%default]")
 
-    parser.add_option("--regex-end",
+    parser.add_argument("--regex-end",
                       dest="regex_end",
                       type="string",
                       help="regular expression to end collecting "
                       "table in a file [default=%default]")
 
-    parser.add_option("--sep",
+    parser.add_argument("--sep",
                       dest="separator",
                       type="string",
                       help="table separator to use. The default is to use tabs. "
                       "[default=%default]")
 
-    parser.add_option("--test", dest="test",
+    parser.add_argument("--test", dest="test",
                       type="int",
                       help="test combining tables with "
                       "first X rows [default=%default]")

@@ -70,23 +70,23 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       choices=("best", None),
                       help="method for determing what to count")
 
-    parser.add_option("--sum-cog", dest="sum_cog", action="store_true",
+    parser.add_argument("--sum-cog", dest="sum_cog", action="store_true",
                       help="sum counts over functions (COGs) in --cog-map")
 
-    parser.add_option("--evaluate-cog",
+    parser.add_argument("--evaluate-cog",
                       dest="evaluate_cog",
                       action="store_true",
                       help="""output the percent of
                               alignments for each read = best hit""")
 
-    parser.add_option("--cog-map", dest="cog_map", type="string",
+    parser.add_argument("--cog-map", dest="cog_map", type="string",
                       help="file with gene to cog map")
 
-    parser.add_option("-n", "--nsamples", dest="nsamples", type="int",
+    parser.add_argument("-n", "--nsamples", dest="nsamples", type="int",
                       help="""number of queries to evaluate-
                               will take the first n in the file""")
 

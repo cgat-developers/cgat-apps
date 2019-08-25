@@ -64,12 +64,12 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-i", "--intervals-bed-file", dest="filename_intervals",
+    parser.add_argument("-i", "--intervals-bed-file", dest="filename_intervals",
                       type="string",
                       help="filename with intervals to use "
                       "[%default].")
 
-    parser.add_option("-e", "--regex-identifier", dest="regex_identifier",
+    parser.add_argument("-e", "--regex-identifier", dest="regex_identifier",
                       type="string",
                       help="regular expression to extract identifier from "
                       "filename [%default].")

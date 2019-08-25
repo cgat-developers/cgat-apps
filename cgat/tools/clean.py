@@ -94,13 +94,13 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: clean.py 2782 2009-09-10 11:40:29Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--glob", dest="glob_pattern", type="string",
+    parser.add_argument("-g", "--glob", dest="glob_pattern", type="string",
                       help="glob pattern to use for collecting files [%default].")
 
-    parser.add_option("-n", "--dry-run", dest="dry_run", action="store_true",
+    parser.add_argument("-n", "--dry-run", dest="dry_run", action="store_true",
                       help="only print out actions, do not execute them [%default].")
 
-    parser.add_option("-f", "--file-pattern", dest="file_pattern", type="string",
+    parser.add_argument("-f", "--file-pattern", dest="file_pattern", type="string",
                       help="only check files matching this pattern [%default].")
 
     parser.set_defaults(glob_pattern="data.dir",

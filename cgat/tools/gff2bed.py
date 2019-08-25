@@ -104,23 +104,23 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input file is in gtf format [default=%default] ")
 
-    parser.add_option(
+    parser.add_argument(
         "--set-name", dest="name", type="choice",
         help="field from the GFF/GTF file to use as the "
         "name field in the BED file [%default]",
         choices=("gene_id", "transcript_id", "class", "family",
                  "feature", "source", "repName", "gene_biotype"))
 
-    parser.add_option(
+    parser.add_argument(
         "--track", dest="track", type="choice",
         choices=("feature", "source", None),
         help="use feature/source field to define BED tracks "
         "[default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--bed12-from-transcripts", dest="bed12", action="store_true",
         default=False,
         help="Process GTF file into Bed12 entries, with blocks as exons"

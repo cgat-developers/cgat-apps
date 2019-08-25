@@ -15,25 +15,25 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--input-vcf", dest="input_vcf_file", type="string",
         help="input vcf file")
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--truth-vcf", dest="truth_vcf_file", type="string",
         help="truth vcf file")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--input-fasta", dest="input_fasta_file", type="string",
         help="input fasta file. faidx indexed reference sequence file to "
         "determine INDEL context [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--input-bed", dest="input_bed_file", type="string",
         help="input file with intervals. Tab-delimited file of intervals "
         "in bed format to restrict analysis to. [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="methods", action="append", type="choice",
         choices=("mutational-signature", "kinship"),
         help="methods to apply [%default]")

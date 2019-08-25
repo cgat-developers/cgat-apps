@@ -49,16 +49,16 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: csv_cut.py 2782 2009-09-10 11:40:29Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-r", "--remove", dest="remove", action="store_true",
+    parser.add_argument("-r", "--remove", dest="remove", action="store_true",
                       help="remove specified columns, keep all others.")
 
-    parser.add_option("-u", "--unique", dest="unique", action="store_true",
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                       help="output rows are uniq.")
 
-    parser.add_option("-l", "--large", dest="large", action="store_true",
+    parser.add_argument("-l", "--large", dest="large", action="store_true",
                       help="large columns. Do not use native python csv module [default=%default].")
 
-    parser.add_option("-f", "--filename-fields", dest="filename_fields", type="string",
+    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type="string",
                       help="filename with field information.")
 
     parser.set_defaults(

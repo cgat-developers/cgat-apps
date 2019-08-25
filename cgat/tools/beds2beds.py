@@ -191,19 +191,19 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--exclusive-overlap", dest="exclusive",
         action="store_true",
         help="Intervals reported will be merged across the "
         "positive set and do not overlap any interval in any of the "
         "other sets [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--pattern-identifier", dest="pattern_id", type="string",
         help="pattern to convert a filename "
         "to an id [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="method", type="choice",
         choices=("merged-combinations",
                  "unmerged-combinations"),

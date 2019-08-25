@@ -400,7 +400,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: gff2gff.py$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       choices=(
                           "add-flank",
                           "add-upstream-flank",
@@ -418,118 +418,118 @@ def main(argv=None):
                           "rename-chr"),
                       help="method to apply [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--ignore-strand", dest="ignore_strand",
         help="ignore strand information.", action="store_true")
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input will be treated as gtf [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--contigs-tsv-file", dest="input_filename_contigs",
         type="string",
         help="filename with contig lengths.")
 
-    parser.add_option(
+    parser.add_argument(
         "--agp-file", dest="input_filename_agp", type="string",
         help="agp file to map coordinates from contigs to scaffolds.")
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type="string",
         help="filename with genome.")
 
-    parser.add_option(
+    parser.add_argument(
         "--crop-gff-file", dest="filename_crop_gff", type="string",
         help="GFF/GTF file to crop against.")
 
-    parser.add_option(
+    parser.add_argument(
         "--group-field", dest="group_field", type="string",
         help="""gff field/attribute to group by such as gene_id, "
         "transcript_id, ... [%default].""")
 
-    parser.add_option(
+    parser.add_argument(
         "--filter-range", dest="filter_range", type="string",
         help="extract all elements overlapping a range. A range is "
         "specified by eithor 'contig:from..to', 'contig:+:from..to', "
         "or 'from,to' .")
 
-    parser.add_option(
+    parser.add_argument(
         "--sanitize-method", dest="sanitize_method", type="choice",
         choices=("ucsc", "ensembl", "genome"),
         help="method to use for sanitizing chromosome names. "
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--flank-method", dest="flank_method", type="choice",
         choices=("add", "extend"),
         help="method to use for adding flanks. ``extend`` will "
         "extend existing features, while ``add`` will add new features. "
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--skip-missing", dest="skip_missing", action="store_true",
         help="skip entries on missing contigs. Otherwise an "
         "exception is raised [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--contig-pattern", dest="contig_pattern", type="string",
         help="a comma separated list of regular expressions specifying "
         "contigs to be removed when running method sanitize [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report", dest="assembly_report", type="string",
         help="path to assembly report file which allows mapping of "
         "ensembl to ucsc contigs when running method sanitize [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report-hasids",
         dest="assembly_report_hasIDs", type="int",
         help="path to assembly report file which allows mapping of "
         "ensembl to ucsc contigs when running method sanitize [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report-ucsccol", dest="assembly_report_ucsccol",
         type="int",
         help="column in the assembly report containing ucsc contig ids"
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report-ensemblcol", dest="assembly_report_ensemblcol",
         type="int",
         help="column in the assembly report containing ensembl contig ids"
         "[%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-extras", dest="assembly_extras",
         type="str",
         help="additional mismatches between gtf and fasta to fix when"
         "sanitizing the genome [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-upstream", dest="extension_upstream", type="float",
         help="extension for upstream end [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--extension-downstream", dest="extension_downstream", type="float",
         help="extension for downstream end [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-distance", dest="min_distance", type="int",
         help="minimum distance of features to merge/join [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--max-distance", dest="max_distance", type="int",
         help="maximum distance of features to merge/join [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-features", dest="min_features", type="int",
         help="minimum number of features to merge/join [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--max-features", dest="max_features", type="int",
         help="maximum number of features to merge/join [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--rename-chr-file", dest="rename_chr_file", type="string",
         help="mapping table between old and new chromosome names."
         "TAB separated 2-column file.")

@@ -57,20 +57,20 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type="string",
         help="filename with genome [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--remove-regex", dest="remove_regex",
         type="string",
         help="regular expression of contigs to remove [default=None].")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--gff-file", dest="gff_file", type="string",
         help="gff file to use for getting contig sizes.")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--fixed-width-windows",
         dest="fixed_width_windows", type="string",
         help="fixed width windows. Supply the window size as a "

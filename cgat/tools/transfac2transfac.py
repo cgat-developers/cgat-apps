@@ -46,11 +46,11 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--filter-prefix", dest="filter_prefix", default=None,
         help="ID prefix to filter on, eg. V for vertebrates")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--pattern-identifier", dest="filter_pattern", default=None,
         help="ID pattern to filter (filter is case insensitive) eg. pax6. "
         "Multiple patterns should be specified as a comma separated list")

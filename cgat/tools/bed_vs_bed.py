@@ -22,12 +22,12 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-b", "--reference-bed-file", dest="reference_bed_file", type="string",
         help="reference bed file "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="method", type="choice",
         choices=("lvc-comparison", ),
         help="methods to apply [%default]")

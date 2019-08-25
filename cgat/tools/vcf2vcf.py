@@ -131,30 +131,30 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type="string",
         help="filename with reference sequence in fasta format [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-bam", dest="input_filename_bam", type="string",
         help="filename with aligned reads [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--method", dest="methods", type="choice", action="append",
         choices=["add-strelka-genotype",
                  "lift-over"],
         help="methods to apply [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-chain", dest="input_filename_chain", type="string",
         help="filename with alignment chain for lift-over [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--normal-sample-regex", dest="normal_sample_regex", type="string",
         help="regular expression to apply to header to identify normal "
         "sample id [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-filename-unmapped", dest="output_filename_unmapped", type="string",
         help="filename with variants that could not be lifted over [%default]")
 

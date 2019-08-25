@@ -50,16 +50,16 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-f", "--bam-file", "--filename", dest="filename", type="string",
+    parser.add_argument("-f", "--bam-file", "--filename", dest="filename", type="string",
                       help="bamfile")
 
-    parser.add_option("-a", "--aligner", dest="aligner", type="string",
+    parser.add_argument("-a", "--aligner", dest="aligner", type="string",
                       help="bamfile", default="bwa")
 
-    parser.add_option("-r", "--output-report", type="string", dest="report",
+    parser.add_argument("-r", "--output-report", type="string", dest="report",
                       help="bamfile", default="")
 
-    parser.add_option("-o", "--output-filename-bam", "--outfile", dest="outfile", type="string",
+    parser.add_argument("-o", "--output-filename-bam", "--outfile", dest="outfile", type="string",
                       help="bamfile", default="")
 
     # add common options (-h/--help, ...) and parse command line

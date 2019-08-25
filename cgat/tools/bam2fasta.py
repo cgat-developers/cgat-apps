@@ -172,22 +172,22 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--input-bed-file", dest="input_bed_file", type="string",
         help="input file with intervals. Tab-delimited file of intervals "
         "in bed format to restrict analysis to. [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--merge-intervals", dest="merge_intervals", action="store_true",
         help="merge intervals in bed file. Useful if you have a site bed-file "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--barcode-fasta-file", dest="barcode_fasta_file",
         help="barcode sequence in fasta format. Variable positions "
         "should be marked by N "

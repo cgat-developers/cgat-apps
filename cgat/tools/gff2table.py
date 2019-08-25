@@ -332,27 +332,27 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type="string",
         help="filename with genome (indexed).")
 
-    parser.add_option(
+    parser.add_argument(
         "-w", "--windows-bed-file", dest="filename_windows", type="string",
         help="gff file with windows to use.")
 
-    parser.add_option(
+    parser.add_argument(
         "-d", "--filename-data", dest="filename_data", type="string",
         help="gff file with data to use.")
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="filename-data is gtf file [default=%default.")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--features", dest="features", type="choice", action="append",
         choices=("GC", ),
         help="features to compute.")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--decorator", dest="decorator", type="choice",
         choices=("counts", "gc", "gc3", "mean-length", "median-length",
                  "percent-coverage",
@@ -360,11 +360,11 @@ def main(argv=None):
                  "max-score"),
         help="decorators to use.")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--skip-empty", dest="skip_empty", action="store_true",
         help="skip empty windows.")
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--transform=", dest="transform", type="choice",
         choices=(
             "none", "overlap", "complement", "third_codon"),

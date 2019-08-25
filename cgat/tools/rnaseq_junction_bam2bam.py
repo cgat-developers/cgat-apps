@@ -67,25 +67,25 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-t", "--template-bam-file", dest="filename_genome_bam", type="string",
+    parser.add_argument("-t", "--template-bam-file", dest="filename_genome_bam", type="string",
                       help="input bam file for header information [%default]")
 
-    parser.add_option("-s", "--contigs-tsv-file", dest="filename_contigs", type="string",
+    parser.add_argument("-s", "--contigs-tsv-file", dest="filename_contigs", type="string",
                       help="filename with contig sizes [%default]")
 
-    parser.add_option("-o", "--colour", dest="colour_mismatches", action="store_true",
+    parser.add_argument("-o", "--colour", dest="colour_mismatches", action="store_true",
                       help="mismatches will use colour differences (CM tag) [%default]")
 
-    parser.add_option("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
+    parser.add_argument("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
                       help="ignore mismatches [%default]")
 
-    parser.add_option("-c", "--remove-contigs", dest="remove_contigs", type="string",
+    parser.add_argument("-c", "--remove-contigs", dest="remove_contigs", type="string",
                       help="','-separated list of contigs to remove [%default]")
 
-    parser.add_option("-f", "--force-output", dest="force", action="store_true",
+    parser.add_argument("-f", "--force-output", dest="force", action="store_true",
                       help="force overwriting of existing files [%default]")
 
-    parser.add_option("-u", "--unique", dest="unique", action="store_true",
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                       help="remove reads not matching uniquely [%default]")
 
     parser.set_defaults(

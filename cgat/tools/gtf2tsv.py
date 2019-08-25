@@ -98,27 +98,27 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--output-only-attributes", dest="only_attributes",
         action="store_true",
         help="output only attributes as separate columns "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--attributes-as-columns", dest="output_full",
         action="store_true",
         help="output attributes as separate columns "
         "[default=%default].")
 
-    parser.add_option("--is-gff3", dest="is_gtf", action="store_false",
+    parser.add_argument("--is-gff3", dest="is_gtf", action="store_false",
                       help="input file is in gtf format [default=%default] ")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--invert", dest="invert", action="store_true",
         help="convert tab-separated table back to gtf "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--output-map", dest="output_map", type="choice",
         choices=(
             "transcript2gene",

@@ -24,18 +24,18 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type="string",
         help="filename with reference sequence in fasta format [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--counting-mode", dest="counting_mode", type="choice",
         choices=("all", "pileup_defaults"),
         help="counting mode. all=all reads/bases. pileup-defaults= "
         "use default pileup thresholds. Options will be added to "
         "--mpileup-options. [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--mpileup-options", dest="mpileup_options", type="string",
         help="pileup options to use [%default]")
 

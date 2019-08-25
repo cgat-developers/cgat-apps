@@ -115,16 +115,16 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type="string",
         help="filename with genome [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-a", "--aggregate-by", dest="aggregate", type="choice",
         choices=("name", "contig", "track", "none"),
         help="aggregate counts by feature [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--add-percent", dest="add_percent", action="store_true",
         help="add percentages [default=%default].")
 

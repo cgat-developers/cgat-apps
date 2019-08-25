@@ -70,10 +70,10 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-a", "--as-gtf", dest="as_gtf", action="store_true",
+    parser.add_argument("-a", "--as-gtf", dest="as_gtf", action="store_true",
                       help="output as gtf.")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--id-format", dest="id_format", type="string",
         help="format for numeric identifier if --as-gtf is set and "
         "no name in bed file [%default].")

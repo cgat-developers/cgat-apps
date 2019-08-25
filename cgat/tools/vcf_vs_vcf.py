@@ -65,12 +65,12 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--regex-filename", dest="regex_filename", type="string",
         help="extract column name from filename via regular expression "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--filter", dest="filters", type="choice", action="append",
         choices=("PASS", "SNP"),
         help="apply filters to VCFs when reading "

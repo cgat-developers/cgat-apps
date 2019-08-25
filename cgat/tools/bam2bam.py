@@ -536,7 +536,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--methods", dest="methods", type="choice",
+    parser.add_argument("-m", "--methods", dest="methods", type="choice",
                       action="append",
                       choices=("filter",
                                "keep-first-base",
@@ -551,14 +551,14 @@ def main(argv=None):
                                "add-sequence-error"),
                       help="methods to apply [%default]")
 
-    parser.add_option("--strip-method", dest="strip_method", type="choice",
+    parser.add_argument("--strip-method", dest="strip_method", type="choice",
                       choices=("all", "match"),
                       help="define which sequences/qualities to strip. "
                       "match means that stripping only applies to entries "
                       "without mismatches (requires NM tag to be present). "
                       "[%default]")
 
-    parser.add_option("--filter-method", dest="filter_methods",
+    parser.add_argument("--filter-method", dest="filter_methods",
                       action="append", type="choice",
                       choices=('NM', 'CM',
                                "mapped", "unique", "non-unique",
@@ -571,54 +571,54 @@ def main(argv=None):
                       "from a bam file. Multiple methods can be supplied "
                       "[%default]")
 
-    parser.add_option("--reference-bam-file", dest="reference_bam",
+    parser.add_argument("--reference-bam-file", dest="reference_bam",
                       type="string",
                       help="bam-file to filter with [%default]")
 
-    parser.add_option("--force-output", dest="force", action="store_true",
+    parser.add_argument("--force-output", dest="force", action="store_true",
                       help="force processing. Some methods such "
                       "as strip/unstrip will stop processing if "
                       "they think it not necessary "
                       "[%default]")
 
-    parser.add_option("--output-sam", dest="output_sam", action="store_true",
+    parser.add_argument("--output-sam", dest="output_sam", action="store_true",
                       help="output in sam format [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--first-fastq-file", "-1", dest="fastq_pair1", type="string",
         help="fastq file with read information for first "
         "in pair or unpaired. Used for unstripping sequence "
         "and quality scores [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--second-fastq-file", "-2", dest="fastq_pair2", type="string",
         help="fastq file with read information for second "
         "in pair. Used for unstripping sequence "
         "and quality scores  [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--downsample", dest="downsample",
         type="int",
         help="Number of reads to downsample to")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-read-list", dest="filename_read_list",
         type="string",
         help="Filename with list of reads to filter if 'keep-list' or 'remove-list' "
         "filter method is chosen [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--error-rate", dest="error_rate",
         type="float",
         help="error rate to use as filter. Reads with an error rate "
         "higher than the threshold will be removed [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--minimum-read-length", dest="minimum_read_length",
         type="int",
         help="minimum read length when filtering [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--minimum-average-base-quality", dest="minimum_average_base_quality",
         type="float",
         help="minimum average base quality when filtering [%default]")

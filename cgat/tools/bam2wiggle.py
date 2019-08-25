@@ -156,36 +156,36 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-o", "--output-format", dest="output_format",
+    parser.add_argument("-o", "--output-format", dest="output_format",
                       type="choice",
                       choices=(
                           "bedgraph", "wiggle", "bigbed",
                           "bigwig", "bed"),
                       help="output format [default=%default]")
 
-    parser.add_option("-s", "--shift-size", dest="shift", type="int",
+    parser.add_argument("-s", "--shift-size", dest="shift", type="int",
                       help="shift reads by a certain amount (ChIP-Seq) "
                       "[%default]")
 
-    parser.add_option("-e", "--extend", dest="extend", type="int",
+    parser.add_argument("-e", "--extend", dest="extend", type="int",
                       help="extend reads by a certain amount "
                       "(ChIP-Seq) [%default]")
 
-    parser.add_option("-p", "--wiggle-span", dest="span", type="int",
+    parser.add_argument("-p", "--wiggle-span", dest="span", type="int",
                       help="span of a window in wiggle tracks "
                       "[%default]")
 
-    parser.add_option("-m", "--merge-pairs", dest="merge_pairs",
+    parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
                       action="store_true",
                       help="merge paired-ended reads into a single "
                       "bed interval [default=%default].")
 
-    parser.add_option("--scale-base", dest="scale_base", type="float",
+    parser.add_argument("--scale-base", dest="scale_base", type="float",
                       help="number of reads/pairs to scale bigwig file to. "
                       "The default is to scale to 1M reads "
                       "[default=%default]")
 
-    parser.add_option("--scale-method", dest="scale_method", type="choice",
+    parser.add_argument("--scale-method", dest="scale_method", type="choice",
                       choices=("none", "reads",),
                       help="scale bigwig output. 'reads' will normalize by "
                       "the total number reads in the bam file that are used "
@@ -194,13 +194,13 @@ def main(argv=None):
                       "normalization. 'none' will not scale the bigwig file"
                       "[default=%default]")
 
-    parser.add_option("--max-insert-size", dest="max_insert_size",
+    parser.add_argument("--max-insert-size", dest="max_insert_size",
                       type="int",
                       help="only merge if insert size less that "
                       "# bases. 0 turns of this filter "
                       "[default=%default].")
 
-    parser.add_option("--min-insert-size", dest="min_insert_size",
+    parser.add_argument("--min-insert-size", dest="min_insert_size",
                       type="int",
                       help="only merge paired-end reads if they are "
                       "at least # bases apart. "

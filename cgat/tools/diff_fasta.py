@@ -120,23 +120,23 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--correct-gap-shift", dest="correct_shift",
         action="store_true",
         help="correct gap length shifts in alignments. "
         "Requires alignlib_lite.py [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-1", "--pattern1", dest="pattern1", type="string",
         help="pattern to extract identifier from in identifiers1. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-2", "--pattern2", dest="pattern2", type="string",
         help="pattern to extract identifier from in identifiers2. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--output-section", dest="output", type="choice",
         action="append",
         choices=("diff", "missed", "seqdiff"),

@@ -58,16 +58,16 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genomic sequence to retrieve "
                       "sequences from.")
 
-    parser.add_option("-m", "--masker", dest="masker", type="choice",
+    parser.add_argument("-m", "--masker", dest="masker", type="choice",
                       choices=("dust", "dustmasker", "softmask", "none"),
                       help="apply masker to mask output sequences "
                       "[%default].")
 
-    parser.add_option("--output-mode", dest="output_mode", type="choice",
+    parser.add_argument("--output-mode", dest="output_mode", type="choice",
                       choices=("intervals", "leftright", "segments"),
                       help="what to output. "
                       "'intervals' generates a single sequence for "
@@ -77,23 +77,23 @@ def main(argv=None):
                       "sequence from bed12 files so that sequence only covers "
                       "the segements [%default]")
 
-    parser.add_option("--min-sequence-length", dest="min_length", type="int",
+    parser.add_argument("--min-sequence-length", dest="min_length", type="int",
                       help="require a minimum sequence length [%default]")
 
-    parser.add_option("--max-sequence-length", dest="max_length", type="int",
+    parser.add_argument("--max-sequence-length", dest="max_length", type="int",
                       help="require a maximum sequence length [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extend-at", dest="extend_at", type="choice",
         choices=("none", "3", "5", "both", "3only", "5only"),
         help="extend at 3', 5' or both or no ends. If 3only or 5only "
         "are set, only the added sequence is returned [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--extend-by", dest="extend_by", type="int",
         help="extend by # bases [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--use-strand", dest="ignore_strand",
         action="store_false",
         help="use strand information and return reverse complement "

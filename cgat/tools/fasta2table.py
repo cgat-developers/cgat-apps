@@ -124,36 +124,36 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-w", "--weights-tsv-file", dest="filename_weights",
         type="string",
         help="filename with codon frequencies. Multiple filenames "
         "can be separated by comma.")
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--section", dest="sections", type="choice", action="append",
         choices=("length", "sequence", "hid", "na", "aa", "cpg", "dn",
                  "degeneracy", "gaps",
                  "codons", "codon-usage", "codon-translator", "codon-bias"),
         help="which sections to output [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--sequence-type", dest="seqtype", type="choice",
         choices=("na", "aa"),
         help="type of sequence: na=nucleotides, aa=amino acids [%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--regex-identifier", dest="regex_identifier", type="string",
         help="regular expression to extract identifier from fasta "
         "description line.")
 
-    parser.add_option(
+    parser.add_argument(
         "--split-fasta-identifier", dest="split_id",
         action="store_true",
         help="split fasta description line (starting >) and use "
         "only text before first space")
 
-    parser.add_option(
+    parser.add_argument(
         "--add-total", dest="add_total", action="store_true",
         help="add a row with column totals at the end of the table"
         "[%default]")

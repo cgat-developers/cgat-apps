@@ -58,32 +58,32 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id: bed2annotator2tsv.py 2885 2010-04-07 08:46:50Z andreas $",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type="string",
                       help="filename with genome.")
 
-    parser.add_option("-f", "--features", dest="features", type="string",
+    parser.add_argument("-f", "--features", dest="features", type="string",
                       help="feature to collect [default=None].")
 
-    parser.add_option("-i", "--files", dest="files", action="append",
+    parser.add_argument("-i", "--files", dest="files", action="append",
                       help="use multiple annotations [default=None].")
 
-    parser.add_option("-a", "--annotations", dest="annotations", type="string",
+    parser.add_argument("-a", "--annotations", dest="annotations", type="string",
                       help="aggregate name for annotations if only single file is provided from STDIN [default=None].")
 
-    parser.add_option("--map-tsv-file", dest="input_filename_map", type="string",
+    parser.add_argument("--map-tsv-file", dest="input_filename_map", type="string",
                       help="filename with a map of gene_ids to categories [default=None].")
 
-    parser.add_option("-l", "--max-length", dest="max_length", type="string",
+    parser.add_argument("-l", "--max-length", dest="max_length", type="string",
                       help="maximum segment length [default=None].")
 
-    parser.add_option("-m", "--merge-overlapping", dest="merge", action="store_true",
+    parser.add_argument("-m", "--merge-overlapping", dest="merge", action="store_true",
                       help="merge overlapping bed segments [default=%default].")
 
-    parser.add_option("-s", "--section", dest="section", type="choice",
+    parser.add_argument("-s", "--section", dest="section", type="choice",
                       choices=("segments", "annotations", "workspace"),
                       help="annotator section [default=None].")
 
-    parser.add_option("--subset", dest="subsets", type="string", action="append",
+    parser.add_argument("--subset", dest="subsets", type="string", action="append",
                       help="add filenames to delimit subsets within the gff files. The syntax is filename.gff,label,filename.ids [default=None].")
 
     parser.set_defaults(

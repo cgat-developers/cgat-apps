@@ -241,7 +241,7 @@ def main(argv=None):
         version="%prog version: $Id",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="method", type="choice",
         choices=(
             "fixed-width-windows-gc",
@@ -252,20 +252,20 @@ def main(argv=None):
             "windows"),
         help="Method to use for segmentation [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-w", "--window-size=", dest="window_size",
         type="int",
         help="window size for fixed-width windows [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--window-shift=", dest="window_shift", type="int",
         help="shift size fixed-width windows [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-cpg", dest="min_cpg", type="int",
         help="minimum number of CpG for windows-cpg [default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-interval-length", dest="min_length", type="int",
         help="minimum length for ungapped regions [default=%default]")
 

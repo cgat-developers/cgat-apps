@@ -153,7 +153,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--header-names", dest="headers", type="string",
         help="',' separated list of labels used as headers. "
         " Should correspond in order to command line arguments [%default]")

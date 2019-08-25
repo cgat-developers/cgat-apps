@@ -26,20 +26,20 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "--region", dest="region", type="string",
         help="region to restrict analysis to [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--window-size", dest="window_size", type="int",
         help="window size to use [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-all-windows", dest="output_all_windows", action="store_true",
         help="output all windows. By default, windows without reads are skipped "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--reference-fasta", "--input-filename-fasta",
         dest="input_filename_fasta", type="string",
         help="filename with reference sequence. If given, used to "

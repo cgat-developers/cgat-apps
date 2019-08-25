@@ -156,7 +156,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="methods", type="choice", action="append",
         choices=("translate",
                  "translate-to-stop",
@@ -186,54 +186,54 @@ def main(argv=None):
                  "shuffle"),
         help="method to apply to sequences.")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--parameters", dest="parameters", type="string",
         help="parameter stack for methods that require one "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-x", "--ignore-errors", dest="ignore_errors", action="store_true",
         help="ignore errors [default = %default].")
 
-    parser.add_option("--sample-proportion", dest="sample_proportion",
+    parser.add_argument("--sample-proportion", dest="sample_proportion",
                       type="float",
                       help="sample proportion [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--exclude-pattern", dest="exclude_pattern", type="string",
         help="exclude all sequences with ids matching pattern "
         "[default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--include-pattern", dest="include_pattern", type="string",
         help="include only sequences with ids matching pattern "
         "[default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filter-method", dest="filter_methods", type="string",
         action="append",
         help="filtering methods to apply "
         "[default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--sequence-type", dest="type", type="choice",
         choices=("aa", "na"),
         help="sequence type (aa or na) [%default]. This option determines "
         "which characters to use for masking [default = %default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-l", "--template-identifier", dest="template_identifier",
         type="string",
         help="template for numerical identifier [default = %default] "
         "for the operation --build-map. A %i is replaced by the position "
         "of the sequence in the file.")
 
-    parser.add_option(
+    parser.add_argument(
         "--map-tsv-file", dest="map_tsv_file",
         type="string",
         help="input filename with map for identifiers. The first row is a header")
 
-    parser.add_option(
+    parser.add_argument(
         "--fold-width", dest="fold_width", type="int",
         help="fold width for sequence output. 0 is unfolded [%default]")
     

@@ -94,32 +94,32 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--min-overlap", dest="min_overlap",
+    parser.add_argument("-m", "--min-overlap", dest="min_overlap",
                       type="float",
                       help="minimum overlap [%default]")
 
-    parser.add_option("-a", "--bam-file", dest="filename_bam",
+    parser.add_argument("-a", "--bam-file", dest="filename_bam",
                       metavar="bam", type="string",
                       help="bam-file to use (required) [%default]")
 
-    parser.add_option("-b", "--bed-file", dest="filename_bed",
+    parser.add_argument("-b", "--bed-file", dest="filename_bed",
                       metavar="bed", type="string",
                       help="bed-file to use (required) [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--sort-bed", dest="sort_bed",
         action="store_true",
         help="sort the bed file by chromosomal location before "
         "processing. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--assume-sorted", dest="sort_bed",
         action="store_false",
         help="assume that the bed-file is sorted by chromosomal location. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--split-intervals", dest="split_intervals",
         action="store_true",
         help="treat split BAM intervals, for example spliced intervals, "

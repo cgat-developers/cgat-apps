@@ -106,10 +106,10 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-a", "--first-fastq-file", dest="fastq1", type="string",
         help="supply read1 fastq file")
-    parser.add_option(
+    parser.add_argument(
         "-b", "--second-fastq-file", dest="fastq2", type="string",
         help="supply read2 fastq file")
 

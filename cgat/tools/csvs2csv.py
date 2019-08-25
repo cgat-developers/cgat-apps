@@ -51,54 +51,54 @@ def main(argv=None):
         version="%prog version: $Id$",
         usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-t", "--no-titles", dest="titles", action="store_false",
         help="no titles in input.")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--skip-titles", dest="skip_titles", action="store_true",
         help="skip output of titles.")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--missing-value", dest="missing_value", type="string",
         help="entry to use for missing values.")
 
-    parser.add_option("--header-names", dest="headers", type="string",
+    parser.add_argument("--header-names", dest="headers", type="string",
                       help="add headers for files.")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--columns", dest="columns", type="string",
         help="columns to use for joining. Multiple columns can be specified "
         "as a comma-separated list [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--glob", dest="glob", type="string",
         help="wildcard expression for table names.")
 
-    parser.add_option(
+    parser.add_argument(
         "-s", "--sort-order", dest="sort", type="string",
         help="sort by column titles alphabetical|numeric|list of columns.")
 
-    parser.add_option(
+    parser.add_argument(
         "-e", "--merge-overlapping", dest="merge", action="store_true",
         help="simply merge tables without matching up rows. "
         "[default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--sort-keys", dest="sort_keys", type="choice",
         choices=("numeric", "alphabetic"),
         help="sort key columns by value.")
 
-    parser.add_option(
+    parser.add_argument(
         "--keep-empty", dest="ignore_empty", action="store_false",
         help="keep empty tables. The default is to ignore them.")
 
-    parser.add_option(
+    parser.add_argument(
         "--add-file-prefix", dest="add_file_prefix", action="store_true",
         help="add file prefix to columns headers in multi-column tables "
         "[default=%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--regex-filename", dest="regex_filename", type="string",
         help="pattern to apply to filename to build prefix "
         "[default=%default]")

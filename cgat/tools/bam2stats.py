@@ -383,7 +383,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type="string",
         metavar='GFF',
         help="gff formatted file with masking locations. The number of "
@@ -392,39 +392,39 @@ def main(argv=None):
         "into account indels, so it is an approximate count only. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--ignore-masked-reads", dest="ignore_masked_reads", action="store_true",
         help="as well as counting reads in the file given by --mask-bed-file, "
         "also remove these reads for duplicate and match statistics. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--num-reads", dest="input_reads", type="int",
         help="the number of reads - if given, used to provide percentages "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-d", "--output-details", dest="output_details", action="store_true",
         help="output per-read details into a separate file. Read names are "
         "md5/base64 encoded [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-readmap", dest="output_readmap", action="store_true",
         help="output map between read name and "
         "md5/base64 encoded short name[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--add-alignment-details", dest="add_alignment_details", action="store_true",
         help="add alignment details to per-read details. Implies --output-details "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-q", "--fastq-file", dest="filename_fastq",
         help="filename with sequences and quality scores. This file is only "
         "used to collect sequence identifiers. Thus, for paired end data a "
         "single file is sufficient [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--basic-counts", dest="detailed_count", action="store_false",
         help="perform basic counting and do not compute per read stats. "
         "This is more memory efficient and faster stats computation, "

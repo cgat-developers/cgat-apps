@@ -31,11 +31,11 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--input-fastq", dest="input_fastq_file", type="string",
         help="input fastq file")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--method", dest="method", type="choice",
         choices=["ont2pacbio"],
         help="methods to apply [%default]")

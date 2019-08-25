@@ -119,11 +119,11 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
+    parser.add_argument("-m", "--method", dest="method", type="choice",
                       choices=('reconcile', 'filter-by-sequence'),
                       help="method to apply [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--chop-identifier", dest="chop", action="store_true",
         help="whether or not to trim last character of the  "
         "sequence name. For example sometimes ids in the first "
@@ -131,34 +131,34 @@ def main(argv=None):
         "with \2. If --chop-identifier is not specified "
         "then the results will be wrong [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "-u", "--unpaired", dest="unpaired", action="store_true",
         help="whether or not to write out unpaired reads "
         "to a separate file")
 
-    parser.add_option(
+    parser.add_argument(
         "--id-pattern-1", dest="id_pattern_1",
         help="If specified will use the first group from the"
         "pattern to determine the ID for the first read",
         default=None)
 
-    parser.add_option(
+    parser.add_argument(
         "--id-pattern-2", dest="id_pattern_2",
         help="As above but for read 2",
         default=None)
 
-    parser.add_option(
+    parser.add_argument(
         "--input-filename-fasta",
         dest="input_filename_fasta", type="string",
         help="input filename of FASTA formatted sequence "
         "for method 'filter-by-sequence' [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filtering-kmer-size",
         dest="filtering_kmer_size", type="int",
         help="kmer size for method 'filter-by-sequence' [default=%default].")
 
-    parser.add_option(
+    parser.add_argument(
         "--filtering-min-kmer-matches",
         dest="filtering_min_kmer_matches", type="int",
         help="minimum number of matches 'filter-by-sequence' [default=%default].")

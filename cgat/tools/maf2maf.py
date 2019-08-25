@@ -65,21 +65,21 @@ def main(argv=sys.argv):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--input-filter-tsv",
         dest="input_filter_tsv", type="string",
         help="list with identifiers to remove. "
         "[%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--set-prefix", dest="set_prefix", type="string",
         help="set sequence prefix [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--min-length", dest="min_length", type="int",
         help="minimum alignment length [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "--method", dest="methods", action="append",
         choices=("shift-region", ),
         help="methods to apply [%default]")

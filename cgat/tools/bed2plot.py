@@ -136,40 +136,40 @@ def main(argv=sys.argv):
     parser = E.OptionParser(
         version="%prog version: $Id$", usage=globals()["__doc__"])
 
-    parser.add_option("-s", "--session", dest="session",
+    parser.add_argument("-s", "--session", dest="session",
                       type="string",
                       help="load session before creating plots "
                       "[%default]")
 
-    parser.add_option("-d", "--snapshot-dir", dest="snapshotdir",
+    parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
                       type="string",
                       help="directory to save snapshots in [%default]")
 
-    parser.add_option("-f", "--format", dest="format", type="choice",
+    parser.add_argument("-f", "--format", dest="format", type="choice",
                       choices=("png", "eps", "svg"),
                       help="output file format [%default]")
 
-    parser.add_option("-o", "--host", dest="host", type="string",
+    parser.add_argument("-o", "--host", dest="host", type="string",
                       help="host that IGV is running on [%default]")
 
-    parser.add_option("-p", "--port", dest="port", type="int",
+    parser.add_argument("-p", "--port", dest="port", type="int",
                       help="port that IGV listens at [%default]")
 
-    parser.add_option("-e", "--extend", dest="extend", type="int",
+    parser.add_argument("-e", "--extend", dest="extend", type="int",
                       help="extend each interval by a number of bases "
                       "[%default]")
 
-    parser.add_option("-x", "--expand", dest="expand", type="float",
+    parser.add_argument("-x", "--expand", dest="expand", type="float",
                       help="expand each region by a certain factor "
                       "[%default]")
 
-    parser.add_option("--session-only", dest="session_only",
+    parser.add_argument("--session-only", dest="session_only",
                       action="store_true",
                       help="plot session after opening, "
                       "ignore intervals "
                       "[%default]")
 
-    parser.add_option("-n", "--name", dest="name", type="choice",
+    parser.add_argument("-n", "--name", dest="name", type="choice",
                       choices=("bed-name", "increment"),
                       help="name to use for snapshot "
                       "[%default]")

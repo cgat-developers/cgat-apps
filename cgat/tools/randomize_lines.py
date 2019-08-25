@@ -39,7 +39,7 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-k", "--keep-header", dest="keep_header", type="int",
+    parser.add_argument("-k", "--keep-header", dest="keep_header", type="int",
                       help="randomize, but keep header in place [%default]")
 
     parser.set_defaults(keep_header=0)

@@ -93,16 +93,16 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option("-o", "--min-overlap", dest="min_overlap", type="int",
+    parser.add_argument("-o", "--min-overlap", dest="min_overlap", type="int",
                       help="minimum overlap")
 
-    parser.add_option(
+    parser.add_argument(
         "-w", "--pattern-window",
         dest="pattern_window", type="string",
         help="regular expression to extract window coordinates from "
         "test id [%default]")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--invert", dest="invert", action="store_true",
         help="invert direction of fold change [%default]")
 

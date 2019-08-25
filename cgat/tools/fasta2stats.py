@@ -23,12 +23,12 @@ def main(argv=None):
     parser = E.OptionParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--fasta", dest="input_filename_fasta",
         type="string",
         help="filename with fasta sequences. ")
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--output-filename-sequences", dest="output_filename_sequences",
         type="string",
         help="output per sequence information to filename")
