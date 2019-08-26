@@ -13,8 +13,7 @@ from cgat.BamTools.bamtools import bam2bam_split_reads
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--input-bam", dest="input_bam_file", type=str,

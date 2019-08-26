@@ -59,24 +59,23 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.set_defaults(
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     # do sth
     if len(args) == 1:
         fastqfile1 = args[0]
-        fastqfile2 = options.output_filename_pattern % "2"
+        fastqfile2 = args.output_filename_pattern % "2"
     elif len(args) == 2:
         fastqfile1, fastqfile2 = args
     else:
-        fastqfile1 = options.output_filename_pattern % "1"
-        fastqfile2 = options.output_filename_pattern % "2"
+        fastqfile1 = args.output_filename_pattern % "1"
+        fastqfile2 = args.output_filename_pattern % "2"
 
     # only output compressed data
     if not fastqfile1.endswith(".gz"):
@@ -84,8 +83,8 @@ def main(argv=None):
     if not fastqfile2.endswith(".gz"):
         fastqfile2 += ".gz"
 
-    if options.stdin != sys.stdin:
-        samfile = pysam.AlignmentFile(options.stdin.name, "rb")
+    if args.stdin != sys.stdin:
+        samfile = pysam.AlignmentFile(args.stdin.name, "rb")
     else:
         samfile = pysam.AlignmentFile("-", "rb")
 

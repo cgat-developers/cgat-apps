@@ -61,8 +61,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$", usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--max-iterations", type=int,
@@ -73,7 +72,7 @@ def main(argv=None):
         max_iteratiors=10000
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     samfile = pysam.AlignmentFile(options.stdin, "rb")
     outfile = options.stdout

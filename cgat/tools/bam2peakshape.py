@@ -174,8 +174,7 @@ def buildOptionParser(argv):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-f", "--format", dest="format", type=str,
                       choices=("bam", "bigwig"),
@@ -550,60 +549,60 @@ def main(argv=None):
     parser = buildOptionParser(argv)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) != 2:
         raise ValueError(
             "please specify one bam- or wig-file and one bed file")
 
-    if options.control_files:
-        E.info("using control files: %s" % ",".join(options.control_files))
+    if args.control_files:
+        E.info("using control files: %s" % ",".join(args.control_files))
 
     infile, bedfile = args
     control_files = []
 
-    if options.format == "bigwig":
+    if args.format == "bigwig":
         fg_file = pyBigWig.open(infile)
-        for control_file in options.control_files:
+        for control_file in args.control_files:
             control_files.append(pyBigWig.open(control_file))
         counter = bam2peakshape.CounterBigwig(
-            smooth_method=options.smooth_method)
+            smooth_method=args.smooth_method)
 
-    elif options.format == "bam":
+    elif args.format == "bam":
         fg_file = pysam.AlignmentFile(infile, "rb")
-        for control_file in options.control_files:
+        for control_file in args.control_files:
             control_files.append(pysam.AlignmentFile(control_file, "rb"))
         counter = bam2peakshape.CounterBam(
-            shift=options.shift,
-            smooth_method=options.smooth_method)
+            shift=args.shift,
+            smooth_method=args.smooth_method)
 
     features_per_interval, bins = buildDensityMatrices(
         Bed.iterator(iotools.open_file(bedfile)),
         fg_file,
         control_files,
         counter,
-        window_size=options.window_size,
-        bin_size=options.bin_size,
-        strand_specific=options.strand_specific,
-        centring_method=options.centring_method,
-        use_interval=options.use_interval,
-        random_shift=options.random_shift,
-        smooth_method=options.smooth_method,
-        report_step=options.report_step)
+        window_size=args.window_size,
+        bin_size=args.bin_size,
+        strand_specific=args.strand_specific,
+        centring_method=args.centring_method,
+        use_interval=args.use_interval,
+        random_shift=args.random_shift,
+        smooth_method=args.smooth_method,
+        report_step=args.report_step)
 
     if len(features_per_interval) == 0:
         E.warn("no data - no output")
         E.stop()
         return
 
-    outputFeatureTable(options.stdout, features_per_interval, bins)
+    outputFeatureTable(args.stdout, features_per_interval, bins)
 
     # apply normalization
     # Note: does not normalize control?
     # Needs reworking, currently it does not normalize across
     # all samples nor does the work "sum" reflect the per million
     # normalization.
-    if options.normalization == "sum":
+    if args.normalization == "sum":
         E.info("starting sum normalization")
         # get total counts across all intervals
         norm = 0.0
@@ -636,7 +635,7 @@ def main(argv=None):
         E.info("no normalization performed")
 
     # center bins
-    out_bins = bins[:-1] + options.bin_size
+    out_bins = bins[:-1] + args.bin_size
 
     # build tracks
     def _toTrack(filename):
@@ -645,9 +644,9 @@ def main(argv=None):
     outputMatrices(features_per_interval,
                    out_bins,
                    foreground_track=_toTrack(infile),
-                   control_tracks=[_toTrack(x) for x in options.control_files],
-                   shifted=options.random_shift,
-                   sort_orders=options.sort_orders)
+                   control_tracks=[_toTrack(x) for x in args.control_files],
+                   shifted=args.random_shift,
+                   sort_orders=args.sort_orders)
 
     # write footer and output benchmark information.
     E.stop()

@@ -21,8 +21,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type=str,
@@ -47,13 +46,13 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     bamfile = args[0]
 
-    mpileup_options = options.mpileup_options
+    mpileup_options = args.mpileup_options
 
-    if options.counting_mode == "all":
+    if args.counting_mode == "all":
         mpileup_options += " -Q 0 -B -A"
 
     read_depth_histogram = collections.defaultdict(int)
@@ -62,7 +61,7 @@ def main(argv=None):
     # deletions are marked by something like -2AA at the first
     # position and a '*' for subsequent positions
     rx_deletions = re.compile("([-][0-9]+|[*])")
-    report_step = options.report_step
+    report_step = args.report_step
     npositions = 0
 
     samtools = iotools.which("samtools")
@@ -73,7 +72,7 @@ def main(argv=None):
         "{mpileup_options} "
         "{bamfile} ".format(
             samtools=samtools,
-            reference_fasta=options.input_filename_fasta,
+            reference_fasta=args.input_filename_fasta,
             mpileup_options=mpileup_options,
             bamfile=os.path.abspath(bamfile)))
 
@@ -108,9 +107,9 @@ def main(argv=None):
     keys = sorted(set(read_depth_histogram.keys()).union(
         base_depth_histogram.keys()))
 
-    options.stdout.write("depth\tread_depth_positions\tbase_depth_positions\n")
+    args.stdout.write("depth\tread_depth_positions\tbase_depth_positions\n")
     for key in keys:
-        options.stdout.write("{}\t{}\t{}\n".format(
+        args.stdout.write("{}\t{}\t{}\n".format(
                 key,
                 read_depth_histogram[key],
                 base_depth_histogram[key]))

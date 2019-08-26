@@ -152,9 +152,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-o", "--output-format", dest="output_format",
                       type=str,
@@ -220,17 +218,17 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) >= 1:
-        options.samfile = args[0]
+        args.samfile = args[0]
     if len(args) == 2:
-        options.output_filename_pattern = args[1]
-    if not options.samfile:
+        args.output_filename_pattern = args[1]
+    if not args.samfile:
         raise ValueError("please provide a bam file")
 
     # Read BAM file using Pysam
-    samfile = pysam.AlignmentFile(options.samfile, "rb")
+    samfile = pysam.AlignmentFile(args.samfile, "rb")
 
     # Create temporary files / folders
     tmpdir = tempfile.mkdtemp()
@@ -247,23 +245,23 @@ def main(argv=None):
     outfile_size.close()
 
     # Shift and extend only available for bigwig format
-    if options.shift or options.extend:
-        if options.output_format != "bigwig":
+    if args.shift or args.extend:
+        if args.output_format != "bigwig":
             raise ValueError(
                 "shift and extend only available for bigwig output")
 
     # Output filename required for bigwig / bigbed computation
-    if options.output_format == "bigwig":
-        if not options.output_filename_pattern:
+    if args.output_format == "bigwig":
+        if not args.output_filename_pattern:
             raise ValueError(
                 "please specify an output file for bigwig computation.")
 
         # Define executable to use for binary conversion
-        if options.output_format == "bigwig":
+        if args.output_format == "bigwig":
             executable_name = "wigToBigWig"
         else:
             raise ValueError("unknown output format `%s`" %
-                             options.output_format)
+                             args.output_format)
 
         # check required executable file is in the path
         executable = iotools.which(executable_name)
@@ -278,17 +276,17 @@ def main(argv=None):
         E.info("starting output to stdout")
 
     # Set up output write functions
-    if options.output_format in ("wiggle", "bigwig"):
+    if args.output_format in ("wiggle", "bigwig"):
         # wiggle is one-based, so add 1, also step-size is 1, so need
         # to output all bases
-        if options.span == 1:
+        if args.span == 1:
             outf = lambda outfile, contig, start, end, val: \
                 outfile.write(
                     "".join(["%i\t%i\n" % (x, val)
                              for x in range(start + 1, end + 1)]))
         else:
-            outf = SpanWriter(options.span)
-    elif options.output_format == "bedgraph":
+            outf = SpanWriter(args.span)
+    elif args.output_format == "bedgraph":
         # bed is 0-based, open-closed
         outf = lambda outfile, contig, start, end, val: \
             outfile.write("%s\t%i\t%i\t%i\n" % (contig, start, end, val))
@@ -297,31 +295,31 @@ def main(argv=None):
     ninput, nskipped, ncontigs = 0, 0, 0
 
     # set output file name
-    output_filename_pattern = options.output_filename_pattern
+    output_filename_pattern = args.output_filename_pattern
     if output_filename_pattern:
         output_filename = os.path.abspath(output_filename_pattern)
 
     # shift and extend or merge pairs. Output temporay bed file
-    if options.shift > 0 or options.extend > 0 or options.merge_pairs:
+    if args.shift > 0 or args.extend > 0 or args.merge_pairs:
         # Workflow 1: convert to bed intervals and use bedtools
         # genomecov to build a coverage file.
         # Convert to bigwig with UCSC tools bedGraph2BigWig
 
-        if options.merge_pairs:
+        if args.merge_pairs:
             # merge pairs using bam2bed
             E.info("merging pairs to temporary file")
             counter = merge_pairs(
                 samfile,
                 outfile,
-                min_insert_size=options.min_insert_size,
-                max_insert_size=options.max_insert_size,
+                min_insert_size=args.min_insert_size,
+                max_insert_size=args.max_insert_size,
                 bed_format=3)
             E.info("merging results: {}".format(counter))
             if counter.output == 0:
                 raise ValueError("no pairs output after merging")
         else:
             # create bed file with shifted/extended tags
-            shift, extend = options.shift, options.extend
+            shift, extend = args.shift, args.extend
             shift_extend = shift + extend
             counter = E.Counter()
 
@@ -346,11 +344,11 @@ def main(argv=None):
 
         outfile.close()
 
-        if options.scale_method == "reads":
-            scale_factor = float(options.scale_base) / counter.output
+        if args.scale_method == "reads":
+            scale_factor = float(args.scale_base) / counter.output
 
             E.info("scaling: method=%s scale_quantity=%i scale_factor=%f" %
-                   (options.scale_method,
+                   (args.scale_method,
                     counter.output,
                     scale_factor))
             scale = "-scale %f" % scale_factor
@@ -392,12 +390,12 @@ def main(argv=None):
                 end = t.pos
             yield start, end, n
 
-        if options.scale_method != "none":
+        if args.scale_method != "none":
             raise NotImplementedError(
                 "scaling not implemented for pileup method")
 
         # Bedgraph track definition
-        if options.output_format == "bedgraph":
+        if args.output_format == "bedgraph":
             outfile.write("track type=bedGraph\n")
 
         for contig in samfile.references:
@@ -406,9 +404,9 @@ def main(argv=None):
             lcontig = contig_sizes[contig]
 
             # Write wiggle header
-            if options.output_format in ("wiggle", "bigwig"):
+            if args.output_format in ("wiggle", "bigwig"):
                 outfile.write("variableStep chrom=%s span=%i\n" %
-                              (contig, options.span))
+                              (contig, args.span))
 
             # Generate pileup per contig using pysam and iterate over columns
             for start, end, val in column_iter(samfile.pileup(contig)):
@@ -439,7 +437,7 @@ def main(argv=None):
                (ninput, ncontigs, nskipped))
 
         # Convert to binary formats
-        if options.output_format == "bigwig":
+        if args.output_format == "bigwig":
             outfile.close()
 
             E.info("starting %s conversion" % executable)

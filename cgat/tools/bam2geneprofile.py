@@ -318,8 +318,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="methods", type=str,
                       action="append",
@@ -334,8 +333,7 @@ def main(argv=None):
                       'meta-gene structure to use. '
                       'Note using geneprofilewithintrons, or '
                       'geneprofileabsolutedistancefromthreeprimeend will '
-                      'automatically turn on the --use-base-accuracy option'
-                      '.')
+                      'automatically turn on the --use-base-accuracy option')
 
     parser.add_argument("-b", "--bam-file", "--bedfile", "--bigwigfile",
                       dest="infiles",
@@ -348,13 +346,11 @@ def main(argv=None):
                       metavar="BAM",
                       type=str, action="append",
                       help="control/input to use. Should be of the same "
-                      "type as the bam/bed/bigwig file"
-                      " ")
+                      "type as the bam/bed/bigwig file")
 
     parser.add_argument("-g", "--gtf-file", dest="gtffile", type=str,
                       metavar="GTF",
-                      help="GTF file to use. "
-                      )
+                      help="GTF file to use. ")
 
     parser.add_argument(
         "--normalize-transcript",
@@ -594,23 +590,23 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     # Keep for backwards compatability
     if len(args) == 2:
         infile, gtf = args
-        options.infiles.append(infile)
-        options.gtffile = gtf
+        args.infiles.append(infile)
+        args.gtffile = gtf
 
-    if not options.gtffile:
+    if not args.gtffile:
         raise ValueError("no GTF file specified")
 
-    if options.gtffile == "-":
-        options.gtffile = options.stdin
+    if args.gtffile == "-":
+        args.gtffile = args.stdin
     else:
-        options.gtffile = iotools.open_file(options.gtffile)
+        args.gtffile = iotools.open_file(args.gtffile)
 
-    if len(options.infiles) == 0:
+    if len(args.infiles) == 0:
         raise ValueError("no bam/wig/bed files specified")
 
     for methodsRequiresBaseAccuracy in [
@@ -621,116 +617,116 @@ def main(argv=None):
         # spliced out introns or exons appear to be covered by
         # non-existent reads, it is better you let those methods imply
         # --base-accurarcy by add them here.
-        if methodsRequiresBaseAccuracy in options.methods:
-            options.base_accuracy = True
+        if methodsRequiresBaseAccuracy in args.methods:
+            args.base_accuracy = True
 
-    if options.reporter == "gene":
-        gtf_iterator = GTF.flat_gene_iterator(GTF.iterator(options.gtffile))
-    elif options.reporter == "transcript":
-        gtf_iterator = GTF.transcript_iterator(GTF.iterator(options.gtffile))
+    if args.reporter == "gene":
+        gtf_iterator = GTF.flat_gene_iterator(GTF.iterator(args.gtffile))
+    elif args.reporter == "transcript":
+        gtf_iterator = GTF.transcript_iterator(GTF.iterator(args.gtffile))
 
     # Select rangecounter based on file type
-    if len(options.infiles) > 0:
-        if options.infiles[0].endswith(".bam"):
-            bamfiles = [pysam.AlignmentFile(x, "rb") for x in options.infiles]
+    if len(args.infiles) > 0:
+        if args.infiles[0].endswith(".bam"):
+            bamfiles = [pysam.AlignmentFile(x, "rb") for x in args.infiles]
 
-            if options.controlfiles:
+            if args.controlfiles:
                 controlfiles = [pysam.AlignmentFile(x, "rb")
-                                for x in options.controlfiles]
+                                for x in args.controlfiles]
             else:
                 controlfiles = None
 
             format = "bam"
-            if options.merge_pairs:
+            if args.merge_pairs:
                 range_counter = geneprofile.RangeCounterBAM(
                     bamfiles,
-                    shifts=options.shifts,
-                    extends=options.extends,
-                    merge_pairs=options.merge_pairs,
-                    min_insert_size=options.min_insert_size,
-                    max_insert_size=options.max_insert_size,
+                    shifts=args.shifts,
+                    extends=args.extends,
+                    merge_pairs=args.merge_pairs,
+                    min_insert_size=args.min_insert_size,
+                    max_insert_size=args.max_insert_size,
                     controfiles=controlfiles,
-                    control_factor=options.control_factor)
+                    control_factor=args.control_factor)
 
-            elif options.shifts or options.extends:
+            elif args.shifts or args.extends:
                 range_counter = geneprofile.RangeCounterBAM(
                     bamfiles,
-                    shifts=options.shifts,
-                    extends=options.extends,
+                    shifts=args.shifts,
+                    extends=args.extends,
                     controlfiles=controlfiles,
-                    control_factor=options.control_factor)
+                    control_factor=args.control_factor)
 
-            elif options.base_accuracy:
+            elif args.base_accuracy:
                 range_counter = geneprofile.RangeCounterBAMBaseAccuracy(
                     bamfiles,
                     controlfiles=controlfiles,
-                    control_factor=options.control_factor)
+                    control_factor=args.control_factor)
             else:
                 range_counter = geneprofile.RangeCounterBAM(
                     bamfiles,
                     controlfiles=controlfiles,
-                    control_factor=options.control_factor)
+                    control_factor=args.control_factor)
 
-        elif options.infiles[0].endswith(".bed.gz"):
-            bedfiles = [pysam.Tabixfile(x) for x in options.infiles]
+        elif args.infiles[0].endswith(".bed.gz"):
+            bedfiles = [pysam.Tabixfile(x) for x in args.infiles]
 
-            if options.controlfiles:
+            if args.controlfiles:
                 controlfiles = [pysam.Tabixfile(x)
-                                for x in options.controlfiles]
+                                for x in args.controlfiles]
             else:
                 controlfiles = None
 
             range_counter = geneprofile.RangeCounterBed(
                 bedfiles,
                 controlfiles=controlfiles,
-                control_factor=options.control_factor)
+                control_factor=args.control_factor)
 
-        elif options.infiles[0].endswith(".bw"):
-            wigfiles = [pyBigWig.open(x) for x in options.infiles]
+        elif args.infiles[0].endswith(".bw"):
+            wigfiles = [pyBigWig.open(x) for x in args.infiles]
             range_counter = geneprofile.RangeCounterBigWig(wigfiles)
 
         else:
             raise NotImplementedError(
-                "can't determine file type for %s" % str(options.infiles))
+                "can't determine file type for %s" % str(args.infiles))
 
     counters = []
-    for method in options.methods:
+    for method in args.methods:
         if method == "utrprofile":
             counters.append(geneprofile.UTRCounter(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_upstream_utr,
-                options.resolution_cds,
-                options.resolution_downstream_utr,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream,
+                args.resolution_upstream,
+                args.resolution_upstream_utr,
+                args.resolution_cds,
+                args.resolution_downstream_utr,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream,
             ))
 
         elif method == "geneprofile":
             counters.append(geneprofile.GeneCounter(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_cds,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream,
-                options.scale_flanks))
+                args.resolution_upstream,
+                args.resolution_cds,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream,
+                args.scale_flanks))
 
         elif method == "geneprofilewithintrons":
             counters.append(geneprofile.GeneCounterWithIntrons(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_cds,
-                options.resolution_introns,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream,
-                options.scale_flanks))
+                args.resolution_upstream,
+                args.resolution_cds,
+                args.resolution_introns,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream,
+                args.scale_flanks))
 
         elif method == "geneprofileabsolutedistancefromthreeprimeend":
-            # options.extension_exons_absolute_distance_tostartsite,
-            # options.extension_introns_absolute_distance_tostartsite,
+            # args.extension_exons_absolute_distance_tostartsite,
+            # args.extension_introns_absolute_distance_tostartsite,
             # Tim 31th Aug 2013: a possible feature for future,  if five prime
             # bias is of your interest.
             # (you need to create another class). It is not very difficult to
@@ -740,38 +736,38 @@ def main(argv=None):
             # skipped,
             counters.append(
                 geneprofile.GeneCounterAbsoluteDistanceFromThreePrimeEnd(
-                    range_counter, options.resolution_upstream,
-                    options.resolution_downstream,
-                    options.resolution_exons_absolute_distance_topolya,
-                    options.resolution_introns_absolute_distance_topolya,
-                    options.extension_upstream,
-                    options.extension_downstream,
-                    options.extension_exons_absolute_distance_topolya,
-                    options.extension_introns_absolute_distance_topolya,
-                    options.scale_flanks))
+                    range_counter, args.resolution_upstream,
+                    args.resolution_downstream,
+                    args.resolution_exons_absolute_distance_topolya,
+                    args.resolution_introns_absolute_distance_topolya,
+                    args.extension_upstream,
+                    args.extension_downstream,
+                    args.extension_exons_absolute_distance_topolya,
+                    args.extension_introns_absolute_distance_topolya,
+                    args.scale_flanks))
 
         elif method == "tssprofile":
             counters.append(geneprofile.TSSCounter(
                 range_counter,
-                options.extension_outward,
-                options.extension_inward))
+                args.extension_outward,
+                args.extension_inward))
 
         elif method == "intervalprofile":
             counters.append(geneprofile.RegionCounter(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_cds,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+                args.resolution_upstream,
+                args.resolution_cds,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream))
 
         elif method == "midpointprofile":
             counters.append(geneprofile.MidpointCounter(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+                args.resolution_upstream,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream))
 
         # add new method to split 1st and last exons out
         # requires a representative transcript for reach gene
@@ -779,38 +775,38 @@ def main(argv=None):
         elif method == "separateexonprofile":
             counters.append(geneprofile.SeparateExonCounter(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_first,
-                options.resolution_last,
-                options.resolution_cds,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+                args.resolution_upstream,
+                args.resolution_first,
+                args.resolution_last,
+                args.resolution_cds,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream))
 
         elif method == "separateexonprofilewithintrons":
             counters.append(geneprofile.SeparateExonWithIntronCounter(
                 range_counter,
-                options.resolution_upstream,
-                options.resolution_first,
-                options.resolution_last,
-                options.resolution_cds,
-                options.resolution_introns,
-                options.resolution_downstream,
-                options.extension_upstream,
-                options.extension_downstream))
+                args.resolution_upstream,
+                args.resolution_first,
+                args.resolution_last,
+                args.resolution_cds,
+                args.resolution_introns,
+                args.resolution_downstream,
+                args.extension_upstream,
+                args.extension_downstream))
 
     # set normalization
     for c in counters:
-        c.setNormalization(options.transcript_normalization)
-        if options.output_all_profiles:
+        c.setNormalization(args.transcript_normalization)
+        if args.output_all_profiles:
             c.setOutputProfiles(iotools.open_file(E.get_output_file(c.name) +
                                                   ".profiles.tsv.gz", "w"))
 
-    if options.input_filename_counts:
+    if args.input_filename_counts:
         # read counts from file
-        E.info("reading counts from %s" % options.input_filename_counts)
+        E.info("reading counts from %s" % args.input_filename_counts)
         all_counts = pandas.read_csv(
-            iotools.open_file(options.input_filename_counts),
+            iotools.open_file(args.input_filename_counts),
             sep='\t', header=0, index_col=0)
 
         if len(counters) != 1:
@@ -827,21 +823,21 @@ def main(argv=None):
                                                  gtf_iterator)
 
     # output matrices
-    if not options.profile_normalizations:
-        options.profile_normalizations.append("none")
-    elif "all" in options.profile_normalizations:
-        options.profile_normalizations = ["none",
+    if not args.profile_normalizations:
+        args.profile_normalizations.append("none")
+    elif "all" in args.profile_normalizations:
+        args.profile_normalizations = ["none",
                                           "area",
                                           "counts",
                                           "background"]
 
-    for method, counter in zip(options.methods, counters):
+    for method, counter in zip(args.methods, counters):
         profiles = []
-        for norm in options.profile_normalizations:
+        for norm in args.profile_normalizations:
             # build matrix, apply normalization
             profile = counter.getProfile(
                 normalize=norm,
-                background_region_bins=options.background_region_bins)
+                background_region_bins=args.background_region_bins)
             profiles.append(profile)
 
         for x in range(1, len(profiles)):
@@ -855,7 +851,7 @@ def main(argv=None):
         with iotools.open_file(E.get_output_file(counter.name) +
                                ".matrix.tsv.gz", "w") as outfile:
             outfile.write("bin\tregion\tregion_bin\t%s\n" % "\t".join(
-                options.profile_normalizations))
+                args.profile_normalizations))
             fields = []
             bins = []
             for field, nbins in zip(counter.fields, counter.nbins):
@@ -872,17 +868,17 @@ def main(argv=None):
                                ".lengths.tsv.gz", "w") as outfile:
             counter.writeLengthStats(outfile)
 
-        if options.output_all_profiles:
+        if args.output_all_profiles:
             counter.closeOutputProfiles()
 
-    if options.plot:
+    if args.plot:
 
         import matplotlib
         # avoid Tk or any X
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
-        for method, counter in zip(options.methods, counters):
+        for method, counter in zip(args.methods, counters):
 
             if method in ("geneprofile",
                           "geneprofilewithintrons",
@@ -904,8 +900,8 @@ def main(argv=None):
 
                 figname = counter.name + ".full"
 
-                fn = E.get_output_file(figname) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                fn = E.get_output_file(figname) + "." + args.image_format
+                plt.savefig(os.path.expanduser(fn), format=args.image_format, dpi=args.resolution_images)
 
                 plt.figure()
 
@@ -929,45 +925,45 @@ def main(argv=None):
 
                 figname = counter.name + ".detail"
 
-                fn = E.get_output_file(figname) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                fn = E.get_output_file(figname) + "." + args.image_format
+                plt.savefig(os.path.expanduser(fn), format=args.image_format, dpi=args.resolution_images)
 
             elif method == "tssprofile":
 
                 plt.figure()
                 plt.subplot(1, 3, 1)
-                plt.plot(list(range(-options.extension_outward,
-                                    options.extension_inward)),
+                plt.plot(list(range(-args.extension_outward,
+                                    args.extension_inward)),
                          counter.aggregate_counts[0])
                 plt.title(counter.fields[0])
                 plt.subplot(1, 3, 2)
-                plt.plot(list(range(-options.extension_inward,
-                                    options.extension_outward)),
+                plt.plot(list(range(-args.extension_inward,
+                                    args.extension_outward)),
                          counter.aggregate_counts[1])
                 plt.title(counter.fields[1])
                 plt.subplot(1, 3, 3)
                 plt.title("combined")
-                plt.plot(list(range(-options.extension_outward,
-                                    options.extension_inward)),
+                plt.plot(list(range(-args.extension_outward,
+                                    args.extension_inward)),
                          counter.aggregate_counts[0])
-                plt.plot(list(range(-options.extension_inward,
-                                    options.extension_outward)),
+                plt.plot(list(range(-args.extension_inward,
+                                    args.extension_outward)),
                          counter.aggregate_counts[1])
                 plt.legend(counter.fields[:2])
 
-                fn = E.get_output_file(counter.name) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                fn = E.get_output_file(counter.name) + "." + args.image_format
+                plt.savefig(os.path.expanduser(fn), format=args.image_format, dpi=args.resolution_images)
 
             elif method == "midpointprofile":
 
                 plt.figure()
-                plt.plot(numpy.arange(-options.resolution_upstream, 0),
+                plt.plot(numpy.arange(-args.resolution_upstream, 0),
                          counter.aggregate_counts[0])
-                plt.plot(numpy.arange(0, options.resolution_downstream),
+                plt.plot(numpy.arange(0, args.resolution_downstream),
                          counter.aggregate_counts[1])
 
-                fn = E.get_output_file(counter.name) + "." + options.image_format
-                plt.savefig(os.path.expanduser(fn), format=options.image_format, dpi=options.resolution_images)
+                fn = E.get_output_file(counter.name) + "." + args.image_format
+                plt.savefig(os.path.expanduser(fn), format=args.image_format, dpi=args.resolution_images)
 
     # write footer and output benchmark information.
     E.stop()
