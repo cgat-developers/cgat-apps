@@ -56,18 +56,17 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-i", "--test-option", dest="test_option", type=str,
-                      help="test option [default=%default].")
+                      help="test option")
 
     parser.set_defaults(
         test_option="test"
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     files = glob.glob(os.path.join(os.path.dirname(__file__), "*.pyx"))
 

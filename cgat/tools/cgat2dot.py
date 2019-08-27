@@ -149,7 +149,7 @@ def buildParam(**kwargs):
     return param
 
 
-def processScript(script_name, outfile, options):
+def processScript(script_name, outfile, args):
     '''process one script.'''
 
     # call other script
@@ -158,8 +158,8 @@ def processScript(script_name, outfile, options):
     dirname = os.path.dirname(script_name)
     basename = os.path.basename(script_name)[:-3]
 
-    if options.src_dir:
-        dirname = options.src_dir
+    if args.src_dir:
+        dirname = args.src_dir
         script_name = os.path.join(dirname, basename) + ".py"
 
     if os.path.exists(prefix + ".pyc"):
@@ -314,8 +314,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-f", "--format", dest="output_format", type=str,
                       choices=("rdf", "galaxy"),
@@ -344,11 +343,11 @@ def main(argv=None):
                         filename_list=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     if len(args) == 0:
         E.info("reading script names from stdin")
-        for line in options.stdin:
+        for line in args.stdin:
             if line.startswith("#"):
                 continue
             args.append(line[:-1].split("\t")[0])
@@ -357,11 +356,11 @@ def main(argv=None):
     global ORIGINAL_START
     ORIGINAL_START = E.start
 
-    if options.output_pattern and not options.input_regex:
+    if args.output_pattern and not args.input_regex:
         raise ValueError(
             "please specify --input-regex when using --output-filename-pattern")
 
-    outfile = options.stdout
+    outfile = args.stdout
     outfile.write("""digraph cgat {
     size="10,20";
     # scale graph so that there are no overlaps
@@ -382,7 +381,7 @@ def main(argv=None):
             raise ValueError("expected a python script ending in '.py'")
 
         E.info("input=%s, output=%s" % (script_name, outfile))
-        processScript(script_name, outfile, options)
+        processScript(script_name, outfile, args)
 
     outfile.write("}\n")
 
