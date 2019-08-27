@@ -471,60 +471,56 @@ import pyBigWig
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome [default=%default].")
+                      help="filename with genome.")
 
     parser.add_argument("-q", "--quality-file",
                       dest="quality_file",
                       type=str,
                       help="filename with genomic base quality "
-                      "information [default=%default].")
+                      "information.")
 
     parser.add_argument("-b", "--bam-file", dest="bam_files",
                       type=str, metavar="bam",
                       help="filename with read mapping information. "
                       "Multiple files can be submitted in a "
-                      "comma-separated list [default=%default].")
+                      "comma-separated list.")
 
     parser.add_argument("-i", "--bigwig-file", dest="bigwig_file",
                       type=str, metavar="bigwig",
-                      help="filename with bigwig information "
-                      "[default=%default].")
+                      help="filename with bigwig information ")
 
     parser.add_argument("-f", "--gff-file", dest="filename_gff",
                       type=str, action="append", metavar='bed',
                       help="filename with extra gff files. The order "
-                      "is important [default=%default].")
+                      "is important.")
 
     parser.add_argument("--filename-format", dest="filename_format",
                       type=str,
                       choices=("bed", "gff", "gtf"),
-                      help="format of secondary stream [default=%default].")
+                      help="format of secondary stream.")
 
     parser.add_argument("--restrict-source", dest="gff_sources", type=str,
                       action="append",
                       help="restrict input to this 'source' in extra "
-                      "gff file (for counter: overlap) [default=%default].")
+                      "gff file (for counter: overlap).")
 
     parser.add_argument("--restrict-feature", dest="gff_features", type=str,
                       action="append",
                       help="restrict input to this 'feature' in extra gff "
-                      "file (for counter: overlap) [default=%default].")
+                      "file (for counter: overlap).")
 
     parser.add_argument("-r", "--reporter", dest="reporter", type=str,
                       choices=("genes", "transcripts"),
-                      help="report results for 'genes' or 'transcripts' "
-                      "[default=%default].")
+                      help="report results for 'genes' or 'transcripts' ")
 
     parser.add_argument("-s", "--section", dest="sections",
                       type=str,
                       action="append",
                       choices=("exons", "introns"),
-                      help="select range on which counters will operate "
-                      "[default=%default].")
+                      help="select range on which counters will operate ")
 
     parser.add_argument("-c", "--counter", dest="counters",
                       type=str,
@@ -562,18 +558,16 @@ def main(argv=None):
                                 "splice",
                                 "splice-comparison",
                                 "territories"),
-                      help="select counters to apply to input "
-                      "[default=%default].")
+                      help="select counters to apply to input ")
 
     parser.add_argument("--add-gtf-source", dest="add_gtf_source",
                       action="store_true",
-                      help="add gtf field of source to output "
-                      "[default=%default].")
+                      help="add gtf field of source to output ")
 
     parser.add_argument("--proximal-distance", dest="proximal_distance",
                       type=int,
                       help="distance to be considered proximal to "
-                      "an interval [default=%default].")
+                      "an interval.")
 
     parser.add_argument("--multi-mapping-method",
                       dest="multi_mapping",
@@ -581,8 +575,7 @@ def main(argv=None):
                       choices=('all', 'ignore', 'weight'),
                       help="how to treat multi-mapping reads in "
                       "bam-files. Requires "
-                      "the NH flag to be set by the mapper "
-                      "[default=%default].")
+                      "the NH flag to be set by the mapper ")
 
     parser.add_argument("--use-barcodes",
                       dest="use_barcodes",
@@ -606,8 +599,7 @@ def main(argv=None):
                       type=str,
                       action="append",
                       help="add prefix to column headers - prefixes "
-                      "are used in the same order as the counters "
-                      "[default=%default].")
+                      "are used in the same order as the counters ")
 
     parser.add_argument("--library-type",
                       dest="library_type",
@@ -618,15 +610,13 @@ def main(argv=None):
                                "fr-unstranded",
                                "fr-firststrand",
                                "fr-secondstrand"),
-                      help="library type of reads in bam file. "
-                      "[default=%default]")
+                      help="library type of reads in bam file. ")
 
     parser.add_argument("--min-mapping-quality",
                       dest="minimum_mapping_quality",
                       type=float,
                       help="minimum mapping quality. Reads with a quality "
-                      "score of less will be ignored. "
-                      "[default=%default]")
+                      "score of less will be ignored. ")
 
     parser.set_defaults(
         genome_file=None,
@@ -652,70 +642,70 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    (options, args) = E.start(parser, add_output_options=True, argv=argv)
+    (args) = E.start(parser, add_output_options=True, argv=argv)
 
-    if options.prefixes:
-        if len(options.prefixes) != len(options.counters):
+    if args.prefixes:
+        if len(args.prefixes) != len(args.counters):
             raise ValueError(
                 "if any prefix is given, the number of prefixes "
                 "must be the same as the number of counters")
 
     # get files
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
     else:
         fasta = None
 
-    if options.quality_file:
-        quality = IndexedFasta.IndexedFasta(options.quality_file)
+    if args.quality_file:
+        quality = IndexedFasta.IndexedFasta(args.quality_file)
         quality.setTranslator(IndexedFasta.TranslatorBytes())
     else:
         quality = None
 
-    if options.bam_files:
+    if args.bam_files:
         bam_files = []
-        for bamfile in options.bam_files.split(","):
+        for bamfile in args.bam_files.split(","):
             bam_files.append(pysam.AlignmentFile(bamfile, "rb"))
     else:
         bam_files = None
 
-    if options.bigwig_file:
-        bigwig_file = pyBigWig.open(options.bigwig_file)
+    if args.bigwig_file:
+        bigwig_file = pyBigWig.open(args.bigwig_file)
     else:
         bigwig_file = None
 
     counters = []
 
-    if not options.sections:
+    if not args.sections:
         E.info("counters will use the default section (exons)")
-        options.sections.append(None)
+        args.sections.append(None)
 
-    if not options.gff_sources:
-        options.gff_sources.append(None)
-    if not options.gff_features:
-        options.gff_features.append(None)
+    if not args.gff_sources:
+        args.gff_sources.append(None)
+    if not args.gff_features:
+        args.gff_features.append(None)
 
     cc = E.Counter()
 
-    for n, c in enumerate(options.counters):
-        if options.prefixes:
-            prefix = options.prefixes[n]
+    for n, c in enumerate(args.counters):
+        if args.prefixes:
+            prefix = args.prefixes[n]
         else:
             prefix = None
 
         if c == "position":
-            for section in options.sections:
+            for section in args.sections:
                 counters.append(
                     GeneModelAnalysis.CounterPosition(
                         section=section,
-                        options=options,
+                        args.options,
                         prefix=prefix))
         elif c == "length":
-            for section in options.sections:
+            for section in args.sections:
                 counters.append(
                     GeneModelAnalysis.CounterLengths(
                         section=section,
-                        options=options,
+                        args.options,
                         prefix=prefix))
         elif c == "splice":
             if fasta is None:
@@ -727,92 +717,92 @@ def main(argv=None):
             counters.append(GeneModelAnalysis.CounterQuality(fasta=quality, prefix=prefix))
         elif c == "overrun":
             counters.append(GeneModelAnalysis.CounterOverrun(
-                filename_gff=options.filename_gff,
-                options=options,
+                filename_gff=args.filename_gff,
+                args.options,
                 prefix=prefix))
         elif c == "read-coverage":
             counters.append(GeneModelAnalysis.CounterReadCoverage(
                 bam_files,
-                options=options,
+                args.options,
                 prefix=prefix))
         elif c == "read-extension":
             counters.append(GeneModelAnalysis.CounterReadExtension(
                 bam_files,
-                filename_gff=options.filename_gff,
-                options=options,
+                filename_gff=args.filename_gff,
+                args.options,
                 prefix=prefix))
         elif c == "read-overlap":
             counters.append(GeneModelAnalysis.CounterReadOverlap(
                 bam_files,
-                multi_mapping=options.multi_mapping,
-                minimum_mapping_quality=options.minimum_mapping_quality,
-                options=options,
+                multi_mapping=args.multi_mapping,
+                minimum_mapping_quality=args.minimum_mapping_quality,
+                args.options,
                 prefix=prefix))
         elif c == "read-counts":
             counters.append(GeneModelAnalysis.CounterReadCounts(
                 bam_files,
-                multi_mapping=options.multi_mapping,
-                use_barcodes=options.use_barcodes,
-                sample_probability=options.sample_probability,
-                minimum_mapping_quality=options.minimum_mapping_quality,
-                options=options,
+                multi_mapping=args.multi_mapping,
+                use_barcodes=args.use_barcodes,
+                sample_probability=args.sample_probability,
+                minimum_mapping_quality=args.minimum_mapping_quality,
+                args.options,
                 prefix=prefix))
         elif c == "read-fullcounts":
             counters.append(GeneModelAnalysis.CounterReadCountsFull(
                 bam_files,
-                multi_mapping=options.multi_mapping,
-                sample_probability=options.sample_probability,
-                minimum_mapping_quality=options.minimum_mapping_quality,
-                options=options,
+                multi_mapping=args.multi_mapping,
+                sample_probability=args.sample_probability,
+                minimum_mapping_quality=args.minimum_mapping_quality,
+                args.options,
                 prefix=prefix))
         elif c == "readpair-counts":
             counters.append(GeneModelAnalysis.CounterReadPairCounts(
                 bam_files,
-                multi_mapping=options.multi_mapping,
-                sample_probability=options.sample_probability,
-                library_type=options.library_type,
-                minimum_mapping_quality=options.minimum_mapping_quality,
-                options=options,
+                multi_mapping=args.multi_mapping,
+                sample_probability=args.sample_probability,
+                library_type=args.library_type,
+                minimum_mapping_quality=args.minimum_mapping_quality,
+                args.options,
                 prefix=prefix))
         elif c == "readpair-fullcounts":
             counters.append(GeneModelAnalysis.CounterReadPairCountsFull(
                 bam_files,
-                multi_mapping=options.multi_mapping,
-                sample_probability=options.sample_probability,
-                minimum_mapping_quality=options.minimum_mapping_quality,
-                options=options,
+                multi_mapping=args.multi_mapping,
+                sample_probability=args.sample_probability,
+                minimum_mapping_quality=args.minimum_mapping_quality,
+                args.options,
                 prefix=prefix))
         elif c == "bigwig-counts":
             counters.append(GeneModelAnalysis.CounterBigwigCounts(
                 bigwig_file,
-                options=options, prefix=prefix))
+                args.options, prefix=prefix))
         elif c == "splice-comparison":
             if fasta is None:
                 raise ValueError('splice-comparison requires a genomic '
                                  'sequence')
             counters.append(GeneModelAnalysis.CounterSpliceSiteComparison(
                 fasta=fasta,
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 feature=None,
                 source=None,
-                options=options, prefix=prefix))
+                args.options, prefix=prefix))
         elif c == "composition-na":
             if fasta is None:
                 raise ValueError('composition-na requires a genomic sequence')
-            for section in options.sections:
+            for section in args.sections:
                 counters.append(GeneModelAnalysis.CounterCompositionNucleotides(
                     fasta=fasta,
                     section=section,
-                    options=options,
+                    args.options,
                     prefix=prefix))
         elif c == "composition-cpg":
             if fasta is None:
                 raise ValueError('composition-cpg requires a genomic sequence')
-            for section in options.sections:
+            for section in args.sections:
                 counters.append(GeneModelAnalysis.CounterCompositionCpG(
                     fasta=fasta,
                     section=section,
-                    options=options, prefix=prefix))
+                    args.options, prefix=prefix))
 
         elif c in ("overlap",
                    "overlap-stranded",
@@ -854,71 +844,71 @@ def main(argv=None):
             elif c == "binding-pattern":
                 template = GeneModelAnalysis.CounterBindingPattern
 
-            for section in options.sections:
-                for source in options.gff_sources:
-                    for feature in options.gff_features:
+            for section in args.sections:
+                for source in args.gff_sources:
+                    for feature in args.gff_features:
                         counters.append(template(
-                            filename_gff=options.filename_gff,
+                            filename_gff=args.filename_gff,
                             feature=feature,
                             source=source,
                             fasta=fasta,
                             section=section,
-                            options=options,
+                            args.options,
                             prefix=prefix))
 
         elif c == "classifier":
             counters.append(GeneModelAnalysis.Classifier(
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 fasta=fasta,
-                options=options, prefix=prefix))
+                args.options, prefix=prefix))
 
         elif c == "classifier-rnaseq":
             counters.append(GeneModelAnalysis.ClassifierRNASeq(
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 fasta=fasta,
-                options=options, prefix=prefix))
+                args.options, prefix=prefix))
         elif c == "classifier-rnaseq-splicing":
             counters.append(GeneModelAnalysis.ClassifierRNASeqSplicing(
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 fasta=fasta,
-                options=options,
+                args.options,
                 prefix=prefix))
         elif c == "classifier-polii":
             counters.append(GeneModelAnalysis.ClassifierPolII(
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 feature=None,
                 source=None,
                 fasta=fasta,
-                options=options,
+                args.options,
                 prefix=prefix))
         elif c == "binding-pattern":
             counters.append(GeneModelAnalysis.CounterBindingPattern(
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 feature=None,
                 source=None,
                 fasta=fasta,
-                options=options,
+                args.options,
                 prefix=prefix))
 
-    if options.reporter == "genes":
+    if args.reporter == "genes":
         iterator = GTF.flat_gene_iterator
         header = ["gene_id"]
         fheader = lambda x: [x[0].gene_id]
-    elif options.reporter == "transcripts":
+    elif args.reporter == "transcripts":
         iterator = GTF.transcript_iterator
         header = ["transcript_id"]
         fheader = lambda x: [x[0].transcript_id]
 
-    if options.add_gtf_source:
+    if args.add_gtf_source:
         header.append("source")
         ffields = lambda x: [x[0].source]
     else:
         ffields = lambda x: []
 
-    options.stdout.write("\t".join(
+    args.stdout.write("\t".join(
         header + [x.getHeader() for x in counters]) + "\n")
 
-    for gffs in iterator(GTF.iterator(options.stdin)):
+    for gffs in iterator(GTF.iterator(args.stdin)):
         cc.input += 1
 
         for counter in counters:
@@ -929,7 +919,7 @@ def main(argv=None):
             cc.skipped += 1
             continue
 
-        options.stdout.write("\t".join(
+        args.stdout.write("\t".join(
             fheader(gffs) +
             ffields(gffs) +
             [str(counter) for counter in counters]) + "\n")

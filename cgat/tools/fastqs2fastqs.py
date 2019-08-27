@@ -116,12 +116,11 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
                       choices=('reconcile', 'filter-by-sequence'),
-                      help="method to apply [default=%default].")
+                      help="method to apply.")
 
     parser.add_argument(
         "-c", "--chop-identifier", dest="chop", action="store_true",
@@ -129,7 +128,7 @@ def main(argv=None):
         "sequence name. For example sometimes ids in the first "
         "file in the pair will end with \1 and the second "
         "with \2. If --chop-identifier is not specified "
-        "then the results will be wrong [default=%default].")
+        "then the results will be wrong.")
 
     parser.add_argument(
         "-u", "--unpaired", dest="unpaired", action="store_true",
@@ -139,29 +138,27 @@ def main(argv=None):
     parser.add_argument(
         "--id-pattern-1", dest="id_pattern_1",
         help="If specified will use the first group from the"
-        "pattern to determine the ID for the first read",
-        default=None)
+        "pattern to determine the ID for the first read")
 
     parser.add_argument(
         "--id-pattern-2", dest="id_pattern_2",
-        help="As above but for read 2",
-        default=None)
+        help="As above but for read 2")
 
     parser.add_argument(
         "--input-filename-fasta",
         dest="input_filename_fasta", type=str,
         help="input filename of FASTA formatted sequence "
-        "for method 'filter-by-sequence' [default=%default].")
+        "for method 'filter-by-sequence'.")
 
     parser.add_argument(
         "--filtering-kmer-size",
         dest="filtering_kmer_size", type=int,
-        help="kmer size for method 'filter-by-sequence' [default=%default].")
+        help="kmer size for method 'filter-by-sequence'.")
 
     parser.add_argument(
         "--filtering-min-kmer-matches",
         dest="filtering_min_kmer_matches", type=int,
-        help="minimum number of matches 'filter-by-sequence' [default=%default].")
+        help="minimum number of matches 'filter-by-sequence'.")
 
     parser.set_defaults(
         method="reconcile",
@@ -173,7 +170,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     if len(args) != 2:
         raise ValueError(
@@ -182,17 +179,17 @@ def main(argv=None):
     fn1, fn2 = args
     counter = E.Counter()
 
-    if options.id_pattern_1:
-        id1_getter = PatternGetter(options.id_pattern_1)
+    if args.id_pattern_1:
+        id1_getter = PatternGetter(args.id_pattern_1)
     else:
         id1_getter = plain_getter
 
-    if options.id_pattern_2:
-        id2_getter = PatternGetter(options.id_pattern_2)
+    if args.id_pattern_2:
+        id2_getter = PatternGetter(args.id_pattern_2)
     else:
         id2_getter = plain_getter
 
-    if options.method == "reconcile":
+    if args.method == "reconcile":
 
         # IMS: switching to no store second set of read names and only use
         # lazily. Since generators don't have a size must keep track
@@ -208,7 +205,7 @@ def main(argv=None):
                 r = id_getter(l[0].split()[0])
                 # decide if to chop read number off
                 id_lengths[infile.name] += 1
-                if options.chop:
+                if args.chop:
                     yield r[:-1]
                 else:
                     yield r
@@ -222,7 +219,7 @@ def main(argv=None):
                 if not l[0]:
                     break
                 r = id_getter(l[0].split()[0])
-                if options.chop:
+                if args.chop:
                     r = r[:-1]
                 if r not in take:
                     if unpaired_file is None:
@@ -250,7 +247,7 @@ def main(argv=None):
                 id_lengths[fn2],
                 len(take)))
 
-        if options.unpaired:
+        if args.unpaired:
             unpaired_filename = E.open_output_file(
                 "unpaired.fastq.gz", "w")
         else:
@@ -268,12 +265,12 @@ def main(argv=None):
 
         counter.output = len(take)
         
-        if options.unpaired:
+        if args.unpaired:
             unpaired_filename.close()
 
-    elif options.method == "filter-by-sequence":
+    elif args.method == "filter-by-sequence":
 
-        with pysam.FastxFile(options.input_filename_fasta) as inf:
+        with pysam.FastxFile(args.input_filename_fasta) as inf:
             for record in inf:
                 query_sequence = record.sequence
                 break
@@ -292,12 +289,12 @@ def main(argv=None):
                 outf_matched2,
                 outf_unmatched1,
                 outf_unmatched2,
-                kmer_size=options.filtering_kmer_size,
-                min_kmer_matches=options.filtering_min_kmer_matches)
-        options.stdout.write(
+                kmer_size=args.filtering_kmer_size,
+                min_kmer_matches=args.filtering_min_kmer_matches)
+        args.stdout.write(
             "\t".join(("input", "matched", "unmatched", "percent_matched")) + "\n")
 
-        options.stdout.write(
+        args.stdout.write(
             "\t".join(map(str, (
                 counter.input, counter.matched, counter.unmatched,
                 100.0 * counter.matched / counter.input))) + "\n")

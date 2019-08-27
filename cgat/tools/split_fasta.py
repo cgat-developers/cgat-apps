@@ -138,12 +138,10 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: split_fasta.py 1714 2007-12-11 16:51:12Z andreas $")
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-f", "--file", dest="input_filename", type=str,
-                      help="input filename. If not given, stdin is used.",
-                      metavar="FILE")
+                      help="input filename. If not given, stdin is used.")
 
     parser.add_argument("-i", "--input-pattern", dest="input_pattern", type=str,
                       help="input pattern. Parses description line in order to extract id.")
@@ -155,12 +153,10 @@ def main(argv=None):
                       help="split by number of sequences (not implemented yet).")
 
     parser.add_argument("-m", "--map", dest="map_filename", type=str,
-                      help="map filename. Map identifiers to filenames",
-                      metavar="FILE")
+                      help="map filename. Map identifiers to filenames")
 
     parser.add_argument("-s", "--skip-identifiers", dest="skip_identifiers", action="store_true",
-                      help="do not write identifiers.",
-                      metavar="FILE")
+                      help="do not write identifiers.")
 
     parser.add_argument("--min-size", dest="min_size", type=int,
                       help="minimum cluster size.")
@@ -174,29 +170,29 @@ def main(argv=None):
         num_sequences=None,
         output_pattern="%s")
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.input_filename:
-        infile = iotools.open_file(options.input_filename, "r")
+    if args.input_filename:
+        infile = iotools.open_file(args.input_filename, "r")
     else:
         infile = sys.stdin
 
-    if options.map_filename:
-        map_id2filename = iotools.ReadMap(open(options.map_filename, "r"))
+    if args.map_filename:
+        map_id2filename = iotools.ReadMap(open(args.map_filename, "r"))
     else:
         map_id2filename = {}
 
-    if options.num_sequences:
-        files = FilesChunks(chunk_size=options.num_sequences,
-                            output_pattern=options.output_pattern,
-                            skip_identifiers=options.skip_identifiers)
+    if args.num_sequences:
+        files = FilesChunks(chunk_size=args.num_sequences,
+                            output_pattern=args.output_pattern,
+                            skip_identifiers=args.skip_identifiers)
 
     else:
-        files = Files(output_pattern=options.output_pattern,
-                      skip_identifiers=options.skip_identifiers)
+        files = Files(output_pattern=args.output_pattern,
+                      skip_identifiers=args.skip_identifiers)
 
-    if options.input_pattern:
-        rx = re.compile(options.input_pattern)
+    if args.input_pattern:
+        rx = re.compile(args.input_pattern)
     else:
         rx = None
 
@@ -226,19 +222,19 @@ def main(argv=None):
         files.Write(identifier, seq)
         noutput += 1
 
-    if options.input_filename:
+    if args.input_filename:
         infile.close()
 
     # delete all clusters below a minimum size
     # Note: this has to be done at the end, because
     # clusters sizes are only available once both the fasta
     # file and the map has been parsed.
-    if options.min_size:
-        ndeleted = files.DeleteFiles(min_size=options.min_size)
+    if args.min_size:
+        ndeleted = files.DeleteFiles(min_size=args.min_size)
     else:
         ndeleted = 0
 
-    if options.loglevel >= 1:
+    if args.loglevel >= 1:
         print("# input=%i, output=%i, ndeleted=%i" % (ninput, noutput, ndeleted))
 
     E.stop()

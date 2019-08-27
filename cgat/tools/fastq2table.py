@@ -106,8 +106,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "--guess-format", dest="guess_format", type=str,
@@ -117,14 +116,14 @@ def main(argv=None):
         "format of the input fastq file. The user can specify the "
         "quality format of the input file using the --guess-format option. "
         "The script will use this format if the "
-        "sequence qualities are ambiguous.[default=%default].")
+        "sequence qualities are ambiguous.")
 
     parser.add_argument(
         "--target-format", dest="target_format", type=str,
         choices=(
             'sanger', 'solexa', 'phred64', 'illumina-1.8', 'integer'),
         help="The script will convert quality scores to the destination "
-        "format unless [default=%default].")
+        "format unless.")
 
     parser.set_defaults(
         target_format=None,
@@ -133,29 +132,29 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     c = E.Counter()
 
-    if options.target_format:
-        iterator = Fastq.iterate_convert(options.stdin,
-                                         format=options.target_format,
-                                         guess=options.guess_format)
+    if args.target_format:
+        iterator = Fastq.iterate_convert(args.stdin,
+                                         format=args.target_format,
+                                         guess=args.guess_format)
     else:
-        iterator = Fastq.iterate_guess(options.stdin,
-                                       guess=options.guess_format)
+        iterator = Fastq.iterate_guess(args.stdin,
+                                       guess=args.guess_format)
 
-    options.stdout.write("read\tnfailed\tnN\t%s\n" %
+    args.stdout.write("read\tnfailed\tnN\t%s\n" %
                          ("\t".join(Stats.Summary().getHeaders())))
 
-    min_quality = options.min_quality
+    min_quality = args.min_quality
 
     for record in iterator:
         c.input += 1
         quals = record.toPhred()
         nfailed = len([x for x in quals if x < min_quality])
         nns = record.seq.count("N") + record.seq.count(".")
-        options.stdout.write("%s\t%i\t%i\t%s\n" % (record.identifier,
+        args.stdout.write("%s\t%i\t%i\t%s\n" % (record.identifier,
                                                    nfailed,
                                                    nns,
                                                    str(Stats.Summary(quals))

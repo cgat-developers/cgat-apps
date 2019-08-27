@@ -39,17 +39,18 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id: cgat_script_template.py 2781 2009-09-10 11:33:14Z andreas $", usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.set_defaults(
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if len(args) == 0 or (len(args) == 1 and args[0] == "-"):
-        infile = options.stdin
+    if len(unknown) == 0 or (len(unknown) == 1 and unknown[0] == "-"):
+        infile = args.stdin
     else:
         infile = fileinput.FileInput(args)
 
@@ -68,7 +69,7 @@ def main(argv=None):
             nskipped += 1
             continue
 
-        options.stdout.write(line)
+        args.stdout.write(line)
         noutput += 1
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))

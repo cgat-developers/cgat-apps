@@ -262,8 +262,7 @@ class CounterBAMAllelicDepth(CounterBAM):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type=float,
@@ -300,28 +299,29 @@ def main(argv=None):
         counters=[],
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               argv=argv,
-                              add_output_options=True)
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) > 0:
-        options.input_filename_vcf = args[0]
+    if len(unknown) > 0:
+        args.input_filename_vcf = unknown[0]
 
-    vcf_in = pysam.VariantFile(options.input_filename_vcf)
+    vcf_in = pysam.VariantFile(args.input_filename_vcf)
 
     counters = []
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
+    if args.input_filename_fasta:
+        fasta = pysam.FastaFile(args.input_filename_fasta)
     else:
         fasta = None
 
-    if options.input_filename_bam:
-        bam = pysam.AlignmentFile(options.input_filename_bam)
+    if args.input_filename_bam:
+        bam = pysam.AlignmentFile(args.input_filename_bam)
     else:
         bam = None
 
-    for counter in options.counters:
+    for counter in args.counters:
         if counter == "context":
             counters.append(CounterContext(fasta))
         elif counter == "bam-indels":
@@ -331,8 +331,8 @@ def main(argv=None):
         elif counter == "indel-type":
             counters.append(CounterIndelType())
 
-    outf = options.stdout
-    if not options.no_vcf_columns:
+    outf = args.stdout
+    if not args.no_vcf_columns:
         header = str(vcf_in.header).strip().split("\n")[-1].strip()[1:].split("\t")
 
     else:
@@ -349,7 +349,7 @@ def main(argv=None):
         for counter in counters:
             counter.count(record)
 
-        if not options.no_vcf_columns:
+        if not args.no_vcf_columns:
             outf.write("{}\t".format(
                 str(record).strip()))
         else:

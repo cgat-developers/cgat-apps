@@ -97,8 +97,7 @@ from cgat.VCFTools import vcf2stats_count
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--input-vcf", dest="input_vcf_file", type=str,
@@ -162,62 +161,65 @@ def main(argv=sys.argv):
         report_step=1000000,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) == 1:
-        options.input_vcf_file = args[0]
+    if len(unknown) == 1:
+        args.input_vcf_file = unknown[0]
 
-    if options.input_vcf_file is None:
+    if args.input_vcf_file is None:
         raise ValueError("please supply a VCF file")
 
-    if options.input_fasta_file is None:
+    if args.input_fasta_file is None:
         raise ValueError("please supply a FASTA file")
 
-    if "format-distribution" in options.methods and not options.format_distributions:
+    if "format-distribution" in args.methods and not args.format_distributions:
         raise ValueError("please supply at least one FORMAT field (DP, GQ) "
                          "when --method=format-distribution has been selected")
 
-    if not os.path.exists(options.input_vcf_file):
+    if not os.path.exists(args.input_vcf_file):
         raise OSError("input vcf file {} does not exist".format(
-            options.input_vcf_file))
+            args.input_vcf_file))
 
-    if not os.path.exists(options.input_vcf_file + ".tbi") and not \
-       os.path.exists(options.input_vcf_file + ".csi"):
+    if not os.path.exists(args.input_vcf_file + ".tbi") and not \
+       os.path.exists(args.input_vcf_file + ".csi"):
         raise OSError("input vcf file {} needs to be indexed".format(
-            options.input_vcf_file))
+            args.input_vcf_file))
 
-    if not os.path.exists(options.input_fasta_file):
+    if not os.path.exists(args.input_fasta_file):
         raise OSError("input fasta file {} does not exist".format(
-            options.input_fasta_file))
+            args.input_fasta_file))
 
-    if not os.path.exists(options.input_fasta_file + ".fai"):
+    if not os.path.exists(args.input_fasta_file + ".fai"):
         raise OSError("input fasta file {} needs to be indexed".format(
-            options.input_fasta_file))
+            args.input_fasta_file))
 
     # update paths to absolute
-    options.input_fasta_file = os.path.abspath(options.input_fasta_file)
-    options.input_vcf_file = os.path.abspath(options.input_vcf_file)
+    args.input_fasta_file = os.path.abspath(args.input_fasta_file)
+    args.input_vcf_file = os.path.abspath(args.input_vcf_file)
 
     # catch issue with empty variant files
     try:
-        vcf_in = pysam.VariantFile(options.input_vcf_file)
+        vcf_in = pysam.VariantFile(args.input_vcf_file)
     except (OSError, ValueError):
         E.warn("could not open variant file - likely to be empty")
         E.stop()
         return 0
 
-    fasta_in = pysam.FastaFile(options.input_fasta_file)
+    fasta_in = pysam.FastaFile(args.input_fasta_file)
 
-    if options.input_bed_file:
-        if not os.path.exists(options.input_bed_file):
+    if args.input_bed_file:
+        if not os.path.exists(args.input_bed_file):
             raise OSError("input bed file {} does not exist".format(
-                options.input_bed_file))
-        bed_in = pysam.TabixFile(options.input_bed_file)
+                args.input_bed_file))
+        bed_in = pysam.TabixFile(args.input_bed_file)
     else:
         bed_in = None
 
     vcf2stats_count(
-        vcf_in, fasta_in, bed_in, options)
+        vcf_in, fasta_in, bed_in, args)
 
     E.stop()
 

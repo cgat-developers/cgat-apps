@@ -78,8 +78,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "--bed-file", dest="infiles", type=str,
@@ -90,17 +89,19 @@ def main(argv=None):
     parser.set_defaults(infiles=[])
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    options.infiles.extend(args)
-    if len(options.infiles) == 0:
+    args.infiles.extend(unknown)
+    if len(args.infiles) == 0:
         raise ValueError('please provide at least 1 bed file')
 
     E.info("concatenating bed files")
     # concatenate the list of files
     tmp = tempfile.NamedTemporaryFile(delete=False, mode="w")
     tmp_merge = tempfile.NamedTemporaryFile(delete=False, mode="w")
-    infs = options.infiles
+    infs = args.infiles
     for inf in infs:
         for bed in Bed.iterator(iotools.open_file(inf)):
             tmp.write("%s\n" % bed)
@@ -121,7 +122,7 @@ def main(argv=None):
 
     counts = collections.defaultdict(int)
     # list of samples
-    samples = options.infiles
+    samples = args.infiles
 
     E.info("counting no. samples overlapping each interval")
     for sample in samples:
@@ -139,11 +140,11 @@ def main(argv=None):
                 counts[key] += 1
 
     # open outfile
-    options.stdout.write("contig\tstart\tend\tcount\n")
+    args.stdout.write("contig\tstart\tend\tcount\n")
 
     E.info("outputting result")
     for interval, count in sorted(counts.items()):
-        options.stdout.write(
+        args.stdout.write(
             "\t".join(map(str, interval)) + "\t" + str(count) + "\n")
 
     # write footer and output benchmark information.

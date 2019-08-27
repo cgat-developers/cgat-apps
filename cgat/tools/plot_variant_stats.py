@@ -79,8 +79,7 @@ def compute_log_depth_ratio(dataframe, min_depth=10):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-m", "--method", dest="method", type=str,
@@ -124,18 +123,19 @@ def main(argv=None):
         transformations=[],
     )
 
-    (options, args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+    (args, unknown) = E.start(parser,
+                     argv=argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    filenames = args
+    filenames = unknown
 
     if len(filenames) == 0:
         E.info("reading from stdin")
-        filenames = [options.stdin]
+        filenames = [args.stdin]
 
-    if options.plot_options is not None:
-        plot_options = eval("dict({})".format(options.plot_options))
+    if args.plot_options is not None:
+        plot_options = eval("dict({})".format(args.plot_options))
     else:
         plot_options = {}
 
@@ -144,7 +144,7 @@ def main(argv=None):
         E.info("working on {}".format(filename))
 
         try:
-            if options.input_file_format == "bcftools-query":
+            if args.input_file_format == "bcftools-query":
                 # for bctools query, header starts with "#".
 
                 dataframe = pandas.read_csv(filename,
@@ -165,12 +165,12 @@ def main(argv=None):
 
         E.info("read data from {}".format(filename))
 
-        if options.regex_filename:
-            section = re.search(options.regex_filename, filename).groups()[0]
+        if args.regex_filename:
+            section = re.search(args.regex_filename, filename).groups()[0]
         else:
             section = "{}".format(index + 1)
 
-        for method in options.transformations:
+        for method in args.transformations:
             if method == "log-depth-ratio":
                 dataframe = compute_log_depth_ratio(dataframe)
 
@@ -178,16 +178,16 @@ def main(argv=None):
             E.warn("dataframe from {} is empty - skipped".format(filename))
             continue
 
-        if options.method == "mutation-profile-bar-plot":
+        if args.method == "mutation-profile-bar-plot":
             plot_mutation_profile_bar_plot(dataframe, section, **plot_options)
 
-        elif options.method == "depth-profile-line-plot":
+        elif args.method == "depth-profile-line-plot":
             plot_depth_profile_plot(dataframe, section, **plot_options)
 
-        elif options.method == "manhattan-plot":
+        elif args.method == "manhattan-plot":
             plot_manhattan_plot(dataframe,
                                 section,
-                                filename_fasta=options.reference_fasta_file,
+                                filename_fasta=args.reference_fasta_file,
                                 **plot_options)
 
     E.stop()

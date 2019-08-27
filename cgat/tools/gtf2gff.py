@@ -1080,22 +1080,20 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome [default=%default].")
+                      help="filename with genome.")
 
     parser.add_argument("-i", "--ignore-missing", dest="ignore_missing",
                       action="store_true",
                       help="Ignore transcripts on contigs that are not "
-                      "in the genome-file [default=%default].")
+                      "in the genome-file.")
 
     parser.add_argument("-s", "--restrict-source", dest="restrict_source",
                       type=str,
                       choices=("protein_coding", "pseudogene", "lncRNA"),
-                      help="restrict input by source [default=%default].")
+                      help="restrict input by source.")
 
     parser.add_argument("-m", "--method", dest="method", type=str,
                       choices=("full", "genome", "exons",
@@ -1105,55 +1103,53 @@ def main(argv=None):
                                "territories", "tss-territories",
                                "great-domains",
                                ),
-                      help="method for defining segments [default=%default].")
+                      help="method for defining segments.")
 
     parser.add_argument(
         "-r", "--territory-extension", dest="radius", type=int,
-        help="radius of a territory [default=%default].")
+        help="radius of a territory.")
 
     parser.add_argument(
         "-f", "--flank-size", dest="flank", type=int,
-        help="size of the flanking region next to a gene [default=%default].")
+        help="size of the flanking region next to a gene.")
 
     parser.add_argument(
         "--flank-increment-size", dest="increment", type=int,
-        help="size of increment in flank in genestructure annotation "
-        "[default=%default].")
+        help="size of increment in flank in genestructure annotation ")
 
     parser.add_argument(
         "-p", "--promotor-size", dest="promotor", type=int,
-        help="size of a promotor region [default=%default].")
+        help="size of a promotor region.")
 
     parser.add_argument(
         "-u", "--upstream-extension", dest="upstream", type=int,
-        help="size of region upstream of tss [default=%default].")
+        help="size of region upstream of tss.")
 
     parser.add_argument(
         "-d", "--downstream-extension", dest="downstream", type=int,
-        help="size of region downstream of tss [default=%default].")
+        help="size of region downstream of tss.")
 
     parser.add_argument(
         "--gene-detail", dest="detail", type=str,
         choices=("introns+exons", "exons", "introns"),
-        help="level of detail for gene structure annotation "
-        "[default=%default].")
+        help="level of detail for gene structure annotation ")
 
     parser.add_argument(
         "--merge-overlapping-promotors", dest="merge_promotors",
         action="store_true",
-        help="merge overlapping promotors [default=%default].")
+        help="merge overlapping promotors.")
 
     parser.add_argument(
         "--min-intron-length", dest="min_intron_length",
         type=int,
         help="minimum intron length. If the distance between two "
         "consecutive exons is smaller, the region will be marked "
-        "'unknown' [default=%default].")
+        "'unknown'.")
 
     parser.add_argument(
         "--is-unsorted", dest="is_sorted", action="store_false",
         help="sort input before processing. Otherwise, the input is assumed "
-        "to be sorted [default=%default].")
+        "to be sorted.")
 
     parser.set_defaults(
         genome_file=None,
@@ -1173,48 +1169,48 @@ def main(argv=None):
         is_sorted=True,
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
     else:
         raise ValueError("please specify a --genome-file")
 
-    if not options.restrict_source:
-        iterator = GTF.iterator(options.stdin)
+    if not args.restrict_source:
+        iterator = GTF.iterator(args.stdin)
 
-    elif options.restrict_source:
-        iterator = GTF.iterator_filtered(GTF.iterator(options.stdin),
-                                         source=options.restrict_source)
+    elif args.restrict_source:
+        iterator = GTF.iterator_filtered(GTF.iterator(args.stdin),
+                                         source=args.restrict_source)
 
     # elif options.method in ("promotors", "tts", "regulons"):
     #     iterator = GTF.iterator_filtered( GTF.iterator(options.stdin), source = "protein_coding")
     # else:
     #     iterator = GTF.iterator(options.stdin)
 
-    if not options.is_sorted:
+    if not args.is_sorted:
         iterator = GTF.iterator_sorted(iterator, sort_order="position")
 
-    if options.method == "full" or options.method == "genome":
-        segmentor = annotateGenome(iterator, fasta, options)
-    elif options.method == "territories":
-        segmentor = buildTerritories(iterator, fasta, 'gene', options)
-    elif options.method == "tss-territories":
-        segmentor = buildTerritories(iterator, fasta, 'tss', options)
-    elif options.method == "exons":
-        segmentor = annotateExons(iterator, fasta, options)
-    elif options.method == "promotors":
-        segmentor = annotatePromoters(iterator, fasta, options)
-    elif options.method == "regulons":
-        segmentor = annotateRegulons(iterator, fasta, True, options)
-    elif options.method == "tts-regulons":
-        segmentor = annotateRegulons(iterator, fasta, False, options)
-    elif options.method == "tts":
-        segmentor = annotateTTS(iterator, fasta, options)
-    elif options.method == "genes":
-        segmentor = annotateGenes(iterator, fasta, options)
-    elif options.method == "great-domains":
-        segmentor = annotateGREATDomains(iterator, fasta, options)
+    if args.method == "full" or args.method == "genome":
+        segmentor = annotateGenome(iterator, fasta, args)
+    elif args.method == "territories":
+        segmentor = buildTerritories(iterator, fasta, 'gene', args)
+    elif args.method == "tss-territories":
+        segmentor = buildTerritories(iterator, fasta, 'tss', args)
+    elif args.method == "exons":
+        segmentor = annotateExons(iterator, fasta, args)
+    elif args.method == "promotors":
+        segmentor = annotatePromoters(iterator, fasta, args)
+    elif args.method == "regulons":
+        segmentor = annotateRegulons(iterator, fasta, True, args)
+    elif args.method == "tts-regulons":
+        segmentor = annotateRegulons(iterator, fasta, False, args)
+    elif args.method == "tts":
+        segmentor = annotateTTS(iterator, fasta, args)
+    elif args.method == "genes":
+        segmentor = annotateGenes(iterator, fasta, args)
+    elif args.method == "great-domains":
+        segmentor = annotateGREATDomains(iterator, fasta, args)
 
     E.stop()
 

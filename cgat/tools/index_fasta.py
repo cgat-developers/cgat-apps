@@ -88,8 +88,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-e", "--extract", dest="extract", type=str,
@@ -108,7 +107,7 @@ def main(argv=None):
                       type=str,
                       choices=input_format_choices,
                       help="coordinate format of input. Valid choices are "
-                      "%s. See --extract. [default=%%default]." %
+                      "%s. See --extract." %
                       ", ".join(input_format_choices))
 
     parser.add_argument(
@@ -116,33 +115,29 @@ def main(argv=None):
         help="list of synonyms. This is a comma separated with list "
         "of equivalence relations. For example, chrM=chrMT "
         "means that chrMT will refer to chrM and either "
-        "can be used to retrieve a sequence "
-        "[default=%default]")
+        "can be used to retrieve a sequence ")
 
     group = E.OptionGroup(parser, "Bencharking options")
     group.add_argument("-b", "--benchmark", dest="benchmark",
                      action="store_true",
-                     help="benchmark time for read access "
-                     "[default=%default].")
+                     help="benchmark time for read access ")
     group.add_argument("--benchmark-num-iterations",
                      dest="benchmark_num_iterations",
                      type=int,
-                     help="number of iterations for benchmark "
-                     "[default=%default].")
+                     help="number of iterations for benchmark ")
     group.add_argument("--benchmark-fragment-size",
                      dest="benchmark_fragment_size",
                      type=int,
-                     help="benchmark: fragment size [default=%default].")
+                     help="benchmark: fragment size.")
     parser.add_argument_group(group)
 
     group = E.OptionGroup(parser, "Validation options")
     group.add_argument("--verify", dest="verify", type=str,
-                     help="verify against other database [default=%default].")
+                     help="verify against other database.")
 
     group.add_argument("--verify-iterations", dest="verify_num_iterations",
                      type=int,
-                     help="number of iterations for verification "
-                     "[default=%default].")
+                     help="number of iterations for verification ")
     parser.add_argument_group(group)
 
     file_format_choices = ("fasta", "auto", "fasta.gz", "tar", "tar.gz")
@@ -150,25 +145,23 @@ def main(argv=None):
                       choices=file_format_choices,
                       help="file format of input. Supply if data comes "
                       "from stdin "
-                      "Valid choices are %s [default=%%default]." %
+                      "Valid choices are \\%s." %
                       ", ".join(file_format_choices))
 
     parser.add_argument("-a", "--clean-sequence", dest="clean_sequence",
                       action="store_true",
                       help="remove X/x from DNA sequences - they cause "
-                      "errors in exonerate [default=%default].")
+                      "errors in exonerate.")
 
     parser.add_argument("--allow-duplicates", dest="allow_duplicates",
                       action="store_true",
                       help="allow duplicate identifiers. Further occurances "
-                      "of an identifier are suffixed by an '_%i' "
-                      "[default=%default].")
+                      "of an identifier are suffixed by an '_\\%i' ")
 
     parser.add_argument("--regex-identifier", dest="regex_identifier",
                       type=str,
                       help="regular expression for extracting the "
-                      "identifier from fasta description line "
-                      "[default=%default].")
+                      "identifier from fasta description line.")
 
     parser.add_argument("--force-output", dest="force", action="store_true",
                       help="force overwriting of existing files "
@@ -178,7 +171,7 @@ def main(argv=None):
     parser.add_argument("-t", "--translator", dest="translator", type=str,
                       choices=translator_choices,
                       help="translate numerical quality scores. "
-                      "Valid choices are %s [default=%%default]." %
+                      "Valid choices are \\%s." %
                       ", ".join(translator_choices))
 
     group = E.OptionGroup(parser, 'Compression options')
@@ -188,20 +181,18 @@ def main(argv=None):
                      help="compress database, using specified compression "
                      "method. "
                      "Valid choices are %s, but depend on availability on the "
-                     "system "
-                     "[default=%%default]." % ", ".join(compression_choices))
+                     "system " % ", ".join(compression_choices))
 
     group.add_argument("--random-access-points", dest="random_access_points",
                      type=int,
                      help="set random access points every # number "
-                     "of nucleotides for block compression schemes "
-                     "[default=%default].")
+                     "of nucleotides for block compression schemes ")
 
     group.add_argument(
         "--compress-index", dest="compress_index",
         action="store_true",
         help="compress index. The default is to use a plain-text, "
-        "human-readable index [default=%default].")
+        "human-readable index.")
 
     parser.add_argument_group(group)
 
@@ -225,11 +216,12 @@ def main(argv=None):
         force=False,
         translator=None)
 
-    (options, args) = E.start(parser)
+    (args, unknown) = E.start(parser,
+                              unknowns=True)
 
-    if options.synonyms:
+    if args.synonyms:
         synonyms = {}
-        for x in options.synonyms.split(","):
+        for x in args.synonyms.split(","):
             a, b = x.split("=")
             a = a.strip()
             b = b.strip()
@@ -239,92 +231,92 @@ def main(argv=None):
     else:
         synonyms = None
 
-    if options.translator:
-        if options.translator == "phred":
-            options.translator = IndexedFasta.TranslatorPhred()
-        elif options.translator == "solexa":
-            options.translator = IndexedFasta.TranslatorSolexa()
-        elif options.translator == "bytes":
-            options.translator = IndexedFasta.TranslatorBytes()
-        elif options.translator == "range200":
-            options.translator = IndexedFasta.TranslatorRange200()
+    if args.translator:
+        if args.translator == "phred":
+            args.translator = IndexedFasta.TranslatorPhred()
+        elif args.translator == "solexa":
+            args.translator = IndexedFasta.TranslatorSolexa()
+        elif args.translator == "bytes":
+            args.translator = IndexedFasta.TranslatorBytes()
+        elif args.translator == "range200":
+            args.translator = IndexedFasta.TranslatorRange200()
         else:
-            raise ValueError("unknown translator %s" % options.translator)
+            raise ValueError("unknown translator %s" % args.translator)
 
-    if options.extract:
+    if args.extract:
         fasta = IndexedFasta.IndexedFasta(args[0])
-        fasta.setTranslator(options.translator)
-        converter = IndexedFasta.getConverter(options.input_format)
+        fasta.setTranslator(args.translator)
+        converter = IndexedFasta.getConverter(args.input_format)
 
         contig, strand, start, end = IndexedFasta.parseCoordinates(
-            options.extract)
+            args.extract)
         sequence = fasta.getSequence(contig, strand,
                                      start, end,
                                      converter=converter)
-        options.stdout.write(">%s\n%s\n" %
-                             (options.extract, sequence))
+        args.stdout.write(">%s\n%s\n" %
+                             (args.extract, sequence))
 
-    elif options.benchmark:
+    elif args.benchmark:
         import timeit
         timer = timeit.Timer(
             stmt="IndexedFasta.benchmarkRandomFragment(fasta=fasta, size=%i)" %
-            (options.benchmark_fragment_size),
+            (args.benchmark_fragment_size),
             setup="from cgat import IndexedFasta\n"
             "fasta=IndexedFasta.IndexedFasta('%s')" % (args[0]))
 
-        t = timer.timeit(number=options.benchmark_num_iterations)
-        options.stdout.write("iter\tsize\ttime\n")
-        options.stdout.write("%i\t%i\t%i\n" % (
-            options.benchmark_num_iterations,
-            options.benchmark_fragment_size, t))
+        t = timer.timeit(number=args.benchmark_num_iterations)
+        args.stdout.write("iter\tsize\ttime\n")
+        args.stdout.write("%i\t%i\t%i\n" % (
+            args.benchmark_num_iterations,
+            args.benchmark_fragment_size, t))
 
-    elif options.verify:
+    elif args.verify:
         fasta1 = IndexedFasta.IndexedFasta(args[0])
-        fasta2 = IndexedFasta.IndexedFasta(options.verify)
+        fasta2 = IndexedFasta.IndexedFasta(args.verify)
         nerrors1 = IndexedFasta.verify(fasta1, fasta2,
-                                       options.verify_num_iterations,
-                                       options.verify_fragment_size,
-                                       stdout=options.stdout)
-        options.stdout.write("errors=%i\n" % (nerrors1))
+                                       args.verify_num_iterations,
+                                       args.verify_fragment_size,
+                                       stdout=args.stdout)
+        args.stdout.write("errors=%i\n" % (nerrors1))
         nerrors2 = IndexedFasta.verify(fasta2, fasta1,
-                                       options.verify_num_iterations,
-                                       options.verify_fragment_size,
-                                       stdout=options.stdout)
-        options.stdout.write("errors=%i\n" % (nerrors2))
-    elif options.compress_index:
+                                       args.verify_num_iterations,
+                                       args.verify_fragment_size,
+                                       stdout=args.stdout)
+        args.stdout.write("errors=%i\n" % (nerrors2))
+    elif args.compress_index:
         fasta = IndexedFasta.IndexedFasta(args[0])
         fasta.compressIndex()
     else:
-        if options.loglevel >= 1:
-            options.stdlog.write("# creating database %s\n" % args[0])
-            options.stdlog.write("# indexing the following files: \n# %s\n" %
+        if args.loglevel >= 1:
+            args.stdlog.write("# creating database %s\n" % args[0])
+            args.stdlog.write("# indexing the following files: \n# %s\n" %
                                  (" \n# ".join(args[1:])))
-            options.stdlog.flush()
+            args.stdlog.flush()
 
             if synonyms:
-                options.stdlog.write("# Applying the following synonyms:\n")
+                args.stdlog.write("# Applying the following synonyms:\n")
                 for k, v in list(synonyms.items()):
-                    options.stdlog.write("# %s=%s\n" % (k, ",".join(v)))
-                options.stdlog.flush()
-        if len(args) < 2:
+                    args.stdlog.write("# %s=%s\n" % (k, ",".join(v)))
+                args.stdlog.flush()
+        if len(unknown) < 2:
             print(globals()["__doc__"])
             sys.exit(1)
 
         iterator = IndexedFasta.MultipleFastaIterator(
-            args[1:],
-            regex_identifier=options.regex_identifier,
-            format=options.file_format)
+            unknown[1:],
+            regex_identifier=args.regex_identifier,
+            format=args.file_format)
 
         IndexedFasta.createDatabase(
             args[0],
             iterator,
             synonyms=synonyms,
-            random_access_points=options.random_access_points,
-            compression=options.compression,
-            clean_sequence=options.clean_sequence,
-            allow_duplicates=options.allow_duplicates,
-            translator=options.translator,
-            force=options.force)
+            random_access_points=args.random_access_points,
+            compression=args.compression,
+            clean_sequence=args.clean_sequence,
+            allow_duplicates=args.allow_duplicates,
+            translator=args.translator,
+            force=args.force)
 
     E.stop()
 

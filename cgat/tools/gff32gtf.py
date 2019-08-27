@@ -261,8 +261,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str, action="store",
                       choices=(
@@ -317,22 +316,22 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    gffs = GFF3.flat_file_iterator(options.stdin)
+    gffs = GFF3.flat_file_iterator(args.stdin)
 
-    if options.by_chrom:
+    if args.by_chrom:
         gffs = GFF3.chrom_iterator(gffs)
     else:
         gffs = [gffs]
 
     # running early so that fails early if configuration is wrong
-    if options.read_twice:
-        # Will throw IOError if options.stdin is not a normal file
+    if args.read_twice:
+        # Will throw IOError if args.stdin is not a normal file
         second_gff = GFF3.flat_file_iterator(
-            iotools.open_file(options.stdin.name))
+            iotools.open_file(args.stdin.name))
 
-        if options.by_chrom:
+        if args.by_chrom:
             second_gff = GFF3.chrom_iterator(second_gff)
         else:
             second_gff = iter([second_gff])
@@ -341,24 +340,24 @@ def main(argv=None):
 
     for chunk in gffs:
 
-        if options.read_twice:
+        if args.read_twice:
             second_gff_chunk = next(second_gff)
         else:
             chunk = list(chunk)
             second_gff_chunk = chunk
 
-        if options.method == "hierarchy":
+        if args.method == "hierarchy":
 
-            convert_hierarchy(chunk, second_gff_chunk, options)
-        elif options.method == "set-field":
-            gene_id_pattern = "%%(%s)s" % options.gene_field_or_pattern
-            transcript_id_pattern = "%%(%s)s" % options.transcript_field_or_pattern
-            convert_set(chunk, gene_id_pattern, transcript_id_pattern, options)
-        elif options.method == "set-pattern":
-            convert_set(chunk, options.gene_field_or_pattern,
-                        options.transcript_field_or_pattern, options)
-        elif options.method == "set-none":
-            convert_set(chunk, None, None, options)
+            convert_hierarchy(chunk, second_gff_chunk, args)
+        elif args.method == "set-field":
+            gene_id_pattern = "%%(%s)s" % args.gene_field_or_pattern
+            transcript_id_pattern = "%%(%s)s" % args.transcript_field_or_pattern
+            convert_set(chunk, gene_id_pattern, transcript_id_pattern, args)
+        elif args.method == "set-pattern":
+            convert_set(chunk, args.gene_field_or_pattern,
+                        args.transcript_field_or_pattern, args)
+        elif args.method == "set-none":
+            convert_set(chunk, None, None, args)
 
     # write footer and output benchmark information.
     E.stop()

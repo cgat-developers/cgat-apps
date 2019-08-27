@@ -20,8 +20,7 @@ import cgatcore.iotools as iotools
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(descriptin=__doc__)
 
     parser.add_argument(
         "-f", "--fasta", dest="input_filename_fasta",
@@ -37,21 +36,23 @@ def main(argv=None):
         input_filename_fasta=None,
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                               argv=argv,
+                               unknowns=True)
 
-    if len(args) > 0:
-        options.input_filename_fasta = args[0]
+    if len(unnowns) > 0:
+        args.input_filename_fasta = args[0]
 
     sequence_pairs = []
 
-    if options.input_filename_fasta != "-" and os.path.exists(
-            options.input_filename_fasta + ".fai"):
+    if args.input_filename_fasta != "-" and os.path.exists(
+            args.input_filename_fasta + ".fai"):
         has_index = 1
-        fastafile = pysam.FastaFile(options.input_filename_fasta)
+        fastafile = pysam.FastaFile(args.input_filename_fasta)
         sequence_pairs = list(zip(fastafile.references, fastafile.lengths))
     else:
         has_index = 0
-        iterator = pysam.FastxFile(options.input_filename_fasta)
+        iterator = pysam.FastxFile(args.input_filename_fasta)
         for record in iterator:
             sequence_pairs.append(
                 (record.name,
@@ -59,12 +60,12 @@ def main(argv=None):
 
     lengths = numpy.array([x[1] for x in sequence_pairs])
 
-    options.stdout.write("\t".join((
+    args.stdout.write("\t".join((
         "has_index", "nsequences", "total_length", "min_length",
         "max_length", "median_length", "mean_length")) + "\n")
 
     if len(lengths) > 0:
-        options.stdout.write("\t".join(map(str, (
+        args.stdout.write("\t".join(map(str, (
             has_index,
             len(sequence_pairs),
             lengths.sum(),
@@ -73,7 +74,7 @@ def main(argv=None):
             numpy.median(lengths),
             lengths.mean()))) + "\n")
     else:
-        options.stdout.write("\t".join(map(str, (
+        args.stdout.write("\t".join(map(str, (
             has_index,
             len(sequence_pairs),
             0,
@@ -82,8 +83,8 @@ def main(argv=None):
             "",
             ""))) + "\n")
 
-    if options.output_filename_sequences:
-        with iotools.open_file(options.output_filename_sequences, "w") as outf:
+    if args.output_filename_sequences:
+        with iotools.open_file(args.output_filename_sequences, "w") as outf:
             outf.write("name\tlength\n")
             outf.write(
                 "\n".join(["\t".join(map(str, x)) for x in sequence_pairs]) + "\n")

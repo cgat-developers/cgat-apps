@@ -150,8 +150,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "--header-names", dest="headers", type=str,
@@ -163,26 +162,28 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv,
+                              add_output_options=True,
+                              unknowns=True)
 
     read_length = 50
     max_distance = read_length
 
-    if len(args) < 2:
+    if len(unknown) < 2:
         raise ValueError("please specify at least two BAM files")
 
     infiles = []
-    for arg in args:
+    for arg in unknown:
         infiles.append(pysam.AlignmentFile(arg, 'rb'))
 
-    if options.headers:
-        headers = options.headers.split(",")
+    if args.headers:
+        headers = args.headers.split(",")
         if len(headers) != len(args):
             raise ValueError("number of headers and files differrent")
     else:
         headers = ["file%i" % x for x in range(1, len(infiles) + 1)]
 
-    options.stdout.write("read\tnlocations\tnmatched\t%s\t%s\n" %
+    args.stdout.write("read\tnlocations\tnmatched\t%s\t%s\n" %
                          ("\t".join(["%s_nh" % x for x in headers]),
                           "\t".join(["%s_loc" % x for x in headers])))
 
@@ -226,7 +227,7 @@ def main(argv=None):
                 nmatches += 1
 
         noutput += 1
-        options.stdout.write("%s\t%i\t%i\t%s\t%s\n" % (
+        args.stdout.write("%s\t%i\t%i\t%s\t%s\n" % (
             readname,
             nlocations,
             nmatches,

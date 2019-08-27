@@ -72,8 +72,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "--guess-format", dest="guess_format", type=str,
@@ -83,7 +82,7 @@ def main(argv=None):
         the quality format of the input fastq file. The user \
         can specify the quality format of the input file using \
         the --format option. The script will use this format if \
-        sequences qualities are ambiguous.[default=%default].")
+        sequences qualities are ambiguous.")
 
     parser.add_argument(
         "-f", "--target-format", dest="change_format",
@@ -91,7 +90,7 @@ def main(argv=None):
                                 'illumina-1.8', 'integer'),
         help="The script guesses the quality format of the input \
         file and converts quality scores to the destination \
-        format unless --format is specified [default=%default].")
+        format unless --format is specified.")
 
     parser.set_defaults(
         change_format=None,
@@ -99,17 +98,19 @@ def main(argv=None):
         min_quality=10)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if options.change_format:
-        iterator = Fastq.iterate_convert(options.stdin,
-                                         format=options.change_format,
-                                         guess=options.guess_format)
+    if args.change_format:
+        iterator = Fastq.iterate_convert(args.stdin,
+                                         format=args.change_format,
+                                         guess=args.guess_format)
     else:
-        iterator = Fastq.iterate_guess(options.stdin,
-                                       guess=options.guess_format)
+        iterator = Fastq.iterate_guess(args.stdin,
+                                       guess=args.guess_format)
 
-    min_quality = options.min_quality
+    min_quality = args.min_quality
     number_of_reads = 0
     number_of_bases = 0
     read_lengths = []
@@ -130,10 +131,10 @@ def main(argv=None):
     mean_quality = round(np.mean(read_qualities), 2)
     median_quality = round(np.median(read_qualities), 2)
 
-    options.stdout.write(
+    args.stdout.write(
         "reads\tbases\tmean_length\tmedian_length\tmean_quality\tmedian_quality\tnfailed\n")
 
-    options.stdout.write(
+    args.stdout.write(
         "%i\t%i\t%s\t%s\t%s\t%s\t%i\n" % (number_of_reads, number_of_bases,
                                           str(mean_length),
                                           str(median_length),

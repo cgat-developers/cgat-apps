@@ -36,8 +36,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-k", "--keep-header", dest="keep_header", type=int,
                       help="randomize, but keep header in place ")
@@ -45,12 +44,12 @@ def main(argv=None):
     parser.set_defaults(keep_header=0)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    inf = options.stdin
-    outf = options.stdout
+    inf = args.stdin
+    outf = args.stdout
     c = E.Counter()
-    for x in range(options.keep_header):
+    for x in range(args.keep_header):
         c.header += 1
         outf.write(inf.readline())
 

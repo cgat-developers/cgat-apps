@@ -107,8 +107,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-k", "--kmer-size", dest="kmer", type=int,
                       help="supply kmer length")
@@ -118,31 +117,31 @@ def main(argv=None):
         help="output proportions - overides the default output")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     # do not allow greater than octonucleotide
-    assert options.kmer <= 8, "cannot handle kmer of length %i" % options.kmer
+    assert args.kmer <= 8, "cannot handle kmer of length %i" % args.kmer
 
     # how we deal with the nucleotides depends on the kmer length
     nucleotides = []
     for nucleotide in ["A", "C", "T", "G"]:
         nucleotides = nucleotides + \
-            [x for x in itertools.repeat(nucleotide, options.kmer)]
+            [x for x in itertools.repeat(nucleotide, args.kmer)]
 
-    E.info("retrieving %imer sequences" % options.kmer)
+    E.info("retrieving %imer sequences" % args.kmer)
     # get all kmer sequences to query
     kmers = set()
-    for kmer in itertools.permutations(nucleotides, options.kmer):
+    for kmer in itertools.permutations(nucleotides, args.kmer):
         kmers.add(kmer)
 
-    E.info("matching %imers in file" % options.kmer)
+    E.info("matching %imers in file" % args.kmer)
     # count the number of kmers in each sequence
 
     result = {}
 
     # NB assume that non fasta files are caught by FastaIterator
     total_entries = 0
-    for fasta in FastaIterator.iterate(options.stdin):
+    for fasta in FastaIterator.iterate(args.stdin):
         total_entries += 1
         result[fasta.title] = {}
         for kmer in kmers:
@@ -159,7 +158,7 @@ def main(argv=None):
             rows.add("".join(kmer))
 
     # write header row
-    options.stdout.write("kmer\t" + "\t".join(headers) + "\n")
+    args.stdout.write("kmer\t" + "\t".join(headers) + "\n")
 
     # output proportions if required - normalises by
     # sequence length
@@ -169,11 +168,11 @@ def main(argv=None):
         totals[header] = sum([result[header][tuple(row)] for row in rows])
 
     for row in sorted(rows):
-        if options.proportion:
-            options.stdout.write("\t".join(
+        if args.proportion:
+            args.stdout.write("\t".join(
                 [row] + [str(float(result[header][tuple(row)]) / totals[header]) for header in headers]) + "\n")
         else:
-            options.stdout.write(
+            args.stdout.write(
                 "\t".join([row] + [str(result[header][tuple(row)]) for header in headers]) + "\n")
 
     E.info("written kmer counts for %i contigs" % total_entries)

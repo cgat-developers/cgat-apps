@@ -190,8 +190,7 @@ class counter_exons:
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input is gtf.")
@@ -200,29 +199,31 @@ def main(argv=sys.argv):
         is_gtf=False,
     )
 
-    (options, args) = E.start(parser, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) == 0:
-        files = [options.stdin]
+    if len(unknown) == 0:
+        files = [args.stdin]
     else:
         files = args
 
-    options.stdout.write("track\t%s" % ("\t".join(counter_gff.fields)))
+    args.stdout.write("track\t%s" % ("\t".join(counter_gff.fields)))
 
-    if options.is_gtf:
-        options.stdout.write("\t%s" % ("\t".join(counter_exons.fields)))
-    options.stdout.write("\n")
+    if args.is_gtf:
+        args.stdout.write("\t%s" % ("\t".join(counter_exons.fields)))
+    args.stdout.write("\n")
 
     for f in files:
-        if f == options.stdin:
+        if f == args.stdin:
             infile = f
-            options.stdout.write("stdin")
+            args.stdout.write("stdin")
         else:
             infile = iotools.open_file(f)
-            options.stdout.write(f)
+            args.stdout.write(f)
 
         counters = []
-        if options.is_gtf:
+        if args.is_gtf:
             iterator = GTF.iterator(infile)
             counters.append(counter_gff(iterator))
             counters.append(counter_exons(counters[0]))
@@ -235,8 +236,8 @@ def main(argv=sys.argv):
             pass
 
         for c in counters:
-            options.stdout.write("\t%s" % str(c))
-        options.stdout.write("\n")
+            args.stdout.write("\t%s" % str(c))
+        args.stdout.write("\n")
 
         if infile != sys.stdin:
             infile.close()

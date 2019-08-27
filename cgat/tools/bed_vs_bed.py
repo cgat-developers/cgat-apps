@@ -19,8 +19,7 @@ def get_size_bin(size, size_bins):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-b", "--reference-bed-file", dest="reference_bed_file", type=str,
@@ -41,13 +40,13 @@ def main(argv=sys.argv):
         region_string=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     reference_set = collections.defaultdict(
         quicksect.IntervalTree)
 
-    E.info("reading reference bed file from {}".format(options.reference_bed_file))
-    with iotools.open_file(options.reference_bed_file) as inf:
+    E.info("reading reference bed file from {}".format(args.reference_bed_file))
+    with iotools.open_file(args.reference_bed_file) as inf:
         for record in pysam.tabix_iterator(inf, pysam.asBed()):
             mm = reference_set[record.contig]
             mm.add(record.start,
@@ -55,7 +54,7 @@ def main(argv=sys.argv):
     E.info("read reference intervals on {} contigs: {}".format(
             len(list(reference_set.keys())), ",".join(list(reference_set.keys()))))
 
-    if options.output_sets:
+    if args.output_sets:
         output_tp = E.open_output_file("tp")
         output_fp = E.open_output_file("fp")
         output_fn = E.open_output_file("fn")
@@ -64,18 +63,18 @@ def main(argv=sys.argv):
         output_fp = None
         output_fn = None
 
-    if options.method == "lvc-comparison":
+    if args.method == "lvc-comparison":
         c = E.Counter()
 
         found = set()
         counts = {}
         names = set()
-        nsize_bins = len(options.size_bins)
-        for bin in range(len(options.size_bins) + 1):
+        nsize_bins = len(args.size_bins)
+        for bin in range(len(args.size_bins) + 1):
             counts[bin] = dict([(x, collections.defaultdict(int)) for x in
                                 ("tp", "fn", "fp", "test", "truth")])
 
-        for record in pysam.tabix_iterator(options.stdin, pysam.asBed()):
+        for record in pysam.tabix_iterator(args.stdin, pysam.asBed()):
             if record.contig not in reference_set:
                 c.ignored_no_contig += 1
                 continue
@@ -83,7 +82,7 @@ def main(argv=sys.argv):
             c.test += 1
             matches = reference_set[record.contig].search(record.start, record.end)
             size = record.end - record.start
-            bin = get_size_bin(size, options.size_bins)
+            bin = get_size_bin(size, args.size_bins)
 
             if len(matches) == 0:
                 c.fp += 1
@@ -106,12 +105,12 @@ def main(argv=sys.argv):
             counts[bin]["test"][name] += 1
             counts[bin][status][name] += 1
 
-        outf = options.stdout
+        outf = args.stdout
 
-        with iotools.open_file(options.reference_bed_file) as inf:
+        with iotools.open_file(args.reference_bed_file) as inf:
             for record in pysam.tabix_iterator(inf, pysam.asBed()):
                 c.truth += 1
-                bin = get_size_bin(record.end - record.start, options.size_bins)
+                bin = get_size_bin(record.end - record.start, args.size_bins)
                 counts[bin]["truth"]["all"] += 1
 
                 key = (record.contig, record.start, record.end)
@@ -128,11 +127,11 @@ def main(argv=sys.argv):
                               "fn")) + "\n")
 
         for name in sorted(names):
-            for bin in range(len(options.size_bins) + 1):
-                if bin == len(options.size_bins):
-                    size_bin = ">={}".format(options.size_bins[-1])
+            for bin in range(len(args.size_bins) + 1):
+                if bin == len(args.size_bins):
+                    size_bin = ">={}".format(args.size_bins[-1])
                 else:
-                    size_bin = "<{}".format(options.size_bins[bin])
+                    size_bin = "<{}".format(args.size_bins[bin])
                 outf.write("\t".join(map(str, (
                                 name,
                                 size_bin,

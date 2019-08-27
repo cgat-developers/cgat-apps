@@ -90,8 +90,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-o", "--min-overlap", dest="min_overlap", type=int,
                       help="minimum overlap")
@@ -111,22 +110,22 @@ def main(argv=None):
                         pattern_window="(\S+):(\d+)-(\d+)"),
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
-    outfiles = iotools.FilePool(options.output_filename_pattern)
+    outfiles = iotools.FilePool(args.output_filename_pattern)
 
-    if options.invert:
+    if args.invert:
         test_f = lambda l2fold: l2fold < 0
     else:
         test_f = lambda l2fold: l2fold > 0
 
     def read():
 
-        rx_window = re.compile(options.pattern_window)
+        rx_window = re.compile(args.pattern_window)
         # filter any of the DESeq/EdgeR message that end up at the top of the
         # output file
 
-        for data in iotools.iterate(options.stdin):
+        for data in iotools.iterate(args.stdin):
 
             contig, start, end = rx_window.match(data.test_id).groups()
             start, end = list(map(int, (start, end)))
@@ -174,7 +173,7 @@ def main(argv=None):
 
     counter = E.Counter()
 
-    options.stdout.write("\t".join(DATA._fields) + "\n")
+    args.stdout.write("\t".join(DATA._fields) + "\n")
 
     # set of all sample names - used to create empty files
     samples = set()
@@ -185,7 +184,7 @@ def main(argv=None):
 
     group_id = 0
 
-    for group in grouper(iter(all_data), distance=options.min_overlap):
+    for group in grouper(iter(all_data), distance=args.min_overlap):
         group_id += 1
 
         start, end = group[0].start, group[-1].end
@@ -237,7 +236,7 @@ def main(argv=None):
                         group_id,
                         sum([x.control_mean for x in group]) / n))
 
-        options.stdout.write("\t".join(map(str, outdata)) + "\n")
+        args.stdout.write("\t".join(map(str, outdata)) + "\n")
 
         counter.output += 1
 

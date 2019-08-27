@@ -106,8 +106,7 @@ def concatenate_tables(filenames,
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--no-titles",
                       dest="input_has_titles",
@@ -135,8 +134,7 @@ def main(argv=sys.argv):
 
     parser.add_argument("-c", "--columns", dest="columns", type=str,
                       help="columns to use for joining. Multiple columns "
-                      "can be specified as a comma-separated list "
-                      "[default=%default].")
+                      "can be specified as a comma-separated list ")
 
     parser.add_argument("-k", "--take",
                       dest="take",
@@ -157,12 +155,11 @@ def main(argv=sys.argv):
     parser.add_argument(
         "-e", "--merge-overlapping", dest="merge", action="store_true",
         help="simply merge tables without matching up "
-        "rows. [default=%default].")
+        "rows.")
 
     parser.add_argument("-a", "--cat", dest="cat", type=str,
                       help="simply concatenate tables. Adds an "
-                      "additional column called X with the filename "
-                      " [default=%default].")
+                      "additional column called X with the filename ")
 
     parser.add_argument("--sort-keys", dest="sort_keys", type=str,
                       choices=("numeric", "alphabetic"),
@@ -184,48 +181,46 @@ def main(argv=sys.argv):
                       action="store_true",
                       help="add file prefix to "
                       "columns headers. Suitable for multi-column"
-                      "tables [default=%default]")
+                      "tables")
 
     parser.add_argument("--use-file-prefix",
                       dest="use_file_prefix",
                       action="store_true",
                       help="use file prefix as column headers. "
-                      "Suitable for two-column tables "
-                      "[default=%default]")
+                      "Suitable for two-column tables ")
 
     parser.add_argument("--prefixes", dest="prefixes", type=str,
                       help="list of prefixes to use. "
                       ", separated list of prefixes. "
                       "The number of prefixes need to correspond to the "
-                      "number of input files [default=%default]")
+                      "number of input files")
 
     parser.add_argument("--regex-filename", dest="regex_filename",
                       type=str,
                       help="pattern to apply to filename to "
-                      "build prefix [default=%default]")
+                      "build prefix")
 
     parser.add_argument("--regex-start",
                       dest="regex_start",
                       type=str,
                       help="regular expression to start "
-                      "collecting table in a file [default=%default]")
+                      "collecting table in a file")
 
     parser.add_argument("--regex-end",
                       dest="regex_end",
                       type=str,
                       help="regular expression to end collecting "
-                      "table in a file [default=%default]")
+                      "table in a file")
 
     parser.add_argument("--sep",
                       dest="separator",
                       type=str,
-                      help="table separator to use. The default is to use tabs. "
-                      "[default=%default]")
+                      help="table separator to use. The default is to use tabs. ")
 
     parser.add_argument("--test", dest="test",
                       type=int,
                       help="test combining tables with "
-                      "first X rows [default=%default]")
+                      "first X rows")
 
     parser.set_defaults(
         input_has_titles=True,
@@ -250,46 +245,48 @@ def main(argv=sys.argv):
         separator="\t",
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if options.headers:
-        if "," in options.headers:
-            options.headers = options.headers.split(",")
+    if args.headers:
+        if "," in args.headers:
+            args.headers = args.headers.split(",")
         else:
-            options.headers = re.split("\s+", options.headers.strip())
+            args.headers = re.split("\s+", args.headers.strip())
 
-    if options.sort and options.sort not in ("numeric", "alphabetic"):
-        if "," in options.sort:
-            options.sort = options.sort.split(",")
+    if args.sort and args.sort not in ("numeric", "alphabetic"):
+        if "," in args.sort:
+            args.sort = args.sort.split(",")
         else:
-            options.sort = re.split("\s+", options.sort)
+            args.sort = re.split("\s+", args.sort)
 
-    if options.merge:
-        options.columns = []
+    if args.merge:
+        args.columns = []
     else:
-        options.columns = [int(x) - 1 for x in options.columns.split(",")]
+        args.columns = [int(x) - 1 for x in args.columns.split(",")]
 
-    options.filenames = []
+    args.filenames = []
 
-    if options.glob:
-        options.filenames += glob.glob(options.glob)
+    if args.glob:
+        args.filenames += glob.glob(args.glob)
 
-    options.filenames += args
+    args.filenames += unknown
 
-    if len(options.filenames) < 1:
+    if len(args.filenames) < 1:
         raise ValueError("no tables found.")
 
-    E.info("combining %i tables" % len(options.filenames))
+    E.info("combining %i tables" % len(args.filenames))
 
-    if options.cat:
-        table = concatenate_tables(options.filenames,
-                                   regex_filename=options.regex_filename,
-                                   separator=options.separator,
-                                   headers=options.headers,
-                                   missing_value=options.missing_value,
-                                   cat=options.cat)
+    if args.cat:
+        table = concatenate_tables(args.filenames,
+                                   regex_filename=args.regex_filename,
+                                   separator=args.separator,
+                                   headers=args.headers,
+                                   missing_value=args.missing_value,
+                                   cat=args.cat)
 
-    table.to_csv(options.stdout, sep=options.separator, index=False)
+    table.to_csv(args.stdout, sep=args.separator, index=False)
     E.stop()
 
 

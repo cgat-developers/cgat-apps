@@ -43,18 +43,18 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: vcfstats_sqlite.py 0001 2011-04-13 davids $", usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    (options, args) = E.start(parser)
+    (args, unknown) = E.start(parser,
+                              unknowns=True)
 
-    options.filenames = args
+    args.filenames = unknown
 
-    if len(options.filenames) < 1:
-        options.stdout.write("# Error: no vcf-stats files specified/found.")
+    if len(args.filenames) < 1:
+        args.stdout.write("# Error: no vcf-stats files specified/found.")
         sys.exit(1)
 
-    E.info("Parsing %i file(s)" % len(options.filenames))
+    E.info("Parsing %i file(s)" % len(args.filenames))
 
     # set up output files
     vcf_file = iotools.open_file('vcfstats.txt', 'w')
@@ -62,7 +62,7 @@ def main(argv=None):
     snp_file = iotools.open_file('snpstats.txt', 'w')
     shared_file = iotools.open_file('sharedstats.txt', 'w')
 
-    for fileno, filename in enumerate(options.filenames):
+    for fileno, filename in enumerate(args.filenames):
 
         prefix = os.path.basename(filename)
         trackname = prefix.replace(".vcfstats", "")
@@ -73,7 +73,7 @@ def main(argv=None):
             lines = []
 
         if len(lines) == 0:
-            options.stdout.write(
+            args.stdout.write(
                 "# Error: empty vcf-stats file found: $(filename)s")
             sys.exit(1)
         else:
@@ -149,7 +149,7 @@ def main(argv=None):
                     vcf_stats[k] = "0"
 
             # Write header (for first file only)
-            if filename == options.filenames[0]:
+            if filename == args.filenames[0]:
 
                 # Ensure keys are sorted
                 srt = list(vcf_stats.keys())

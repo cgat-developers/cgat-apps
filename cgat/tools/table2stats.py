@@ -48,8 +48,7 @@ def compute_table_summary(table):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-d", "--delimiter", dest="delimiter", type=str,
@@ -66,22 +65,22 @@ def main(argv=None):
         methods=[],
     )
 
-    (options, args) = E.start(parser,
+    (args) = E.start(parser,
                               argv=argv,
                               add_output_options=True)
 
-    if not options.methods:
-        options.methods = ["summary"]
+    if not args.methods:
+        args.methods = ["summary"]
 
-    table = pandas.read_csv(options.stdin, options.delimiter)
+    table = pandas.read_csv(args.stdin, args.delimiter)
 
-    options.stdout.write("metric\tcount\tpercent\tinfo\n")
+    args.stdout.write("metric\tcount\tpercent\tinfo\n")
 
-    for method in options.methods:
+    for method in args.methods:
         label = re.sub("-", "_", method)
         if method == "summary":
             for category, count, denominator, info in compute_table_summary(table):
-                options.stdout.write("\t".join(map(str, (
+                args.stdout.write("\t".join(map(str, (
                     category,
                     count,
                     iotools.pretty_percent(count, denominator, na=""),

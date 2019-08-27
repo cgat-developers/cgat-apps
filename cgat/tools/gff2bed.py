@@ -101,11 +101,10 @@ def transcript2bed12(transcript):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input file is in gtf format [default=%default] ")
+                      help="input file is in gtf format")
 
     parser.add_argument(
         "--set-name", dest="name", type=str,
@@ -117,8 +116,7 @@ def main(argv=sys.argv):
     parser.add_argument(
         "--track", dest="track", type=str,
         choices=("feature", "source", None),
-        help="use feature/source field to define BED tracks "
-        "[default=%default]")
+        help="use feature/source field to define BED tracks ")
 
     parser.add_argument(
         "--bed12-from-transcripts", dest="bed12", action="store_true",
@@ -131,37 +129,37 @@ def main(argv=sys.argv):
         name="gene_id",
         is_gtf=False)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (args) = E.start(parser, add_pipe_options=True)
 
     ninput, noutput = 0, 0
 
-    iterator = GTF.iterator(options.stdin)
+    iterator = GTF.iterator(args.stdin)
 
-    if options.bed12:
+    if args.bed12:
         iterator = GTF.transcript_iterator(iterator)
 
-    if options.track:
+    if args.track:
         all_input = list(iterator)
 
-        if options.track == "feature":
+        if args.track == "feature":
             grouper = lambda x: x.feature
-        elif options.track == "source":
+        elif args.track == "source":
             grouper = lambda x: x.source
 
         all_input.sort(key=grouper)
 
         bed = Bed.Bed()
         for key, vals in itertools.groupby(all_input, grouper):
-            options.stdout.write("track name=%s\n" % key)
+            args.stdout.write("track name=%s\n" % key)
             for gff in vals:
                 ninput += 1
                 
-                if options.bed12:
+                if args.bed12:
                     bed = transcript2bed12(gff)
                 else:
-                    bed.fromGTF(gff, name=options.name)
+                    bed.fromGTF(gff, name=args.name)
                 
-                options.stdout.write(str(bed) + "\n")
+                args.stdout.write(str(bed) + "\n")
                 noutput += 1
 
     else:
@@ -169,12 +167,12 @@ def main(argv=sys.argv):
         for gff in iterator:
             ninput += 1
 
-            if options.bed12:
+            if args.bed12:
                 bed = transcript2bed12(gff)
             else:
-                bed.fromGTF(gff, name=options.name)
+                bed.fromGTF(gff, name=args.name)
             
-            options.stdout.write(str(bed) + "\n")
+            args.stdout.write(str(bed) + "\n")
 
             noutput += 1
 

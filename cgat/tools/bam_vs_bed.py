@@ -91,8 +91,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--min-overlap", dest="min_overlap",
                       type=float,
@@ -136,10 +135,10 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    filename_bam = options.filename_bam
-    filename_bed = options.filename_bed
+    filename_bam = args.filename_bam
+    filename_bed = args.filename_bed
 
     if filename_bam is None and filename_bed is None:
         if len(args) != 2:
@@ -156,9 +155,9 @@ def main(argv=None):
 
     E.info("intersecting the two files")
 
-    min_overlap = options.min_overlap
+    min_overlap = args.min_overlap
 
-    options.stdout.write("category\talignments\n")
+    args.stdout.write("category\talignments\n")
 
     # get number of columns of reference bed file
     for bed in Bed.iterator(iotools.open_file(filename_bed)):
@@ -213,19 +212,19 @@ def main(argv=None):
 
     data = collections.namedtuple("data", data_fields)
 
-    options.stdout.write("total\t%i\n" % total)
+    args.stdout.write("total\t%i\n" % total)
 
     if total == 0:
         E.warn("no data in %s" % filename_bam)
         return
 
     # SNS: sorting optional, off by default
-    if options.sort_bed:
+    if args.sort_bed:
         bedcmd = "<( gunzip < %s | sort -k1,1 -k2,2n)" % filename_bed
     else:
         bedcmd = filename_bed
 
-    if options.split_intervals:
+    if args.split_intervals:
         split = "-split"
     else:
         split = ""
@@ -259,7 +258,7 @@ def main(argv=None):
             counts_per_alignment[anno] += 1
 
     for key, counts in sorted(counts_per_alignment.items()):
-        options.stdout.write("%s\t%i\n" % (key, counts))
+        args.stdout.write("%s\t%i\n" % (key, counts))
 
     # write footer and output benchmark information.
     E.stop()

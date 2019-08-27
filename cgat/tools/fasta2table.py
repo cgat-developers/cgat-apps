@@ -121,8 +121,7 @@ import cgat.FastaIterator as FastaIterator
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-w", "--weights-tsv-file", dest="filename_weights",
@@ -169,14 +168,14 @@ def main(argv=None):
         add_total=False,
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    rx = re.compile(options.regex_identifier)
+    rx = re.compile(args.regex_identifier)
 
     reference_codons = []
-    if options.filename_weights:
-        options.filename_weights = options.filename_weights.split(",")
-        for filename in options.filename_weights:
+    if args.filename_weights:
+        args.filename_weights = args.filename_weights.split(",")
+        for filename in args.filename_weights:
             if filename == "uniform":
                 reference_codons.append(Genomics.GetUniformCodonUsage())
             else:
@@ -186,7 +185,7 @@ def main(argv=None):
                                     map_functions=(str, float)))
 
         # print codon table differences
-        options.stdlog.write(
+        args.stdlog.write(
             "# Difference between supplied codon usage preferences.\n")
         for x in range(0, len(reference_codons)):
             for y in range(0, len(reference_codons)):
@@ -201,16 +200,16 @@ def main(argv=None):
                         continue
                     d += b[codon] * math.log(b[codon] / p)
 
-                options.stdlog.write("# tablediff\t%s\t%s\t%f\n" %
-                                     (options.filename_weights[x],
-                                      options.filename_weights[y],
+                args.stdlog.write("# tablediff\t%s\t%s\t%f\n" %
+                                     (args.filename_weights[x],
+                                      args.filename_weights[y],
                                       d))
 
-    iterator = FastaIterator.FastaIterator(options.stdin)
+    iterator = FastaIterator.FastaIterator(args.stdin)
 
     def getCounter(section):
 
-        if options.seqtype == "na":
+        if args.seqtype == "na":
             if section == "length":
                 s = SequenceProperties.SequencePropertiesLength()
             elif section == "sequence":
@@ -221,7 +220,7 @@ def main(argv=None):
                 s = SequenceProperties.SequencePropertiesNA()
             elif section == "gaps":
                 s = SequenceProperties.SequencePropertiesGaps(
-                    options.gap_chars)
+                    args.gap_chars)
             elif section == "cpg":
                 s = SequenceProperties.SequencePropertiesCpg()
             elif section == "dn":
@@ -241,7 +240,7 @@ def main(argv=None):
                 s = SequenceProperties.SequencePropertiesCodonTranslator()
             else:
                 raise ValueError("unknown section %s" % section)
-        elif options.seqtype == "aa":
+        elif args.seqtype == "aa":
             if section == "length":
                 s = SequenceProperties.SequencePropertiesLength()
             elif section == "sequence":
@@ -256,15 +255,15 @@ def main(argv=None):
 
     # setup totals
     totals = {}
-    for section in options.sections:
+    for section in args.sections:
         totals[section] = getCounter(section)
 
-    options.stdout.write("id")
-    for section in options.sections:
-        options.stdout.write("\t" + "\t".join(totals[section].getHeaders()))
+    args.stdout.write("id")
+    for section in args.sections:
+        args.stdout.write("\t" + "\t".join(totals[section].getHeaders()))
 
-    options.stdout.write("\n")
-    options.stdout.flush()
+    args.stdout.write("\n")
+    args.stdout.flush()
 
     s = getCounter("hid")
     s.loadSequence("AAAAAAAAA", "na")
@@ -278,26 +277,26 @@ def main(argv=None):
 
         id = rx.search(cur_record.title).groups()[0]
 
-        if options.split_id is True:
-            options.stdout.write("%s" % id.split()[0])
+        if args.split_id is True:
+            args.stdout.write("%s" % id.split()[0])
         else:
-            options.stdout.write("%s" % id)
-        options.stdout.flush()
+            args.stdout.write("%s" % id)
+        args.stdout.flush()
 
-        for section in options.sections:
+        for section in args.sections:
             s = getCounter(section)
-            s.loadSequence(sequence, options.seqtype)
+            s.loadSequence(sequence, args.seqtype)
             totals[section].addProperties(s)
 
-            options.stdout.write("\t" + "\t".join(s.getFields()))
+            args.stdout.write("\t" + "\t".join(s.getFields()))
 
-        options.stdout.write("\n")
+        args.stdout.write("\n")
 
-    if options.add_total:
-        options.stdout.write("total")
-        for section in options.sections:
-            options.stdout.write("\t" + "\t".join(totals[section].getFields()))
-        options.stdout.write("\n")
+    if args.add_total:
+        args.stdout.write("total")
+        for section in args.sections:
+            args.stdout.write("\t" + "\t".join(totals[section].getFields()))
+        args.stdout.write("\n")
 
     E.stop()
 

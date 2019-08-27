@@ -246,17 +246,16 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id: diff_bed.py 2866 2010-03-03 10:18:49Z andreas $", usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-u", "--update", dest="filename_update", type=str,
-                      help="if filename is given, previous results will be read from there and only changed sets will be computed [default=%default].")
+                      help="if filename is given, previous results will be read from there and only changed sets will be computed.")
 
     parser.add_argument("-p", "--pattern-identifier", dest="pattern_id", type=str,
-                      help="pattern to convert a filename to an id [default=%default].")
+                      help="pattern to convert a filename to an id.")
 
     parser.add_argument("-t", "--tracks", dest="tracks", action="store_true",
-                      help="compare files against all tracks in the first file [default=%default]")
+                      help="compare files against all tracks in the first file")
 
     parser.set_defaults(
         filename_update=None,
@@ -265,13 +264,15 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if len(args) < 2:
+    if len(unknown) < 2:
         raise ValueError("at least two arguments required")
 
-    if options.filename_update:
-        infile = iotools.open_file(options.filename_update, "r")
+    if args.filename_update:
+        infile = iotools.open_file(args.filename_update, "r")
         previous_results = {}
         for line in infile:
             if line.startswith("#"):
@@ -292,7 +293,7 @@ def main(argv=None):
     else:
         previous_results = {}
 
-    pattern_id = re.compile(options.pattern_id)
+    pattern_id = re.compile(args.pattern_id)
 
     def getTitle(x):
         try:
@@ -302,9 +303,9 @@ def main(argv=None):
 
     ncomputed, nupdated = 0, 0
 
-    if options.tracks:
+    if args.tracks:
         counter = CounterTracks(args[0])
-        options.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
+        args.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
         for filename in args[1:]:
             title1 = getTitle(filename)
             for title2 in counter.getTracks():
@@ -315,18 +316,18 @@ def main(argv=None):
                     except KeyError:
                         pass
                     else:
-                        options.stdout.write(
+                        args.stdout.write(
                             "%s\t%s\t%s\n" % ((title1, title2, prev)))
                         nupdated += 1
                         continue
 
                 counter.count(filename, title2)
-                options.stdout.write(
+                args.stdout.write(
                     "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
                 ncomputed += 1
     else:
         counter = Counter()
-        options.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
+        args.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
 
         for x in range(len(args)):
 
@@ -340,13 +341,13 @@ def main(argv=None):
                     except KeyError:
                         pass
                     else:
-                        options.stdout.write(
+                        args.stdout.write(
                             "%s\t%s\t%s\n" % ((title1, title2, prev)))
                         nupdated += 1
                         continue
 
                 counter.count(args[x], args[y])
-                options.stdout.write(
+                args.stdout.write(
                     "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
                 ncomputed += 1
 

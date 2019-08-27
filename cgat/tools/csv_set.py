@@ -57,8 +57,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: csv_set.py 2782 2009-09-10 11:40:29Z andreas $")
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                       help="output rows are uniq.")
@@ -78,34 +77,36 @@ def main(argv=None):
         method="intersection",
     )
 
-    (options, args) = E.start(parser, add_csv_options=True)
+    (args, unknown) = E.start(parser,
+                              add_csv_options=True,
+                              unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError("please specify two files to join")
 
-    if not options.join_fields1 or not options.join_fields2:
+    if not args.join_fields1 or not args.join_fields2:
         raise ValueError("please specify at least one join field per table")
 
-    options.join_fields1 = options.join_fields1.split(",")
-    options.join_fields2 = options.join_fields2.split(",")
+    args.join_fields1 = args.join_fields1.split(",")
+    args.join_fields2 = args.join_fields2.split(",")
 
-    options.filename1, options.filename2 = args
+    args.filename1, args.filename2 = unknown
 
-    fields1, table1 = readTable(open(options.filename1, "r"))
-    fields2, table2 = readTable(open(options.filename2, "r"))
+    fields1, table1 = readTable(open(args.filename1, "r"))
+    fields2, table2 = readTable(open(args.filename2, "r"))
 
-    if options.unique:
+    if args.unique:
         outfile = UniqueBuffer(sys.stdout)
     else:
-        outfile = options.stdout
+        outfile = args.stdout
 
     nfields1 = []
     for x in range(len(fields1)):
-        if fields1[x] in options.join_fields1:
+        if fields1[x] in args.join_fields1:
             nfields1.append(x)
     nfields2 = []
     for x in range(len(fields2)):
-        if fields2[x] in options.join_fields2:
+        if fields2[x] in args.join_fields2:
             nfields2.append(x)
 
     # calculate row indices: double keys are not taken care of here
@@ -115,12 +116,12 @@ def main(argv=None):
         key = hashlib.md5("".join(v)).digest()
         keys[key] = row1
 
-    if options.method == "intersection":
+    if args.method == "intersection":
         # build new field list
         take = list(range(len(fields1)))
         c = len(take)
         for x in fields2:
-            if x not in options.join_fields2:
+            if x not in args.join_fields2:
                 take.append(c)
             c += 1
 
@@ -138,7 +139,7 @@ def main(argv=None):
                 outfile.write(
                     "\t".join([new_row[x] for x in take]) + "\n")
 
-    elif options.method == "rest":
+    elif args.method == "rest":
 
         new_fields = fields2
         print("\t".join(new_fields))

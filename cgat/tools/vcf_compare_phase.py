@@ -12,8 +12,7 @@ import cgatcore.experiment as E
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--input-vcf", dest="input_vcf_file", type=str,
@@ -46,51 +45,54 @@ def main(argv=sys.argv):
         truth_vcf_file=None,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) == 1:
-        options.input_vcf_file = args[0]
+    if len(unknown) == 1:
+        args.input_vcf_file = unknown[0]
 
-    if options.input_vcf_file is None:
+    if args.input_vcf_file is None:
         raise ValueError("please supply a VCF file")
 
-    if options.truth_vcf_file is None:
+    if args.truth_vcf_file is None:
         raise ValueError("please supply a VCF file with truth data")
 
-    if options.input_fasta_file is None:
+    if args.input_fasta_file is None:
         raise ValueError("please supply a fasta file with the reference genome")
 
-    if not os.path.exists(options.input_vcf_file):
+    if not os.path.exists(args.input_vcf_file):
         raise OSError("input vcf file {} does not exist".format(
-            options.input_vcf_file))
+            args.input_vcf_file))
 
-    if not os.path.exists(options.input_vcf_file + ".tbi"):
+    if not os.path.exists(args.input_vcf_file + ".tbi"):
         raise OSError("input vcf file {} needs to be indexed".format(
-            options.input_vcf_file))
+            args.input_vcf_file))
 
-    if not os.path.exists(options.truth_vcf_file):
+    if not os.path.exists(args.truth_vcf_file):
         raise OSError("truth vcf file {} does not exist".format(
-            options.truth_vcf_file))
+            args.truth_vcf_file))
 
-    if not os.path.exists(options.truth_vcf_file + ".tbi"):
+    if not os.path.exists(args.truth_vcf_file + ".tbi"):
         raise OSError("truth vcf file {} needs to be indexed".format(
-            options.truth_vcf_file))
+            args.truth_vcf_file))
 
-    if not os.path.exists(options.input_fasta_file):
+    if not os.path.exists(args.input_fasta_file):
         raise OSError("input fasta file {} does not exist".format(
-            options.input_fasta_file))
+            args.input_fasta_file))
 
-    if not os.path.exists(options.input_fasta_file + ".fai"):
+    if not os.path.exists(args.input_fasta_file + ".fai"):
         raise OSError("input fasta file {} needs to be indexed".format(
-            options.input_fasta_file))
+            args.input_fasta_file))
 
     # update paths to absolute
-    options.input_fasta_file = os.path.abspath(options.input_fasta_file)
-    options.input_vcf_file = os.path.abspath(options.input_vcf_file)
-    options.truth_vcf_file = os.path.abspath(options.truth_vcf_file)
+    args.input_fasta_file = os.path.abspath(args.input_fasta_file)
+    args.input_vcf_file = os.path.abspath(args.input_vcf_file)
+    args.truth_vcf_file = os.path.abspath(args.truth_vcf_file)
 
-    test_vcf = pysam.VariantFile(options.input_vcf_file)
-    truth_vcf = pysam.VariantFile(options.truth_vcf_file)
+    test_vcf = pysam.VariantFile(args.input_vcf_file)
+    truth_vcf = pysam.VariantFile(args.truth_vcf_file)
     contigs = test_vcf.header.contigs
     truth_contigs = set(truth_vcf.header.contigs)
 
@@ -220,7 +222,7 @@ def main(argv=sys.argv):
                         counter.switch += 1
                     switch = not switch
 
-    outf = options.stdout
+    outf = args.stdout
     outf.write("\t".join(("contig",
                           "sample",
                           "switch_error_percent",

@@ -28,8 +28,7 @@ import cgatcore.experiment as E
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--input-fastq", dest="input_fastq_file", type=str,
@@ -46,18 +45,21 @@ def main(argv=sys.argv):
         method=None,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) == 1:
-        options.input_fastq_file = args[0]
+    if len(unknown) == 1:
+        args.input_fastq_file = unknown[0]
 
-    if options.input_fastq_file == "-":
-        options.input_fastq_file = options.stdin
+    if args.input_fastq_file == "-":
+        args.input_fastq_file = args.stdin
 
-    outf = options.stdout
-    line_width = options.line_width
+    outf = args.stdout
+    line_width = args.line_width
     well_no = 0
-    for record in pysam.FastqFile(options.input_fastq_file):
+    for record in pysam.FastqFile(args.input_fastq_file):
         well_no += 1
         quals = record.get_quality_array()
         seq = record.sequence

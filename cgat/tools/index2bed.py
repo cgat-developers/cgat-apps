@@ -54,17 +54,16 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type=str,
-        help="filename with genome [default=%default].")
+        help="filename with genome.")
 
     parser.add_argument(
         "--remove-regex", dest="remove_regex",
         type=str,
-        help="regular expression of contigs to remove [default=None].")
+        help="regular expression of contigs to remove.")
 
     parser.add_argument(
         "-e", "--gff-file", dest="gff_file", type=str,
@@ -83,25 +82,25 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.remove_regex:
-        remove_regex = re.compile(options.remove_regex)
+    if args.remove_regex:
+        remove_regex = re.compile(args.remove_regex)
     else:
         remove_regex = None
 
-    if options.fixed_width_windows:
-        v = list(map(int, options.fixed_width_windows.split(",")))
+    if args.fixed_width_windows:
+        v = list(map(int, args.fixed_width_windows.split(",")))
         if len(v) == 2:
             window_size, window_increment = v
         elif len(v) == 1:
             window_size, window_increment = v[0], v[0]
         else:
             raise ValueError(
-                "could not parse window size '%s': should be size[,increment]" % options.fixed_width_windows)
+                "could not parse window size '%s': should be size[,increment]" % args.fixed_width_windows)
 
-    if options.gff_file:
-        infile = iotools.open_file(options.gff_file, "r")
+    if args.gff_file:
+        infile = iotools.open_file(args.gff_file, "r")
         gff = GTF.readFromFile(infile)
         infile.close()
         for g in gff:
@@ -113,8 +112,8 @@ def main(argv=None):
     else:
         gff = None
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
         map_contig2size = fasta.getContigSizes(with_synonyms=False)
     else:
         fasta = None
@@ -133,15 +132,15 @@ def main(argv=None):
             counter.skipped += 1
             continue
 
-        if options.fixed_width_windows:
+        if args.fixed_width_windows:
             for x in range(0, size, window_increment):
                 if x + window_size > size:
                     continue
-                options.stdout.write(
+                args.stdout.write(
                     "%s\t%i\t%i\n" % (contig, x, min(size, x + window_size)))
                 counter.windows += 1
         else:
-            options.stdout.write("%s\t%i\t%i\n" % (contig, 0, size))
+            args.stdout.write("%s\t%i\t%i\n" % (contig, 0, size))
             counter.windows += 1
 
         counter.output += 1

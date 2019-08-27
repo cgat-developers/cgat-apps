@@ -123,17 +123,15 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--min-chunk-size", dest="min_chunk_size", type=int,
-        help="minimum chunk size [default=%default].")
+        help="minimum chunk size.")
 
     parser.add_argument(
         "-n", "--dry-run", dest="dry_run", action="store_true",
-        help="do not create any files [default=%default].")
+        help="do not create any files.")
 
     parser.set_defaults(
         method="overlap",
@@ -142,22 +140,22 @@ def main(argv=None):
         output_filename_pattern="%06i.chunk",
     )
 
-    (options, args) = E.start(parser, add_output_options=True)
+    (args) = E.start(parser, add_output_options=True)
 
-    gffs = GTF.iterator(options.stdin)
+    gffs = GTF.iterator(args.stdin)
 
     ninput, noutput, nchunks = 0, 0, 0
 
-    outputChunk = OutputChunk(options.output_filename_pattern,
-                              dry_run=options.dry_run)
+    outputChunk = OutputChunk(args.output_filename_pattern,
+                              dry_run=args.dry_run)
 
-    if options.method == "overlap":
+    if args.method == "overlap":
 
         last_contig, last_to = None, 0
         chunk = []
         for gff in gffs:
             ninput += 1
-            if len(chunk) >= options.min_chunk_size and \
+            if len(chunk) >= args.min_chunk_size and \
                     (gff.contig != last_contig or
                      gff.start > last_to):
                 noutput += outputChunk(chunk)

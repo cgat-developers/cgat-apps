@@ -67,8 +67,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id: csv_cut.py 2782 2009-09-10 11:40:29Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-r", "--remove", dest="remove", action="store_true",
                       help="remove specified columns, keep all others.")
@@ -77,7 +76,7 @@ def main(argv=None):
                       help="output rows are uniq.")
 
     parser.add_argument("-l", "--large", dest="large", action="store_true",
-                      help="large columns. Do not use native python csv module [default=%default].")
+                      help="large columns. Do not use native python csv module.")
 
     parser.add_argument("-f", "--filename-fields", dest="filename_fields", type=str,
                       help="filename with field information.")
@@ -89,22 +88,23 @@ def main(argv=None):
         filename_fields=None,
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               add_csv_options=True,
-                              quiet=True)
+                              quiet=True,
+                              unknowns=True)
 
-    input_fields = args
+    input_fields = unknown
 
-    if options.filename_fields:
-        input_fields = [x[:-1].split("\t")[0] for x in [x for x in iotools.open_file(options.filename_fields, "r").readlines() if x[0] != "#"]]
+    if args.filename_fields:
+        input_fields = [x[:-1].split("\t")[0] for x in [x for x in iotools.open_file(args.filename_fields, "r").readlines() if x[0] != "#"]]
 
-    if options.unique:
-        outfile = UniqueBuffer(options.stdout)
+    if args.unique:
+        outfile = UniqueBuffer(args.stdout)
     else:
-        outfile = options.stdout
+        outfile = args.stdout
 
     while 1:
-        line = options.stdin.readline()
+        line = args.stdin.readline()
 
         if not line:
             E.stop()
@@ -130,23 +130,23 @@ def main(argv=None):
             if f in old_fields:
                 fields.append(f)
 
-    if options.remove:
+    if args.remove:
         fields = set(fields)
         fields = [x for x in old_fields if x not in fields]
 
-    if options.large:
-        reader = DictReaderLarge(CommentStripper(options.stdin),
+    if args.large:
+        reader = DictReaderLarge(CommentStripper(args.stdin),
                                  fieldnames=old_fields,
-                                 dialect=options.csv_dialect)
+                                 dialect=args.csv_dialect)
     else:
-        reader = csv.DictReader(CommentStripper(options.stdin),
+        reader = csv.DictReader(CommentStripper(args.stdin),
                                 fieldnames=old_fields,
-                                dialect=options.csv_dialect)
+                                dialect=args.csv_dialect)
 
     writer = csv.DictWriter(outfile,
                             fields,
-                            dialect=options.csv_dialect,
-                            lineterminator=options.csv_lineterminator,
+                            dialect=args.csv_dialect,
+                            lineterminator=args.csv_lineterminator,
                             extrasaction='ignore')
 
     print("\t".join(fields))
@@ -159,7 +159,7 @@ def main(argv=None):
         try:
             row = six.next(reader)
         except _csv.Error as msg:
-            options.stderr.write("# error while parsing: %s\n" % (msg))
+            args.stderr.write("# error while parsing: %s\n" % (msg))
             nerrors += 1
             continue
         except StopIteration:

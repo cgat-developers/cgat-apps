@@ -91,8 +91,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id: clean.py 2782 2009-09-10 11:40:29Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--glob", dest="glob_pattern", type=str,
                       help="glob pattern to use for collecting files .")
@@ -110,43 +109,43 @@ def main(argv=None):
                         dry_run=False,
                         )
 
-    (options, args) = E.start(parser,
-                              add_pipe_options=True)
+    args, unknowns = E.start(parser,
+                     add_pipe_options=True, unknowns=True)
 
-    if args:
-        starts = args
-    elif options.glob_pattern:
-        starts = glob.glob(options.glob_pattern)
+    if unknowns:
+        starts = unknowns
+    elif args.glob_pattern:
+        starts = glob.glob(args.glob_pattern)
     else:
         starts = "."
 
     ndirs, nfiles, ndeleted = 0, 0, 0
 
-    if options.check_completeness == "python":
+    if args.check_completeness == "python":
         isComplete = checkPythonRuns
 
-    rx = re.compile(options.file_pattern)
+    rx = re.compile(args.file_pattern)
 
     for start in starts:
         for root, dirs, files in os.walk(start):
 
             ndirs += 1
             # exclude directories
-            for dir in options.skip_dirs:
+            for dir in args.skip_dirs:
                 if dir in dirs:
                     dirs.remove(dir)
 
             for filename in files:
                 p = os.path.join(root, filename)
                 if rx.search(filename) and not isComplete(p):
-                    if options.dry_run:
-                        options.stdlog.write("# removing file %s\n" % p)
+                    if args.dry_run:
+                        args.stdlog.write("# removing file %s\n" % p)
                     else:
                         os.remove(p)
                     ndeleted += 1
 
-    if options.loglevel >= 1:
-        options.stdlog.write("# ndirs=%i, nfiles=%i, ndeleted=%i\n" %
+    if args.loglevel >= 1:
+        args.stdlog.write("# ndirs=%i, nfiles=%i, ndeleted=%i\n" %
                              (ndirs, nfiles, ndeleted))
 
     E.stop()

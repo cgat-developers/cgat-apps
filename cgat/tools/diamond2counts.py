@@ -67,8 +67,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
                       choices=("best", None),
@@ -97,26 +96,26 @@ def main(argv=None):
                         nsamples=10000)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.evaluate_cog:
-        assert options.cog_map, """must specify an annotation
+    if args.evaluate_cog:
+        assert args.cog_map, """must specify an annotation
                                    mapping gene to function (COG)"""
-        assert not options.method, """evaluation performed
+        assert not args.method, """evaluation performed
                                       in the absence of counting"""
 
-        E.info("reading gene to function (COG) map %s" % options.cog_map)
-        gene2cog = readCogMap(options.cog_map)
+        E.info("reading gene to function (COG) map %s" % args.cog_map)
+        gene2cog = readCogMap(args.cog_map)
         E.info("loaded gene to function (COG) map")
 
         E.info("retrieving alignment data")
-        options.stdout.write("query\tpbest\tnalignments\n")
+        args.stdout.write("query\tpbest\tnalignments\n")
 
         c = 0
-        for alignments in query_iterator(alignment_iterator(options.stdin)):
+        for alignments in query_iterator(alignment_iterator(args.stdin)):
             c += 1
             scores = []
-            if c <= options.nsamples:
+            if c <= args.nsamples:
                 for alignment in alignments:
                     scores.append(alignment.score)
                     best = max(scores)
@@ -131,7 +130,7 @@ def main(argv=None):
                      for x in alignments
                      if gene2cog[x.ref] == best_cog])) / len(alignments) * 100
                 nalignments = len(alignments)
-                options.stdout.write(
+                args.stdout.write(
                     "\t".join(map(
                         str, [alignments[0].qid,
                               pbest,
@@ -144,22 +143,22 @@ def main(argv=None):
     # container for counts
     counts = collections.defaultdict(int)
     E.info("counting alignments")
-    assert options.method, "required option --method"
-    if options.method == "best":
-        if options.sum_cog:
+    assert args.method, "required option --method"
+    if args.method == "best":
+        if args.sum_cog:
             E.warn("""summing over functions (COGS)
                       will remove genes with no annotations
                       and those with multiple COG assignments""")
-            assert options.cog_map, """a mapping between gene and
+            assert args.cog_map, """a mapping between gene and
                                        function (COG) is required"""
 
             E.info("""reading gene to function (COG) mapping from %s"""
-                   % options.cog_map)
-            gene2cog = readCogMap(options.cog_map)
+                   % args.cog_map)
+            gene2cog = readCogMap(args.cog_map)
             E.info("loaded gene to function (COG) mapping")
 
             E.info("summing functional assignments")
-            query_it = query_iterator(alignment_iterator(options.stdin))
+            query_it = query_iterator(alignment_iterator(args.stdin))
             for best in best_alignment_iterator(query_it):
                 cog = gene2cog[best.ref]
                 # removing uassigned or multiple assignments
@@ -168,15 +167,15 @@ def main(argv=None):
                 counts[cog] += 1
         else:
             E.info("counting best alignments")
-            query_it = query_iterator(alignment_iterator(options.stdin))
+            query_it = query_iterator(alignment_iterator(args.stdin))
             for best in best_alignment_iterator(query_it):
                 counts[best.ref] += 1
         E.info("finished counting")
 
         E.info("writing results")
-        options.stdout.write("ref\tcount\n")
+        args.stdout.write("ref\tcount\n")
         for ref, count in sorted(counts.items()):
-            options.stdout.write("\t".join([ref, str(count)]) + "\n")
+            args.stdout.write("\t".join([ref, str(count)]) + "\n")
 
     # write footer and output benchmark information.
     E.stop()

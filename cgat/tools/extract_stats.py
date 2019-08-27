@@ -203,8 +203,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--task", dest="task", type=str,
                       choices=["extract_table", "get_coverage",
@@ -215,20 +214,20 @@ def main(argv=None):
                       help="table in SQLite DB to extract")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_database_options=True)
+    (args) = E.start(parser, argv=argv, add_database_options=True)
 
-    if options.task == "extract_table":
-        out_df = getTableFromDb(options.database_url, options.table)
+    if args.task == "extract_table":
+        out_df = getTableFromDb(args.database_url, args.table)
 
-    elif options.task == "get_coverage":
-        out_df = getModelCoverage(options.database_url,
+    elif args.task == "get_coverage":
+        out_df = getModelCoverage(args.database_url,
                                   table_regex="(\S+)_transcript_counts")
 
-    elif options.task == "clean_table":
+    elif args.task == "clean_table":
         infile = argv[-1]
         out_df = cleanStatsTable(infile)
 
-    out_df.to_csv(options.stdout,
+    out_df.to_csv(args.stdout,
                   sep="\t", index_label="track")
 
     # write footer and output benchmark information.

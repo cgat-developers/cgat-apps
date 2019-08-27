@@ -47,9 +47,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-t", "--no-titles", dest="titles", action="store_false",
@@ -69,7 +67,7 @@ def main(argv=None):
     parser.add_argument(
         "-c", "--columns", dest="columns", type=str,
         help="columns to use for joining. Multiple columns can be specified "
-        "as a comma-separated list [default=%default].")
+        "as a comma-separated list.")
 
     parser.add_argument(
         "-g", "--glob", dest="glob", type=str,
@@ -81,8 +79,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-e", "--merge-overlapping", dest="merge", action="store_true",
-        help="simply merge tables without matching up rows. "
-        "[default=%default].")
+        help="simply merge tables without matching up rows. ")
 
     parser.add_argument(
         "--sort-keys", dest="sort_keys", type=str,
@@ -95,13 +92,11 @@ def main(argv=None):
 
     parser.add_argument(
         "--add-file-prefix", dest="add_file_prefix", action="store_true",
-        help="add file prefix to columns headers in multi-column tables "
-        "[default=%default]")
+        help="add file prefix to columns headers in multi-column tables ")
 
     parser.add_argument(
         "--regex-filename", dest="regex_filename", type=str,
-        help="pattern to apply to filename to build prefix "
-        "[default=%default]")
+        help="pattern to apply to filename to build prefix ")
 
     parser.set_defaults(
         titles=True,
@@ -118,61 +113,62 @@ def main(argv=None):
         regex_filename="(.*)"
     )
 
-    (options, args) = E.start(parser)
+    (args, unknowns) = E.start(parser,
+                               unknowns=True)
 
-    if options.headers:
-        if "," in options.headers:
-            options.headers = options.headers.split(",")
+    if args.headers:
+        if "," in args.headers:
+            args.headers = args.headers.split(",")
         else:
-            options.headers = re.split("\s+", options.headers.strip())
+            args.headers = re.split("\s+", args.headers.strip())
 
-    if options.sort and options.sort not in ("numeric", "alphabetic"):
-        if "," in options.sort:
-            options.sort = options.sort.split(",")
+    if args.sort and args.sort not in ("numeric", "alphabetic"):
+        if "," in args.sort:
+            args.sort = args.sort.split(",")
         else:
-            options.sort = re.split("\s+", options.sort)
+            args.sort = re.split("\s+", args.sort)
 
-    if options.merge:
-        options.columns = []
+    if args.merge:
+        args.columns = []
     else:
-        options.columns = [int(x) - 1 for x in options.columns.split(",")]
+        args.columns = [int(x) - 1 for x in args.columns.split(",")]
 
-    options.filenames = []
+    args.filenames = []
 
-    if options.glob:
-        options.filenames += glob.glob(options.glob)
+    if args.glob:
+        args.filenames += glob.glob(args.glob)
 
-    options.filenames += args
+    args.filenames += unknown
 
-    if len(options.filenames) < 1:
+    if len(args.filenames) < 1:
         print(USAGE, "no tables specified/found.")
         sys.exit(1)
 
-    if options.loglevel >= 1:
-        options.stdlog.write("# combining %i tables.\n" %
-                             len(options.filenames))
+    if args.loglevel >= 1:
+        args.stdlog.write("# combining %i tables.\n" %
+                             len(args.filenames))
         sys.stdout.flush()
-        if len(options.filenames) == 1:
-            for line in iotools.open_file(options.filenames[0]):
-                options.stdout.write(line)
+        if len(args.filenames) == 1:
+            for line in iotools.open_file(args.filenames[0]):
+                args.stdout.write(line)
             E.stop()
             sys.exit(0)
 
-    if options.headers and options.headers[0] != "auto" and \
-       len(options.headers) != len(options.filenames):
+    if args.headers and args.headers[0] != "auto" and \
+       len(args.headers) != len(args.filenames):
         raise "number of provided headers (%i) is not equal to number filenames (%i)." %\
-              (len(options.headers), len(options.filenames))
+              (len(args.headers), len(args.filenames))
 
     tables = []
     keys = {}
     sorted_keys = []
     sizes = {}
-    if options.merge:
+    if args.merge:
         titles = ["count"]
     else:
         titles = []
 
-    for filename in options.filenames:
+    for filename in args.filenames:
 
         prefix = os.path.basename(filename)
 
@@ -183,7 +179,7 @@ def main(argv=None):
         else:
             lines = []
 
-        if len(lines) == 0 and options.ignore_empty:
+        if len(lines) == 0 and args.ignore_empty:
             continue
 
         table = {}
@@ -191,17 +187,17 @@ def main(argv=None):
         max_size = 0
         ncolumns = 0
 
-        if options.titles:
+        if args.titles:
             data = lines[0][:-1].split("\t")
             if not titles:
-                key = "-".join([data[x] for x in options.columns])
+                key = "-".join([data[x] for x in args.columns])
                 titles = [key]
             for x in range(len(data)):
-                if x in options.columns:
+                if x in args.columns:
                     continue
                 ncolumns += 1
-                if options.add_file_prefix:
-                    p = re.search(options.regex_filename, prefix).groups()[0]
+                if args.add_file_prefix:
+                    p = re.search(args.regex_filename, prefix).groups()[0]
                     titles.append("%s_%s" % (p, data[x]))
                 else:
                     titles.append(data[x])
@@ -213,13 +209,13 @@ def main(argv=None):
         n = 0
         for line in lines:
             data = line[:-1].split("\t")
-            row_keys = [data[x] for x in options.columns]
-            if options.sort_keys:
-                if options.sort_keys == "numeric":
+            row_keys = [data[x] for x in args.columns]
+            if args.sort_keys:
+                if args.sort_keys == "numeric":
                     row_keys.sort(lambda x, y: cmp(float(x), float(y)))
                 else:
                     row_keys.sort()
-            if options.merge:
+            if args.merge:
                 key = n
             else:
                 key = "-".join(row_keys)
@@ -229,9 +225,9 @@ def main(argv=None):
                 keys[key] = 1
                 sizes[key] = 0
 
-            max_size = max(len(data) - len(options.columns), max_size)
+            max_size = max(len(data) - len(args.columns), max_size)
             table[key] = [data[x]
-                          for x in [x for x in range(0, len(data)) if x not in options.columns]]
+                          for x in [x for x in range(0, len(data)) if x not in args.columns]]
             n += 1
 
         # enter columns of "na" for empty tables.
@@ -242,21 +238,21 @@ def main(argv=None):
 
     if len(tables) == len(titles) - 1:
 
-        if options.headers:
+        if args.headers:
             headers = ["bin"]
-            if options.headers[0] == 'auto':
+            if args.headers[0] == 'auto':
                 for t in range(len(tables)):
-                    headers.append(os.path.basename(options.filenames[t]))
+                    headers.append(os.path.basename(args.filenames[t]))
                     headers += [""] * (tables[t][0] - 1)
 
             else:
                 for t in range(len(tables)):
-                    headers.append(options.headers[t])
+                    headers.append(args.headers[t])
                     headers += [""] * (tables[t][0] - 1)
 
             # use headers as titles, if headers is given and skip-titles is
             # turned on
-            if options.titles and options.skip_titles:
+            if args.titles and args.skip_titles:
                 titles = headers
             else:
                 # otherwise: print the headers out right away
@@ -264,26 +260,26 @@ def main(argv=None):
 
         order = list(range(0, len(tables) + 1))
 
-        if options.titles:
+        if args.titles:
 
-            if options.sort:
+            if args.sort:
                 sort_order = []
 
-                if options.sort == "numeric":
+                if args.sort == "numeric":
                     t = list(zip(list(map(int, titles[1:])), list(range(1, len(titles) + 1))))
                     t.sort()
 
                     for tt in t:
                         sort_order.append(titles[tt[1]])
 
-                elif options.sort == "alphabetical":
+                elif args.sort == "alphabetical":
                     t = list(zip(titles[1:], list(range(1, len(titles) + 1))))
                     t.sort()
 
                     for tt in t:
                         sort_order.append(titles[tt[1]])
                 else:
-                    sort_order = options.sort
+                    sort_order = args.sort
 
                 map_title2pos = {}
                 for x in range(1, len(titles)):
@@ -301,9 +297,9 @@ def main(argv=None):
                 "\t".join([titles[order[x]] for x in range(len(titles))]))
             sys.stdout.write("\n")
 
-        if options.sort_keys:
-            if options.sort_keys:
-                if options.sort_keys == "numeric":
+        if args.sort_keys:
+            if args.sort_keys:
+                if args.sort_keys == "numeric":
                     sorted_keys.sort(lambda x, y: cmp(float(x), float(y)))
                 else:
                     sorted_keys.sort()
@@ -323,14 +319,14 @@ def main(argv=None):
                 assert(max_size == 1)
 
                 sys.stdout.write(
-                    "\t%s" % options.missing_value * (max_size - c))
+                    "\t%s" % args.missing_value * (max_size - c))
 
             sys.stdout.write("\n")
 
     else:
 
         # for multi-column table, just write
-        if options.titles:
+        if args.titles:
             sys.stdout.write(
                 "\t".join([titles[x] for x in range(len(titles))]))
             sys.stdout.write("\n")
@@ -349,7 +345,7 @@ def main(argv=None):
                     c = len(table[key])
 
                 sys.stdout.write(
-                    "\t%s" % options.missing_value * (max_size - c))
+                    "\t%s" % args.missing_value * (max_size - c))
 
             sys.stdout.write("\n")
 

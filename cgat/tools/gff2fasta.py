@@ -137,20 +137,17 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                       help="input is gtf instead of gff.")
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome [default=%default].")
+                      help="filename with genome.")
 
     parser.add_argument(
         "-m", "--merge-adjacent", dest="merge", action="store_true",
-        help="merge adjacent intervals with the same attributes."
-        " [default=%default]")
+        help="merge adjacent intervals with the same attributes.")
 
     parser.add_argument(
         "-e", "--feature", dest="feature", type=str,
@@ -184,7 +181,7 @@ def main(argv=None):
         choices=("none", "3", "5", "both", "3only", "5only"),
         help="extend at no end, 3', 5' or both ends. If "
         "3only or 5only are set, only the added sequence "
-        "is returned [default=%default]")
+        "is returned")
 
     parser.add_argument(
         "--header-attributes", dest="header_attr",
@@ -194,11 +191,11 @@ def main(argv=None):
 
     parser.add_argument(
         "--extend-by", dest="extend_by", type=int,
-        help="extend by # bases [default=%default]")
+        help="extend by # bases")
 
     parser.add_argument(
         "--extend-with", dest="extend_with", type=str,
-        help="extend using base [default=%default]")
+        help="extend using base")
 
     parser.add_argument(
         "--masker", dest="masker", type=str,
@@ -232,25 +229,25 @@ def main(argv=None):
         header_attr=False,
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
         contigs = fasta.getContigSizes()
 
-    if options.is_gtf:
-        iterator = GTF.transcript_iterator(GTF.iterator(options.stdin))
+    if args.is_gtf:
+        iterator = GTF.transcript_iterator(GTF.iterator(args.stdin))
     else:
-        gffs = GTF.iterator(options.stdin)
-        if options.merge:
+        gffs = GTF.iterator(args.stdin)
+        if args.merge:
             iterator = GTF.joined_iterator(gffs)
         else:
             iterator = GTF.chunk_iterator(gffs)
 
     masks = None
-    if options.filename_masks:
+    if args.filename_masks:
         masks = {}
-        with iotools.open_file(options.filename_masks, "r") as infile:
+        with iotools.open_file(args.filename_masks, "r") as infile:
             e = GTF.readAsIntervals(GTF.iterator(infile))
 
         # convert intervals to intersectors
@@ -264,7 +261,7 @@ def main(argv=None):
     nskipped_length = 0
     nskipped_noexons = 0
 
-    feature = options.feature
+    feature = args.feature
 
     # iterator is a list containing groups (lists) of features.
     # Each group of features have in common the same transcript ID, in case of
@@ -289,13 +286,13 @@ def main(argv=None):
 
         contig, strand = chunk[0].contig, chunk[0].strand
         
-        if options.is_gtf:
+        if args.is_gtf:
             name = chunk[0].transcript_id
         else:
-            if options.naming_attribute:
+            if args.naming_attribute:
                 attr_dict = {x.split("=")[0]: x.split("=")[1]
                              for x in chunk[0].attributes.split(";")}
-                name = attr_dict[options.naming_attribute]
+                name = attr_dict[args.naming_attribute]
             else:
                 name = str(chunk[0].attributes)
 
@@ -315,15 +312,15 @@ def main(argv=None):
                 if len(masked_regions):
                     nmasked += 1
 
-                if options.remove_masked_regions:
+                if args.remove_masked_regions:
                     intervals = Intervals.truncate(intervals, masked_regions)
                 else:
                     raise NotImplementedError("unimplemented")
 
                 if len(intervals) == 0:
                     nskipped_masked += 1
-                    if options.loglevel >= 1:
-                        options.stdlog.write("# skipped because fully masked: "
+                    if args.loglevel >= 1:
+                        args.stdlog.write("# skipped because fully masked: "
                                              "%s: regions=%s masks=%s\n" %
                                              (name,
                                               str([(x.start,
@@ -333,23 +330,23 @@ def main(argv=None):
 
         out = intervals
 
-        if options.extend_at and not options.extend_with:
-            if options.extend_at == "5only":
-                intervals = [(max(0, intervals[0][0] - options.extend_by),
+        if args.extend_at and not args.extend_with:
+            if args.extend_at == "5only":
+                intervals = [(max(0, intervals[0][0] - args.extend_by),
                               intervals[0][0])]
-            elif options.extend_at == "3only":
+            elif args.extend_at == "3only":
                 intervals = [(intervals[-1][1],
                               min(lcontig,
-                                  intervals[-1][1] + options.extend_by))]
+                                  intervals[-1][1] + args.extend_by))]
             else:
-                if options.extend_at in ("5", "both"):
+                if args.extend_at in ("5", "both"):
                     intervals[0] = (max(0,
-                                        intervals[0][0] - options.extend_by),
+                                        intervals[0][0] - args.extend_by),
                                     intervals[0][1])
-                if options.extend_at in ("3", "both"):
+                if args.extend_at in ("3", "both"):
                     intervals[-1] = (intervals[-1][0],
                                      min(lcontig,
-                                         intervals[-1][1] + options.extend_by))
+                                         intervals[-1][1] + args.extend_by))
 
         if not positive:
             intervals = [(lcontig - x[1], lcontig - x[0])
@@ -359,35 +356,35 @@ def main(argv=None):
         s = [fasta.getSequence(contig, strand, start, end)
              for start, end in intervals]
         # IMS: allow for masking of sequences
-        s = Masker.maskSequences(s, options.masker)
+        s = Masker.maskSequences(s, args.masker)
         l = sum([len(x) for x in s])
-        if (l < options.min_length or
-                (options.max_length and l > options.max_length)):
+        if (l < args.min_length or
+                (args.max_length and l > args.max_length)):
             nskipped_length += 1
-            if options.loglevel >= 1:
-                options.stdlog.write("# skipped because length out of bounds "
+            if args.loglevel >= 1:
+                args.stdlog.write("# skipped because length out of bounds "
                                      "%s: regions=%s len=%i\n" %
                                      (name, str(intervals), l))
                 continue
 
-        if options.extend_at and options.extend_with:
-            extension = "".join((options.extend_with,) * options.extend_by)
+        if args.extend_at and args.extend_with:
+            extension = "".join((args.extend_with,) * args.extend_by)
 
-            if options.extend_at in ("5", "both"):
+            if args.extend_at in ("5", "both"):
                 s[1] = extension + s[1]
-            if options.extend_at in ("3", "both"):
+            if args.extend_at in ("3", "both"):
                 s[-1] = s[-1] + extension
 
-        if options.fold_at:
-            n = options.fold_at
+        if args.fold_at:
+            n = args.fold_at
             s = "".join(s)
             seq = "\n".join([s[i:i+n] for i in range(0, len(s), n)])
         else:
             seq = "\n".join(s)
 
-        if options.header_attr:
+        if args.header_attr:
             attributes = " ".join([":".join([ax, ay]) for ax, ay in chunk[0].asDict().items()])
-            options.stdout.write(">%s %s:%s:%s feature:%s %s\n%s\n" % (name,
+            args.stdout.write(">%s %s:%s:%s feature:%s %s\n%s\n" % (name,
                                                                        contig,
                                                                        strand,
                                                                        ";".join(
@@ -397,7 +394,7 @@ def main(argv=None):
                                                                        attributes,
                                                                        seq))
         else:
-            options.stdout.write(">%s %s:%s:%s\n%s\n" % (name,
+            args.stdout.write(">%s %s:%s:%s\n%s\n" % (name,
                                                          contig,
                                                          strand,
                                                          ";".join(

@@ -38,8 +38,7 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: data2histogram.py 2782 2009-09-10 11:40:29Z andreas $")
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-r", "--range", dest="range", type=str,
                       help="range to calculate histogram for.")
@@ -103,26 +102,26 @@ def main(argv=None):
         value_format="%6.4f",
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.columns != "all":
-        options.columns = [int(x) - 1 for x in options.columns.split(",")]
+    if args.columns != "all":
+        args.columns = [int(x) - 1 for x in args.columns.split(",")]
 
-    if options.range:
-        options.min_value, options.max_value = list(map(
-            float, options.range.split(",")))
+    if args.range:
+        args.min_value, args.max_value = list(map(
+            float, args.range.split(",")))
 
-    if options.headers:
-        options.headers = options.headers.split(",")
+    if args.headers:
+        args.headers = args.headers.split(",")
 
-    if options.on_the_fly:
-        if options.min_value is None or options.max_value is None or \
-           options.bin_size is None:
+    if args.on_the_fly:
+        if args.min_value is None or args.max_value is None or \
+           args.bin_size is None:
             raise ValueError("please supply columns, min-value, max-value and "
                              "bin-size for on-the-fly computation.")
 
         # try to glean titles from table:
-        if options.titles:
+        if args.titles:
             while 1:
                 line = sys.stdin.readline()
                 if not line:
@@ -132,38 +131,38 @@ def main(argv=None):
                 data = line[:-1].split("\t")
                 break
 
-            if options.columns == "all":
-                options.titles = data
-                options.columns = list(range(len(data)))
+            if args.columns == "all":
+                args.titles = data
+                args.columns = list(range(len(data)))
             else:
-                options.titles = [data[x] for x in options.columns]
+                args.titles = [data[x] for x in args.columns]
 
         bins = numpy.arange(
-            options.min_value, options.max_value, float(options.bin_size))
+            args.min_value, args.max_value, float(args.bin_size))
         hh = Histogram.fillHistograms(
-            sys.stdin, options.columns, [bins for x in range(len(options.columns))])
+            sys.stdin, args.columns, [bins for x in range(len(args.columns))])
         n = len(hh)
 
         titles = ['bin']
 
-        if options.headers:
-            titles.append(options.headers[x])
-        elif options.titles:
-            titles.append(options.titles[x])
+        if args.headers:
+            titles.append(args.headers[x])
+        elif args.titles:
+            titles.append(args.titles[x])
         else:
-            for x in options.columns:
+            for x in args.columns:
                 titles.append("col%i" % (x + 1))
 
         if len(titles) > 1:
-            options.stdout.write("\t".join(titles) + "\n")
+            args.stdout.write("\t".join(titles) + "\n")
 
         for x in range(len(bins)):
             v = []
-            v.append(options.bin_format % bins[x])
+            v.append(args.bin_format % bins[x])
             for c in range(n):
-                v.append(options.value_format % hh[c][x])
+                v.append(args.value_format % hh[c][x])
 
-            options.stdout.write("\t".join(v) + "\n")
+            args.stdout.write("\t".join(v) + "\n")
 
     else:
         # in-situ computation of histograms
@@ -172,7 +171,7 @@ def main(argv=None):
         vals = []
 
         # parse data, convert to floats
-        for l in options.stdin:
+        for l in args.stdin:
 
             if l[0] == "#":
                 continue
@@ -182,23 +181,23 @@ def main(argv=None):
             if first:
                 first = False
                 ncols = len(data)
-                if options.columns == "all":
-                    options.columns = list(range(ncols))
+                if args.columns == "all":
+                    args.columns = list(range(ncols))
 
-                vals = [[] for x in options.columns]
+                vals = [[] for x in args.columns]
 
-                if options.titles:
+                if args.titles:
                     try:
-                        options.titles = [data[x] for x in options.columns]
+                        args.titles = [data[x] for x in args.columns]
                     except IndexError:
                         raise IndexError("not all columns %s found in data %s" % (
-                            str(options.columns), str(data)))
+                            str(args.columns), str(data)))
                     continue
 
-            for x in range(len(options.columns)):
+            for x in range(len(args.columns)):
 
                 try:
-                    v = float(data[options.columns[x]])
+                    v = float(data[args.columns[x]])
                 except IndexError:
                     print("# IndexError in line:", l[:-1])
                     continue
@@ -213,60 +212,60 @@ def main(argv=None):
         titles = []
 
         if not vals:
-            if options.loglevel >= 1:
-                options.stdlog.write("# no data\n")
+            if args.loglevel >= 1:
+                args.stdlog.write("# no data\n")
             E.stop()
             sys.exit(0)
 
-        for x in range(len(options.columns)):
+        for x in range(len(args.columns)):
 
-            if options.loglevel >= 1:
-                options.stdlog.write(
-                    "# column=%i, num_values=%i\n" % (options.columns[x], len(vals[x])))
+            if args.loglevel >= 1:
+                args.stdlog.write(
+                    "# column=%i, num_values=%i\n" % (args.columns[x], len(vals[x])))
 
-            if len(vals[x]) < options.min_data:
+            if len(vals[x]) < args.min_data:
                 continue
 
             h = Histogram.Calculate(vals[x],
-                                    no_empty_bins=options.no_empty_bins,
-                                    increment=options.bin_size,
-                                    min_value=options.min_value,
-                                    max_value=options.max_value,
-                                    dynamic_bins=options.dynamic_bins,
-                                    ignore_out_of_range=options.ignore_out_of_range)
+                                    no_empty_bins=args.no_empty_bins,
+                                    increment=args.bin_size,
+                                    min_value=args.min_value,
+                                    max_value=args.max_value,
+                                    dynamic_bins=args.dynamic_bins,
+                                    ignore_out_of_range=args.ignore_out_of_range)
 
-            if options.normalize:
+            if args.normalize:
                 h = Histogram.Normalize(h)
-            if options.cumulative:
+            if args.cumulative:
                 h = Histogram.Cumulate(h)
-            if options.reverse_cumulative:
+            if args.reverse_cumulative:
                 h = Histogram.Cumulate(h, direction=0)
 
             hists.append(h)
 
-            for m in options.append:
+            for m in args.append:
                 if m == "normalize":
                     hists.append(Histogram.Normalize(h))
 
-            if options.headers:
-                titles.append(options.headers[x])
-            elif options.titles:
-                titles.append(options.titles[x])
+            if args.headers:
+                titles.append(args.headers[x])
+            elif args.titles:
+                titles.append(args.titles[x])
             else:
-                titles.append("col%i" % options.columns[x])
+                titles.append("col%i" % args.columns[x])
 
         if titles:
-            options.stdout.write("bin\t" + "\t".join(titles) + "\n")
+            args.stdout.write("bin\t" + "\t".join(titles) + "\n")
 
         if len(hists) == 1:
-            Histogram.Print(hists[0], nonull=options.nonull,
-                            format_bin=options.bin_format)
+            Histogram.Print(hists[0], nonull=args.nonull,
+                            format_bin=args.bin_format)
         else:
             combined_histogram = Histogram.Combine(
-                hists, missing_value=options.missing_value)
+                hists, missing_value=args.missing_value)
             Histogram.Print(combined_histogram,
-                            nonull=options.nonull,
-                            format_bin=options.bin_format)
+                            nonull=args.nonull,
+                            format_bin=args.bin_format)
 
     E.stop()
 

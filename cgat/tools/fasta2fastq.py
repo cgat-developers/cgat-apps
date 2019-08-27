@@ -196,66 +196,63 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "--output-quality-format", dest="q_format", type=int,
-        help="sequence quality format, e.g 33 = +33/Sanger"
-        "[default=%default].")
+        help="sequence quality format, e.g 33 = +33/Sanger")
 
     parser.add_argument(
         "--output-paired-end", dest="paired", action="store_true",
-        help="generate paired end reads [default = %default].")
+        help="generate paired end reads")
 
     parser.add_argument(
         "--insert-length-mean", dest="insert_mean", type=float,
-        help="mean insert length [default = %default].")
+        help="mean insert length.")
 
     parser.add_argument(
         "--insert-length-sd", dest="insert_sd", type=float,
-        help="insert length standard deviation [default = %default].")
+        help="insert length standard deviation.")
 
     parser.add_argument(
         "--counts-method", dest="counts_method", type=str,
         choices=("reads", "copies"),
         help="simulate a ground truth number of reads per entry or"
-        "copies per entry [default = %default].")
+        "copies per entry.")
 
     parser.add_argument(
         "--counts-min", dest="counts_min", type=float,
         help="minimum number of reads/read pairs per fasta entry"
-        "or copies per entry [default = %default].")
+        "or copies per entry.")
 
     parser.add_argument(
         "--counts-max", dest="counts_max", type=float,
         help="maximum number of reads/read pairs per fasta entry "
-        "or copies per entry [default = %default].")
+        "or copies per entry.")
 
     parser.add_argument(
         "--output-read-length", dest="read_length", type=int,
-        help="read length [default = %default].")
+        help="read length.")
 
     parser.add_argument(
         "--sequence-error-phred", dest="phred", type=int,
-        help="phred quality score [default = %default].")
+        help="phred quality score.")
 
     parser.add_argument(
         "--output-counts", dest="output_counts", type=str,
-        help="name for counts outfile [default=%default].")
+        help="name for counts outfile.")
 
     parser.add_argument(
         "--output-fastq2", dest="fastq2_out", type=str,
-        help="filename for second fastq outfile [default=%default].")
+        help="filename for second fastq outfile.")
 
     parser.add_argument(
         "--premrna-fraction", dest="premrna_fraction", type=float,
-        help="the fraction of reads to simulate from pre-mRNA"
-        "[default= % default].")
+        help="the fraction of reads to simulate from pre-mRNA")
 
     parser.add_argument(
         "--infile-premrna-fasta", dest="premrna_fasta", type=str,
-        help="filename for pre-mRNA fasta[default=%default].")
+        help="filename for pre-mRNA fasta.")
 
     parser.set_defaults(
         q_format=33,
@@ -273,33 +270,33 @@ def main(argv=None):
         premrna_fasta=None
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.paired:
-        assert options.fastq2_out, ("must specify a second fastq outfile for "
+    if args.paired:
+        assert args.fastq2_out, ("must specify a second fastq outfile for "
                                     "paired end (--output-fastq2)")
-        outf2 = iotools.open_file(options.fastq2_out, "w")
+        outf2 = iotools.open_file(args.fastq2_out, "w")
 
-    if options.premrna_fraction:
-        assert options.premrna_fasta, ("must specfify the location of the"
+    if args.premrna_fraction:
+        assert args.premrna_fasta, ("must specfify the location of the"
                                        "fasta file for the pre-mRNA")
 
     # the sequence quality string will always be the same so define here
-    sequence_quality = chr(options.q_format + options.phred)
-    qual = "".join([sequence_quality] * options.read_length)
+    sequence_quality = chr(args.q_format + args.phred)
+    qual = "".join([sequence_quality] * args.read_length)
 
-    if options.premrna_fraction:
+    if args.premrna_fraction:
         iterator = FastaIterator.iterate_together(
-            options.stdin, iotools.open_file(options.premrna_fasta))
+            args.stdin, iotools.open_file(args.premrna_fasta))
     else:
-        iterator = FastaIterator.FastaIterator(options.stdin)
+        iterator = FastaIterator.FastaIterator(args.stdin)
 
     # set a cut off of twice the read/pair length for short entries
-    if options.paired:
+    if args.paired:
         minimum_entry_length = (
-            2 * ((options.read_length * 2) + options.insert_mean))
+            2 * ((args.read_length * 2) + args.insert_mean))
     else:
-        minimum_entry_length = 2 * options.read_length
+        minimum_entry_length = 2 * args.read_length
 
     c = collections.Counter()
     counts = collections.Counter()
@@ -307,7 +304,7 @@ def main(argv=None):
 
     for f_entry in iterator:
 
-        if options.premrna_fraction:
+        if args.premrna_fraction:
 
             assert getTitle(f_entry[0]) == getTitle(f_entry[1]), (
                 "entry ids do not match: %s != %s" % (
@@ -328,39 +325,39 @@ def main(argv=None):
         else:
             c['not_skipped'] += 1
 
-        if options.paired:
+        if args.paired:
             fragment_length = (
-                (2 * options.read_length) + options.insert_mean)
+                (2 * args.read_length) + args.insert_mean)
         else:
-            fragment_length = options.read_length
+            fragment_length = args.read_length
 
         reads_per_entry = float(len(entry.sequence)) / fragment_length
 
-        if options.counts_method == "reads":
-            n_reads = random.randint(options.counts_min,
-                                     options.counts_max + 1)
+        if args.counts_method == "reads":
+            n_reads = random.randint(args.counts_min,
+                                     args.counts_max + 1)
 
             n_copies = float(n_reads) / reads_per_entry
 
-            if options.premrna_fraction:
-                n_reads_pre = int(round(n_reads * options.premrna_fraction))
+            if args.premrna_fraction:
+                n_reads_pre = int(round(n_reads * args.premrna_fraction))
 
-        elif options.counts_method == "copies":
+        elif args.counts_method == "copies":
 
             # random float [0-1]
             rand = np.random.random_sample()
-            n_copies = (options.counts_min +
-                        (rand * (options.counts_max - options.counts_min)))
+            n_copies = (args.counts_min +
+                        (rand * (args.counts_max - args.counts_min)))
 
             n_reads = int(round(n_copies * reads_per_entry, 0))
 
             # as n_reads must be rounded to int, need to redefine n_copies
             n_copies = float(n_reads) / reads_per_entry
 
-            if options.premrna_fraction:
+            if args.premrna_fraction:
                 reads_per_pre_entry = (float(len(pre_entry.sequence)) /
                                        fragment_length)
-                n_copies_pre = n_copies * options.premrna_fraction
+                n_copies_pre = n_copies * args.premrna_fraction
                 n_reads_pre = int(round(n_copies_pre * reads_per_pre_entry, 0))
                 # as n_reads_pre must be rounded to int, need to
                 # redefine n_copies_pre
@@ -377,55 +374,55 @@ def main(argv=None):
         for i in range(0, n_reads):
 
             read = generateRead(entry=entry.sequence.upper(),
-                                read_length=options.read_length,
-                                error_rate=options.phred,
-                                paired=options.paired,
-                                insert_mean=options.insert_mean,
-                                insert_sd=options.insert_sd)
+                                read_length=args.read_length,
+                                error_rate=args.phred,
+                                paired=args.paired,
+                                insert_mean=args.insert_mean,
+                                insert_sd=args.insert_sd)
 
-            if options.paired:
+            if args.paired:
                 r1, r2 = read
                 h1 = "@%s_%i/1" % (entry_id, i)
                 h2 = "@%s_%i/2" % (entry_id, i)
 
-                options.stdout.write("\n".join((h1, r1, "+", qual)) + "\n")
+                args.stdout.write("\n".join((h1, r1, "+", qual)) + "\n")
                 outf2.write("\n".join((h2, r2, "+", qual)) + "\n")
 
             else:
                 h = "@%s_%i/1" % (entry_id, i)
 
-                options.stdout.write("\n".join((h, read, "+", qual)) + "\n")
+                args.stdout.write("\n".join((h, read, "+", qual)) + "\n")
 
-        if options.premrna_fraction:
+        if args.premrna_fraction:
             c['pre_counts'] += n_reads_pre
             c['pre_copies'] += n_copies_pre
 
             for i in range(0, n_reads_pre):
 
                 read = generateRead(entry=pre_entry.sequence.upper(),
-                                    read_length=options.read_length,
-                                    error_rate=options.phred,
-                                    paired=options.paired,
-                                    insert_mean=options.insert_mean,
-                                    insert_sd=options.insert_sd)
+                                    read_length=args.read_length,
+                                    error_rate=args.phred,
+                                    paired=args.paired,
+                                    insert_mean=args.insert_mean,
+                                    insert_sd=args.insert_sd)
 
-                if options.paired:
+                if args.paired:
                     r1, r2 = read
                     h1 = "@%s_pre-mRNA_%i/1" % (entry_id, i)
                     h2 = "@%s_pre-mRNA_%i/2" % (entry_id, i)
 
-                    options.stdout.write("\n".join((h1, r1, "+", qual)) + "\n")
+                    args.stdout.write("\n".join((h1, r1, "+", qual)) + "\n")
                     outf2.write("\n".join((h2, r2, "+", qual)) + "\n")
 
                 else:
                     h = "@%s_pre-mRNA_%i/1" % (entry_id, i)
 
-                    options.stdout.write("\n".join((h, read, "+", qual)) + "\n")
+                    args.stdout.write("\n".join((h, read, "+", qual)) + "\n")
 
-    if options.paired:
+    if args.paired:
         outf2.close()
 
-    with iotools.open_file(options.output_counts, "w") as counts_out:
+    with iotools.open_file(args.output_counts, "w") as counts_out:
 
         counts_out.write("%s\n" % "\t".join(("id", "read_count", "tpm")))
 

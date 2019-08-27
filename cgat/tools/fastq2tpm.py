@@ -255,8 +255,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--test", dest="test", type=str,
                       help="supply help")
@@ -318,49 +317,49 @@ def main(argv=None):
     parser.set_defaults(paired=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.method == "make_index":
-        if options.program == "kallisto":
-            runKallistoIndex(fasta_file=options.fa_index,
-                             outfile=options.outfile,
-                             kmer=options.kmer)
-        elif options.program == "sailfish":
-            runSailfishIndex(fasta_file=options.fa_index,
-                             outdir=options.outdir,
-                             threads=options.threads,
-                             kmer=options.kmer)
+    if args.method == "make_index":
+        if args.program == "kallisto":
+            runKallistoIndex(fasta_file=args.fa_index,
+                             outfile=args.outfile,
+                             kmer=args.kmer)
+        elif args.program == "sailfish":
+            runSailfishIndex(fasta_file=args.fa_index,
+                             outdir=args.outdir,
+                             threads=args.threads,
+                             kmer=args.kmer)
         else:
             E.warn("program not recognised, exiting.")
 
-    elif options.method == "quant":
+    elif args.method == "quant":
         infiles = argv[-1]
         qfiles = infiles.split(",")
         # make the output directory if it doesn't exist
-        if os.path.exists(options.outdir):
+        if os.path.exists(args.outdir):
             pass
         else:
-            os.system("mkdir %s" % options.outdir)
+            os.system("mkdir %s" % args.outdir)
 
-        if options.program == "kallisto":
-            runKallistoQuant(fasta_index=options.index_file,
+        if args.program == "kallisto":
+            runKallistoQuant(fasta_index=args.index_file,
                              fastq_files=qfiles,
-                             output_dir=options.outdir,
-                             bias=options.bias,
-                             bootstrap=options.bootstrap,
-                             seed=options.seed,
-                             threads=options.threads,
-                             plaintext=options.text_only)
-        elif options.program == "sailfish":
+                             output_dir=args.outdir,
+                             bias=args.bias,
+                             bootstrap=args.bootstrap,
+                             seed=args.seed,
+                             threads=args.threads,
+                             plaintext=args.text_only)
+        elif args.program == "sailfish":
             infiles = argv[-1]
             qfiles = infiles.split(",")
-            runSailfishQuant(fasta_index=options.index_file,
+            runSailfishQuant(fasta_index=args.index_file,
                              fastq_files=qfiles,
-                             output_dir=options.outdir,
-                             paired=options.paired,
-                             library=options.library,
-                             threads=options.threads,
-                             gene_gtf=options.gene_gtf)
+                             output_dir=args.outdir,
+                             paired=args.paired,
+                             library=args.library,
+                             threads=args.threads,
+                             gene_gtf=args.gene_gtf)
 
         else:
             E.warn("program not recognised, exiting.")

@@ -54,9 +54,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                       help="filename with genomic sequence to retrieve "
@@ -64,8 +62,7 @@ def main(argv=None):
 
     parser.add_argument("-m", "--masker", dest="masker", type=str,
                       choices=("dust", "dustmasker", "softmask", "none"),
-                      help="apply masker to mask output sequences "
-                      ".")
+                      help="apply masker to mask output sequences ")
 
     parser.add_argument("--output-mode", dest="output_mode", type=str,
                       choices=("intervals", "leftright", "segments"),
@@ -111,10 +108,10 @@ def main(argv=None):
         ignore_strand=True,
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
         contigs = fasta.getContigSizes()
         fasta.setConverter(IndexedFasta.getConverter("zero-both-open"))
 
@@ -122,17 +119,17 @@ def main(argv=None):
     ids, seqs = [], []
 
     E.info("collecting sequences")
-    for bed in Bed.setName(Bed.iterator(options.stdin)):
+    for bed in Bed.setName(Bed.iterator(args.stdin)):
         counter.input += 1
 
         lcontig = fasta.getLength(bed.contig)
 
-        if options.ignore_strand:
+        if args.ignore_strand:
             strand = "+"
         else:
             strand = bed.strand
 
-        if options.output_mode == "segments" and bed.columns == 12:
+        if args.output_mode == "segments" and bed.columns == 12:
             ids.append("%s %s:%i..%i (%s) %s %s" %
                        (bed.name, bed.contig, bed.start, bed.end, strand,
                         bed["blockSizes"], bed["blockStarts"]))
@@ -140,14 +137,14 @@ def main(argv=None):
                         for start, end in bed.toIntervals()]
             seqs.append("".join(seg_seqs))
 
-        elif (options.output_mode == "intervals" or
-              options.output_mode == "segments"):
+        elif (args.output_mode == "intervals" or
+              args.output_mode == "segments"):
             ids.append("%s %s:%i..%i (%s)" %
                        (bed.name, bed.contig, bed.start, bed.end, strand))
             seqs.append(
                 fasta.getSequence(bed.contig, strand, bed.start, bed.end))
 
-        elif options.output_mode == "leftright":
+        elif args.output_mode == "leftright":
             l = bed.end - bed.start
 
             start, end = max(0, bed.start - l), bed.end - l
@@ -162,8 +159,8 @@ def main(argv=None):
 
     E.info("collected %i sequences" % len(seqs))
 
-    masked = Masker.maskSequences(seqs, options.masker)
-    options.stdout.write(
+    masked = Masker.maskSequences(seqs, args.masker)
+    args.stdout.write(
         "\n".join([">%s\n%s" % (x, y) for x, y in zip(ids, masked)]) + "\n")
 
     E.info("masked %i sequences" % len(seqs))

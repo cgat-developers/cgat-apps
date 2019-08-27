@@ -369,8 +369,8 @@ def main(argv=None):
 
     parser.add_argument("--pattern-identifier", dest="pattern", type=str,
                       help="pattern to use for renaming genes/transcripts. "
-                      "The pattern should contain a %i, for example "
-                      "--pattern-identifier=ENSG%010i .")
+                      "The pattern should contain a \\%i, for example "
+                      "--pattern-identifier=ENSG\\%010i .")
 
     parser.add_argument("--sort-order",
                       dest="sort_order",

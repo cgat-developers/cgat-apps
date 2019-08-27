@@ -118,9 +118,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
                       help="bin size.")
@@ -181,29 +179,29 @@ def main(argv=None):
         format="gff",
     )
 
-    (options, args) = E.start(parser, add_output_options=True)
+    (args) = E.start(parser, add_output_options=True)
 
-    if "all" in options.methods:
-        options.methods = ("hist", "stats", "overlaps")
-        if not options.output_filename_pattern:
-            options.output_filename_pattern = "%s"
+    if "all" in args.methods:
+        args.methods = ("hist", "stats", "overlaps")
+        if not args.output_filename_pattern:
+            args.output_filename_pattern = "%s"
 
-    if len(options.methods) == 0:
+    if len(args.methods) == 0:
         raise ValueError(
             "please provide counting method using --method option")
 
-    if options.format in ("gff", "gtf"):
-        gffs = GTF.iterator(options.stdin)
-    elif options.format == "bed":
-        gffs = Bed.iterator(options.stdin)
+    if args.format in ("gff", "gtf"):
+        gffs = GTF.iterator(args.stdin)
+    elif args.format == "bed":
+        gffs = Bed.iterator(args.stdin)
 
     values_between = []
     values_within = []
     values_overlaps = []
 
-    if "overlaps" in options.methods:
-        if not options.output_filename_pattern:
-            options.output_filename_pattern = "%s"
+    if "overlaps" in args.methods:
+        if not args.output_filename_pattern:
+            args.output_filename_pattern = "%s"
         outfile_overlaps = E.open_output_file("overlaps")
     else:
         outfile_overlaps = None
@@ -234,51 +232,51 @@ def main(argv=None):
 
         last = this
 
-    if "hist" in options.methods:
+    if "hist" in args.methods:
         outfile = E.open_output_file("hist")
         h_within = Histogram.Calculate(
             values_within,
-            no_empty_bins=options.no_empty_bins,
-            increment=options.bin_size,
-            min_value=options.min_value,
-            max_value=options.max_value,
-            dynamic_bins=options.dynamic_bins,
-            ignore_out_of_range=options.ignore_out_of_range)
+            no_empty_bins=args.no_empty_bins,
+            increment=args.bin_size,
+            min_value=args.min_value,
+            max_value=args.max_value,
+            dynamic_bins=args.dynamic_bins,
+            ignore_out_of_range=args.ignore_out_of_range)
 
         h_between = Histogram.Calculate(
             values_between,
-            no_empty_bins=options.no_empty_bins,
-            increment=options.bin_size,
-            min_value=options.min_value,
-            max_value=options.max_value,
-            dynamic_bins=options.dynamic_bins,
-            ignore_out_of_range=options.ignore_out_of_range)
+            no_empty_bins=args.no_empty_bins,
+            increment=args.bin_size,
+            min_value=args.min_value,
+            max_value=args.max_value,
+            dynamic_bins=args.dynamic_bins,
+            ignore_out_of_range=args.ignore_out_of_range)
 
-        if "all" == options.output_section:
+        if "all" == args.output_section:
             outfile.write("residues\tsize\tdistance\n")
             combined_histogram = Histogram.Combine(
-                [h_within, h_between], missing_value=options.missing_value)
-            Histogram.Write(outfile, combined_histogram, nonull=options.nonull)
-        elif options.output_section == "size":
+                [h_within, h_between], missing_value=args.missing_value)
+            Histogram.Write(outfile, combined_histogram, nonull=args.nonull)
+        elif args.output_section == "size":
             outfile.write("residues\tsize\n")
-            Histogram.Write(outfile, h_within, nonull=options.nonull)
-        elif options.output_section == "distance":
+            Histogram.Write(outfile, h_within, nonull=args.nonull)
+        elif args.output_section == "distance":
             outfile.write("residues\tdistance\n")
-            Histogram.Write(outfile, h_between, nonull=options.nonull)
+            Histogram.Write(outfile, h_between, nonull=args.nonull)
 
         outfile.close()
 
-    if "stats" in options.methods:
+    if "stats" in args.methods:
         outfile = E.open_output_file("stats")
         outfile.write("data\t%s\n" % Stats.Summary().getHeader())
-        if options.output_section in ("size", "all"):
+        if args.output_section in ("size", "all"):
             outfile.write("size\t%s\n" % str(Stats.Summary(values_within)))
-        if options.output_section in ("distance", "all"):
+        if args.output_section in ("distance", "all"):
             outfile.write("distance\t%s\n" %
                           str(Stats.Summary(values_between)))
         outfile.close()
 
-    if "values" in options.methods:
+    if "values" in args.methods:
         outfile = E.open_output_file("distances")
         outfile.write("distance\n%s\n" % "\n".join(map(str, values_between)))
         outfile.close()

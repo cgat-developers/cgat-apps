@@ -62,8 +62,7 @@ def parse_block(block):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-f", "--input-filter-tsv",
@@ -92,22 +91,22 @@ def main(argv=sys.argv):
         methods=[],
     )
 
-    (options, args) = E.start(parser, argv)
+    (args) = E.start(parser, argv)
 
-    if options.input_filter_tsv:
-        with iotools.open_file(options.input_filter_tsv) as inf:
+    if args.input_filter_tsv:
+        with iotools.open_file(args.input_filter_tsv) as inf:
             skip_id = set([x[:-1] for x in inf])
     else:
         skip_id = False
 
     counter = E.Counter()
 
-    if options.set_prefix:
-        prefix = "s {}".format(options.set_prefix)
+    if args.set_prefix:
+        prefix = "s {}".format(args.set_prefix)
     else:
         prefix = None
 
-    for block in iterate_maf_blocks(options.stdin):
+    for block in iterate_maf_blocks(args.stdin):
         counter.blocks_input += 1
         if skip_id:
             if block[2].startswith("s "):
@@ -116,10 +115,10 @@ def main(argv=sys.argv):
                     counter.blocks_skipped_id += 1
                     continue
 
-        if options.min_length:
+        if args.min_length:
             if block[2].startswith("s "):
                 id, pos, length = re.match("s (\S+)\s+(\d+)\s+(\d+)", block[2]).groups()
-                if int(length) <= options.min_length:
+                if int(length) <= args.min_length:
                     counter.blocks_skipped_length += 1
                     continue
 
@@ -128,7 +127,7 @@ def main(argv=sys.argv):
 
         if block[2].startswith("s "):
             header, ali1, ali2, qual = parse_block(block)
-            if "shift-region" in options.methods:
+            if "shift-region" in args.methods:
                 rows = []
                 contig, start, end = parse_region_string(ali1.src)
                 ali1 = ali1._replace(src=contig, start=start + ali1.start)
@@ -141,7 +140,7 @@ def main(argv=sys.argv):
                 lines.append("\n")
                 block = lines
         counter.blocks_output += 1
-        options.stdout.write("".join(block))
+        args.stdout.write("".join(block))
 
     E.info(counter)
     E.stop()

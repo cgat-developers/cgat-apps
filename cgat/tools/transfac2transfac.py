@@ -43,8 +43,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-f", "--filter-prefix", dest="filter_prefix", default=None,
@@ -55,10 +54,10 @@ def main(argv=None):
         help="ID pattern to filter (filter is case insensitive) eg. pax6. "
         "Multiple patterns should be specified as a comma separated list")
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.filter_pattern:
-        patterns = [x.strip() for x in options.filter_pattern.split(",")]
+    if args.filter_pattern:
+        patterns = [x.strip() for x in args.filter_pattern.split(",")]
         E.info("Supplied patterns %s" % ", ".join(patterns))
     else:
         patterns = False
@@ -68,7 +67,7 @@ def main(argv=None):
 
     inmotif, tid, filter_emit, pattern_emit = False, False, False, False
 
-    for line in options.stdin:
+    for line in args.stdin:
 
         # pick up motif start and ends.
         if line.startswith("AC") and inmotif is False:
@@ -89,8 +88,8 @@ def main(argv=None):
             if tid is False:
                 raise ValueError("matrix ID not determined")
 
-            if options.filter_prefix:
-                if tid.startswith(options.filter_prefix):
+            if args.filter_prefix:
+                if tid.startswith(args.filter_prefix):
                     filter_emit = True
             else:
                 filter_emit = True
@@ -121,7 +120,7 @@ def main(argv=None):
         else:
             raise ValueError("unknown parsing state")
 
-    options.stdout.write("".join(filtered_motifs))
+    args.stdout.write("".join(filtered_motifs))
 
     E.stop()
 

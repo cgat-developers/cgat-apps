@@ -329,8 +329,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type=str,
@@ -345,7 +344,7 @@ def main(argv=None):
         help="gff file with data to use.")
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="filename-data is gtf file [default=%default.")
+                      help="filename-data is gtf file")
 
     parser.add_argument(
         "-f", "--features", dest="features", type=str, action="append",
@@ -381,39 +380,39 @@ def main(argv=None):
         is_gtf=False,
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
     #    test_transform_third_codon()
 
-    if not options.filename_windows:
+    if not args.filename_windows:
         raise ValueError("please supply a gff file with window information.")
 
-    if options.loglevel >= 1:
-        options.stdlog.write("# reading windows...")
-        options.stdlog.flush()
+    if args.loglevel >= 1:
+        args.stdlog.write("# reading windows...")
+        args.stdlog.flush()
 
     windows = GTF.readAsIntervals(
-        GTF.iterator(iotools.open_file(options.filename_windows, "r")))
+        GTF.iterator(iotools.open_file(args.filename_windows, "r")))
 
-    if options.loglevel >= 1:
-        options.stdlog.write("done\n")
-        options.stdlog.flush()
+    if args.loglevel >= 1:
+        args.stdlog.write("done\n")
+        args.stdlog.flush()
 
-    if options.filename_data:
-        if options.loglevel >= 1:
-            options.stdlog.write("# reading data...")
-            options.stdlog.flush()
+    if args.filename_data:
+        if args.loglevel >= 1:
+            args.stdlog.write("# reading data...")
+            args.stdlog.flush()
 
-        if options.is_gtf:
+        if args.is_gtf:
             gff_data = GTF.readFromFile(
-                iotools.open_file(options.filename_data, "r"))
+                iotools.open_file(args.filename_data, "r"))
         else:
             gff_data = GTF.readFromFile(
-                IOTOols.open_file(options.filename_data, "r"))
+                IOTOols.open_file(args.filename_data, "r"))
 
-        if options.loglevel >= 1:
-            options.stdlog.write("done\n")
-            options.stdlog.flush()
+        if args.loglevel >= 1:
+            args.stdlog.write("done\n")
+            args.stdlog.flush()
 
         data_ranges = GTF.SortPerContig(gff_data)
     else:
@@ -421,12 +420,12 @@ def main(argv=None):
         # by supplying no data and asking for the complement = original window
         gff_data = None
         data_ranges = None
-        options.transform = "complement"
+        args.transform = "complement"
 
     map_contig2size = {}
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
         map_contig2size = fasta.getContigSizes()
     else:
         for contig, values in list(windows.items()):
@@ -439,7 +438,7 @@ def main(argv=None):
     # proceed contig wise
     noutput_contigs, ncontigs_skipped_windows, ncontigs_skipped_data = 0, 0, 0
 
-    options.stdout.write("\t".join(
+    args.stdout.write("\t".join(
         map(str, ("contig", "start", "end",
                   "ngenes", "ntranscripts",
                   "n1", "l1",
@@ -468,13 +467,13 @@ def main(argv=None):
                             gff_data[
                                 data_ranges[contig][0]:data_ranges[contig][1]],
                             fasta,
-                            options)
+                            args)
         else:
             annotateWindows(contig,
                             windows[contig],
                             [],
                             fasta,
-                            options)
+                            args)
 
     E.info("ninput_windows=%i, noutput_contigs=%i, ninput_contigs=%i, nskipped_windows=%i, nskipped_data=%i" %
            (len(windows), noutput_contigs, len(contigs), ncontigs_skipped_windows, ncontigs_skipped_data))

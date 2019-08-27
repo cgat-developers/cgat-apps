@@ -102,9 +102,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
         "-a", "--first-fastq-file", dest="fastq1", type=str,
@@ -114,13 +112,15 @@ def main(argv=None):
         help="supply read2 fastq file")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if args and len(args) == 2:
-        options.fastq1, options.fastq2 = args
+    if unknown and len(unknown) == 2:
+        args.fastq1, args.fastq2 = unknown
 
-    fastq1 = iotools.open_file(options.fastq1)
-    fastq2 = iotools.open_file(options.fastq2)
+    fastq1 = iotools.open_file(args.fastq1)
+    fastq2 = iotools.open_file(args.fastq2)
 
     E.info("iterating over fastq files")
     f1_count = 0
@@ -137,7 +137,7 @@ def main(argv=None):
             assert f1.identifier.endswith("/1") and \
                 f2.identifier.endswith("/2"), \
                 "Reads in file 1 must end with /1 and reads in file 2 with /2"
-            options.stdout.write(
+            args.stdout.write(
                 ">%s\n%s\n>%s\n%s\n" %
                 (f1.identifier, f1.seq, f2.identifier, f2.seq))
             f1_count += 1
