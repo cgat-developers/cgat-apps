@@ -853,25 +853,25 @@ def main(argv=None):
                             source=source,
                             fasta=fasta,
                             section=section,
-                            args.options,
+                            options=args,
                             prefix=prefix))
 
         elif c == "classifier":
             counters.append(GeneModelAnalysis.Classifier(
                 filename_gff=args.filename_gff,
                 fasta=fasta,
-                args.options, prefix=prefix))
+                options=args, prefix=prefix))
 
         elif c == "classifier-rnaseq":
             counters.append(GeneModelAnalysis.ClassifierRNASeq(
                 filename_gff=args.filename_gff,
                 fasta=fasta,
-                args.options, prefix=prefix))
+                options=args, prefix=prefix))
         elif c == "classifier-rnaseq-splicing":
             counters.append(GeneModelAnalysis.ClassifierRNASeqSplicing(
                 filename_gff=args.filename_gff,
                 fasta=fasta,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "classifier-polii":
             counters.append(GeneModelAnalysis.ClassifierPolII(
@@ -879,7 +879,7 @@ def main(argv=None):
                 feature=None,
                 source=None,
                 fasta=fasta,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "binding-pattern":
             counters.append(GeneModelAnalysis.CounterBindingPattern(
@@ -887,7 +887,7 @@ def main(argv=None):
                 feature=None,
                 source=None,
                 fasta=fasta,
-                args.options,
+                options=args,
                 prefix=prefix))
 
     if args.reporter == "genes":

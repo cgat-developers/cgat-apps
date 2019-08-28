@@ -96,7 +96,7 @@ def main(argv=None):
 
     parser.add_argument(
         "-r", "--regex-filename", dest="regex_filename", type=str,
-        help=)
+        help="")
 
     parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
