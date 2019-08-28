@@ -718,25 +718,25 @@ def main(argv=None):
         elif c == "overrun":
             counters.append(GeneModelAnalysis.CounterOverrun(
                 filename_gff=args.filename_gff,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "read-coverage":
             counters.append(GeneModelAnalysis.CounterReadCoverage(
                 bam_files,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "read-extension":
             counters.append(GeneModelAnalysis.CounterReadExtension(
                 bam_files,
                 filename_gff=args.filename_gff,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "read-overlap":
             counters.append(GeneModelAnalysis.CounterReadOverlap(
                 bam_files,
                 multi_mapping=args.multi_mapping,
                 minimum_mapping_quality=args.minimum_mapping_quality,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "read-counts":
             counters.append(GeneModelAnalysis.CounterReadCounts(
@@ -745,7 +745,7 @@ def main(argv=None):
                 use_barcodes=args.use_barcodes,
                 sample_probability=args.sample_probability,
                 minimum_mapping_quality=args.minimum_mapping_quality,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "read-fullcounts":
             counters.append(GeneModelAnalysis.CounterReadCountsFull(
@@ -753,7 +753,7 @@ def main(argv=None):
                 multi_mapping=args.multi_mapping,
                 sample_probability=args.sample_probability,
                 minimum_mapping_quality=args.minimum_mapping_quality,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "readpair-counts":
             counters.append(GeneModelAnalysis.CounterReadPairCounts(
@@ -762,7 +762,7 @@ def main(argv=None):
                 sample_probability=args.sample_probability,
                 library_type=args.library_type,
                 minimum_mapping_quality=args.minimum_mapping_quality,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "readpair-fullcounts":
             counters.append(GeneModelAnalysis.CounterReadPairCountsFull(
@@ -770,12 +770,12 @@ def main(argv=None):
                 multi_mapping=args.multi_mapping,
                 sample_probability=args.sample_probability,
                 minimum_mapping_quality=args.minimum_mapping_quality,
-                args.options,
+                options=args,
                 prefix=prefix))
         elif c == "bigwig-counts":
             counters.append(GeneModelAnalysis.CounterBigwigCounts(
                 bigwig_file,
-                args.options, prefix=prefix))
+                options=args, prefix=prefix))
         elif c == "splice-comparison":
             if fasta is None:
                 raise ValueError('splice-comparison requires a genomic '
@@ -785,7 +785,7 @@ def main(argv=None):
                 filename_gff=args.filename_gff,
                 feature=None,
                 source=None,
-                args.options, prefix=prefix))
+                options=args, prefix=prefix))
         elif c == "composition-na":
             if fasta is None:
                 raise ValueError('composition-na requires a genomic sequence')
@@ -793,7 +793,7 @@ def main(argv=None):
                 counters.append(GeneModelAnalysis.CounterCompositionNucleotides(
                     fasta=fasta,
                     section=section,
-                    args.options,
+                    options=args,
                     prefix=prefix))
         elif c == "composition-cpg":
             if fasta is None:
@@ -802,7 +802,7 @@ def main(argv=None):
                 counters.append(GeneModelAnalysis.CounterCompositionCpG(
                     fasta=fasta,
                     section=section,
-                    args.options, prefix=prefix))
+                    options=args, prefix=prefix))
 
         elif c in ("overlap",
                    "overlap-stranded",
