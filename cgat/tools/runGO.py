@@ -169,6 +169,9 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument(
+        "--version", action='version', version='runGO v1.0')
+
+    parser.add_argument(
         "-s", "--species", dest="species", type=str,
         help="species to use.")
 
