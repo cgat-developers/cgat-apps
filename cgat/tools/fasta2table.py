@@ -1,4 +1,4 @@
-'''fasta2table.py - analyze sequence composition, codon usage, bias and degeneracy 
+'''fasta2table.py - analyze sequence composition, codon usage, bias and degeneracy
 ====================================================================================
 
 :Tags: Genomics Sequences
@@ -58,7 +58,7 @@ codon-translator
     translate codons for each sequence to their frequency (nucleotide
     sequence only, sequence must have length divisible by 3)
 
-Multiple counters can be calculated at the same by specifying 
+Multiple counters can be calculated at the same by specifying
 --section multiple times.
 
 The script can also process fasta description lines (starting >)
@@ -201,9 +201,9 @@ def main(argv=None):
                     d += b[codon] * math.log(b[codon] / p)
 
                 args.stdlog.write("# tablediff\t%s\t%s\t%f\n" %
-                                     (args.filename_weights[x],
-                                      args.filename_weights[y],
-                                      d))
+                                  (args.filename_weights[x],
+                                   args.filename_weights[y],
+                                   d))
 
     iterator = FastaIterator.FastaIterator(args.stdin)
 
@@ -299,6 +299,7 @@ def main(argv=None):
         args.stdout.write("\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

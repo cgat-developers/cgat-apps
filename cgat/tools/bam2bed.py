@@ -126,23 +126,23 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
-                      action="store_true",
-                      help="merge paired-ended reads and output interval "
-                      "for entire fragment. ")
+                        action="store_true",
+                        help="merge paired-ended reads and output interval "
+                        "for entire fragment. ")
 
     parser.add_argument("--max-insert-size", dest="max_insert_size", type=int,
-                      help="only merge paired-end reads if they are less than "
-                      "# bases apart. "
-                      " 0 turns off this filter. ")
+                        help="only merge paired-end reads if they are less than "
+                        "# bases apart. "
+                        " 0 turns off this filter. ")
 
     parser.add_argument("--min-insert-size", dest="min_insert_size", type=int,
-                      help="only merge paired-end reads if they are at "
-                      "least # bases apart. "
-                      " 0 turns off this filter. ")
+                        help="only merge paired-end reads if they are at "
+                        "least # bases apart. "
+                        " 0 turns off this filter. ")
 
     parser.add_argument("--bed-format", dest="bed_format", type=str,
-                      choices=('3', '4', '5', '6'),
-                      help="bed format to output. ")
+                        choices=('3', '4', '5', '6'),
+                        help="bed format to output. ")
 
     parser.set_defaults(
         region=None,
@@ -205,6 +205,7 @@ def main(argv=None):
                            strand))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

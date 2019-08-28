@@ -250,6 +250,7 @@ def buildPairs(infile):
 
     return pairs
 
+
 DiffResult = collections.namedtuple(
     "DiffResult", "total same different unique")
 
@@ -336,16 +337,16 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
-                      help="output mismatches ")
+                        help="output mismatches ")
 
     parser.add_argument("-a", "--output-matches", dest="output_matches", action="store_true",
-                      help="output matches ")
+                        help="output matches ")
 
     parser.add_argument("-u", "--output-unique", dest="output_unique", action="store_true",
-                      help="output unique positions ")
+                        help="output unique positions ")
 
     parser.add_argument("-r", "--restrict", dest="restrict", type=str,
-                      help="restrict analysis to a chromosome pair (chr1:chr1:+) ")
+                        help="restrict analysis to a chromosome pair (chr1:chr1:+) ")
 
     parser.set_defaults(
         output_mismatches=False,
@@ -476,6 +477,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

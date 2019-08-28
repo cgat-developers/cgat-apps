@@ -321,36 +321,36 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="methods", type=str,
-                      action="append",
-                      choices=("geneprofile", "tssprofile", "utrprofile",
-                               "intervalprofile", "midpointprofile",
-                               "geneprofilewithintrons",
-                               "geneprofileabsolutedistancefromthreeprimeend",
-                               "separateexonprofile",
-                               "separateexonprofilewithintrons",
-                               ),
-                      help='counters to use. Counters describe the '
-                      'meta-gene structure to use. '
-                      'Note using geneprofilewithintrons, or '
-                      'geneprofileabsolutedistancefromthreeprimeend will '
-                      'automatically turn on the --use-base-accuracy option')
+                        action="append",
+                        choices=("geneprofile", "tssprofile", "utrprofile",
+                                 "intervalprofile", "midpointprofile",
+                                 "geneprofilewithintrons",
+                                 "geneprofileabsolutedistancefromthreeprimeend",
+                                 "separateexonprofile",
+                                 "separateexonprofilewithintrons",
+                                 ),
+                        help='counters to use. Counters describe the '
+                        'meta-gene structure to use. '
+                        'Note using geneprofilewithintrons, or '
+                        'geneprofileabsolutedistancefromthreeprimeend will '
+                        'automatically turn on the --use-base-accuracy option')
 
     parser.add_argument("-b", "--bam-file", "--bedfile", "--bigwigfile",
-                      dest="infiles",
-                      metavar="BAM",
-                      type=str, action="append",
-                      help="BAM/bed/bigwig files to use. Do not mix "
-                      "different types ")
+                        dest="infiles",
+                        metavar="BAM",
+                        type=str, action="append",
+                        help="BAM/bed/bigwig files to use. Do not mix "
+                        "different types ")
 
     parser.add_argument("-c", "--control-bam-file", dest="controlfiles",
-                      metavar="BAM",
-                      type=str, action="append",
-                      help="control/input to use. Should be of the same "
-                      "type as the bam/bed/bigwig file")
+                        metavar="BAM",
+                        type=str, action="append",
+                        help="control/input to use. Should be of the same "
+                        "type as the bam/bed/bigwig file")
 
     parser.add_argument("-g", "--gtf-file", dest="gtffile", type=str,
-                      metavar="GTF",
-                      help="GTF file to use. ")
+                        metavar="GTF",
+                        help="GTF file to use. ")
 
     parser.add_argument(
         "--normalize-transcript",
@@ -381,92 +381,92 @@ def main(argv=None):
         " ")
 
     parser.add_argument("-i", "--shift-size", dest="shifts", type=int,
-                      action="append",
-                      help="shift reads in :term:`bam` formatted file "
-                      "before computing densities (ChIP-Seq). "
-                      )
+                        action="append",
+                        help="shift reads in :term:`bam` formatted file "
+                        "before computing densities (ChIP-Seq). "
+                        )
 
     parser.add_argument("-a", "--merge-pairs", dest="merge_pairs",
-                      action="store_true",
-                      help="merge pairs in :term:`bam` formatted "
-                      "file before computing "
-                      "densities (ChIP-Seq). "
-                      )
+                        action="store_true",
+                        help="merge pairs in :term:`bam` formatted "
+                        "file before computing "
+                        "densities (ChIP-Seq). "
+                        )
 
     parser.add_argument("-u", "--use-base-accuracy", dest="base_accuracy",
-                      action="store_true",
-                      help="compute densities with base accuracy. The default "
-                      "is to only use the start and end of the aligned region "
-                      "(RNA-Seq) "
-                      )
+                        action="store_true",
+                        help="compute densities with base accuracy. The default "
+                        "is to only use the start and end of the aligned region "
+                        "(RNA-Seq) "
+                        )
 
     parser.add_argument("-e", "--extend", dest="extends", type=int,
-                      action="append",
-                      help="extend reads in :term:`bam` formatted file "
-                      "(ChIP-Seq). "
-                      )
+                        action="append",
+                        help="extend reads in :term:`bam` formatted file "
+                        "(ChIP-Seq). "
+                        )
 
     parser.add_argument("--resolution-upstream", dest="resolution_upstream",
-                      type=int,
-                      help="resolution of upstream region in bp "
-                      )
+                        type=int,
+                        help="resolution of upstream region in bp "
+                        )
 
     parser.add_argument("--resolution-downstream", dest="resolution_downstream",
-                      type=int,
-                      help="resolution of downstream region in bp "
-                      )
+                        type=int,
+                        help="resolution of downstream region in bp "
+                        )
 
     parser.add_argument("--resolution-upstream-utr",
-                      dest="resolution_upstream_utr",
-                      type=int,
-                      help="resolution of upstream UTR region in bp "
-                      )
+                        dest="resolution_upstream_utr",
+                        type=int,
+                        help="resolution of upstream UTR region in bp "
+                        )
 
     parser.add_argument("--resolution-downstream-utr",
-                      dest="resolution_downstream_utr",
-                      type=int,
-                      help="resolution of downstream UTR region in bp "
-                      )
+                        dest="resolution_downstream_utr",
+                        type=int,
+                        help="resolution of downstream UTR region in bp "
+                        )
 
     parser.add_argument("--resolution-cds", dest="resolution_cds", type=int,
-                      help="resolution of cds region in bp "
-                      )
+                        help="resolution of cds region in bp "
+                        )
 
     parser.add_argument("--resolution-first-exon", dest="resolution_first",
-                      type=int,
-                      help="resolution of first exon in gene, in bp"
-                      )
+                        type=int,
+                        help="resolution of first exon in gene, in bp"
+                        )
 
     parser.add_argument("--resolution-last-exon", dest="resolution_last",
-                      type=int,
-                      help="resolution of last exon in gene, in bp"
-                      )
+                        type=int,
+                        help="resolution of last exon in gene, in bp"
+                        )
 
     parser.add_argument("--resolution-introns",
-                      dest="resolution_introns", type=int,
-                      help="resolution of introns region in bp "
-                      )
+                        dest="resolution_introns", type=int,
+                        help="resolution of introns region in bp "
+                        )
 
     parser.add_argument("--resolution-exons-absolute-distance-topolya",
-                      dest="resolution_exons_absolute_distance_topolya",
-                      type=int,
-                      help="resolution of exons absolute distance "
-                      "topolya in bp "
-                      )
+                        dest="resolution_exons_absolute_distance_topolya",
+                        type=int,
+                        help="resolution of exons absolute distance "
+                        "topolya in bp "
+                        )
 
     parser.add_argument("--resolution-introns-absolute-distance-topolya",
-                      dest="resolution_introns_absolute_distance_topolya",
-                      type=int,
-                      help="resolution of introns absolute distance "
-                      "topolya in bp "
-                      )
+                        dest="resolution_introns_absolute_distance_topolya",
+                        type=int,
+                        help="resolution of introns absolute distance "
+                        "topolya in bp "
+                        )
 
     parser.add_argument("--extension-exons-absolute-distance-topolya",
-                      dest="extension_exons_absolute_distance_topolya",
-                      type=int,
-                      help="extension for exons from the absolute "
-                      "distance from the topolya in bp "
-                      )
+                        dest="extension_exons_absolute_distance_topolya",
+                        type=int,
+                        help="extension for exons from the absolute "
+                        "distance from the topolya in bp "
+                        )
 
     parser.add_argument(
         "--extension-introns-absolute-distance-topolya",
@@ -495,8 +495,8 @@ def main(argv=None):
         )
 
     parser.add_argument("--scale-flank-length", dest="scale_flanks", type=int,
-                      help="scale flanks to (integer multiples of) gene length"
-                      )
+                        help="scale flanks to (integer multiples of) gene length"
+                        )
 
     parser.add_argument(
         "--control-factor", dest="control_factor", type=float,
@@ -505,19 +505,19 @@ def main(argv=None):
         )
 
     parser.add_argument("--output-all-profiles", dest="output_all_profiles",
-                      action="store_true",
-                      help="keep individual profiles for each "
-                      "transcript and output. "
-                      )
+                        action="store_true",
+                        help="keep individual profiles for each "
+                        "transcript and output. "
+                        )
 
     parser.add_argument("--counts-tsv-file", dest="input_filename_counts",
-                      type=str,
-                      help="filename with count data for each transcript. "
-                      "Use this instead "
-                      "of recomputing the profile. Useful for plotting the "
-                      "meta-gene profile "
-                      "from previously computed counts "
-                      )
+                        type=str,
+                        help="filename with count data for each transcript. "
+                        "Use this instead "
+                        "of recomputing the profile. Useful for plotting the "
+                        "meta-gene profile "
+                        "from previously computed counts "
+                        )
 
     parser.add_argument(
         "--background-region-bins",
@@ -528,13 +528,13 @@ def main(argv=None):
         )
 
     parser.add_argument("--output-res",
-                      dest="resolution_images", type=int,
-                      help="the output dpi for the figure plot - will default to "
-                      )
+                        dest="resolution_images", type=int,
+                        help="the output dpi for the figure plot - will default to "
+                        )
 
     parser.add_argument("--image-format", dest="image_format", type=str,
-                      help="The output format for the figure plot - defaults to "
-                      )                      
+                        help="The output format for the figure plot - defaults to "
+                        )
 
     parser.set_defaults(
         remove_rna=False,
@@ -827,9 +827,9 @@ def main(argv=None):
         args.profile_normalizations.append("none")
     elif "all" in args.profile_normalizations:
         args.profile_normalizations = ["none",
-                                          "area",
-                                          "counts",
-                                          "background"]
+                                       "area",
+                                       "counts",
+                                       "background"]
 
     for method, counter in zip(args.methods, counters):
         profiles = []
@@ -967,6 +967,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -184,8 +184,8 @@ def main(argv=None):
         headers = ["file%i" % x for x in range(1, len(infiles) + 1)]
 
     args.stdout.write("read\tnlocations\tnmatched\t%s\t%s\n" %
-                         ("\t".join(["%s_nh" % x for x in headers]),
-                          "\t".join(["%s_loc" % x for x in headers])))
+                      ("\t".join(["%s_nh" % x for x in headers]),
+                       "\t".join(["%s_loc" % x for x in headers])))
 
     ninput, noutput = 0, 0
     for readname, result in multiway_groupby(infiles, key=lambda x: x.qname):
@@ -239,6 +239,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -253,7 +253,7 @@ class SubsetBam(object):
 
 
 def process_bam(infile, outfile, options):
-    
+
     if "filter" in options.methods:
         if "remove-list" in options.filter_methods or "keep-list" in options.filter_methods:
 
@@ -522,7 +522,7 @@ def process_bam(infile, outfile, options):
         for read in it:
             outfile.write(read)
 
-                    
+
 def main(argv=None):
     """script main.
 
@@ -536,52 +536,52 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--methods", dest="methods", type=str,
-                      action="append",
-                      choices=("filter",
-                               "keep-first-base",
-                               "set-nh",
-                               "set-sequence",
-                               "strip-sequence",
-                               "strip-quality",
-                               "unstrip",
-                               "unset-unmapped-mapq",
-                               "downsample-single",
-                               "downsample-paired",
-                               "add-sequence-error"),
-                      help="methods to apply ")
+                        action="append",
+                        choices=("filter",
+                                 "keep-first-base",
+                                 "set-nh",
+                                 "set-sequence",
+                                 "strip-sequence",
+                                 "strip-quality",
+                                 "unstrip",
+                                 "unset-unmapped-mapq",
+                                 "downsample-single",
+                                 "downsample-paired",
+                                 "add-sequence-error"),
+                        help="methods to apply ")
 
     parser.add_argument("--strip-method", dest="strip_method", type=str,
-                      choices=("all", "match"),
-                      help="define which sequences/qualities to strip. "
-                      "match means that stripping only applies to entries "
-                      "without mismatches (requires NM tag to be present). "
-                      )
+                        choices=("all", "match"),
+                        help="define which sequences/qualities to strip. "
+                        "match means that stripping only applies to entries "
+                        "without mismatches (requires NM tag to be present). "
+                        )
 
     parser.add_argument("--filter-method", dest="filter_methods",
-                      action="append", type=str,
-                      choices=('NM', 'CM',
-                               "mapped", "unique", "non-unique",
-                               "remove-list",
-                               "keep-list",
-                               "error-rate",
-                               "min-read-length",
-                               "min-average-base-quality"),
-                      help="filter method to apply to remove alignments "
-                      "from a bam file. Multiple methods can be supplied "
-                      )
+                        action="append", type=str,
+                        choices=('NM', 'CM',
+                                 "mapped", "unique", "non-unique",
+                                 "remove-list",
+                                 "keep-list",
+                                 "error-rate",
+                                 "min-read-length",
+                                 "min-average-base-quality"),
+                        help="filter method to apply to remove alignments "
+                        "from a bam file. Multiple methods can be supplied "
+                        )
 
     parser.add_argument("--reference-bam-file", dest="reference_bam",
-                      type=str,
-                      help="bam-file to filter with ")
+                        type=str,
+                        help="bam-file to filter with ")
 
     parser.add_argument("--force-output", dest="force", action="store_true",
-                      help="force processing. Some methods such "
-                      "as strip/unstrip will stop processing if "
-                      "they think it not necessary "
-                      )
+                        help="force processing. Some methods such "
+                        "as strip/unstrip will stop processing if "
+                        "they think it not necessary "
+                        )
 
     parser.add_argument("--output-sam", dest="output_sam", action="store_true",
-                      help="output in sam format ")
+                        help="output in sam format ")
 
     parser.add_argument(
         "--first-fastq-file", "-1", dest="fastq_pair1", type=str,
@@ -650,7 +650,7 @@ def main(argv=None):
             raise ValueError("multiple bam files provided in arguments")
     else:
         bamfile = "-"
-        
+
     if "remove-list" in args.filter_methods or "keep-list" in args.filter_methods:
         if "remove-list" in args.filter_methods and "keep-list" in args.filter_methods:
             raise ValueError("it is not possible to specify remove-list and keep-list")
@@ -677,7 +677,7 @@ def main(argv=None):
         output_bamfile = "-"
         if args.stdlog == sys.stdout:
             raise ValueError("redirect log-stream to file (--log) if outputting to stdout")
-        
+
     if args.output_sam:
         output_mode = "wh"
     else:

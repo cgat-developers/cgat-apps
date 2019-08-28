@@ -1,4 +1,4 @@
-'''index_fasta.py - Index fasta formatted files 
+'''index_fasta.py - Index fasta formatted files
 ============================================
 
 :Tags: Genomics Sequences FASTA Manipulation
@@ -104,11 +104,11 @@ def main(argv=None):
 
     input_format_choices = ("one-forward-open", "zero-both-open")
     parser.add_argument("-i", "--input-format", dest="input_format",
-                      type=str,
-                      choices=input_format_choices,
-                      help="coordinate format of input. Valid choices are "
-                      "%s. See --extract." %
-                      ", ".join(input_format_choices))
+                        type=str,
+                        choices=input_format_choices,
+                        help="coordinate format of input. Valid choices are "
+                        "%s. See --extract." %
+                        ", ".join(input_format_choices))
 
     parser.add_argument(
         "-s", "--synonyms", dest="synonyms", type=str,
@@ -119,74 +119,73 @@ def main(argv=None):
 
     group = E.OptionGroup(parser, "Bencharking options")
     group.add_argument("-b", "--benchmark", dest="benchmark",
-                     action="store_true",
-                     help="benchmark time for read access ")
+                       action="store_true",
+                       help="benchmark time for read access ")
     group.add_argument("--benchmark-num-iterations",
-                     dest="benchmark_num_iterations",
-                     type=int,
-                     help="number of iterations for benchmark ")
+                       dest="benchmark_num_iterations",
+                       type=int,
+                       help="number of iterations for benchmark ")
     group.add_argument("--benchmark-fragment-size",
-                     dest="benchmark_fragment_size",
-                     type=int,
-                     help="benchmark: fragment size.")
+                       dest="benchmark_fragment_size",
+                       type=int,
+                       help="benchmark: fragment size.")
     parser.add_argument_group(group)
 
     group = E.OptionGroup(parser, "Validation options")
     group.add_argument("--verify", dest="verify", type=str,
-                     help="verify against other database.")
+                       help="verify against other database.")
 
     group.add_argument("--verify-iterations", dest="verify_num_iterations",
-                     type=int,
-                     help="number of iterations for verification ")
+                       type=int,
+                       help="number of iterations for verification ")
     parser.add_argument_group(group)
 
     file_format_choices = ("fasta", "auto", "fasta.gz", "tar", "tar.gz")
     parser.add_argument("--file-format", dest="file_format", type=str,
-                      choices=file_format_choices,
-                      help="file format of input. Supply if data comes "
-                      "from stdin "
-                      "Valid choices are \\%s." %
-                      ", ".join(file_format_choices))
+                        choices=file_format_choices,
+                        help="file format of input. Supply if data comes "
+                        "from stdin "
+                        "Valid choices are \\%s." %
+                        ", ".join(file_format_choices))
 
     parser.add_argument("-a", "--clean-sequence", dest="clean_sequence",
-                      action="store_true",
-                      help="remove X/x from DNA sequences - they cause "
-                      "errors in exonerate.")
+                        action="store_true",
+                        help="remove X/x from DNA sequences - they cause "
+                        "errors in exonerate.")
 
     parser.add_argument("--allow-duplicates", dest="allow_duplicates",
-                      action="store_true",
-                      help="allow duplicate identifiers. Further occurances "
-                      "of an identifier are suffixed by an '_\\%i' ")
+                        action="store_true",
+                        help="allow duplicate identifiers. Further occurances "
+                        "of an identifier are suffixed by an '_\\%i' ")
 
     parser.add_argument("--regex-identifier", dest="regex_identifier",
-                      type=str,
-                      help="regular expression for extracting the "
-                      "identifier from fasta description line.")
+                        type=str,
+                        help="regular expression for extracting the "
+                        "identifier from fasta description line.")
 
     parser.add_argument("--force-output", dest="force", action="store_true",
-                      help="force overwriting of existing files "
-                      "[default=%default].")
+                        help="force overwriting of existing files ")
 
     translator_choices = ("solexa", "phred", "bytes", "range200")
     parser.add_argument("-t", "--translator", dest="translator", type=str,
-                      choices=translator_choices,
-                      help="translate numerical quality scores. "
-                      "Valid choices are \\%s." %
-                      ", ".join(translator_choices))
+                        choices=translator_choices,
+                        help="translate numerical quality scores. "
+                        "Valid choices are \\%s." %
+                        ", ".join(translator_choices))
 
     group = E.OptionGroup(parser, 'Compression options')
     compression_choices = ("lzo", "zlib", "gzip", "dictzip", "bzip2", "debug")
     group.add_argument("-c", "--compression", dest="compression", type=str,
-                     choices=compression_choices,
-                     help="compress database, using specified compression "
-                     "method. "
-                     "Valid choices are %s, but depend on availability on the "
-                     "system " % ", ".join(compression_choices))
+                       choices=compression_choices,
+                       help="compress database, using specified compression "
+                       "method. "
+                       "Valid choices are %s, but depend on availability on the "
+                       "system " % ", ".join(compression_choices))
 
     group.add_argument("--random-access-points", dest="random_access_points",
-                     type=int,
-                     help="set random access points every # number "
-                     "of nucleotides for block compression schemes ")
+                       type=int,
+                       help="set random access points every # number "
+                       "of nucleotides for block compression schemes ")
 
     group.add_argument(
         "--compress-index", dest="compress_index",
@@ -254,7 +253,7 @@ def main(argv=None):
                                      start, end,
                                      converter=converter)
         args.stdout.write(">%s\n%s\n" %
-                             (args.extract, sequence))
+                          (args.extract, sequence))
 
     elif args.benchmark:
         import timeit
@@ -290,7 +289,7 @@ def main(argv=None):
         if args.loglevel >= 1:
             args.stdlog.write("# creating database %s\n" % args[0])
             args.stdlog.write("# indexing the following files: \n# %s\n" %
-                                 (" \n# ".join(args[1:])))
+                              (" \n# ".join(args[1:])))
             args.stdlog.flush()
 
             if synonyms:
@@ -319,6 +318,7 @@ def main(argv=None):
             force=args.force)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())

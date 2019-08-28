@@ -128,10 +128,10 @@ def main(argv=None):
         help="force overwriting of existing files ")
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="remove reads not matching uniquely ")
+                        help="remove reads not matching uniquely ")
 
     parser.add_argument("--output-sam", dest="output_sam", action="store_true",
-                      help="output in sam format ")
+                        help="output in sam format ")
 
     parser.set_defaults(
         filename_gtf=None,
@@ -252,6 +252,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

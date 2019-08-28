@@ -474,149 +474,149 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument("-q", "--quality-file",
-                      dest="quality_file",
-                      type=str,
-                      help="filename with genomic base quality "
-                      "information.")
+                        dest="quality_file",
+                        type=str,
+                        help="filename with genomic base quality "
+                        "information.")
 
     parser.add_argument("-b", "--bam-file", dest="bam_files",
-                      type=str, metavar="bam",
-                      help="filename with read mapping information. "
-                      "Multiple files can be submitted in a "
-                      "comma-separated list.")
+                        type=str, metavar="bam",
+                        help="filename with read mapping information. "
+                        "Multiple files can be submitted in a "
+                        "comma-separated list.")
 
     parser.add_argument("-i", "--bigwig-file", dest="bigwig_file",
-                      type=str, metavar="bigwig",
-                      help="filename with bigwig information ")
+                        type=str, metavar="bigwig",
+                        help="filename with bigwig information ")
 
     parser.add_argument("-f", "--gff-file", dest="filename_gff",
-                      type=str, action="append", metavar='bed',
-                      help="filename with extra gff files. The order "
-                      "is important.")
+                        type=str, action="append", metavar='bed',
+                        help="filename with extra gff files. The order "
+                        "is important.")
 
     parser.add_argument("--filename-format", dest="filename_format",
-                      type=str,
-                      choices=("bed", "gff", "gtf"),
-                      help="format of secondary stream.")
+                        type=str,
+                        choices=("bed", "gff", "gtf"),
+                        help="format of secondary stream.")
 
     parser.add_argument("--restrict-source", dest="gff_sources", type=str,
-                      action="append",
-                      help="restrict input to this 'source' in extra "
-                      "gff file (for counter: overlap).")
+                        action="append",
+                        help="restrict input to this 'source' in extra "
+                        "gff file (for counter: overlap).")
 
     parser.add_argument("--restrict-feature", dest="gff_features", type=str,
-                      action="append",
-                      help="restrict input to this 'feature' in extra gff "
-                      "file (for counter: overlap).")
+                        action="append",
+                        help="restrict input to this 'feature' in extra gff "
+                        "file (for counter: overlap).")
 
     parser.add_argument("-r", "--reporter", dest="reporter", type=str,
-                      choices=("genes", "transcripts"),
-                      help="report results for 'genes' or 'transcripts' ")
+                        choices=("genes", "transcripts"),
+                        help="report results for 'genes' or 'transcripts' ")
 
     parser.add_argument("-s", "--section", dest="sections",
-                      type=str,
-                      action="append",
-                      choices=("exons", "introns"),
-                      help="select range on which counters will operate ")
+                        type=str,
+                        action="append",
+                        choices=("exons", "introns"),
+                        help="select range on which counters will operate ")
 
     parser.add_argument("-c", "--counter", dest="counters",
-                      type=str,
-                      action="append",
-                      choices=(	"bigwig-counts",
-                                "binding-pattern",
-                                "classifier",
-                                "classifier-rnaseq",
-                                "classifier-rnaseq-splicing",
-                                "classifier-polii",
-                                "composition-na",
-                                "composition-cpg",
-                                "coverage",
-                                "distance",
-                                "distance-genes",
-                                "distance-tss",
-                                "length",
-                                'neighbours',
-                                "overlap",
-                                "overlap-stranded",
-                                "overlap-transcripts",
-                                "overrun",
-                                "position",
-                                "proximity",
-                                "proximity-exclusive",
-                                "proximity-lengthmatched",
-                                "quality",
-                                "read-coverage",
-                                "read-extension",
-                                "read-overlap",
-                                "read-counts",
-                                "read-fullcounts",
-                                "readpair-counts",
-                                "readpair-fullcounts",
-                                "splice",
-                                "splice-comparison",
-                                "territories"),
-                      help="select counters to apply to input ")
+                        type=str,
+                        action="append",
+                        choices=("bigwig-counts",
+                                 "binding-pattern",
+                                 "classifier",
+                                 "classifier-rnaseq",
+                                 "classifier-rnaseq-splicing",
+                                 "classifier-polii",
+                                 "composition-na",
+                                 "composition-cpg",
+                                 "coverage",
+                                 "distance",
+                                 "distance-genes",
+                                 "distance-tss",
+                                 "length",
+                                 'neighbours',
+                                 "overlap",
+                                 "overlap-stranded",
+                                 "overlap-transcripts",
+                                 "overrun",
+                                 "position",
+                                 "proximity",
+                                 "proximity-exclusive",
+                                 "proximity-lengthmatched",
+                                 "quality",
+                                 "read-coverage",
+                                 "read-extension",
+                                 "read-overlap",
+                                 "read-counts",
+                                 "read-fullcounts",
+                                 "readpair-counts",
+                                 "readpair-fullcounts",
+                                 "splice",
+                                 "splice-comparison",
+                                 "territories"),
+                        help="select counters to apply to input ")
 
     parser.add_argument("--add-gtf-source", dest="add_gtf_source",
-                      action="store_true",
-                      help="add gtf field of source to output ")
+                        action="store_true",
+                        help="add gtf field of source to output ")
 
     parser.add_argument("--proximal-distance", dest="proximal_distance",
-                      type=int,
-                      help="distance to be considered proximal to "
-                      "an interval.")
+                        type=int,
+                        help="distance to be considered proximal to "
+                        "an interval.")
 
     parser.add_argument("--multi-mapping-method",
-                      dest="multi_mapping",
-                      type=str,
-                      choices=('all', 'ignore', 'weight'),
-                      help="how to treat multi-mapping reads in "
-                      "bam-files. Requires "
-                      "the NH flag to be set by the mapper ")
+                        dest="multi_mapping",
+                        type=str,
+                        choices=('all', 'ignore', 'weight'),
+                        help="how to treat multi-mapping reads in "
+                        "bam-files. Requires "
+                        "the NH flag to be set by the mapper ")
 
     parser.add_argument("--use-barcodes",
-                      dest="use_barcodes",
-                      action="store_true",
-                      help="Use barcodes to count unique umi's. "
-                      "UMI's are specified in the read identifier "
-                      "as the last field, where fields are separated "
-                      "by underscores, e.g. "
-                      "@READ:ILLUMINA:STUFF_NAMINGSTUFF_UMI. "
-                      "When true, unique counts are returned. "
-                      "Currently only compatible with count-reads")
+                        dest="use_barcodes",
+                        action="store_true",
+                        help="Use barcodes to count unique umi's. "
+                        "UMI's are specified in the read identifier "
+                        "as the last field, where fields are separated "
+                        "by underscores, e.g. "
+                        "@READ:ILLUMINA:STUFF_NAMINGSTUFF_UMI. "
+                        "When true, unique counts are returned. "
+                        "Currently only compatible with count-reads")
 
     parser.add_argument("--sample-probability",
-                      dest="sample_probability",
-                      type=float,
-                      help="Specify the probability of whether any"
-                      "given read or read pair in a file bam is counted"
-                      "Currently only compatible with count-reads")
+                        dest="sample_probability",
+                        type=float,
+                        help="Specify the probability of whether any"
+                        "given read or read pair in a file bam is counted"
+                        "Currently only compatible with count-reads")
 
     parser.add_argument("--column-prefix", dest="prefixes",
-                      type=str,
-                      action="append",
-                      help="add prefix to column headers - prefixes "
-                      "are used in the same order as the counters ")
+                        type=str,
+                        action="append",
+                        help="add prefix to column headers - prefixes "
+                        "are used in the same order as the counters ")
 
     parser.add_argument("--library-type",
-                      dest="library_type",
-                      type=str,
-                      choices=("unstranded",
-                               "firststrand",
-                               "secondstrand",
-                               "fr-unstranded",
-                               "fr-firststrand",
-                               "fr-secondstrand"),
-                      help="library type of reads in bam file. ")
+                        dest="library_type",
+                        type=str,
+                        choices=("unstranded",
+                                 "firststrand",
+                                 "secondstrand",
+                                 "fr-unstranded",
+                                 "fr-firststrand",
+                                 "fr-secondstrand"),
+                        help="library type of reads in bam file. ")
 
     parser.add_argument("--min-mapping-quality",
-                      dest="minimum_mapping_quality",
-                      type=float,
-                      help="minimum mapping quality. Reads with a quality "
-                      "score of less will be ignored. ")
+                        dest="minimum_mapping_quality",
+                        type=float,
+                        help="minimum mapping quality. Reads with a quality "
+                        "score of less will be ignored. ")
 
     parser.set_defaults(
         genome_file=None,
@@ -930,6 +930,7 @@ def main(argv=None):
     for counter in counters:
         E.info("%s\t%s" % (repr(counter), str(counter.counter)))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

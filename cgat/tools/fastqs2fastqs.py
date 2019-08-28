@@ -119,8 +119,8 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=('reconcile', 'filter-by-sequence'),
-                      help="method to apply.")
+                        choices=('reconcile', 'filter-by-sequence'),
+                        help="method to apply.")
 
     parser.add_argument(
         "-c", "--chop-identifier", dest="chop", action="store_true",
@@ -264,7 +264,7 @@ def main(argv=None):
             write(outf, inf, take, unpaired_filename, id2_getter)
 
         counter.output = len(take)
-        
+
         if args.unpaired:
             unpaired_filename.close()
 
@@ -298,9 +298,10 @@ def main(argv=None):
             "\t".join(map(str, (
                 counter.input, counter.matched, counter.unmatched,
                 100.0 * counter.matched / counter.input))) + "\n")
-        
+
     E.info(str(counter))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -8,7 +8,7 @@ Purpose
 -------
 
 .. todo::
-   
+
    describe purpose of the script.
 
 Usage
@@ -61,7 +61,7 @@ def main(argv=None):
     parser = E.OptionParser()
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+                        help="output rows are uniq.")
 
     parser.set_defaults(
         remove=False,
@@ -124,6 +124,7 @@ def main(argv=None):
             writer.writerow(row)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -515,15 +515,15 @@ def main(argv=sys.argv):
     # this script combines two scripts with different functionalities
     # TODO: to be sanitized
     if args.methods[0] in ["apply",
-                              "change-format",
-                              "renumber-reads",
-                              "sample",
-                              "sort",
-                              "trim3",
-                              "trim5",
-                              "unique",
-                              "reverse-complement",
-                              "grep"]:
+                           "change-format",
+                           "renumber-reads",
+                           "sample",
+                           "sort",
+                           "trim3",
+                           "trim5",
+                           "unique",
+                           "reverse-complement",
+                           "grep"]:
         args.method = args.methods[0]
         counter = process_cgat(args)
     else:

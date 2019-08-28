@@ -166,7 +166,7 @@ def convert_hierarchy(first_gffs, second_gffs, options):
 
     If multiple gene and transcript_ids are found outputs a record for each combination.
 
-    If no definitive transcript_id is found and options.missing_gene is True, it will use the 
+    If no definitive transcript_id is found and options.missing_gene is True, it will use the
     possible_transcript_id as transcript_id, which is the ID one level below the entry used as gene_id.
     If this is also None (that is there was only on level), sets transcript_id to gene_id.
 
@@ -264,43 +264,42 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str, action="store",
-                      choices=(
-                          "hierarchy", "set-field", "set-pattern", "set-none"),
-                      help="Method to use for conversion")
+                        choices=("hierarchy", "set-field", "set-pattern", "set-none"),
+                        help="Method to use for conversion")
 
     parser.add_argument("-g", "--gene-type", dest="gene_type", type=str,
-                      help="feature type to get gene_id from if possible ")
+                        help="feature type to get gene_id from if possible ")
 
     parser.add_argument("-t", "--transcript-type", dest="transcript_type", type=str,
-                      help="feature type to get transcript_id from if possible ")
+                        help="feature type to get transcript_id from if possible ")
 
     parser.add_argument("-d", "--no-discard", dest="discard", action="store_false",
-                      help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
+                        help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
 
     parser.add_argument("--gene-id", dest="gene_field_or_pattern", type=str,
-                      help="Either field or pattern for the gene_id ")
+                        help="Either field or pattern for the gene_id ")
 
     parser.add_argument("--transcript-id", dest="transcript_field_or_pattern", type=str,
-                      help="Either field or pattern for the transcript_id ")
+                        help="Either field or pattern for the transcript_id ")
 
     parser.add_argument("--parent-field", dest="parent", type=str,
-                      help="field that specifies the parent relationship. Currently only"
-                      "if left as Parent will features with multiple parents be parsed"
-                      "correctly""")
+                        help="field that specifies the parent relationship. Currently only"
+                        "if left as Parent will features with multiple parents be parsed"
+                        "correctly""")
 
     parser.add_argument("--read-twice", dest="read_twice", action="store_true",
-                      help="Instead of holding the whole file in memory, read once for parsing the "
-                      "hierarchy, and then again for actaully doing the conversion. Means a real file "
-                      "and not a pipe must be provided.""")
+                        help="Instead of holding the whole file in memory, read once for parsing the "
+                        "hierarchy, and then again for actaully doing the conversion. Means a real file "
+                        "and not a pipe must be provided.""")
 
     parser.add_argument("--by-chrom", dest="by_chrom", action="store_true",
-                      help="Parse input file one choromosome at a time. Reduces memory usage, "
-                      "but input must be sorted by chromosome and features may not split accross "
-                      " multiple chromosomes""")
+                        help="Parse input file one choromosome at a time. Reduces memory usage, "
+                        "but input must be sorted by chromosome and features may not split accross "
+                        " multiple chromosomes""")
 
     parser.add_argument("--fail-missing-gene", dest="missing_gene", action="store_false",
-                      help="Fail if no feature of type GENE_TYPE is found instead of using "
-                      "defaulting to highest object in hierarchy""")
+                        help="Fail if no feature of type GENE_TYPE is found instead of using "
+                        "defaulting to highest object in hierarchy""")
 
     parser.set_defaults(
         method="hierarchy",
@@ -361,6 +360,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -135,7 +135,7 @@ def transform_complement(start, end, intervals_with_gff):
 
 
 def transform_third_codon(start, end, intervals_with_gff):
-    """transform: only return nucleotide positions in window (start, end) 
+    """transform: only return nucleotide positions in window (start, end)
     that are in third codon position.
     """
     intervals = []
@@ -344,7 +344,7 @@ def main(argv=None):
         help="gff file with data to use.")
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="filename-data is gtf file")
+                        help="filename-data is gtf file")
 
     parser.add_argument(
         "-f", "--features", dest="features", type=str, action="append",
@@ -479,6 +479,7 @@ def main(argv=None):
            (len(windows), noutput_contigs, len(contigs), ncontigs_skipped_windows, ncontigs_skipped_data))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

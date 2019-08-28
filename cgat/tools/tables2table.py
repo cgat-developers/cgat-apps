@@ -109,43 +109,43 @@ def main(argv=sys.argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--no-titles",
-                      dest="input_has_titles",
-                      action="store_false",
-                      help="no titles in input .")
+                        dest="input_has_titles",
+                        action="store_false",
+                        help="no titles in input .")
 
     parser.add_argument("--ignore-titles",
-                      dest="ignore_titles",
-                      action="store_true",
-                      help="ignore titles in input ")
+                        dest="ignore_titles",
+                        action="store_true",
+                        help="ignore titles in input ")
 
     parser.add_argument("-i", "--skip-titles",
-                      dest="skip_titles",
-                      action="store_true",
-                      help="skip output of titles.")
+                        dest="skip_titles",
+                        action="store_true",
+                        help="skip output of titles.")
 
     parser.add_argument("-m", "--missing-value",
-                      dest="missing_value",
-                      type=str,
-                      help="entry to use for missing values.")
+                        dest="missing_value",
+                        type=str,
+                        help="entry to use for missing values.")
 
     parser.add_argument("--header-names", dest="headers", type=str,
-                      help="add headers for files as a ,-separated "
-                      "list .")
+                        help="add headers for files as a ,-separated "
+                        "list .")
 
     parser.add_argument("-c", "--columns", dest="columns", type=str,
-                      help="columns to use for joining. Multiple columns "
-                      "can be specified as a comma-separated list ")
+                        help="columns to use for joining. Multiple columns "
+                        "can be specified as a comma-separated list ")
 
     parser.add_argument("-k", "--take",
-                      dest="take",
-                      type=str,
-                      action="append",
-                      help="columns to take. If not set, all columns "
-                      "except for "
-                      "the join columns are taken ")
+                        dest="take",
+                        type=str,
+                        action="append",
+                        help="columns to take. If not set, all columns "
+                        "except for "
+                        "the join columns are taken ")
 
     parser.add_argument("-g", "--glob", dest="glob", type=str,
-                      help="wildcard expression for table names.")
+                        help="wildcard expression for table names.")
 
     parser.add_argument(
         "-s", "--sort-order", dest="sort", type=str,
@@ -158,69 +158,69 @@ def main(argv=sys.argv):
         "rows.")
 
     parser.add_argument("-a", "--cat", dest="cat", type=str,
-                      help="simply concatenate tables. Adds an "
-                      "additional column called X with the filename ")
+                        help="simply concatenate tables. Adds an "
+                        "additional column called X with the filename ")
 
     parser.add_argument("--sort-keys", dest="sort_keys", type=str,
-                      choices=("numeric", "alphabetic"),
-                      help="sort key columns by value.")
+                        choices=("numeric", "alphabetic"),
+                        help="sort key columns by value.")
 
     parser.add_argument("--keep-empty", dest="ignore_empty",
-                      action="store_false",
-                      help="keep empty tables. The default is "
-                      "to ignore them.")
+                        action="store_false",
+                        help="keep empty tables. The default is "
+                        "to ignore them.")
 
     parser.add_argument("--ignore-empty",
-                      dest="ignore_empty",
-                      action="store_true",
-                      help="ignore empty tables - this is "
-                      "the default .")
+                        dest="ignore_empty",
+                        action="store_true",
+                        help="ignore empty tables - this is "
+                        "the default .")
 
     parser.add_argument("--add-file-prefix",
-                      dest="add_file_prefix",
-                      action="store_true",
-                      help="add file prefix to "
-                      "columns headers. Suitable for multi-column"
-                      "tables")
+                        dest="add_file_prefix",
+                        action="store_true",
+                        help="add file prefix to "
+                        "columns headers. Suitable for multi-column"
+                        "tables")
 
     parser.add_argument("--use-file-prefix",
-                      dest="use_file_prefix",
-                      action="store_true",
-                      help="use file prefix as column headers. "
-                      "Suitable for two-column tables ")
+                        dest="use_file_prefix",
+                        action="store_true",
+                        help="use file prefix as column headers. "
+                        "Suitable for two-column tables ")
 
     parser.add_argument("--prefixes", dest="prefixes", type=str,
-                      help="list of prefixes to use. "
-                      ", separated list of prefixes. "
-                      "The number of prefixes need to correspond to the "
-                      "number of input files")
+                        help="list of prefixes to use. "
+                        ", separated list of prefixes. "
+                        "The number of prefixes need to correspond to the "
+                        "number of input files")
 
     parser.add_argument("--regex-filename", dest="regex_filename",
-                      type=str,
-                      help="pattern to apply to filename to "
-                      "build prefix")
+                        type=str,
+                        help="pattern to apply to filename to "
+                        "build prefix")
 
     parser.add_argument("--regex-start",
-                      dest="regex_start",
-                      type=str,
-                      help="regular expression to start "
-                      "collecting table in a file")
+                        dest="regex_start",
+                        type=str,
+                        help="regular expression to start "
+                        "collecting table in a file")
 
     parser.add_argument("--regex-end",
-                      dest="regex_end",
-                      type=str,
-                      help="regular expression to end collecting "
-                      "table in a file")
+                        dest="regex_end",
+                        type=str,
+                        help="regular expression to end collecting "
+                        "table in a file")
 
     parser.add_argument("--sep",
-                      dest="separator",
-                      type=str,
-                      help="table separator to use. The default is to use tabs. ")
+                        dest="separator",
+                        type=str,
+                        help="table separator to use. The default is to use tabs. ")
 
     parser.add_argument("--test", dest="test",
-                      type=int,
-                      help="test combining tables with "
-                      "first X rows")
+                        type=int,
+                        help="test combining tables with "
+                        "first X rows")
 
     parser.set_defaults(
         input_has_titles=True,

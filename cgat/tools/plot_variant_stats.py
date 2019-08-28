@@ -124,7 +124,7 @@ def main(argv=None):
     )
 
     (args, unknown) = E.start(parser,
-                     argv=argv,
+                              argv=argv,
                               add_output_options=True,
                               unknowns=True)
 

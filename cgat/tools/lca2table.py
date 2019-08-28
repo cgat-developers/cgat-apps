@@ -46,11 +46,11 @@ def main(argv=None):
     parser = E.OptionParser()
 
     parser.add_argument("-s", "--summarise", dest="summarise", type=str,
-                      choices=("level-counts", "taxa-counts", "individual"),
-                      help="summarise the taxa counts - no. phyla etc")
+                        choices=("level-counts", "taxa-counts", "individual"),
+                        help="summarise the taxa counts - no. phyla etc")
 
     parser.add_argument("--output-map", dest="output_map", action="store_true",
-                      help="ouput map of taxonomy")
+                        help="ouput map of taxonomy")
 
     # add common options (-h/--help, ...) and parse command line
     (args) = E.start(parser, argv=argv)
@@ -207,7 +207,6 @@ def main(argv=None):
 
             # removed subspecies mapping for the time
             # being
-            
             # if lca.subspecies != "NA":
             #     nreads_subspecies += 1
             #     level_counts["subspecies"].add(lca.subspecies)
@@ -221,34 +220,34 @@ def main(argv=None):
             #     c.subspecies_plus_unmapped += 1
 
         args.stdout.write("\t".join(["ndomain",
-                                        "nkingdom",
-                                        "nkingdom+",
-                                        "nphylum",
-                                        "nphylum+",
-                                        "nclass",
-                                        "nclass+",
-                                        "norder",
-                                        "norder+",
-                                        "nfamily",
-                                        "nfamily+",
-                                        "ngenus",
-                                        "ngenus+",
-                                        "nspecies",
-                                        "nspecies+",
-                                        "nseqkingdom",
-                                        "nseqkingdom+",
-                                        "nseqphylum",
-                                        "nseqphylum+",
-                                        "nseqclass",
-                                        "nseqclass+",
-                                        "nseqorder",
-                                        "nseqorder+",
-                                        "nseqfamily",
-                                        "nseqfamily+",
-                                        "nseqgenus",
-                                        "nseqgenus+",
-                                        "nseqspecies",
-                                        "nseqspecies+"]) + "\n")
+                                     "nkingdom",
+                                     "nkingdom+",
+                                     "nphylum",
+                                     "nphylum+",
+                                     "nclass",
+                                     "nclass+",
+                                     "norder",
+                                     "norder+",
+                                     "nfamily",
+                                     "nfamily+",
+                                     "ngenus",
+                                     "ngenus+",
+                                     "nspecies",
+                                     "nspecies+",
+                                     "nseqkingdom",
+                                     "nseqkingdom+",
+                                     "nseqphylum",
+                                     "nseqphylum+",
+                                     "nseqclass",
+                                     "nseqclass+",
+                                     "nseqorder",
+                                     "nseqorder+",
+                                     "nseqfamily",
+                                     "nseqfamily+",
+                                     "nseqgenus",
+                                     "nseqgenus+",
+                                     "nseqspecies",
+                                     "nseqspecies+"]) + "\n")
 
         args.stdout.write("\t".join(map(
             str, [len(level_counts["domain"]),
@@ -396,41 +395,42 @@ def main(argv=None):
         # each read is output with its respective
         # taxon assignments
         args.stdout.write("\t".join(["id",
-                                        "domain",
-                                        "kingdom",
-                                        "kingdom+",
-                                        "phylum",
-                                        "phylum+",
-                                        "class",
-                                        "class+",
-                                        "order",
-                                        "order+",
-                                        "family",
-                                        "family+",
-                                        "genus",
-                                        "genus+",
-                                        "species",
-                                        "species+"]) + "\n")
+                                     "domain",
+                                     "kingdom",
+                                     "kingdom+",
+                                     "phylum",
+                                     "phylum+",
+                                     "class",
+                                     "class+",
+                                     "order",
+                                     "order+",
+                                     "family",
+                                     "family+",
+                                     "genus",
+                                     "genus+",
+                                     "species",
+                                     "species+"]) + "\n")
         for lca in LCA.iterate(args.stdin):
             args.stdout.write("\t".join([lca.identifier,
-                                            lca.domain,
-                                            lca.kingdom,
-                                            lca.kingdom_plus,
-                                            lca.phylum,
-                                            lca.phylum_plus,
-                                            lca._class,
-                                            lca._class_plus,
-                                            lca.order,
-                                            lca.order_plus,
-                                            lca.family,
-                                            lca.family_plus,
-                                            lca.genus,
-                                            lca.genus_plus,
-                                            lca.species,
-                                            lca.species_plus]) + "\n")
+                                         lca.domain,
+                                         lca.kingdom,
+                                         lca.kingdom_plus,
+                                         lca.phylum,
+                                         lca.phylum_plus,
+                                         lca._class,
+                                         lca._class_plus,
+                                         lca.order,
+                                         lca.order_plus,
+                                         lca.family,
+                                         lca.family_plus,
+                                         lca.genus,
+                                         lca.genus_plus,
+                                         lca.species,
+                                         lca.species_plus]) + "\n")
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

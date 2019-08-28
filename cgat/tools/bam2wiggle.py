@@ -155,54 +155,50 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-o", "--output-format", dest="output_format",
-                      type=str,
-                      choices=(
-                          "bedgraph", "wiggle", "bigbed",
-                          "bigwig", "bed"),
-                      help="output format [default=%default]")
+                        type=str,
+                        choices=("bedgraph", "wiggle", "bigbed",
+                                 "bigwig", "bed"),
+                        help="output format [default=%default]")
 
     parser.add_argument("-s", "--shift-size", dest="shift", type=int,
-                      help="shift reads by a certain amount (ChIP-Seq) "
-                      )
+                        help="shift reads by a certain amount (ChIP-Seq) "
+                        )
 
     parser.add_argument("-e", "--extend", dest="extend", type=int,
-                      help="extend reads by a certain amount "
-                      "(ChIP-Seq) ")
+                        help="extend reads by a certain amount "
+                        "(ChIP-Seq) ")
 
     parser.add_argument("-p", "--wiggle-span", dest="span", type=int,
-                      help="span of a window in wiggle tracks "
-                      )
+                        help="span of a window in wiggle tracks "
+                        )
 
     parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
-                      action="store_true",
-                      help="merge paired-ended reads into a single "
-                      "bed interval [default=%default].")
+                        action="store_true",
+                        help="merge paired-ended reads into a single "
+                        "bed interval [default=%default].")
 
     parser.add_argument("--scale-base", dest="scale_base", type=float,
-                      help="number of reads/pairs to scale bigwig file to. "
-                      "The default is to scale to 1M reads "
-                      "[default=%default]")
+                        help="number of reads/pairs to scale bigwig file to. "
+                        "The default is to scale to 1M reads ")
 
     parser.add_argument("--scale-method", dest="scale_method", type=str,
-                      choices=("none", "reads",),
-                      help="scale bigwig output. 'reads' will normalize by "
-                      "the total number reads in the bam file that are used "
-                      "to construct the bigwig file. If --merge-pairs is used "
-                      "the number of pairs output will be used for "
-                      "normalization. 'none' will not scale the bigwig file"
-                      "[default=%default]")
+                        choices=("none", "reads",),
+                        help="scale bigwig output. 'reads' will normalize by "
+                        "the total number reads in the bam file that are used "
+                        "to construct the bigwig file. If --merge-pairs is used "
+                        "the number of pairs output will be used for "
+                        "normalization. 'none' will not scale the bigwig file")
 
     parser.add_argument("--max-insert-size", dest="max_insert_size",
-                      type=int,
-                      help="only merge if insert size less that "
-                      "# bases. 0 turns of this filter "
-                      "[default=%default].")
+                        type=int,
+                        help="only merge if insert size less that "
+                        "# bases. 0 turns of this filter ")
 
     parser.add_argument("--min-insert-size", dest="min_insert_size",
-                      type=int,
-                      help="only merge paired-end reads if they are "
-                      "at least # bases apart. "
-                      "0 turns of this filter. [default=%default]")
+                        type=int,
+                        help="only merge paired-end reads if they are "
+                        "at least # bases apart. "
+                        "0 turns of this filter.")
 
     parser.set_defaults(
         samfile=None,
@@ -464,6 +460,7 @@ def main(argv=None):
     shutil.rmtree(tmpdir)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

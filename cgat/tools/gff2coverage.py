@@ -234,22 +234,22 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome")
+                        help="filename with genome")
 
     parser.add_argument("-f", "--features", dest="features", type=str,
-                      action="append", help="features to collect ")
+                        action="append", help="features to collect ")
 
     parser.add_argument("-w", "--window-size", dest="window_size", type=int,
-                      help="window size in bp for histogram computation. "
-                      "Determines the bin size.  ")
+                        help="window size in bp for histogram computation. "
+                        "Determines the bin size.  ")
 
     parser.add_argument("-b", "--num-bins", dest="num_bins", type=int,
-                      help="number of bins for histogram computation "
-                      "if window size is not given. ")
+                        help="number of bins for histogram computation "
+                        "if window size is not given. ")
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=("genomic", "histogram", ),
-                      help="methods to apply. ")
+                        choices=("genomic", "histogram", ),
+                        help="methods to apply. ")
 
     parser.set_defaults(
         genome_file=None,
@@ -312,8 +312,8 @@ def main(argv=None):
             nintervals = intervals[key]
             contig, source, feature = key
             args.stdout.write("\t".join(("\t".join(key),
-                                            str(nintervals),
-                                            str(nbases))))
+                                         str(nintervals),
+                                         str(nbases))))
             if fasta:
                 args.stdout.write(
                     "\t%f" % (100.0 * float(nbases) / fasta.getLength(contig)))
@@ -323,6 +323,7 @@ def main(argv=None):
                 args.stdout.write("\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

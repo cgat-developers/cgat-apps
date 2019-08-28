@@ -1,5 +1,5 @@
 '''
-split_fasta.py - 
+split_fasta.py
 ======================================================
 
 :Tags: Python
@@ -8,7 +8,7 @@ Purpose
 -------
 
 .. todo::
-   
+
    describe purpose of the script.
 
 Usage
@@ -141,25 +141,25 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-f", "--file", dest="input_filename", type=str,
-                      help="input filename. If not given, stdin is used.")
+                        help="input filename. If not given, stdin is used.")
 
     parser.add_argument("-i", "--input-pattern", dest="input_pattern", type=str,
-                      help="input pattern. Parses description line in order to extract id.")
+                        help="input pattern. Parses description line in order to extract id.")
 
     parser.add_argument("-o", "--output-filename-pattern", dest="output_pattern", type=str,
-                      help="output pattern. Gives filename for a given sequence.")
+                        help="output pattern. Gives filename for a given sequence.")
 
     parser.add_argument("-n", "--num-sequences", dest="num_sequences", type=int,
-                      help="split by number of sequences (not implemented yet).")
+                        help="split by number of sequences (not implemented yet).")
 
     parser.add_argument("-m", "--map", dest="map_filename", type=str,
-                      help="map filename. Map identifiers to filenames")
+                        help="map filename. Map identifiers to filenames")
 
     parser.add_argument("-s", "--skip-identifiers", dest="skip_identifiers", action="store_true",
-                      help="do not write identifiers.")
+                        help="do not write identifiers.")
 
     parser.add_argument("--min-size", dest="min_size", type=int,
-                      help="minimum cluster size.")
+                        help="minimum cluster size.")
 
     parser.set_defaults(
         input_filename=None,
@@ -238,6 +238,7 @@ def main(argv=None):
         print("# input=%i, output=%i, ndeleted=%i" % (ninput, noutput, ndeleted))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

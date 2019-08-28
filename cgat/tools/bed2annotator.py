@@ -58,32 +58,32 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument("-f", "--features", dest="features", type=str,
-                      help="feature to collect.")
+                        help="feature to collect.")
 
     parser.add_argument("-i", "--files", dest="files", action="append",
-                      help="use multiple annotations.")
+                        help="use multiple annotations.")
 
     parser.add_argument("-a", "--annotations", dest="annotations", type=str,
-                      help="aggregate name for annotations if only single file is provided from STDIN.")
+                        help="aggregate name for annotations if only single file is provided from STDIN.")
 
     parser.add_argument("--map-tsv-file", dest="input_filename_map", type=str,
-                      help="filename with a map of gene_ids to categories.")
+                        help="filename with a map of gene_ids to categories.")
 
     parser.add_argument("-l", "--max-length", dest="max_length", type=str,
-                      help="maximum segment length.")
+                        help="maximum segment length.")
 
     parser.add_argument("-m", "--merge-overlapping", dest="merge", action="store_true",
-                      help="merge overlapping bed segments.")
+                        help="merge overlapping bed segments.")
 
     parser.add_argument("-s", "--section", dest="section", type=str,
-                      choices=("segments", "annotations", "workspace"),
-                      help="annotator section.")
+                        choices=("segments", "annotations", "workspace"),
+                        help="annotator section.")
 
     parser.add_argument("--subset", dest="subsets", type=str, action="append",
-                      help="add filenames to delimit subsets within the gff files. The syntax is filename.gff,label,filename.ids.")
+                        help="add filenames to delimit subsets within the gff files. The syntax is filename.gff,label,filename.ids.")
 
     parser.set_defaults(
         genome_file=None,
@@ -177,6 +177,7 @@ def main(argv=None):
                (ninput, ntracks, ncontigs, nsegments, ndiscarded))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

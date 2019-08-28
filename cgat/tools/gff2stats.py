@@ -193,7 +193,7 @@ def main(argv=sys.argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input is gtf.")
+                        help="input is gtf.")
 
     parser.set_defaults(
         is_gtf=False,
@@ -243,6 +243,7 @@ def main(argv=sys.argv):
             infile.close()
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

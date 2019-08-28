@@ -503,18 +503,18 @@ def main(argv=sys.argv):
 
     # IMS: new method: extend intervals by set amount
     parser.add_argument("-m", "--method", dest="methods", type=str,
-                      action="append",
-                      choices=("merge", "filter-genome", "bins",
-                               "block", "sanitize-genome", "shift", "extend",
-                               "filter-names", "rename-chr"),
-                      help="method to apply")
+                        action="append",
+                        choices=("merge", "filter-genome", "bins",
+                                 "block", "sanitize-genome", "shift", "extend",
+                                 "filter-names", "rename-chr"),
+                        help="method to apply")
 
     parser.add_argument("--num-bins", dest="num_bins", type=int,
-                      help="number of bins into which to merge (used for "
-                      "method `bins)")
+                        help="number of bins into which to merge (used for "
+                        "method `bins)")
 
     parser.add_argument("--bin-edges", dest="bin_edges", type=str,
-                      help="bin_edges for binning method")
+                        help="bin_edges for binning method")
 
     parser.add_argument(
         "--binning-method", dest="binning_method", type=str,
@@ -559,17 +559,17 @@ def main(argv=sys.argv):
         help="offset for shifting intervals")
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument("-b", "--bam-file", dest="bam_file", type=str,
-                      help="bam-formatted filename with genome.")
+                        help="bam-formatted filename with genome.")
 
     parser.add_argument("--filter-names-file", dest="names", type=str,
-                      help="list of names to keep. One per line")
+                        help="list of names to keep. One per line")
 
     parser.add_argument("--rename-chr-file", dest="rename_chr_file", type=str,
-                      help="mapping table between old and new chromosome names."
-                      "TAB separated 2-column file.")
+                        help="mapping table between old and new chromosome names."
+                        "TAB separated 2-column file.")
 
     parser.set_defaults(methods=[],
                         merge_distance=0,
@@ -680,6 +680,7 @@ def main(argv=sys.argv):
     E.info("noutput=%i" % (noutput))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -98,7 +98,7 @@ junctions
       first base of exon in direction of strand
    frame
       frame base at second coordinate (for coding sequences)
-    
+
 Known problems
 --------------
 
@@ -319,7 +319,7 @@ def outputCounts(outfile, annotations):
 
 
 def annotateGenome(iterator, fasta, options, default_code=DEFAULT_CODE):
-    """annotate a genome given by the indexed *fasta* file and 
+    """annotate a genome given by the indexed *fasta* file and
     an iterator over gtf annotations.
     """
 
@@ -487,17 +487,17 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome")
+                        help="filename with genome")
 
     parser.add_argument("-i", "--ignore-missing", dest="ignore_missing", action="store_true",
-                      help="Ignore transcripts on contigs that are not in the genome-file.")
+                        help="Ignore transcripts on contigs that are not in the genome-file.")
 
     parser.add_argument("--min-intron-length", dest="min_intron_length", type=int,
-                      help="minimum intron length. If the distance between two consecutive exons is smaller, the region will be marked 'unknown")
+                        help="minimum intron length. If the distance between two consecutive exons is smaller, the region will be marked 'unknown")
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=["full"],
-                      help="method to apply")
+                        choices=["full"],
+                        help="method to apply")
 
     parser.set_defaults(
         genome_file=None,
@@ -524,6 +524,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

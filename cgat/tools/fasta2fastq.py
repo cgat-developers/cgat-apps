@@ -274,12 +274,12 @@ def main(argv=None):
 
     if args.paired:
         assert args.fastq2_out, ("must specify a second fastq outfile for "
-                                    "paired end (--output-fastq2)")
+                                 "paired end (--output-fastq2)")
         outf2 = iotools.open_file(args.fastq2_out, "w")
 
     if args.premrna_fraction:
         assert args.premrna_fasta, ("must specfify the location of the"
-                                       "fasta file for the pre-mRNA")
+                                    "fasta file for the pre-mRNA")
 
     # the sequence quality string will always be the same so define here
     sequence_quality = chr(args.q_format + args.phred)
@@ -443,6 +443,7 @@ def main(argv=None):
                sum_copies + c['pre_copies'], sum_copies, c['pre_copies']))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

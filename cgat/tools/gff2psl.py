@@ -59,19 +59,19 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input is gtf.")
+                        help="input is gtf.")
 
     parser.add_argument("--no-header", dest="with_header", action="store_false",
-                      help="do not output BLAT header.")
+                        help="do not output BLAT header.")
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument("--queries-tsv-file", dest="input_filename_queries", type=str,
-                      help="fasta filename with queries.")
+                        help="fasta filename with queries.")
 
     parser.add_argument("--allow-duplicates", dest="allow_duplicates", action="store_true",
-                      help="""permit duplicate entries. Adjacent exons of a transcript will still be merged."""  )
+                        help="""permit duplicate entries. Adjacent exons of a transcript will still be merged.""")
 
     parser.set_defaults(is_gtf=False,
                         genome_file=None,
@@ -149,6 +149,7 @@ def main(argv=None):
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

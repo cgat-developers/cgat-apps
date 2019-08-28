@@ -140,10 +140,10 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input is gtf instead of gff.")
+                        help="input is gtf instead of gff.")
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument(
         "-m", "--merge-adjacent", dest="merge", action="store_true",
@@ -285,7 +285,7 @@ def main(argv=None):
             continue
 
         contig, strand = chunk[0].contig, chunk[0].strand
-        
+
         if args.is_gtf:
             name = chunk[0].transcript_id
         else:
@@ -321,11 +321,11 @@ def main(argv=None):
                     nskipped_masked += 1
                     if args.loglevel >= 1:
                         args.stdlog.write("# skipped because fully masked: "
-                                             "%s: regions=%s masks=%s\n" %
-                                             (name,
-                                              str([(x.start,
-                                                    x.end) for x in chunk]),
-                                              masked_regions))
+                                          "%s: regions=%s masks=%s\n" %
+                                          (name,
+                                           str([(x.start,
+                                                 x.end) for x in chunk]),
+                                           masked_regions))
                     continue
 
         out = intervals
@@ -363,8 +363,8 @@ def main(argv=None):
             nskipped_length += 1
             if args.loglevel >= 1:
                 args.stdlog.write("# skipped because length out of bounds "
-                                     "%s: regions=%s len=%i\n" %
-                                     (name, str(intervals), l))
+                                  "%s: regions=%s len=%i\n" %
+                                  (name, str(intervals), l))
                 continue
 
         if args.extend_at and args.extend_with:
@@ -385,22 +385,20 @@ def main(argv=None):
         if args.header_attr:
             attributes = " ".join([":".join([ax, ay]) for ax, ay in chunk[0].asDict().items()])
             args.stdout.write(">%s %s:%s:%s feature:%s %s\n%s\n" % (name,
-                                                                       contig,
-                                                                       strand,
-                                                                       ";".join(
-                                                                           ["%i-%i" %
-                                                                            x for x in out]),
-                                                                       chunk[0].feature,
-                                                                       attributes,
-                                                                       seq))
+                                                                    contig,
+                                                                    strand,
+                                                                    ";".join(["%i-%i" %
+                                                                              x for x in out]),
+                                                                    chunk[0].feature,
+                                                                    attributes,
+                                                                    seq))
         else:
             args.stdout.write(">%s %s:%s:%s\n%s\n" % (name,
-                                                         contig,
-                                                         strand,
-                                                         ";".join(
-                                                             ["%i-%i" %
-                                                              x for x in out]),
-                                                         seq))
+                                                      contig,
+                                                      strand,
+                                                      ";".join(["%i-%i" %
+                                                                x for x in out]),
+                                                      seq))
 
         noutput += 1
 
@@ -410,6 +408,7 @@ def main(argv=None):
             nskipped_masked, nskipped_length))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

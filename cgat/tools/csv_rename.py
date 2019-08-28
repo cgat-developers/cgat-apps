@@ -42,20 +42,20 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-r", "--remove", dest="remove", action="store_true",
-                      help="remove specified columns, keep all others.")
+                        help="remove specified columns, keep all others.")
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+                        help="output rows are uniq.")
 
     parser.add_argument("-f", "--filename-fields", dest="filename_fields", type=str,
-                      help="filename with field information.")
+                        help="filename with field information.")
 
     parser.set_defaults(
         filename_fields=None,
     )
 
     (args) = E.start(parser,
-                              add_csv_options=True)
+                     add_csv_options=True)
     mapper = {}
     for x in args:
         a, b = x.split("=")
@@ -96,6 +96,7 @@ def main(argv=None):
             ninput, noutput, nreplaced, nlines))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

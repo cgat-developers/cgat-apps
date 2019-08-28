@@ -52,7 +52,7 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
-                      help="input are cds (nucleotide) sequences ")
+                        help="input are cds (nucleotide) sequences ")
 
     parser.set_defaults(
         is_cds=False,
@@ -119,6 +119,7 @@ def main(argv=None):
                          )))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

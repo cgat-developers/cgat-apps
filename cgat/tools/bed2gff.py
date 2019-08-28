@@ -70,7 +70,7 @@ def main(argv=sys.argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-a", "--as-gtf", dest="as_gtf", action="store_true",
-                      help="output as gtf.")
+                        help="output as gtf.")
 
     parser.add_argument(
         "-f", "--id-format", dest="id_format", type=str,
@@ -131,6 +131,7 @@ def main(argv=sys.argv):
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

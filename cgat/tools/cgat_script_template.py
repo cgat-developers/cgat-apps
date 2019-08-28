@@ -46,13 +46,14 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--test", dest="test", type=str,
-                      help="supply help")
+                        help="supply help")
 
     # add common options (-h/--help, ...) and parse command line
     (args) = E.start(parser, argv=argv)
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

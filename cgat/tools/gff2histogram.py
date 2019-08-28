@@ -121,10 +121,10 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
-                      help="bin size.")
+                        help="bin size.")
 
     parser.add_argument("--min-value", dest="min_value", type=float,
-                      help="minimum value for histogram.")
+                        help="minimum value for histogram.")
 
     parser.add_argument(
         "--max-value", dest="max_value", type=float,
@@ -145,24 +145,24 @@ def main(argv=None):
         "them to range border.")
 
     parser.add_argument("--missing-value", dest="missing_value", type=str,
-                      help="entry for missing values .")
+                        help="entry for missing values .")
 
     parser.add_argument("--use-dynamic-bins", dest="dynamic_bins",
-                      action="store_true",
-                      help="each value constitutes its own bin.")
+                        action="store_true",
+                        help="each value constitutes its own bin.")
 
     parser.add_argument("--format", dest="format", type=str,
-                      choices=("gff", "gtf", "bed"),
-                      help="input file format .")
+                        choices=("gff", "gtf", "bed"),
+                        help="input file format .")
 
     parser.add_argument("--method", dest="methods", type=str,
-                      action="append",
-                      choices=("all", "hist", "stats", "overlaps", "values"),
-                      help="methods to apply .")
+                        action="append",
+                        choices=("all", "hist", "stats", "overlaps", "values"),
+                        help="methods to apply .")
 
     parser.add_argument("--output-section", dest="output_section", type=str,
-                      choices=("all", "size", "distance"),
-                      help="data to compute .")
+                        choices=("all", "size", "distance"),
+                        help="data to compute .")
 
     parser.set_defaults(
         no_empty_bins=True,
@@ -294,6 +294,7 @@ def main(argv=None):
             noverlaps))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -136,42 +136,42 @@ def main(argv=sys.argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-s", "--session", dest="session",
-                      type=str,
-                      help="load session before creating plots "
-                      )
+                        type=str,
+                        help="load session before creating plots "
+                        )
 
     parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
-                      type=str,
-                      help="directory to save snapshots in ")
+                        type=str,
+                        help="directory to save snapshots in ")
 
     parser.add_argument("-f", "--format", dest="format", type=str,
-                      choices=("png", "eps", "svg"),
-                      help="output file format ")
+                        choices=("png", "eps", "svg"),
+                        help="output file format ")
 
     parser.add_argument("-o", "--host", dest="host", type=str,
-                      help="host that IGV is running on ")
+                        help="host that IGV is running on ")
 
     parser.add_argument("-p", "--port", dest="port", type=int,
-                      help="port that IGV listens at ")
+                        help="port that IGV listens at ")
 
     parser.add_argument("-e", "--extend", dest="extend", type=int,
-                      help="extend each interval by a number of bases "
-                      )
+                        help="extend each interval by a number of bases "
+                        )
 
     parser.add_argument("-x", "--expand", dest="expand", type=float,
-                      help="expand each region by a certain factor "
-                      )
+                        help="expand each region by a certain factor "
+                        )
 
     parser.add_argument("--session-only", dest="session_only",
-                      action="store_true",
-                      help="plot session after opening, "
-                      "ignore intervals "
-                      )
+                        action="store_true",
+                        help="plot session after opening, "
+                        "ignore intervals "
+                        )
 
     parser.add_argument("-n", "--name", dest="name", type=str,
-                      choices=("bed-name", "increment"),
-                      help="name to use for snapshot "
-                      )
+                        choices=("bed-name", "increment"),
+                        help="name to use for snapshot "
+                        )
 
     parser.set_defaults(
         command="igv.sh",
@@ -253,8 +253,9 @@ def main(argv=sys.argv):
     if igv_process is not None and not args.keep_open:
         E.info('shutting down IGV')
         igv_process.send_signal(signal.SIGKILL)
-        
+
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())

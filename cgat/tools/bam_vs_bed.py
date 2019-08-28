@@ -94,16 +94,16 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--min-overlap", dest="min_overlap",
-                      type=float,
-                      help="minimum overlap ")
+                        type=float,
+                        help="minimum overlap ")
 
     parser.add_argument("-a", "--bam-file", dest="filename_bam",
-                      metavar="bam", type=str,
-                      help="bam-file to use (required) ")
+                        metavar="bam", type=str,
+                        help="bam-file to use (required) ")
 
     parser.add_argument("-b", "--bed-file", dest="filename_bed",
-                      metavar="bed", type=str,
-                      help="bed-file to use (required) ")
+                        metavar="bed", type=str,
+                        help="bed-file to use (required) ")
 
     parser.add_argument(
         "-s", "--sort-bed", dest="sort_bed",
@@ -262,6 +262,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

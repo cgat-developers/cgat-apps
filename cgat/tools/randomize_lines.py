@@ -39,7 +39,7 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-k", "--keep-header", dest="keep_header", type=int,
-                      help="randomize, but keep header in place ")
+                        help="randomize, but keep header in place ")
 
     parser.set_defaults(keep_header=0)
 
@@ -64,6 +64,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

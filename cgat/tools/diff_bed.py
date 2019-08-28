@@ -135,8 +135,7 @@ class Counter:
         idx2 = self.buildIndex(filename2)
 
         (self.mExons1, self.mExonsOverlapping1,
-         self.mBases1, self.mBasesOverlapping1 ) = \
-            self._count(filename1, idx2)
+         self.mBases1, self.mBasesOverlapping1) = self._count(filename1, idx2)
 
         self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
         self.mBasesUnique1 = self.mBases1 - self.mBasesOverlapping1
@@ -144,8 +143,7 @@ class Counter:
         idx1 = self.buildIndex(filename1)
 
         (self.mExons2, self.mExonsOverlapping2,
-         self.mBases2, self.mBasesOverlapping2 ) = \
-            self._count(filename2, idx1)
+         self.mBases2, self.mBasesOverlapping2) = self._count(filename2, idx1)
 
         self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
         self.mBasesUnique2 = self.mBases2 - self.mBasesOverlapping2
@@ -158,7 +156,7 @@ class Counter:
             self.mExonsUnique1, self.mExonsUnique2,
             self.mBases1, self.mBases2,
             self.mBasesOverlapping1, self.mBasesOverlapping2,
-            self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
+            self.mBasesUnique1, self.mBasesUnique2))) + "\t" +\
             "\t".join([iotools.pretty_percent(*x) for x in (
                 (self.mExonsOverlapping1, self.mExons1),
                 (self.mExonsOverlapping2, self.mExons2),
@@ -219,8 +217,7 @@ class CounterTracks(Counter):
         E.info("counting started for %s versus %s" % (filename, track))
 
         (self.mExons1, self.mExonsOverlapping1,
-         self.mBases1, self.mBasesOverlapping1 ) = \
-            self._count(filename, self.mIndices[track])
+         self.mBases1, self.mBasesOverlapping1) = self._count(filename, self.mIndices[track])
 
         self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
         self.mBasesUnique1 = self.mBases1 - self.mBasesOverlapping1
@@ -229,8 +226,7 @@ class CounterTracks(Counter):
 
         # count index against index
         (self.mExons2, self.mExonsOverlapping2,
-         self.mBases2, self.mBasesOverlapping2 ) = \
-            self._countIndices(self.mIndices[track], idx)
+         self.mBases2, self.mBasesOverlapping2) = self._countIndices(self.mIndices[track], idx)
 
         self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
         self.mBasesUnique2 = self.mBases2 - self.mBasesOverlapping2
@@ -249,13 +245,13 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-u", "--update", dest="filename_update", type=str,
-                      help="if filename is given, previous results will be read from there and only changed sets will be computed.")
+                        help="if filename is given, previous results will be read from there and only changed sets will be computed.")
 
     parser.add_argument("-p", "--pattern-identifier", dest="pattern_id", type=str,
-                      help="pattern to convert a filename to an id.")
+                        help="pattern to convert a filename to an id.")
 
     parser.add_argument("-t", "--tracks", dest="tracks", action="store_true",
-                      help="compare files against all tracks in the first file")
+                        help="compare files against all tracks in the first file")
 
     parser.set_defaults(
         filename_update=None,

@@ -62,13 +62,13 @@ def transcript2bed12(transcript):
     end = max(entry.end for entry in transcript)
 
     try:
-        thickStart = min(entry.start for entry in transcript 
+        thickStart = min(entry.start for entry in transcript
                          if entry.feature == "CDS")
         thickEnd = max(entry.end for entry in transcript
                        if entry.feature == "CDS")
     except ValueError:
 
-        # if there is no CDS, then set first base of transcript as 
+        # if there is no CDS, then set first base of transcript as
         # start
 
         if transcript[0].strand == "-":
@@ -91,7 +91,7 @@ def transcript2bed12(transcript):
 
     new_entry["thickStart"] = thickStart
     new_entry["thickEnd"] = thickEnd
-    
+
     new_entry["blockCount"] = exon_count
     new_entry["blockStarts"] = ",".join(map(str, exon_starts))
     new_entry["blockSizes"] = ",".join(map(str, exon_lengths))
@@ -104,7 +104,7 @@ def main(argv=sys.argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input file is in gtf format")
+                        help="input file is in gtf format")
 
     parser.add_argument(
         "--set-name", dest="name", type=str,
@@ -153,12 +153,12 @@ def main(argv=sys.argv):
             args.stdout.write("track name=%s\n" % key)
             for gff in vals:
                 ninput += 1
-                
+
                 if args.bed12:
                     bed = transcript2bed12(gff)
                 else:
                     bed.fromGTF(gff, name=args.name)
-                
+
                 args.stdout.write(str(bed) + "\n")
                 noutput += 1
 
@@ -171,13 +171,14 @@ def main(argv=sys.argv):
                 bed = transcript2bed12(gff)
             else:
                 bed.fromGTF(gff, name=args.name)
-            
+
             args.stdout.write(str(bed) + "\n")
 
             noutput += 1
 
     E.info("ninput=%i, noutput=%i" % (ninput, noutput))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

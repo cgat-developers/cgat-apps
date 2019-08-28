@@ -400,29 +400,28 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=(
-                          "add-flank",
-                          "add-upstream-flank",
-                          "add-downstream-flank",
-                          "crop",
-                          "crop-unique",
-                          "complement-groups",
-                          "combine-groups",
-                          "filter-range",
-                          "join-features",
-                          "merge-features",
-                          "sanitize",
-                          "to-forward-coordinates",
-                          "to-forward-strand",
-                          "rename-chr"),
-                      help="method to apply ")
+                        choices=("add-flank",
+                                 "add-upstream-flank",
+                                 "add-downstream-flank",
+                                 "crop",
+                                 "crop-unique",
+                                 "complement-groups",
+                                 "combine-groups",
+                                 "filter-range",
+                                 "join-features",
+                                 "merge-features",
+                                 "sanitize",
+                                 "to-forward-coordinates",
+                                 "to-forward-strand",
+                                 "rename-chr"),
+                        help="method to apply ")
 
     parser.add_argument(
         "--ignore-strand", dest="ignore_strand",
         help="ignore strand information.", action="store_true")
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input will be treated as gtf.")
+                        help="input will be treated as gtf.")
 
     parser.add_argument(
         "-c", "--contigs-tsv-file", dest="input_filename_contigs",
@@ -620,8 +619,8 @@ def main(argv=None):
                 assembly_dict[item[0]] = item[1]
 
     if args.method in ("forward_coordinates", "forward_strand",
-                          "add-flank", "add-upstream-flank",
-                          "add-downstream-flank") \
+                       "add-flank", "add-upstream-flank",
+                       "add-downstream-flank") \
        and not contigs:
         raise ValueError("inverting coordinates requires genome file")
 
@@ -634,8 +633,8 @@ def main(argv=None):
     gffs = GTF.iterator(args.stdin)
 
     if args.method in ("add-upstream-flank",
-                          "add-downstream-flank",
-                          "add-flank"):
+                       "add-downstream-flank",
+                       "add-flank"):
 
         add_upstream_flank = "add-upstream-flank" == args.method
         add_downstream_flank = "add-downstream-flank" == args.method
@@ -890,7 +889,7 @@ def main(argv=None):
 
     elif args.method == "rename-chr":
         if not chr_map:
-                raise ValueError("please supply mapping file")
+            raise ValueError("please supply mapping file")
 
         for gff in renameChromosomes(gffs, chr_map):
             args.stdout.write(str(gff) + "\n")
@@ -914,6 +913,7 @@ def main(argv=None):
             args.stdout.write(str(gff) + "\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

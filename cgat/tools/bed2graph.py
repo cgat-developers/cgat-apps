@@ -7,7 +7,7 @@ bed2graph.py - compute the overlap graph between two bed files
 Purpose
 -------
 
-This script ouputs a list of the names of all overlapping intervals 
+This script ouputs a list of the names of all overlapping intervals
 between two bed files.
 
 Usage
@@ -43,8 +43,8 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-o", "--output-section", dest="output", type=str,
-                      choices=("full", "name"),
-                      help="output either ``full`` overlapping entries, only the ``name``s.")
+                        choices=("full", "name"),
+                        help="output either ``full`` overlapping entries, only the ``name``s.")
 
     parser.set_defaults(
         output="full",

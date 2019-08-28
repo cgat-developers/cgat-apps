@@ -50,7 +50,7 @@ def main(argv=None):
     parser = optparse.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--sequence-type", dest="type", type=str,
-                      choices=("read_map", "rel_ab"), help="type of file to be parsed to a table")
+                        choices=("read_map", "rel_ab"), help="type of file to be parsed to a table")
 
     # add common options (-h/--help, ...) and parse command line
     (args) = E.start(parser, argv=argv)
@@ -71,6 +71,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

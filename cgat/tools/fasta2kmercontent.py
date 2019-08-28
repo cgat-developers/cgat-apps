@@ -110,7 +110,7 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-k", "--kmer-size", dest="kmer", type=int,
-                      help="supply kmer length")
+                        help="supply kmer length")
 
     parser.add_argument(
         "-p", "--output-proportion", dest="proportion", action="store_true",
@@ -178,6 +178,7 @@ def main(argv=None):
     E.info("written kmer counts for %i contigs" % total_entries)
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

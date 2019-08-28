@@ -66,8 +66,8 @@ def main(argv=None):
     )
 
     (args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+                     argv=argv,
+                     add_output_options=True)
 
     if not args.methods:
         args.methods = ["summary"]

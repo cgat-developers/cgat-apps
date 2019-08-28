@@ -49,16 +49,16 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-r", "--remove", dest="remove", action="store_true",
-                      help="remove specified columns, keep all others.")
+                        help="remove specified columns, keep all others.")
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+                        help="output rows are uniq.")
 
     parser.add_argument("-l", "--large", dest="large", action="store_true",
-                      help="large columns. Do not use native python csv module [default=%default].")
+                        help="large columns. Do not use native python csv module [default=%default].")
 
     parser.add_argument("-f", "--filename-fields", dest="filename_fields", type=str,
-                      help="filename with field information.")
+                        help="filename with field information.")
 
     parser.set_defaults(
         remove=False,
@@ -111,6 +111,7 @@ def main(argv=None):
     E.info("%s" % counter)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

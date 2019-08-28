@@ -29,8 +29,8 @@ def main(argv=None):
     )
 
     (args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+                     argv=argv,
+                     add_output_options=True)
 
     if len(args) > 0:
         args.input_filename_fasta = args[0]

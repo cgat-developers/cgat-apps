@@ -50,16 +50,16 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-f", "--bam-file", "--filename", dest="filename", type=str,
-                      help="bamfile")
+                        help="bamfile")
 
     parser.add_argument("-a", "--aligner", dest="aligner", type=str,
-                      help="bamfile", default="bwa")
+                        help="bamfile", default="bwa")
 
     parser.add_argument("-r", "--output-report", type=str, dest="report",
-                      help="bamfile", default="")
+                        help="bamfile", default="")
 
     parser.add_argument("-o", "--output-filename-bam", "--outfile", dest="outfile", type=str,
-                      help="bamfile", default="")
+                        help="bamfile", default="")
 
     # add common options (-h/--help, ...) and parse command line
     (args) = E.start(parser, argv=argv, add_output_options=True)
@@ -141,6 +141,7 @@ def main(argv=None):
                     outbam.write(read)
         samfile.close()
         outbam.close()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

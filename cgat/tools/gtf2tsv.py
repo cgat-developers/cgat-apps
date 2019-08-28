@@ -108,7 +108,7 @@ def main(argv=None):
         )
 
     parser.add_argument("--is-gff3", dest="is_gtf", action="store_false",
-                      help="input file is in gtf format")
+                        help="input file is in gtf format")
 
     parser.add_argument(
         "-i", "--invert", dest="invert", action="store_true",
@@ -191,8 +191,8 @@ def main(argv=None):
         else:
             for gff in data:
                 args.stdout.write(("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t") % (gff.contig,
-                                                                             gff.source, gff.feature, gff.start, gff.end,
-                                                                             gff.score, gff.strand, gff.frame))
+                                                                          gff.source, gff.feature, gff.start, gff.end,
+                                                                          gff.score, gff.strand, gff.frame))
 
                 first = True
                 for a in attributes:
@@ -288,6 +288,7 @@ def main(argv=None):
             args.stdout.write(str(gtf) + "\n")
 
     E.stop()
+
 
 if __name__ == '__main__':
     sys.exit(main())

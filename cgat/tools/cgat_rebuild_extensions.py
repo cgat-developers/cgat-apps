@@ -59,7 +59,7 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-i", "--test-option", dest="test_option", type=str,
-                      help="test option")
+                        help="test option")
 
     parser.set_defaults(
         test_option="test"
@@ -101,6 +101,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

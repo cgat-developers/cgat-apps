@@ -186,6 +186,7 @@ class CounterOverlap(Counter):
 
         return "\t".join(r)
 
+
 CounterPeaksResult = collections.namedtuple(
     "CounterPeaksResult", ("length nreads avgval peakval npeaks peakcenter"))
 
@@ -519,7 +520,7 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument(
         "-b", "--bam-file", dest="bam_files", type=str,
@@ -714,6 +715,7 @@ def main(argv=None):
         args.stdout.write("\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

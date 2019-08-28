@@ -37,8 +37,8 @@ def main(argv=None):
     )
 
     (args, unknown) = E.start(parser,
-                               argv=argv,
-                               unknowns=True)
+                              argv=argv,
+                              unknowns=True)
 
     if len(unnowns) > 0:
         args.input_filename_fasta = args[0]
@@ -90,6 +90,7 @@ def main(argv=None):
                 "\n".join(["\t".join(map(str, x)) for x in sequence_pairs]) + "\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

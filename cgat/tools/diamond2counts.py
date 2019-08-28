@@ -70,23 +70,23 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=("best", None),
-                      help="method for determing what to count")
+                        choices=("best", None),
+                        help="method for determing what to count")
 
     parser.add_argument("--sum-cog", dest="sum_cog", action="store_true",
-                      help="sum counts over functions (COGs) in --cog-map")
+                        help="sum counts over functions (COGs) in --cog-map")
 
     parser.add_argument("--evaluate-cog",
-                      dest="evaluate_cog",
-                      action="store_true",
-                      help="""output the percent of
+                        dest="evaluate_cog",
+                        action="store_true",
+                        help="""output the percent of
                               alignments for each read = best hit""")
 
     parser.add_argument("--cog-map", dest="cog_map", type=str,
-                      help="file with gene to cog map")
+                        help="file with gene to cog map")
 
     parser.add_argument("-n", "--nsamples", dest="nsamples", type=int,
-                      help="""number of queries to evaluate-
+                        help="""number of queries to evaluate-
                               will take the first n in the file""")
 
     parser.set_defaults(method=None,
@@ -179,6 +179,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

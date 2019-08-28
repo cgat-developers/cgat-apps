@@ -145,7 +145,7 @@ def main(argv=None):
                                        guess=args.guess_format)
 
     args.stdout.write("read\tnfailed\tnN\t%s\n" %
-                         ("\t".join(Stats.Summary().getHeaders())))
+                      ("\t".join(Stats.Summary().getHeaders())))
 
     min_quality = args.min_quality
 
@@ -155,15 +155,16 @@ def main(argv=None):
         nfailed = len([x for x in quals if x < min_quality])
         nns = record.seq.count("N") + record.seq.count(".")
         args.stdout.write("%s\t%i\t%i\t%s\n" % (record.identifier,
-                                                   nfailed,
-                                                   nns,
-                                                   str(Stats.Summary(quals))
-                                                   ))
+                                                nfailed,
+                                                nns,
+                                                str(Stats.Summary(quals))
+                                                ))
         c.output += 1
 
     # write footer and output benchmark information.
     E.info("%s" % str(c))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

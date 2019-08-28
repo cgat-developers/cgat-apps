@@ -1083,27 +1083,27 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument("-i", "--ignore-missing", dest="ignore_missing",
-                      action="store_true",
-                      help="Ignore transcripts on contigs that are not "
-                      "in the genome-file.")
+                        action="store_true",
+                        help="Ignore transcripts on contigs that are not "
+                        "in the genome-file.")
 
     parser.add_argument("-s", "--restrict-source", dest="restrict_source",
-                      type=str,
-                      choices=("protein_coding", "pseudogene", "lncRNA"),
-                      help="restrict input by source.")
+                        type=str,
+                        choices=("protein_coding", "pseudogene", "lncRNA"),
+                        help="restrict input by source.")
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=("full", "genome", "exons",
-                               "promotors", "tts",
-                               "regulons", "tts-regulons",
-                               "genes",
-                               "territories", "tss-territories",
-                               "great-domains",
-                               ),
-                      help="method for defining segments.")
+                        choices=("full", "genome", "exons",
+                                 "promotors", "tts",
+                                 "regulons", "tts-regulons",
+                                 "genes",
+                                 "territories", "tss-territories",
+                                 "great-domains",
+                                 ),
+                        help="method for defining segments.")
 
     parser.add_argument(
         "-r", "--territory-extension", dest="radius", type=int,
@@ -1213,6 +1213,7 @@ def main(argv=None):
         segmentor = annotateGREATDomains(iterator, fasta, args)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

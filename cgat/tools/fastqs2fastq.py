@@ -60,8 +60,8 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      choices=('join', ),
-                      help="method to apply.")
+                        choices=('join', ),
+                        help="method to apply.")
 
     parser.set_defaults(
         method="join",
@@ -128,6 +128,7 @@ def main(argv=None):
     # write footer and output benchmark information.
     E.info("%s" % str(c))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

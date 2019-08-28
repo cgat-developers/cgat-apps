@@ -12,11 +12,11 @@ adjacent intervals that show a similar expression change.
 
 Input is data like this::
 
-   contig start end treatment_name  treatment_mean  treatment_std   control_name    control_mean    control_std     pvalue  qvalue  l2fold  fold    significant     status                                                                                 
-   chr1 10000 11000        CD14    32.9785173324   0       CD4     41.7117152603   0       0.199805206526  1.0     0.338926100945  1.26481475319   0       OK                                                                                   
-   chr1 14000 15000        CD14    9.32978709019   0       CD4     9.31489982941   0       1.0     1.0     -0.00230390372974       0.998404330063  0       OK                                                                                   
-   chr1 15000 16000        CD14    9.04603350905   0       CD4     9.01484414416   0       1.0     1.0     -0.00498279072069       0.996552150193  0       OK                                                                                   
-   chr1 16000 17000        CD14    0.457565479197  0       CD4     0.14910378845   0       0.677265200643  1.0     -1.61766129852  0.325863281276  0       OK                                                                                   
+   contig start end treatment_name  treatment_mean  treatment_std   control_name    control_mean    control_std     pvalue  qvalue  l2fold  fold    significant     status
+   chr1 10000 11000        CD14    32.9785173324   0       CD4     41.7117152603   0       0.199805206526  1.0     0.338926100945  1.26481475319   0       OK
+   chr1 14000 15000        CD14    9.32978709019   0       CD4     9.31489982941   0       1.0     1.0     -0.00230390372974       0.998404330063  0       OK
+   chr1 15000 16000        CD14    9.04603350905   0       CD4     9.01484414416   0       1.0     1.0     -0.00498279072069       0.996552150193  0       OK
+   chr1 16000 17000        CD14    0.457565479197  0       CD4     0.14910378845   0       0.677265200643  1.0     -1.61766129852  0.325863281276  0       OK
 
 The second and third window would be merged, as
 
@@ -57,7 +57,7 @@ Example::
 Type::
 
    python cgat_script_template.py --help
- 
+
 for command line help.
 
 
@@ -93,7 +93,7 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-o", "--min-overlap", dest="min_overlap", type=int,
-                      help="minimum overlap")
+                        help="minimum overlap")
 
     parser.add_argument(
         "-w", "--pattern-window",
@@ -249,6 +249,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

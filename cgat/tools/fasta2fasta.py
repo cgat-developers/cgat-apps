@@ -194,8 +194,8 @@ def main(argv=None):
         help="ignore errors.")
 
     parser.add_argument("--sample-proportion", dest="sample_proportion",
-                      type=float,
-                      help="sample proportion.")
+                        type=float,
+                        help="sample proportion.")
 
     parser.add_argument(
         "--exclude-pattern", dest="exclude_pattern", type=str,
@@ -231,7 +231,7 @@ def main(argv=None):
     parser.add_argument(
         "--fold-width", dest="fold_width", type=int,
         help="fold width for sequence output. 0 is unfolded ")
-    
+
     parser.set_defaults(
         methods=[],
         parameters="",
@@ -252,13 +252,13 @@ def main(argv=None):
         input_filename_map=None,
         fold_width=80
     )
-    
+
     (args, unknown) = E.start(parser,
                               unknowns=True)
 
     if len(unknown) > 0:
         args.input_filename_fasta = unknown[0]
-    
+
     args.parameters = args.parameters.split(",")
 
     rx_include, rx_exclude = None, None
@@ -688,6 +688,7 @@ def main(argv=None):
 
     E.info(c)
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

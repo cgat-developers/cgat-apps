@@ -41,43 +41,43 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-r", "--range", dest="range", type=str,
-                      help="range to calculate histogram for.")
+                        help="range to calculate histogram for.")
     parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
-                      help="bin size.")
+                        help="bin size.")
     parser.add_argument("-i", "--titles", dest="titles", action="store_true",
-                      help="use supplied column titles.")
+                        help="use supplied column titles.")
     parser.add_argument("--no-null", dest="nonull", action="store_true",
-                      help="do not output null values")
+                        help="do not output null values")
     parser.add_argument("--no-titles", dest="titles", action="store_false",
-                      help="no column titles given.")
+                        help="no column titles given.")
     parser.add_argument("-c", "--columns", dest="columns", type=str,
-                      help="columns to take for calculating histograms.")
+                        help="columns to take for calculating histograms.")
     parser.add_argument("--min-data", dest="min_data", type=int,
-                      help="minimum amount of data required, if less data, then the histogram will be empty [default=%default].")
+                        help="minimum amount of data required, if less data, then the histogram will be empty [default=%default].")
     parser.add_argument("--min-value", dest="min_value", type=float,
-                      help="minimum value for histogram.")
+                        help="minimum value for histogram.")
     parser.add_argument("--max-value", dest="max_value", type=float,
-                      help="maximum value for histogram.")
+                        help="maximum value for histogram.")
     parser.add_argument("--no-empty-bins", dest="no_empty_bins", action="store_true",
-                      help="do not display empty bins.")
+                        help="do not display empty bins.")
     parser.add_argument("--with-empty-bins", dest="no_empty_bins", action="store_false",
-                      help="display empty bins.")
+                        help="display empty bins.")
     parser.add_argument("--normalize", dest="normalize", action="store_true",
-                      help="normalize histogram.")
+                        help="normalize histogram.")
     parser.add_argument("--cumulative", dest="cumulative", action="store_true",
-                      help="calculate cumulative histogram.")
+                        help="calculate cumulative histogram.")
     parser.add_argument("--reverse-cumulative", dest="reverse_cumulative", action="store_true",
-                      help="calculate reverse cumulative histogram.")
+                        help="calculate reverse cumulative histogram.")
     parser.add_argument("--header-names", dest="headers", type=str,
-                      help="use the following headers.")
+                        help="use the following headers.")
     parser.add_argument("--ignore-out-of-range", dest="ignore_out_of_range", action="store_true",
-                      help="ignore values that are out of range (as opposed to truncating them to range border.")
+                        help="ignore values that are out of range (as opposed to truncating them to range border.")
     parser.add_argument("--missing-value", dest="missing_value", type=str,
-                      help="entry for missing values .")
+                        help="entry for missing values .")
     parser.add_argument("--use-dynamic-bins", dest="dynamic_bins", action="store_true",
-                      help="each value constitutes its own bin.")
+                        help="each value constitutes its own bin.")
     parser.add_argument("--on-the-fly", dest="on_the_fly", action="store_true",
-                      help="on the fly computation of histograms. Requires setting of min-value, max-value and bin_size.")
+                        help="on the fly computation of histograms. Requires setting of min-value, max-value and bin_size.")
 
     parser.set_defaults(
         bin_size=None,
@@ -268,6 +268,7 @@ def main(argv=None):
                             format_bin=args.bin_format)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

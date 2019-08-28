@@ -8,7 +8,7 @@ Purpose
 -------
 
 .. todo::
-   
+
    describe purpose of the script.
 
 Usage
@@ -60,14 +60,14 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+                        help="output rows are uniq.")
 
     parser.add_argument("-1", "--join-fields1", dest="join_fields1", type=str,
-                      help="join fields in first table.")
+                        help="join fields in first table.")
     parser.add_argument("-2", "--join-fields2", dest="join_fields2", type=str,
-                      help="join fields in second table.")
+                        help="join fields in second table.")
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      help="set operation to perform.", choices=("intersection", "rest", "union"))
+                        help="set operation to perform.", choices=("intersection", "rest", "union"))
 
     parser.set_defaults(
         remove=False,
@@ -151,6 +151,7 @@ def main(argv=None):
                 outfile.write("\t".join(row2) + "\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

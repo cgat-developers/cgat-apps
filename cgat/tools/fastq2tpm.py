@@ -258,61 +258,61 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--test", dest="test", type=str,
-                      help="supply help")
+                        help="supply help")
 
     parser.add_argument("--program", dest="program", type=str,
-                      choices=["kallisto", "sailfish"],
-                      help="use either kallisto or sailfish, "
-                      "for alignment-free quantification")
+                        choices=["kallisto", "sailfish"],
+                        help="use either kallisto or sailfish, "
+                        "for alignment-free quantification")
 
     parser.add_argument("--method", dest="method", type=str,
-                      choices=["make_index", "quant"],
-                      help="method of kallisto to run")
+                        choices=["make_index", "quant"],
+                        help="method of kallisto to run")
 
     parser.add_argument("--index-fasta", dest="fa_index", type=str,
-                      help="multi-fasta to use to make index for kallisto")
+                        help="multi-fasta to use to make index for kallisto")
 
     parser.add_argument("--index-file", dest="index_file", type=str,
-                      help="kallisto index file to use for quantificaiton")
+                        help="kallisto index file to use for quantificaiton")
 
     parser.add_argument("--use-bias", dest="bias", action="store_true",
-                      help="use kallisto's bias correction")
+                        help="use kallisto's bias correction")
 
     parser.add_argument("--bootstraps", dest="bootstrap", type=int,
-                      help="number of bootstraps to apply to quantification")
+                        help="number of bootstraps to apply to quantification")
 
     parser.add_argument("--seed", dest="seed", type=int,
-                      help="seed number for random number genration "
-                      "and bootstrapping")
+                        help="seed number for random number genration "
+                        "and bootstrapping")
 
     parser.add_argument("--just-text", dest="text_only", action="store_true",
-                      help="only output files in plain text, not HDF5")
+                        help="only output files in plain text, not HDF5")
 
     parser.add_argument("--library-type", dest="library", type=str,
-                      choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
-                               "OSF", "OSR", "OU", "SR", "SF", "U"],
-                      help="sailfish fragment library type code")
+                        choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
+                                 "OSF", "OSR", "OU", "SR", "SF", "U"],
+                        help="sailfish fragment library type code")
 
     parser.add_argument("--paired-end", dest="paired", action="store_true",
-                      help="data are paired end")
+                        help="data are paired end")
 
     parser.add_argument("--kmer-size", dest="kmer", type=int,
-                      help="kmer size to use for index generation")
+                        help="kmer size to use for index generation")
 
     parser.add_argument("--gene-gtf", dest="gene_gtf", type=str,
-                      help="GTF file containing transcripts and gene "
-                      "identifiers to calculate gene-level estimates")
+                        help="GTF file containing transcripts and gene "
+                        "identifiers to calculate gene-level estimates")
 
     parser.add_argument("--threads", dest="threads", type=int,
-                      help="number of threads to use for kallisto "
-                      "quantificaion")
+                        help="number of threads to use for kallisto "
+                        "quantificaion")
 
     parser.add_argument("--output-directory", dest="outdir", type=str,
-                      help="directory to output transcript abundance "
-                      "estimates to")
+                        help="directory to output transcript abundance "
+                        "estimates to")
 
     parser.add_argument("--output-file", dest="outfile", type=str,
-                      help="output filename")
+                        help="output filename")
 
     parser.set_defaults(paired=False)
 
@@ -368,6 +368,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

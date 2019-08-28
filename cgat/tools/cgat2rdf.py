@@ -99,6 +99,7 @@ CLP = Namespace('http://www.humgen.nl/climate/ontologies/clp#')
 def _e(string):
     return string.replace(' ', '_')
 
+
 MAP_FORMATS = {
     'tsv': 'tabular',
     'table': 'tabular',
@@ -681,24 +682,24 @@ def main(argv=None):
                             usage=globals()["__doc__"])
 
     parser.add_argument("-f", "--format", dest="output_format", type=str,
-                      choices=("rdf", "galaxy"),
-                      help="output format . ")
+                        choices=("rdf", "galaxy"),
+                        help="output format . ")
 
     parser.add_argument("-l", "--list", dest="filename_list", type=str,
-                      help="filename with list of files to export "
-                      ". ")
+                        help="filename with list of files to export "
+                        ". ")
 
     parser.add_argument("-s", "--source-dir", dest="src_dir", type=str,
-                      help="directory to look for scripts . ")
+                        help="directory to look for scripts . ")
 
     parser.add_argument("-r", "--input-regex", dest="input_regex", type=str,
-                      help="regular expression to extract script name "
-                      ". ")
+                        help="regular expression to extract script name "
+                        ". ")
 
     parser.add_argument("-p", "--output-filename-pattern", dest="output_pattern",
-                      type=str,
-                      help="pattern to build output filename. Should contain "
-                      "an '%s' . ")
+                        type=str,
+                        help="pattern to build output filename. Should contain "
+                        "an '%s' . ")
 
     parser.set_defaults(output_format="rdf",
                         src_dir=None,
@@ -761,6 +762,7 @@ def main(argv=None):
         args.stdout.write('''</section>\n''')
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

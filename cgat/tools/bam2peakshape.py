@@ -177,9 +177,9 @@ def buildOptionParser(argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-f", "--format", dest="format", type=str,
-                      choices=("bam", "bigwig"),
-                      help="format of genomic input files for densities "
-                      )
+                        choices=("bam", "bigwig"),
+                        help="format of genomic input files for densities "
+                        )
 
     parser.add_argument(
         "-o", "--use-interval", dest="use_interval", action="store_true",
@@ -210,12 +210,12 @@ def buildOptionParser(argv):
         )
 
     parser.add_argument("-s", "--sort-order", dest="sort_orders",
-                      type=str,
-                      action="append",
-                      choices=("peak-height", "peak-width", "unsorted",
-                               "interval-width", "interval-score"),
-                      help="output sort order for matrices. "
-                      )
+                        type=str,
+                        action="append",
+                        choices=("peak-height", "peak-width", "unsorted",
+                                 "interval-width", "interval-score"),
+                        help="output sort order for matrices. "
+                        )
 
     parser.add_argument(
         "-c", "--control-bam-file", "--control-bigwig-file",

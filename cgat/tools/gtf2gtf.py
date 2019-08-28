@@ -362,33 +362,33 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--merge-exons-distance",
-                      dest="merge_exons_distance",
-                      type=int,
-                      help="distance in nucleotides between "
-                      "exons to be merged.")
+                        dest="merge_exons_distance",
+                        type=int,
+                        help="distance in nucleotides between "
+                        "exons to be merged.")
 
     parser.add_argument("--pattern-identifier", dest="pattern", type=str,
-                      help="pattern to use for renaming genes/transcripts. "
-                      "The pattern should contain a \\%i, for example "
-                      "--pattern-identifier=ENSG\\%010i .")
+                        help="pattern to use for renaming genes/transcripts. "
+                        "The pattern should contain a \\%i, for example "
+                        "--pattern-identifier=ENSG\\%010i .")
 
     parser.add_argument("--sort-order",
-                      dest="sort_order",
-                      type=str,
-                      choices=("gene",
-                               "gene+transcript",
-                               "transcript",
-                               "position",
-                               "contig+gene",
-                               "position+gene",
-                               "gene+position",
-                               "gene+exon"),
-                      help="sort input data.")
+                        dest="sort_order",
+                        type=str,
+                        choices=("gene",
+                                 "gene+transcript",
+                                 "transcript",
+                                 "position",
+                                 "contig+gene",
+                                 "position+gene",
+                                 "gene+position",
+                                 "gene+exon"),
+                        help="sort input data.")
 
     parser.add_argument("--mark-utr",
-                      dest="mark_utr",
-                      action="store_true",
-                      help="mark utr for method --merge-exons. ")
+                        dest="mark_utr",
+                        action="store_true",
+                        help="mark utr for method --merge-exons. ")
 
     parser.add_argument(
         "--without-utr",
@@ -421,9 +421,9 @@ def main(argv=None):
         "'lincrna': only output lincRNA features. ")
 
     parser.add_argument("-a", "--map-tsv-file", dest="filename_filter",
-                      type=str,
-                      metavar="tsv",
-                      help="filename of ids to map/filter .")
+                        type=str,
+                        metavar="tsv",
+                        help="filename of ids to map/filter .")
 
     parser.add_argument(
         "--gff-file", dest="filename_gff", type=str,
@@ -432,14 +432,14 @@ def main(argv=None):
         )
 
     parser.add_argument("--invert-filter",
-                      dest="invert_filter",
-                      action="store_true",
-                      help="when using --filter, invert selection "
-                      "(like grep -v). ")
+                        dest="invert_filter",
+                        action="store_true",
+                        help="when using --filter, invert selection "
+                        "(like grep -v). ")
 
     parser.add_argument("--sample-size", dest="sample_size", type=int,
-                      help="extract a random sample of size # if the option "
-                      "'--method=filter --filter-method' is set ")
+                        help="extract a random sample of size # if the option "
+                        "'--method=filter --filter-method' is set ")
 
     parser.add_argument(
         "--intron-min-length",
@@ -447,10 +447,10 @@ def main(argv=None):
         help="minimum length for introns (for --exons-file2introns) ")
 
     parser.add_argument("--min-exons-length",
-                      dest="min_exons_length",
-                      type=int,
-                      help="minimum length for gene (sum of exons) "
-                      "(--sam-fileple-size) .")
+                        dest="min_exons_length",
+                        type=int,
+                        help="minimum length for gene (sum of exons) "
+                        "(--sam-fileple-size) .")
 
     parser.add_argument(
         "--intron-border",
@@ -460,14 +460,14 @@ def main(argv=None):
         "(--exons-file2introns) .")
 
     parser.add_argument("--ignore-strand",
-                      dest="ignore_strand",
-                      action="store_true",
-                      help="remove strandedness of features (set to '.') when "
-                      "using ``transcripts2genes`` or ``filter``")
+                        dest="ignore_strand",
+                        action="store_true",
+                        help="remove strandedness of features (set to '.') when "
+                        "using ``transcripts2genes`` or ``filter``")
 
     parser.add_argument("--permit-duplicates", dest="strict",
-                      action="store_false",
-                      help="permit duplicate genes. ")
+                        action="store_false",
+                        help="permit duplicate genes. ")
 
     parser.add_argument(
         "--duplicate-feature",
@@ -480,41 +480,40 @@ def main(argv=None):
         "that are next to each other in the sort order ")
 
     parser.add_argument("--use-gene-id", dest="use_geneid", action="store_true",
-                      help="when merging transcripts, exons or introns, use "
-                      "the parent gene_id as the transcript id.")
+                        help="when merging transcripts, exons or introns, use "
+                        "the parent gene_id as the transcript id.")
 
     parser.add_argument("-m", "--method", dest="method", type=str,
-                      action="append",
-                      choices=(
-                          "add-protein-id",
-                          "exons2introns",
-                          "filter",
-                          "find-retained-introns",
-                          "genes-to-unique-chunks",
-                          "intersect-transcripts",
-                          "join-exons",
-                          "merge-exons",
-                          "merge-transcripts",
-                          "merge-genes",
-                          "merge-introns",
-                          "remove-overlapping",
-                          "remove-duplicates",
-                          "rename-genes",
-                          "rename-transcripts",
-                          "rename-duplicates",
-                          "renumber-genes",
-                          "renumber-transcripts",
-                          "set-transcript-to-gene",
-                          "set-gene-to-transcript",
-                          "set-protein-to-transcript",
-                          "set-score-to-distance",
-                          "set-gene_biotype-to-source",
-                          "set-source-to-transcript_biotype",
-                          "sort",
-                          "transcript2genes",
-                          "unset-genes"),
-                      help="Method to apply ."
-                      "Please only select one.")
+                        action="append",
+                        choices=("add-protein-id",
+                                 "exons2introns",
+                                 "filter",
+                                 "find-retained-introns",
+                                 "genes-to-unique-chunks",
+                                 "intersect-transcripts",
+                                 "join-exons",
+                                 "merge-exons",
+                                 "merge-transcripts",
+                                 "merge-genes",
+                                 "merge-introns",
+                                 "remove-overlapping",
+                                 "remove-duplicates",
+                                 "rename-genes",
+                                 "rename-transcripts",
+                                 "rename-duplicates",
+                                 "renumber-genes",
+                                 "renumber-transcripts",
+                                 "set-transcript-to-gene",
+                                 "set-gene-to-transcript",
+                                 "set-protein-to-transcript",
+                                 "set-score-to-distance",
+                                 "set-gene_biotype-to-source",
+                                 "set-source-to-transcript_biotype",
+                                 "sort",
+                                 "transcript2genes",
+                                 "unset-genes"),
+                        help="Method to apply ."
+                        "Please only select one.")
 
     parser.set_defaults(
         sort_order="gene",
@@ -955,7 +954,7 @@ def main(argv=None):
                 else:
                     ndiscarded += 1
         elif args.filter_method in ("longest-transcript",
-                                       "representative-transcript"):
+                                    "representative-transcript"):
 
             iterator = GTF.gene_iterator(GTF.iterator(args.stdin))
 
@@ -1072,7 +1071,7 @@ def main(argv=None):
                 "with ids to filter with (--map-tsv-file) or a sample-size."
 
         elif args.filter_method in ("proteincoding", "lincrna",
-                                       "processed-pseudogene"):
+                                    "processed-pseudogene"):
             # extract entries by transcript/gene biotype.
             # This filter uses a test on the source field (ENSEMBL pre v78)
             # a regular expression on the attributes (ENSEMBL >= v78).
@@ -1258,8 +1257,8 @@ def main(argv=None):
             args.stdout.write("%s\n" % gtf)
 
     elif args.method in ("merge-exons",
-                            "merge-introns",
-                            "merge-transcripts"):
+                         "merge-introns",
+                         "merge-transcripts"):
         for gffs in GTF.flat_gene_iterator(
                 GTF.iterator(args.stdin),
                 strict=args.strict):

@@ -108,11 +108,12 @@ def main(argv=None):
         noutput += 1
 
         args.stdout.write(">%s\n%s\n" % (ids[0],
-                                            "".join(sequences)))
+                                         "".join(sequences)))
 
     E.info("ninput=%i, noutput=%i, nerrors=%i" % (ninput, noutput, nerrors))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

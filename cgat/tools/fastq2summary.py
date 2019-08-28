@@ -87,7 +87,7 @@ def main(argv=None):
     parser.add_argument(
         "-f", "--target-format", dest="change_format",
         type=str, choices=('sanger', 'solexa', 'phred64',
-                                'illumina-1.8', 'integer'),
+                           'illumina-1.8', 'integer'),
         help="The script guesses the quality format of the input \
         file and converts quality scores to the destination \
         format unless --format is specified.")
@@ -142,6 +142,7 @@ def main(argv=None):
                                           str(median_quality),
                                           bases_below_min))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

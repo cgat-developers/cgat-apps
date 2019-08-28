@@ -206,12 +206,12 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("--task", dest="task", type=str,
-                      choices=["extract_table", "get_coverage",
-                               "clean_table"],
-                      help="task to perform")
+                        choices=["extract_table", "get_coverage",
+                                 "clean_table"],
+                        help="task to perform")
 
     parser.add_argument("-t", "--table-name", dest="table", type=str,
-                      help="table in SQLite DB to extract")
+                        help="table in SQLite DB to extract")
 
     # add common options (-h/--help, ...) and parse command line
     (args) = E.start(parser, argv=argv, add_database_options=True)

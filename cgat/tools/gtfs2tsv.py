@@ -210,12 +210,12 @@ def main(argv=None):
         help="write full gff entries.")
 
     parser.add_argument("-p", "--add-percent", dest="add_percent",
-                      action="store_true",
-                      help="add percentage columns.")
+                        action="store_true",
+                        help="add percentage columns.")
 
     parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
-                      action="store_true",
-                      help="ignore strand information.")
+                        action="store_true",
+                        help="ignore strand information.")
 
     parser.set_defaults(
         write_equivalent=False,
@@ -336,6 +336,7 @@ def main(argv=None):
             outfile_total.close()
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())

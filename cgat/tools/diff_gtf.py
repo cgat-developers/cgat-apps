@@ -213,8 +213,7 @@ class Counter:
 
         (self.mGenes1, self.mGenesOverlapping1,
          self.mExons1, self.mExonsOverlapping1,
-         self.mBases1, self.mBasesOverlapping1 ) = \
-            self._count(filename1, idx2)
+         self.mBases1, self.mBasesOverlapping1) = self._count(filename1, idx2)
 
         self.mGenesUnique1 = self.mGenes1 - self.mGenesOverlapping1
         self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
@@ -224,8 +223,7 @@ class Counter:
 
         (self.mGenes2, self.mGenesOverlapping2,
          self.mExons2, self.mExonsOverlapping2,
-         self.mBases2, self.mBasesOverlapping2 ) = \
-            self._count(filename2, idx1)
+         self.mBases2, self.mBasesOverlapping2) = self._count(filename2, idx1)
 
         self.mGenesUnique2 = self.mGenes2 - self.mGenesOverlapping2
         self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
@@ -242,20 +240,20 @@ class Counter:
             self.mExonsUnique1, self.mExonsUnique2,
             self.mBases1, self.mBases2,
             self.mBasesOverlapping1, self.mBasesOverlapping2,
-            self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
+            self.mBasesUnique1, self.mBasesUnique2))) + "\t" +\
             "\t".join([iotools.pretty_percent(*x) for x in (
-                (self.mGenesOverlapping1, self.mGenes1),
-                (self.mGenesOverlapping2, self.mGenes2),
-                (self.mGenesUnique1, self.mGenes1),
-                (self.mGenesUnique2, self.mGenes2),
-                (self.mExonsOverlapping1, self.mExons1),
-                (self.mExonsOverlapping2, self.mExons2),
-                (self.mExonsUnique1, self.mExons1),
-                (self.mExonsUnique2, self.mExons2),
-                (self.mBasesOverlapping1, self.mBases1),
-                (self.mBasesOverlapping2, self.mBases2),
-                (self.mBasesUnique1, self.mBases1),
-                (self.mBasesUnique2, self.mBases2))])
+                        (self.mGenesOverlapping1, self.mGenes1),
+                        (self.mGenesOverlapping2, self.mGenes2),
+                        (self.mGenesUnique1, self.mGenes1),
+                        (self.mGenesUnique2, self.mGenes2),
+                        (self.mExonsOverlapping1, self.mExons1),
+                        (self.mExonsOverlapping2, self.mExons2),
+                        (self.mExonsUnique1, self.mExons1),
+                        (self.mExonsUnique2, self.mExons2),
+                        (self.mBasesOverlapping1, self.mBases1),
+                        (self.mBasesOverlapping2, self.mBases2),
+                        (self.mBasesUnique1, self.mBases1),
+                        (self.mBasesUnique2, self.mBases2))])
 
 
 class CounterGenes(Counter):
@@ -290,7 +288,7 @@ class CounterGenes(Counter):
 
             if len(intervals) == 0:
                 continue
-	
+
             overlapping_genes.add(this.gene_id)
 
         infile.close()
@@ -334,8 +332,8 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
-                      action="store_true",
-                      help="ignore strand information.")
+                        action="store_true",
+                        help="ignore strand information.")
 
     parser.add_argument(
         "-u", "--update", dest="filename_update", type=str,
@@ -425,6 +423,7 @@ def main(argv=None):
     E.info("nupdated=%i, ncomputed=%i" % (nupdated, ncomputed))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

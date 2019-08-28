@@ -9,7 +9,7 @@ Purpose
 
 This script reads several tab-separated tables and joins them.
 
-.. note:: 
+.. note::
    working with multiple columns per table and sorting is
    not implemented correctly and likely to fail.
 
@@ -62,7 +62,7 @@ def main(argv=None):
         help="entry to use for missing values.")
 
     parser.add_argument("--header-names", dest="headers", type=str,
-                      help="add headers for files.")
+                        help="add headers for files.")
 
     parser.add_argument(
         "-c", "--columns", dest="columns", type=str,
@@ -146,7 +146,7 @@ def main(argv=None):
 
     if args.loglevel >= 1:
         args.stdlog.write("# combining %i tables.\n" %
-                             len(args.filenames))
+                          len(args.filenames))
         sys.stdout.flush()
         if len(args.filenames) == 1:
             for line in iotools.open_file(args.filenames[0]):
@@ -350,6 +350,7 @@ def main(argv=None):
             sys.stdout.write("\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

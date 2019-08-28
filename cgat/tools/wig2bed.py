@@ -113,17 +113,16 @@ def main(argv=sys.argv):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="methods", type=str,
-                      action="append",
-                      choices=(
-                          "threshold", "stddev-above-mean",
-                          "multiple-of-mean"),
-                      help="method to apply")
+                        action="append",
+                        choices=("threshold", "stddev-above-mean",
+                                 "multiple-of-mean"),
+                        help="method to apply")
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
-                      help="filename with genome.")
+                        help="filename with genome.")
 
     parser.add_argument("-t", "--threshold", dest="threshold", type=float,
-                      help="threshold to apply")
+                        help="threshold to apply")
 
     parser.add_argument(
         "-i", "--bigwig-file", dest="bigwig_file",

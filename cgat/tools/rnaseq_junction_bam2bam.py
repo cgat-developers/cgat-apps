@@ -67,25 +67,25 @@ def main(argv=None):
     parser = E.OptionParser(description=__doc__)
 
     parser.add_argument("-t", "--template-bam-file", dest="filename_genome_bam", type=str,
-                      help="input bam file for header information ")
+                        help="input bam file for header information ")
 
     parser.add_argument("-s", "--contigs-tsv-file", dest="filename_contigs", type=str,
-                      help="filename with contig sizes ")
+                        help="filename with contig sizes ")
 
     parser.add_argument("-o", "--colour", dest="colour_mismatches", action="store_true",
-                      help="mismatches will use colour differences (CM tag) ")
+                        help="mismatches will use colour differences (CM tag) ")
 
     parser.add_argument("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
-                      help="ignore mismatches ")
+                        help="ignore mismatches ")
 
     parser.add_argument("-c", "--remove-contigs", dest="remove_contigs", type=str,
-                      help="','-separated list of contigs to remove ")
+                        help="','-separated list of contigs to remove ")
 
     parser.add_argument("-f", "--force-output", dest="force", action="store_true",
-                      help="force overwriting of existing files ")
+                        help="force overwriting of existing files ")
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
-                      help="remove reads not matching uniquely ")
+                        help="remove reads not matching uniquely ")
 
     parser.set_defaults(
         filename_genome_bam=None,
@@ -207,6 +207,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
