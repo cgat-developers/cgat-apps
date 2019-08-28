@@ -698,14 +698,14 @@ def main(argv=None):
                 counters.append(
                     GeneModelAnalysis.CounterPosition(
                         section=section,
-                        args.options,
+                        options=args,
                         prefix=prefix))
         elif c == "length":
             for section in args.sections:
                 counters.append(
                     GeneModelAnalysis.CounterLengths(
                         section=section,
-                        args.options,
+                        options=args,
                         prefix=prefix))
         elif c == "splice":
             if fasta is None:
