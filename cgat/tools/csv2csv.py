@@ -43,6 +43,8 @@ def main(argv=None):
 
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-s", "--method=sort --sort-order", dest="sort", type=str,
         help="fields to take (in sorted order).")

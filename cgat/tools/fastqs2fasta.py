@@ -104,6 +104,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-a", "--first-fastq-file", dest="fastq1", type=str,
         help="supply read1 fastq file")

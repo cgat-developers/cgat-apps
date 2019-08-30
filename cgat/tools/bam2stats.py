@@ -382,6 +382,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type=str,
         metavar='GFF',

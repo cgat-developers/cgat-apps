@@ -120,6 +120,8 @@ def main(argv=None):
 
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
                         help="bin size.")
 

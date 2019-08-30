@@ -45,6 +45,8 @@ def main(argv=None):
 
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     (args, unknown) = E.start(parser,
                               unknowns=True)
 

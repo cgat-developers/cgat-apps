@@ -66,6 +66,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     # add common options (-h/--help, ...) and parse command line
     (args) = E.start(parser, argv=argv)
 

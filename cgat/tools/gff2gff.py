@@ -399,6 +399,8 @@ def main(argv=None):
 
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-m", "--method", dest="method", type=str,
                         choices=("add-flank",
                                  "add-upstream-flank",

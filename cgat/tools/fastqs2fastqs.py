@@ -118,6 +118,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-m", "--method", dest="method", type=str,
                         choices=('reconcile', 'filter-by-sequence'),
                         help="method to apply.")

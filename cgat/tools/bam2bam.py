@@ -535,6 +535,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-m", "--methods", dest="methods", type=str,
                         action="append",
                         choices=("filter",

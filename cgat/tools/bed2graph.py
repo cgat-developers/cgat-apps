@@ -42,6 +42,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-o", "--output-section", dest="output", type=str,
                         choices=("full", "name"),
                         help="output either ``full`` overlapping entries, only the ``name``s.")

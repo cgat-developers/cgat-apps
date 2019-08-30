@@ -60,9 +60,9 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser()
+
+    parser.add_argument("--version", action='version', version="1.0")
 
     parser.add_argument("-i", "--intervals-bed-file", dest="filename_intervals",
                         type=str,

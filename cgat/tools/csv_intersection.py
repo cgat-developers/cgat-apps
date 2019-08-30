@@ -58,7 +58,9 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser()
+    parser = E.OptionParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version="1.0")
 
     parser.add_argument("-u", "--unique", dest="unique", action="store_true",
                         help="output rows are uniq.")

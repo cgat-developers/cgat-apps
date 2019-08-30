@@ -49,6 +49,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-f", "--bam-file", "--filename", dest="filename", type=str,
                         help="bamfile")
 

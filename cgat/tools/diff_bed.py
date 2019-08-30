@@ -244,6 +244,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-u", "--update", dest="filename_update", type=str,
                         help="if filename is given, previous results will be read from there and only changed sets will be computed.")
 

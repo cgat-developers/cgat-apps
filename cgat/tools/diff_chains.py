@@ -336,6 +336,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
                         help="output mismatches ")
 

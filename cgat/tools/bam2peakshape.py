@@ -176,6 +176,8 @@ def buildOptionParser(argv):
     # setup command line parser
     parser = E.OptionParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-f", "--format", dest="format", type=str,
                         choices=("bam", "bigwig"),
                         help="format of genomic input files for densities "
