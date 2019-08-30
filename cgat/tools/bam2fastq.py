@@ -67,14 +67,14 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
     # do sth
-    if len(args) == 1:
-        fastqfile1 = args[0]
+    if len(unknown) == 1:
+        fastqfile1 = unknown[0]
         fastqfile2 = args.output_filename_pattern % "2"
-    elif len(args) == 2:
-        fastqfile1, fastqfile2 = args
+    elif len(unknown) == 2:
+        fastqfile1, fastqfile2 = unknown
     else:
         fastqfile1 = args.output_filename_pattern % "1"
         fastqfile2 = args.output_filename_pattern % "2"

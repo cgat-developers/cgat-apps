@@ -80,23 +80,23 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
-    if len(args) < 1:
+    if len(unknown) < 1:
         raise ValueError("please supply at least two BAM files.")
 
     samfiles = []
-    for f in args:
+    for f in unknown:
         samfiles.append(pysam.AlignmentFile(f, "rb"))
 
-    if options.filename_intervals:
+    if args.filename_intervals:
         raise NotImplementedError(
             "It is not yet possible to specify intervals of interest.\
             Repeat command without intervals option.")
 
-    titles = [re.search(options.regex_identifier, x).groups()[0] for x in args]
+    titles = [re.search(args.regex_identifier, x).groups()[0] for x in unknown]
 
-    options.stdout.write("contig\tpos\t%s\n" % "\t".join(titles))
+    args.stdout.write("contig\tpos\t%s\n" % "\t".join(titles))
 
     ninput, nskipped, noutput = 0, 0, 0
     contigs = samfiles[0].references
@@ -134,7 +134,7 @@ def main(argv=None):
         noutput += 1
         for pos in sorted(positions.keys()):
             vals = positions[pos]
-            options.stdout.write("%s\t%i\t%s\n" % (contig, pos,
+            args.stdout.write("%s\t%i\t%s\n" % (contig, pos,
                                                    "\t".join(map(str, vals))))
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))

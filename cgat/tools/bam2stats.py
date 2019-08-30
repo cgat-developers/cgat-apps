@@ -444,7 +444,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
     if args.filename_bed:
         bed_mask = GTF.readAndIndex(
@@ -456,9 +456,9 @@ def main(argv=None):
         args.output_details = True
 
     is_stdin = True
-    if len(args) > 0:
-        pysam_in = pysam.AlignmentFile(args[0], "rb")
-        if args[0] != "-":
+    if len(unknown) > 0:
+        pysam_in = pysam.AlignmentFile(unknown[0], "rb")
+        if unknown[0] != "-":
             is_stdin = False
     elif args.stdin == sys.stdin:
         pysam_in = pysam.AlignmentFile("-", "rb")

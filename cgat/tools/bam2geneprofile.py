@@ -592,10 +592,10 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
     # Keep for backwards compatability
-    if len(args) == 2:
+    if len(unknown) == 2:
         infile, gtf = args
         args.infiles.append(infile)
         args.gtffile = gtf

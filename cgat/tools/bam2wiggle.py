@@ -216,12 +216,12 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
-    if len(args) >= 1:
-        args.samfile = args[0]
-    if len(args) == 2:
-        args.output_filename_pattern = args[1]
+    if len(unknown) >= 1:
+        args.samfile = unknown[0]
+    if len(unknown) == 2:
+        args.output_filename_pattern = unknown[1]
     if not args.samfile:
         raise ValueError("please provide a bam file")
 

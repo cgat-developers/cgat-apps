@@ -130,7 +130,7 @@ def main(argv=None):
         "can be separated by comma.")
 
     parser.add_argument(
-        "-s", "--section", dest="sections", type=str, action="append",
+        "-s", "--section", dest="sections", nargs="*", type=str,
         choices=("length", "sequence", "hid", "na", "aa", "cpg", "dn",
                  "degeneracy", "gaps",
                  "codons", "codon-usage", "codon-translator", "codon-bias"),

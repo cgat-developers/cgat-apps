@@ -155,12 +155,12 @@ def main(argv=None):
         bed_format='6',
     )
 
-    (args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
-    if len(args) == 0:
-        args.append("-")
+    if len(unknown) == 0:
+        unknown.append("-")
 
-    samfile = pysam.AlignmentFile(args[0], "rb")
+    samfile = pysam.AlignmentFile(unknown[0], "rb")
 
     args.bed_format = int(args.bed_format)
 

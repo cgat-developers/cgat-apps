@@ -137,17 +137,17 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
     filename_bam = args.filename_bam
     filename_bed = args.filename_bed
 
     if filename_bam is None and filename_bed is None:
-        if len(args) != 2:
+        if len(unknown) != 2:
             raise ValueError(
                 "please supply a bam and a bed file or two bed-files.")
 
-        filename_bam, filename_bed = args
+        filename_bam, filename_bed = unknown
 
     if filename_bed is None:
         raise ValueError("please supply a bed file to compare to.")

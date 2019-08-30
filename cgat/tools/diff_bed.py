@@ -327,12 +327,12 @@ def main(argv=None):
         counter = Counter()
         args.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
 
-        for x in range(len(args)):
+        for x in range(len(unknown)):
 
-            title1 = getTitle(args[x])
+            title1 = getTitle(unknown[x])
 
             for y in range(0, x):
-                title2 = getTitle(args[y])
+                title2 = getTitle(unknown[y])
                 if previous_results:
                     try:
                         prev = previous_results[title1][title2]
@@ -344,7 +344,7 @@ def main(argv=None):
                         nupdated += 1
                         continue
 
-                counter.count(args[x], args[y])
+                counter.count(unknown[x], unknown[y])
                 args.stdout.write(
                     "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
                 ncomputed += 1

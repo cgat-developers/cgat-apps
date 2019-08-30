@@ -360,7 +360,7 @@ def main(argv=None):
 
     (args, unknown) = E.start(parser, unknowns=True)
 
-    if len(unknowns) < 2:
+    if len(unknown) < 2:
         print(USAGE)
         raise ValueError("at least two arguments required")
 
@@ -402,10 +402,10 @@ def main(argv=None):
             return x
 
     ncomputed, nupdated = 0, 0
-    for x in range(len(args)):
-        title1 = getTitle(args[x])
+    for x in range(len(unknown)):
+        title1 = getTitle(unknown[x])
         for y in range(0, x):
-            title2 = getTitle(args[y])
+            title2 = getTitle(unknown[y])
             if previous_results:
                 try:
                     prev = previous_results[title1][title2]
@@ -417,7 +417,7 @@ def main(argv=None):
                     nupdated += 1
                     continue
 
-            counter.count(args[x], args[y])
+            counter.count(unknown[x], unknown[y])
             args.stdout.write(
                 "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
             ncomputed += 1

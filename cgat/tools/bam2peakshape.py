@@ -551,16 +551,16 @@ def main(argv=None):
     parser = buildOptionParser(argv)
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError(
             "please specify one bam- or wig-file and one bed file")
 
     if args.control_files:
         E.info("using control files: %s" % ",".join(args.control_files))
 
-    infile, bedfile = args
+    infile, bedfile = unknown
     control_files = []
 
     if args.format == "bigwig":
