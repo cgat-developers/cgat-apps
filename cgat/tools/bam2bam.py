@@ -642,13 +642,13 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
     if args.stdin != sys.stdin:
         bamfile = args.stdin.name
-    elif args:
-        bamfile = args[0]
-        if len(args) > 1:
+    elif unknown:
+        bamfile = unknown[0]
+        if len(unknown) > 1:
             raise ValueError("multiple bam files provided in arguments")
     else:
         bamfile = "-"
@@ -689,7 +689,7 @@ def main(argv=None):
     with pysam.AlignmentFile(bamfile, "rb") as pysam_in:
         with pysam.AlignmentFile(output_bamfile, output_mode,
                                  template=pysam_in) as pysam_out:
-            process_bam(pysam_in, pysam_out, options)
+            process_bam(pysam_in, pysam_out, args)
 
     # write footer and output benchmark information.
     E.stop()
