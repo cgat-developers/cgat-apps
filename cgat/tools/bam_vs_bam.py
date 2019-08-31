@@ -135,7 +135,7 @@ def main(argv=None):
         for pos in sorted(positions.keys()):
             vals = positions[pos]
             args.stdout.write("%s\t%i\t%s\n" % (contig, pos,
-                                                   "\t".join(map(str, vals))))
+                                                "\t".join(map(str, vals))))
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
