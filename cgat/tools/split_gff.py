@@ -133,6 +133,10 @@ def main(argv=None):
         "-n", "--dry-run", dest="dry_run", action="store_true",
         help="do not create any files.")
 
+    parser.add_argument(
+        "--output-filename-name", dest="output_filename_name", type=str,
+        help="use an output: for example (remove string percent with the symbol percent) percenti.gtf")
+
     parser.set_defaults(
         method="overlap",
         dry_run=False,
