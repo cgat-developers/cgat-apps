@@ -121,7 +121,6 @@ def main(argv=None):
 
     group = parser.add_argument_group("Bencharking options")
 
-
     group.add_argument("-b", "--benchmark", dest="benchmark",
                        action="store_true",
                        help="benchmark time for read access ")
