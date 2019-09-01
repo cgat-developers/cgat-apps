@@ -137,7 +137,7 @@ def main(argv=None):
         method="overlap",
         dry_run=False,
         min_chunk_size=2,
-        output_filename_pattern="%06i.chunk",
+        output_filename_name="%06i.chunk",
     )
 
     (args) = E.start(parser, add_output_options=True)
@@ -146,7 +146,8 @@ def main(argv=None):
 
     ninput, noutput, nchunks = 0, 0, 0
 
-    outputChunk = OutputChunk(args.output_filename_pattern,
+    print(args.output_filename_name)
+    outputChunk = OutputChunk(args.output_filename_name,
                               dry_run=args.dry_run)
 
     if args.method == "overlap":
