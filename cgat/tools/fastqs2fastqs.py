@@ -172,13 +172,16 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError(
             "please supply at least two fastq files on the commandline")
 
-    fn1, fn2 = args
+    fn1, fn2 = unknown
     counter = E.Counter()
 
     if args.id_pattern_1:

@@ -119,7 +119,9 @@ def main(argv=None):
         "means that chrMT will refer to chrM and either "
         "can be used to retrieve a sequence ")
 
-    group = E.OptionGroup(parser, "Bencharking options")
+    group = parser.add_argument_group("Bencharking options")
+
+
     group.add_argument("-b", "--benchmark", dest="benchmark",
                        action="store_true",
                        help="benchmark time for read access ")
@@ -133,7 +135,8 @@ def main(argv=None):
                        help="benchmark: fragment size.")
     parser.add_argument_group(group)
 
-    group = E.OptionGroup(parser, "Validation options")
+    group = parser.add_argument_group("Validation options")
+
     group.add_argument("--verify", dest="verify", type=str,
                        help="verify against other database.")
 
@@ -175,7 +178,8 @@ def main(argv=None):
                         "Valid choices are \\%s." %
                         ", ".join(translator_choices))
 
-    group = E.OptionGroup(parser, 'Compression options')
+    group = parser.add_argument_group("Compression options")
+
     compression_choices = ("lzo", "zlib", "gzip", "dictzip", "bzip2", "debug")
     group.add_argument("-c", "--compression", dest="compression", type=str,
                        choices=compression_choices,
@@ -245,7 +249,7 @@ def main(argv=None):
             raise ValueError("unknown translator %s" % args.translator)
 
     if args.extract:
-        fasta = IndexedFasta.IndexedFasta(args[0])
+        fasta = IndexedFasta.IndexedFasta(unknown[0])
         fasta.setTranslator(args.translator)
         converter = IndexedFasta.getConverter(args.input_format)
 
@@ -263,7 +267,7 @@ def main(argv=None):
             stmt="IndexedFasta.benchmarkRandomFragment(fasta=fasta, size=%i)" %
             (args.benchmark_fragment_size),
             setup="from cgat import IndexedFasta\n"
-            "fasta=IndexedFasta.IndexedFasta('%s')" % (args[0]))
+            "fasta=IndexedFasta.IndexedFasta('%s')" % (unknown[0]))
 
         t = timer.timeit(number=args.benchmark_num_iterations)
         args.stdout.write("iter\tsize\ttime\n")
@@ -272,7 +276,7 @@ def main(argv=None):
             args.benchmark_fragment_size, t))
 
     elif args.verify:
-        fasta1 = IndexedFasta.IndexedFasta(args[0])
+        fasta1 = IndexedFasta.IndexedFasta(unknown[0])
         fasta2 = IndexedFasta.IndexedFasta(args.verify)
         nerrors1 = IndexedFasta.verify(fasta1, fasta2,
                                        args.verify_num_iterations,
@@ -285,13 +289,13 @@ def main(argv=None):
                                        stdout=args.stdout)
         args.stdout.write("errors=%i\n" % (nerrors2))
     elif args.compress_index:
-        fasta = IndexedFasta.IndexedFasta(args[0])
+        fasta = IndexedFasta.IndexedFasta(unknown[0])
         fasta.compressIndex()
     else:
         if args.loglevel >= 1:
-            args.stdlog.write("# creating database %s\n" % args[0])
+            args.stdlog.write("# creating database %s\n" % unknown[0])
             args.stdlog.write("# indexing the following files: \n# %s\n" %
-                              (" \n# ".join(args[1:])))
+                              (" \n# ".join(unknown[1:])))
             args.stdlog.flush()
 
             if synonyms:
@@ -309,7 +313,7 @@ def main(argv=None):
             format=args.file_format)
 
         IndexedFasta.createDatabase(
-            args[0],
+            unknown[0],
             iterator,
             synonyms=synonyms,
             random_access_points=args.random_access_points,

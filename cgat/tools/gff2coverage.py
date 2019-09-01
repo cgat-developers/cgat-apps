@@ -281,7 +281,7 @@ def main(argv=None):
         for entry in gff:
 
             if last_contig != entry.contig:
-                processChunk(last_contig, chunk, args. fasta)
+                processChunk(last_contig, chunk, args, fasta)
                 last_contig = entry.contig
                 chunk = []
 

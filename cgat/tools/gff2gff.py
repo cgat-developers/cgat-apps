@@ -500,7 +500,7 @@ def main(argv=None):
 
     parser.add_argument(
         "--assembly-extras", dest="assembly_extras",
-        type="str",
+        type=str,
         help="additional mismatches between gtf and fasta to fix when"
         "sanitizing the genome .")
 

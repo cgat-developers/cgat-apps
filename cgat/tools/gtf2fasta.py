@@ -522,7 +522,7 @@ def main(argv=None):
 
     iterator = GTF.transcript_iterator(GTF.iterator(args.stdin))
 
-    annotateGenome(iterator, fasta, options)
+    annotateGenome(iterator, fasta, args)
 
     # write footer and output benchmark information.
     E.stop()

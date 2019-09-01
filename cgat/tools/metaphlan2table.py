@@ -32,7 +32,7 @@ Code
 '''
 
 import sys
-import optparse
+import argparse
 import cgat.Metaphlan as Metaphlan
 import cgatcore.experiment as E
 
@@ -47,7 +47,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = optparse.OptionParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument("--version", action='version', version="1.0")
 

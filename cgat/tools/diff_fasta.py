@@ -148,9 +148,9 @@ def main(argv=None):
                         pattern2="(\S+)",
                         output=[])
 
-    (args) = E.start(parser)
+    (args, unknown) = E.start(parser, unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError("two files needed to compare.")
 
     if args.correct_shift:
@@ -163,15 +163,15 @@ def main(argv=None):
 
     seqs1 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            iotools.open_file(args[0], "r"))])
+            iotools.open_file(unknown[0], "r"))])
     seqs2 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            iotools.open_file(args[1], "r"))])
+            iotools.open_file(unknown[1], "r"))])
 
     if not seqs1:
-        raise ValueError("first file %s is empty." % (args[0]))
+        raise ValueError("first file %s is empty." % (unknown[0]))
     if not seqs2:
-        raise ValueError("second file %s is empty." % (args[1]))
+        raise ValueError("second file %s is empty." % (unknown[1]))
 
     MapIdentifiers(seqs1, args.pattern1)
     MapIdentifiers(seqs2, args.pattern2)
