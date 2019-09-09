@@ -262,7 +262,7 @@ class CounterBAMAllelicDepth(CounterBAM):
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type=float,

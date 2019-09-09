@@ -62,7 +62,7 @@ def parse_block(block):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-f", "--input-filter-tsv",

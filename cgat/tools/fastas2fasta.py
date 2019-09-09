@@ -70,7 +70,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     (args, unknown) = E.start(parser, unknowns=True)
 

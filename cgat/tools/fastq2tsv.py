@@ -10,7 +10,7 @@ import cgatcore.iotools as iotools
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,

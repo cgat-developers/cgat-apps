@@ -106,7 +106,7 @@ def concatenate_tables(filenames,
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-t", "--no-titles",
                         dest="input_has_titles",

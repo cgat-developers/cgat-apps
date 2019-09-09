@@ -128,7 +128,7 @@ def read_liftover_chain(infile):
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("--version", action='version', version="1.0")
 

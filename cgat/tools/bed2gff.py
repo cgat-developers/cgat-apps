@@ -67,7 +67,7 @@ import cgat.Bed as Bed
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-a", "--as-gtf", dest="as_gtf", action="store_true",
                         help="output as gtf.")

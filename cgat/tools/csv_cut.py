@@ -67,7 +67,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-r", "--remove", dest="remove", action="store_true",
                         help="remove specified columns, keep all others.")

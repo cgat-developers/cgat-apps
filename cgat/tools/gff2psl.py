@@ -56,7 +56,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                         help="input is gtf.")

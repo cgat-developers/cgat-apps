@@ -166,7 +166,7 @@ import cgat.GO as GO
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "--version", action='version', version='runGO v1.0')

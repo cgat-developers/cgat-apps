@@ -38,7 +38,7 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-r", "--range", dest="range", type=str,
                         help="range to calculate histogram for.")

@@ -190,7 +190,7 @@ class counter_exons:
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("--version", action='version', version="1.0")
 

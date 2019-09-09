@@ -48,7 +48,7 @@ def compute_table_summary(table):
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-d", "--delimiter", dest="delimiter", type=str,

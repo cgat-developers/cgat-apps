@@ -75,7 +75,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
+    parser = E.ArgumentParser(version="%prog version: $Id$",
                             usage=globals()["__doc__"])
 
     parser.add_argument(

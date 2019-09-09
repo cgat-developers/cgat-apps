@@ -90,7 +90,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-o", "--min-overlap", dest="min_overlap", type=int,
                         help="minimum overlap")

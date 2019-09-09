@@ -91,7 +91,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-g", "--glob", dest="glob_pattern", type=str,
                         help="glob pattern to use for collecting files .")

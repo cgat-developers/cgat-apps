@@ -49,7 +49,7 @@ import cgat.FastaIterator as FastaIterator
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
                         help="input are cds (nucleotide) sequences ")

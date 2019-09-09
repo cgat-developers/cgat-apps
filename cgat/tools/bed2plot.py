@@ -133,7 +133,7 @@ class IGV(object):
 def main(argv=sys.argv):
 
     # setup command line parser
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-s", "--session", dest="session",
                         type=str,

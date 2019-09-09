@@ -110,7 +110,7 @@ def getBigwigSummary(bigwig_file):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-m", "--method", dest="methods", type=str,
                         action="append",

@@ -499,7 +499,7 @@ def renameChromosomes(iterator, chr_map):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     # IMS: new method: extend intervals by set amount
     parser.add_argument("-m", "--method", dest="methods", type=str,

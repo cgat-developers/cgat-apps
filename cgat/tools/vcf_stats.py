@@ -97,7 +97,7 @@ from cgat.VCFTools import vcf2stats_count
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-i", "--input-vcf", dest="input_vcf_file", type=str,

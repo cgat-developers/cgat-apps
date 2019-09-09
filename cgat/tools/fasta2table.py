@@ -121,7 +121,7 @@ import cgat.FastaIterator as FastaIterator
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-w", "--weights-tsv-file", dest="filename_weights",

@@ -138,7 +138,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-f", "--file", dest="input_filename", type=str,
                         help="input filename. If not given, stdin is used.")

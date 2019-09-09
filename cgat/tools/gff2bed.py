@@ -101,7 +101,7 @@ def transcript2bed12(transcript):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                         help="input file is in gtf format")

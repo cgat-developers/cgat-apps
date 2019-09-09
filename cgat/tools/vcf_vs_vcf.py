@@ -62,7 +62,7 @@ def read_vcf_positions_into_dataframe(filename, filters=None):
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "--regex-filename", dest="regex_filename", type=str,

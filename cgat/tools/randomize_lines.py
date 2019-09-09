@@ -36,7 +36,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("-k", "--keep-header", dest="keep_header", type=int,
                         help="randomize, but keep header in place ")

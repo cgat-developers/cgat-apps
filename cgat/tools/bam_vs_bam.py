@@ -60,7 +60,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser()
+    parser = E.ArgumentParser()
 
     parser.add_argument("--version", action='version', version="1.0")
 

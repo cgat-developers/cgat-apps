@@ -20,7 +20,7 @@ import cgatcore.iotools as iotools
 
 def main(argv=None):
 
-    parser = E.OptionParser(descriptin=__doc__)
+    parser = E.ArgumentParser(descriptin=__doc__)
 
     parser.add_argument(
         "-f", "--fasta", dest="input_filename_fasta",

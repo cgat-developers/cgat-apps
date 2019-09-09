@@ -43,7 +43,7 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser()
+    parser = E.ArgumentParser()
 
     parser.add_argument("-s", "--summarise", dest="summarise", type=str,
                         choices=("level-counts", "taxa-counts", "individual"),

@@ -168,13 +168,13 @@ import pyBigWig
 import cgat.BamTools.peakshape as bam2peakshape
 
 
-def buildOptionParser(argv):
+def buildArgumentParser(argv):
 
     if not argv:
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument("--version", action='version', version="1.0")
 
@@ -548,7 +548,7 @@ def main(argv=None):
     parses command line options in sys.argv, unless *argv* is given.
     """
 
-    parser = buildOptionParser(argv)
+    parser = buildArgumentParser(argv)
 
     # add common options (-h/--help, ...) and parse command line
     (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)

@@ -79,7 +79,7 @@ def compute_log_depth_ratio(dataframe, min_depth=10):
 
 def main(argv=None):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-m", "--method", dest="method", type=str,

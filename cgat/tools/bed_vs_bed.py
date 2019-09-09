@@ -19,7 +19,7 @@ def get_size_bin(size, size_bins):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(description=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
         "-b", "--reference-bed-file", dest="reference_bed_file", type=str,
