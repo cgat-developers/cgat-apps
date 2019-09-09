@@ -59,7 +59,7 @@ def main(argv=None):
         argv = sys.argv
 
     parser = E.ArgumentParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+                              usage=globals()["__doc__"])
 
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
