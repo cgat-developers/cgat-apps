@@ -11,7 +11,7 @@ channels:
 
 dependencies:
 # python dependencies
-- python >= 3.6
+- python == 3.6
 - alignlib-lite
 - biopython
 - cython
