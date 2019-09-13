@@ -272,15 +272,15 @@ class MultipleFastaIterator:
 
     def __next__(self):
         try:
-            return next(self.iterator)
-        except StopIteration:
-            return None
+            yield next(self.iterator)
+            return
+        except StopIteration()
 
     def next(self):
         try:
-            return next(self.iterator)
-        except StopIteration:
-            return None
+            yield next(self.iterator)
+            return
+        except StopIteration()
 
     def _iterate(self):
         """iterate over muliple files."""
