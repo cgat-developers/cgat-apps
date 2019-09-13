@@ -140,6 +140,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
     parser.add_argument("-f", "--file", dest="input_filename", type=str,
                         help="input filename. If not given, stdin is used.")
 
