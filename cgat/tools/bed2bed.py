@@ -255,7 +255,10 @@ def merge(iterator,
 
         for strand in sorted(to_join):
             if to_join[strand]:
-                yield to_join[strand]
+                try:
+                    yield to_join[strand]
+                except StopIteration:
+                    return
         raise StopIteration
 
     c = E.Counter()
