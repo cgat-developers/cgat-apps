@@ -35,6 +35,8 @@ Reference
 ----------
 
 '''
+
+from __future__ import generator_stop
 import os
 import sys
 import array
@@ -273,14 +275,11 @@ class MultipleFastaIterator:
     def __next__(self):
         try:
             return next(self.iterator)
-        except StopIteration:
-            return None
+        except:
+            return
 
     def next(self):
-        try:
-            return next(self.iterator)
-        except StopIteration:
-            return None
+        return next(self.iterator)
 
     def _iterate(self):
         """iterate over muliple files."""
@@ -481,13 +480,14 @@ def createDatabase(db, iterator,
         try:
             result = next(iterator)
         except StopIteration:
-            break
+            return
 
         if not result:
             break
 
         is_new, identifier, fragment = result
 
+        print(is_new, identifier, fragment)
         if is_new:
             # check for duplicate identifiers
             if identifier in identifiers:
