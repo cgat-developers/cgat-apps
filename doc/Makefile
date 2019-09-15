@@ -40,12 +40,12 @@ clean:
 _static/toolmap.svg:
 	@echo building toolmap
 	cgat cgat2dot \
-		../cgat/tools/bam2*.py \
-		../cgat/tools/bed2*.py \
-		../cgat/tools/gtf2*.py \
-		../cgat/tools/gff2*.py \
-		../cgat/tools/fastq2*.py \
-		../cgat/tools/fastqs2*.py \
+		../CGAT/tools/bam2*.py \
+		../CGAT/tools/bed2*.py \
+		../CGAT/tools/gtf2*.py \
+		../CGAT/tools/gff2*.py \
+		../CGAT/tools/fastq2*.py \
+		../CGAT/tools/fastqs2*.py \
 		--log=toolmap.log \
 	> toolmap.dot
 	-mkdir _static
@@ -57,14 +57,14 @@ _static/dependency_graph.svg: ../dependency_graph/cgat_raw.svg
 
 # remove the pyc file - otherwise errors when importing pipeline and other scripts
 html: _static/toolmap.svg _static/dependency_graph.svg
-	rm -f ../cgat,cgat-flow,scripts}/*.pyc
+	rm -f ../{CGAT,CGATPipelines,scripts}/*.pyc
 	if [ ! -z "$(COMPUTE_COVERAGE)" ] ; then $(MAKE) coverage; fi
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
 	@echo "Build finished. The HTML pages are in _build/html."
 
 coverage:
-	rm -f ../{cgat,cgat-flow,scripts}/*.pyc
+	rm -f ../{CGAT,CGATPipelines,scripts}/*.pyc
 	$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) _build/coverage
 	rename .txt .rst _build/coverage/*.txt
 	@echo
