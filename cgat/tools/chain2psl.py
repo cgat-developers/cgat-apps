@@ -64,11 +64,12 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version="1.0")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     # do sth
     ninput, nskipped, noutput = 0, 0, 0
@@ -77,7 +78,7 @@ def main(argv=None):
 
     def chain_iterator(infile):
         lines = []
-        for line in options.stdin:
+        for line in args.stdin:
 
             if line.startswith("#"):
                 continue
@@ -91,7 +92,7 @@ def main(argv=None):
 
         yield lines
 
-    for lines in chain_iterator(options.stdin):
+    for lines in chain_iterator(args.stdin):
 
         ninput += 1
         psl = Blat.Match()
@@ -152,7 +153,7 @@ def main(argv=None):
             psl.mQueryFrom, psl.mQueryTo = psl.mQueryLength - \
                 psl.mQueryTo, psl.mQueryLength - psl.mQueryFrom
 
-        options.stdout.write("%s\n" % psl)
+        args.stdout.write("%s\n" % psl)
         noutput += 1
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))

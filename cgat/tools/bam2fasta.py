@@ -169,29 +169,28 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-e", "--input-bed-file", dest="input_bed_file", type="string",
+    parser.add_argument(
+        "-e", "--input-bed-file", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--merge-intervals", dest="merge_intervals", action="store_true",
         help="merge intervals in bed file. Useful if you have a site bed-file "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--barcode-fasta-file", dest="barcode_fasta_file",
         help="barcode sequence in fasta format. Variable positions "
         "should be marked by N "
-        "[%default]")
+        )
 
     parser.set_defaults(
         reference_fasta_file=None,
@@ -202,10 +201,10 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
-    if options.stdin != sys.stdin:
-        bamfile = options.stdin.name
+    if args.stdin != sys.stdin:
+        bamfile = args.stdin.name
     elif args:
         if len(args) > 1:
             raise ValueError("multiple bam files provided in arguments")
@@ -213,25 +212,25 @@ def main(argv=None):
     else:
         bamfile = "-"
 
-    if options.barcode_fasta_file:
-        with pysam.FastxFile(options.barcode_fasta_file) as inf:
+    if args.barcode_fasta_file:
+        with pysam.FastxFile(args.barcode_fasta_file) as inf:
             barcode_sequence = next(inf).sequence
     else:
         barcode_sequence = None
 
-    if not os.path.exists(options.reference_fasta_file):
+    if not os.path.exists(args.reference_fasta_file):
         raise OSError("reference fasta file {} does not exist".format(
-            options.reference_fasta_file))
+            args.reference_fasta_file))
 
-    if not os.path.exists(options.input_bed_file):
+    if not os.path.exists(args.input_bed_file):
         raise OSError("input bed file {} does not exist".format(
-            options.input_bed_file))
+            args.input_bed_file))
 
-    bed_in = pysam.TabixFile(options.input_bed_file)
+    bed_in = pysam.TabixFile(args.input_bed_file)
     pysam_in = pysam.AlignmentFile(bamfile)
-    anchor = options.anchor
+    anchor = args.anchor
 
-    for region_idx, vals in enumerate(iterate_bed(bed_in, options.merge_intervals)):
+    for region_idx, vals in enumerate(iterate_bed(bed_in, args.merge_intervals)):
 
         if region_idx > 0:
             raise NotImplementedError("output for multiple regions not yet implemented")
@@ -421,7 +420,7 @@ def main(argv=None):
         if median_consensus_depth <= 2:
             deleted_barcode_bases = []
 
-        outf = options.stdout
+        outf = args.stdout
         # modules to recover partial bar-codes
         outf.write("\t".join(map(str,
                                  ["barcode", "ndeleted_barcode_bases", "deleted_barcode_bases"] +

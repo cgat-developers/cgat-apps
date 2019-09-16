@@ -46,20 +46,19 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id: csv_cut.py 2782 2009-09-10 11:40:29Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-r", "--remove", dest="remove", action="store_true",
-                      help="remove specified columns, keep all others.")
+    parser.add_argument("-r", "--remove", dest="remove", action="store_true",
+                        help="remove specified columns, keep all others.")
 
-    parser.add_option("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
+                        help="output rows are uniq.")
 
-    parser.add_option("-l", "--large", dest="large", action="store_true",
-                      help="large columns. Do not use native python csv module [default=%default].")
+    parser.add_argument("-l", "--large", dest="large", action="store_true",
+                        help="large columns. Do not use native python csv module [default=%default].")
 
-    parser.add_option("-f", "--filename-fields", dest="filename_fields", type="string",
-                      help="filename with field information.")
+    parser.add_argument("-f", "--filename-fields", dest="filename_fields", type=str,
+                        help="filename with field information.")
 
     parser.set_defaults(
         remove=False,
@@ -67,25 +66,26 @@ def main(argv=None):
         filename_fields=None,
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               add_csv_options=True,
-                              quiet=True)
+                              quiet=True,
+                              unknowns=True)
 
-    statement = " ".join(args)
+    statement = " ".join(unknown)
 
-    if options.large:
+    if args.large:
         reader = DictReaderLarge(CommentStripper(sys.stdin),
-                                 dialect=options.csv_dialect)
+                                 dialect=args.csv_dialect)
     else:
         reader = csv.DictReader(CommentStripper(sys.stdin),
-                                dialect=options.csv_dialect)
+                                dialect=args.csv_dialect)
 
     exec("f = lambda r: %s" % statement, globals())
     counter = E.Counter()
-    writer = csv.DictWriter(options.stdout,
+    writer = csv.DictWriter(args.stdout,
                             reader.fieldnames,
-                            dialect=options.csv_dialect,
-                            lineterminator=options.csv_lineterminator)
+                            dialect=args.csv_dialect,
+                            lineterminator=args.csv_lineterminator)
 
     writer.writerow(dict((fn, fn) for fn in reader.fieldnames))
     while 1:
@@ -93,7 +93,7 @@ def main(argv=None):
         try:
             row = next(reader)
         except _csv.Error as msg:
-            options.stderr.write("# error while parsing: %s\n" % (msg))
+            args.stderr.write("# error while parsing: %s\n" % (msg))
             counter.errors += 1
             continue
         except StopIteration:
@@ -111,6 +111,7 @@ def main(argv=None):
     E.info("%s" % counter)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

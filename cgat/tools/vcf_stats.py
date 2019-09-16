@@ -97,58 +97,57 @@ from cgat.VCFTools import vcf2stats_count
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-i", "--input-vcf", dest="input_vcf_file", type="string",
+    parser.add_argument(
+        "-i", "--input-vcf", dest="input_vcf_file", type=str,
         help="input vcf file")
 
-    parser.add_option(
-        "-f", "--input-fasta", dest="input_fasta_file", type="string",
+    parser.add_argument(
+        "-f", "--input-fasta", dest="input_fasta_file", type=str,
         help="input fasta file. faidx indexed reference sequence file to "
-        "determine INDEL context [%default]")
+        "determine INDEL context ")
 
-    parser.add_option(
-        "-e", "--input-bed", dest="input_bed_file", type="string",
+    parser.add_argument(
+        "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
-    parser.add_option(
-        "-r", "--region", dest="region", type="string",
+    parser.add_argument(
+        "-r", "--region", dest="region", type=str,
         help="Region string to restrict analysis to. Takes precedence "
-        "over --input-bed. [%default]")
+        "over --input-bed. ")
 
-    parser.add_option(
-        "-m", "--method", dest="methods", action="append", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="methods", action="append", type=str,
         choices=("mutational-signature",
                  "mutational-signature-profile",
                  "kinship",
                  "format-distribution",
                  "gc-context",
                  "gc-depth-profile"),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
-    parser.add_option(
+    parser.add_argument(
         "--format-distribution", dest="format_distributions", action="append",
-        type="string",
+        type=str,
         help="format to compute histograms on. Option can specified multiple times. "
-        "At the moment, only integer metrics are supported [%default]")
+        "At the moment, only integer metrics are supported ")
 
-    parser.add_option(
-        "--format-distribution-nbins", dest="format_distributions_nbins", type="int",
-        help="number of bins to use for histograms [%default]")
+    parser.add_argument(
+        "--format-distribution-nbins", dest="format_distributions_nbins", type=int,
+        help="number of bins to use for histograms ")
 
-    parser.add_option(
+    parser.add_argument(
         "--only-variant-positions", dest="only_variant_positions",
         action="store_true",
-        help="only use variant positions [%default]")
+        help="only use variant positions ")
 
-    parser.add_option(
-        "--gc-window-size", dest="gc_window_size", type="int",
+    parser.add_argument(
+        "--gc-window-size", dest="gc_window_size", type=int,
         help="(half) window size to use for G+C computation. A size "
         "of 50 means that 50 bases on either side of the variant are "
-        "used to compute the G+C content [%default]")
+        "used to compute the G+C content ")
 
     parser.set_defaults(
         methods=[],
@@ -162,62 +161,65 @@ def main(argv=sys.argv):
         report_step=1000000,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) == 1:
-        options.input_vcf_file = args[0]
+    if len(unknown) == 1:
+        args.input_vcf_file = unknown[0]
 
-    if options.input_vcf_file is None:
+    if args.input_vcf_file is None:
         raise ValueError("please supply a VCF file")
 
-    if options.input_fasta_file is None:
+    if args.input_fasta_file is None:
         raise ValueError("please supply a FASTA file")
 
-    if "format-distribution" in options.methods and not options.format_distributions:
+    if "format-distribution" in args.methods and not args.format_distributions:
         raise ValueError("please supply at least one FORMAT field (DP, GQ) "
                          "when --method=format-distribution has been selected")
 
-    if not os.path.exists(options.input_vcf_file):
+    if not os.path.exists(args.input_vcf_file):
         raise OSError("input vcf file {} does not exist".format(
-            options.input_vcf_file))
+            args.input_vcf_file))
 
-    if not os.path.exists(options.input_vcf_file + ".tbi") and not \
-       os.path.exists(options.input_vcf_file + ".csi"):
+    if not os.path.exists(args.input_vcf_file + ".tbi") and not \
+       os.path.exists(args.input_vcf_file + ".csi"):
         raise OSError("input vcf file {} needs to be indexed".format(
-            options.input_vcf_file))
+            args.input_vcf_file))
 
-    if not os.path.exists(options.input_fasta_file):
+    if not os.path.exists(args.input_fasta_file):
         raise OSError("input fasta file {} does not exist".format(
-            options.input_fasta_file))
+            args.input_fasta_file))
 
-    if not os.path.exists(options.input_fasta_file + ".fai"):
+    if not os.path.exists(args.input_fasta_file + ".fai"):
         raise OSError("input fasta file {} needs to be indexed".format(
-            options.input_fasta_file))
+            args.input_fasta_file))
 
     # update paths to absolute
-    options.input_fasta_file = os.path.abspath(options.input_fasta_file)
-    options.input_vcf_file = os.path.abspath(options.input_vcf_file)
+    args.input_fasta_file = os.path.abspath(args.input_fasta_file)
+    args.input_vcf_file = os.path.abspath(args.input_vcf_file)
 
     # catch issue with empty variant files
     try:
-        vcf_in = pysam.VariantFile(options.input_vcf_file)
+        vcf_in = pysam.VariantFile(args.input_vcf_file)
     except (OSError, ValueError):
         E.warn("could not open variant file - likely to be empty")
         E.stop()
         return 0
 
-    fasta_in = pysam.FastaFile(options.input_fasta_file)
+    fasta_in = pysam.FastaFile(args.input_fasta_file)
 
-    if options.input_bed_file:
-        if not os.path.exists(options.input_bed_file):
+    if args.input_bed_file:
+        if not os.path.exists(args.input_bed_file):
             raise OSError("input bed file {} does not exist".format(
-                options.input_bed_file))
-        bed_in = pysam.TabixFile(options.input_bed_file)
+                args.input_bed_file))
+        bed_in = pysam.TabixFile(args.input_bed_file)
     else:
         bed_in = None
 
     vcf2stats_count(
-        vcf_in, fasta_in, bed_in, options)
+        vcf_in, fasta_in, bed_in, args)
 
     E.stop()
 

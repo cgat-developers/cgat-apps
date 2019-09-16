@@ -237,12 +237,12 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-m", "--method", dest="method", type="choice",
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-m", "--method", dest="method", type=str,
         choices=(
             "fixed-width-windows-gc",
             "cpg",
@@ -250,24 +250,24 @@ def main(argv=None):
             "gaps",
             "ungapped",
             "windows"),
-        help="Method to use for segmentation [default=%default]")
+        help="Method to use for segmentation")
 
-    parser.add_option(
+    parser.add_argument(
         "-w", "--window-size=", dest="window_size",
-        type="int",
-        help="window size for fixed-width windows [default=%default].")
+        type=int,
+        help="window size for fixed-width windows.")
 
-    parser.add_option(
-        "-s", "--window-shift=", dest="window_shift", type="int",
-        help="shift size fixed-width windows [default=%default].")
+    parser.add_argument(
+        "-s", "--window-shift=", dest="window_shift", type=int,
+        help="shift size fixed-width windows.")
 
-    parser.add_option(
-        "--min-cpg", dest="min_cpg", type="int",
-        help="minimum number of CpG for windows-cpg [default=%default]")
+    parser.add_argument(
+        "--min-cpg", dest="min_cpg", type=int,
+        help="minimum number of CpG for windows-cpg")
 
-    parser.add_option(
-        "--min-interval-length", dest="min_length", type="int",
-        help="minimum length for ungapped regions [default=%default]")
+    parser.add_argument(
+        "--min-interval-length", dest="min_length", type=int,
+        help="minimum length for ungapped regions")
 
     parser.set_defaults(
         window_size=10000,
@@ -279,32 +279,34 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if options.method == "cpg":
-        segments = segmentWithCpG(options.stdin)
-    elif options.method == "windows-cpg":
-        segments = segmentWindowsCpG(options.stdin,
-                                     options.window_size,
-                                     options.min_cpg)
-    elif options.method == "Isoplotter":
-        segments = segmentWithIsoplotter(options.stdin, options)
-    elif options.method == "fixed-width-windows-gc":
-        segments = segmentFixedWidthWindows(options.stdin,
-                                            options.window_size,
-                                            options.window_shift,
+    if args.method == "cpg":
+        segments = segmentWithCpG(args.stdin)
+    elif args.method == "windows-cpg":
+        segments = segmentWindowsCpG(args.stdin,
+                                     args.window_size,
+                                     args.min_cpg)
+    elif args.method == "Isoplotter":
+        segments = segmentWithIsoplotter(args.stdin, args)
+    elif args.method == "fixed-width-windows-gc":
+        segments = segmentFixedWidthWindows(args.stdin,
+                                            args.window_size,
+                                            args.window_shift,
                                             )
-    elif options.method == "gaps":
-        segments = segmentGaps(options.stdin, options.gap_char)
-    elif options.method == "ungapped":
+    elif args.method == "gaps":
+        segments = segmentGaps(args.stdin, args.gap_char)
+    elif args.method == "ungapped":
         segments = segmentUngapped(
-            options.stdin, options.gap_char, options.min_length)
+            args.stdin, args.gap_char, args.min_length)
     else:
         raise ValueError("unknown method %s" % (method))
     x = 0
     for contig, start, end, gc in segments:
         x += 1
-        options.stdout.write("%s\n" % "\t".join(
+        args.stdout.write("%s\n" % "\t".join(
             (contig, str(start), str(end), str(x), "%6.4f" % (100.0 * gc))))
 
     # write footer and output benchmark information.

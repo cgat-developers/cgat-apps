@@ -67,25 +67,24 @@ import cgat.Bed as Bed
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-a", "--as-gtf", dest="as_gtf", action="store_true",
-                      help="output as gtf.")
+    parser.add_argument("-a", "--as-gtf", dest="as_gtf", action="store_true",
+                        help="output as gtf.")
 
-    parser.add_option(
-        "-f", "--id-format", dest="id_format", type="string",
+    parser.add_argument(
+        "-f", "--id-format", dest="id_format", type=str,
         help="format for numeric identifier if --as-gtf is set and "
-        "no name in bed file [%default].")
+        "no name in bed file .")
 
     parser.set_defaults(as_gtf=False,
                         id_format="%08i",
                         test=None)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (args) = E.start(parser, add_pipe_options=True)
 
-    as_gtf = options.as_gtf
-    id_format = options.id_format
+    as_gtf = args.as_gtf
+    id_format = args.id_format
 
     if as_gtf:
         gff = GTF.Entry()
@@ -98,7 +97,7 @@ def main(argv=sys.argv):
     ninput, noutput, nskipped = 0, 0, 0
 
     id = 0
-    for bed in Bed.iterator(options.stdin):
+    for bed in Bed.iterator(args.stdin):
 
         ninput += 1
 
@@ -125,13 +124,14 @@ def main(argv=sys.argv):
             if bed.fields:
                 gff.source = bed.fields[0]
 
-        options.stdout.write(str(gff) + "\n")
+        args.stdout.write(str(gff) + "\n")
 
         noutput += 1
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

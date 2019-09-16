@@ -51,7 +51,10 @@ EXCLUDE = (
     'fasta2bed',
     # The following fail because of pyximport
     # problems
-    'bed2table',)
+    'bed2table',
+    # The following fail because of version imports from cgat-core table(s)
+    "table2table",
+    "combine_tables")
 
 
 def check_import(filename, outfile):

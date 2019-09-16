@@ -15,13 +15,12 @@ import pysam
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-s", "--sample-size", dest="sample_size", type="float",
+    parser.add_argument(
+        "-s", "--sample-size", dest="sample_size", type=float,
         help="sample size. If less than 0, take a proportion of the chromosome size. "
-        "If greater than 0, take a fixed number of variants [%default]")
+        "If greater than 0, take a fixed number of variants ")
 
     parser.set_defaults(
         input_filename_fasta=None,
@@ -29,29 +28,29 @@ def main(argv=None):
         sample_name="NA12878"
     )
 
-    (options, args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+    (args) = E.start(parser,
+                     argv=argv,
+                     add_output_options=True)
 
     if len(args) > 0:
-        options.input_filename_fasta = args[0]
+        args.input_filename_fasta = args[0]
 
-    if options.input_filename_fasta == "-":
-        options.input_filename_fasta = options.stdin
+    if args.input_filename_fasta == "-":
+        args.input_filename_fasta = args.stdin
 
-    outf = options.stdout
+    outf = args.stdout
     outf.write("##fileformat=VCFv4.1\n")
     outf.write("##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n")
-    outf.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}\n".format(options.sample_name))
+    outf.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}\n".format(args.sample_name))
 
-    with pysam.FastxFile(options.input_filename_fasta) as inf:
+    with pysam.FastxFile(args.input_filename_fasta) as inf:
         for record in inf:
             contig = record.name
             sequence = record.sequence
-            if options.sample_size < 1.0:
-                nsamples = int(float(len(sequence)) * options.sample_size)
+            if args.sample_size < 1.0:
+                nsamples = int(float(len(sequence)) * args.sample_size)
             else:
-                nsamples = int(options.sample_size)
+                nsamples = int(args.sample_size)
             E.info("generating {} sampled variants for contig {}".format(nsamples, contig))
             sampled_positions = set()
             missing_nsamples = nsamples

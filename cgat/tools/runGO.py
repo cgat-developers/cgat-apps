@@ -166,126 +166,116 @@ import cgat.GO as GO
 
 def main(argv=None):
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-s", "--species", dest="species", type="string",
-        help="species to use [default=%default].")
+    parser.add_argument(
+        "--version", action='version', version='runGO v1.0')
 
-    parser.add_option(
-        "-i", "--slims", dest="filename_slims", type="string",
-        help="filename with GO SLIM categories "
-        "[default=%default].")
+    parser.add_argument(
+        "-s", "--species", dest="species", type=str,
+        help="species to use.")
 
-    parser.add_option(
-        "-g", "--genes-tsv-file", dest="filename_genes", type="string",
-        help="filename with genes to analyse "
-        "[default=%default].")
+    parser.add_argument(
+        "-i", "--slims", dest="filename_slims", type=str,
+        help="filename with GO SLIM categories ")
 
-    parser.add_option(
+    parser.add_argument(
+        "-g", "--genes-tsv-file", dest="filename_genes", type=str,
+        help="filename with genes to analyse ")
+
+    parser.add_argument(
         "-b", "--background-tsv-file", dest="filename_background",
-        type="string",
-        help="filename with background genes to analyse "
-        "[default=%default].")
+        type=str,
+        help="filename with background genes to analyse ")
 
-    parser.add_option(
+    parser.add_argument(
         "-m", "--min-counts", dest="minimum_counts",
-        type="int",
+        type=int,
         help="minimum count - ignore all categories that have "
-        "fewer than # number of genes"
-        " [default=%default].")
+        "fewer than # number of genes")
 
-    parser.add_option(
-        "-o", "--sort-order", dest="sort_order", type="choice",
+    parser.add_argument(
+        "-o", "--sort-order", dest="sort_order", type=str,
         choices=("fdr", "pvalue", "ratio"),
-        help="output sort order [default=%default].")
+        help="output sort order.")
 
-    parser.add_option(
-        "--ontology", dest="ontology", type="string",
+    parser.add_argument(
+        "--ontology", dest="ontology", type=str,
         action="append",
         help="go ontologies to analyze. Ontologies are tested "
-        "separately [default=%default].")
+        "separately.")
 
-    parser.add_option(
-        "-t", "--threshold", dest="threshold", type="float",
+    parser.add_argument(
+        "-t", "--threshold", dest="threshold", type=float,
         help="significance threshold [>1.0 = all ]. If --fdr is set, this "
         "refers to the fdr, otherwise it is a cutoff for p-values.")
 
-    parser.add_option(
-        "--filename-dump", dest="filename_dump", type="string",
-        help="dump GO category assignments into a flatfile "
-        "[default=%default].")
+    parser.add_argument(
+        "--filename-dump", dest="filename_dump", type=str,
+        help="dump GO category assignments into a flatfile ")
 
-    parser.add_option(
-        "--gene2name-map-tsv-file", dest="filename_gene2name", type="string",
-        help="optional filename mapping gene identifiers to gene names "
-        "[default=%default].")
+    parser.add_argument(
+        "--gene2name-map-tsv-file", dest="filename_gene2name", type=str,
+        help="optional filename mapping gene identifiers to gene names ")
 
-    parser.add_option(
-        "--filename-ontology", dest="filename_ontology", type="string",
-        help="filename with ontology in OBO format [default=%default].")
+    parser.add_argument(
+        "--filename-ontology", dest="filename_ontology", type=str,
+        help="filename with ontology in OBO format.")
 
-    parser.add_option(
-        "--filename-input", dest="filename_input", type="string",
-        help="read GO category assignments from a flatfile "
-        "[default=%default].")
+    parser.add_argument(
+        "--filename-input", dest="filename_input", type=str,
+        help="read GO category assignments from a flatfile ")
 
-    parser.add_option(
-        "--sample-size", dest="sample", type="int",
-        help="do sampling (with # samples) [default=%default].")
+    parser.add_argument(
+        "--sample-size", dest="sample", type=int,
+        help="do sampling (with # samples).")
 
-    parser.add_option(
+    parser.add_argument(
         "--filename-output-pattern", "--output-filename-pattern",
-        dest="output_filename_pattern", type="string",
+        dest="output_filename_pattern", type=str,
         help="pattern with output filename pattern "
-        "(should contain: %(go)s and %(section)s ) [default=%default]")
+        "(should contain: %(go)s and %(section)s )")
 
-    parser.add_option(
+    parser.add_argument(
         "--fdr", dest="fdr", action="store_true",
-        help="calculate and filter by FDR default=%default].")
+        help="calculate and filter by FDR.")
 
-    parser.add_option(
+    parser.add_argument(
         "--go2goslim", dest="go2goslim", action="store_true",
         help="convert go assignments in STDIN to goslim assignments and "
-        "write to STDOUT [default=%default].")
+        "write to STDOUT.")
 
-    parser.add_option(
-        "--gene-pattern", dest="gene_pattern", type="string",
-        help="pattern to transform identifiers to GO gene names "
-        "[default=%default].")
+    parser.add_argument(
+        "--gene-pattern", dest="gene_pattern", type=str,
+        help="pattern to transform identifiers to GO gene names ")
 
-    parser.add_option(
-        "--filename-map-slims", dest="filename_map_slims", type="string",
-        help="write mapping between GO categories and GOSlims "
-        "[default=%default].")
+    parser.add_argument(
+        "--filename-map-slims", dest="filename_map_slims", type=str,
+        help="write mapping between GO categories and GOSlims ")
 
-    parser.add_option(
-        "--get-genes", dest="get_genes", type="string",
-        help="list all genes in the with a certain GOID [default=%default].")
+    parser.add_argument(
+        "--get-genes", dest="get_genes", type=str,
+        help="list all genes in the with a certain GOID.")
 
-    parser.add_option(
+    parser.add_argument(
         "--strict", dest="strict", action="store_true",
         help="require all genes in foreground to be part of background. "
-        "If not set, genes in foreground will be added to the background "
-        "[default=%default].")
+        "If not set, genes in foreground will be added to the background ")
 
-    parser.add_option(
-        "-q", "--fdr-method", dest="qvalue_method", type="choice",
+    parser.add_argument(
+        "-q", "--fdr-method", dest="qvalue_method", type=str,
         choices=("empirical", "storey", "BH"),
         help="method to perform multiple testing correction by controlling "
-        "the fdr [default=%default].")
+        "the fdr .")
 
-    parser.add_option(
+    parser.add_argument(
         "--pairwise", dest="compute_pairwise", action="store_true",
-        help="compute pairwise enrichment for multiple gene lists. "
-        "[default=%default].")
+        help="compute pairwise enrichment for multiple gene lists. ")
 
-    # parser.add_option( "--fdr-lambda", dest="qvalue_lambda", type="float",
+    # parser.add_argument( "--fdr-lambda", dest="qvalue_lambda", type=float,
     #                   help="fdr computation: lambda [default=%default]."  )
 
-    # parser.add_option( "--qvalue-pi0-method", dest="qvalue_pi0_method", type="choice",
+    # parser.add_argument( "--qvalue-pi0-method", dest="qvalue_pi0_method", type=str,
     #                    choices = ("smoother", "bootstrap" ),
     # help="fdr computation: method for estimating pi0 [default=%default]."  )
 
@@ -311,49 +301,49 @@ def main(argv=None):
                         filename_gene2name=None
                         )
 
-    (options, args) = E.start(parser, add_database_options=True)
+    (args) = E.start(parser, add_database_options=True)
 
-    if options.go2goslim:
-        GO.convertGo2Goslim(options)
+    if args.go2goslim:
+        GO.convertGo2Goslim(args)
         E.stop()
         sys.exit(0)
 
-    if options.fdr and options.sample == 0:
+    if args.fdr and args.sample == 0:
         E.warn("fdr will be computed without sampling")
 
     #############################################################
     # dump GO
-    if options.filename_dump:
+    if args.filename_dump:
         # set default orthologies to GO
-        if not options.ontology:
-            options.ontology = [
+        if not args.ontology:
+            args.ontology = [
                 "biol_process", "mol_function", "cell_location"]
 
-        E.info("dumping GO categories to %s" % (options.filename_dump))
+        E.info("dumping GO categories to %s" % (args.filename_dump))
 
-        dbhandle = database.connect(url=options.database_url)
+        dbhandle = database.connect(url=args.database_url)
 
-        outfile = iotools.open_file(options.filename_dump, "w", create_dir=True)
+        outfile = iotools.open_file(args.filename_dump, "w", create_dir=True)
         GO.DumpGOFromDatabase(outfile,
                               dbhandle,
-                              options)
+                              args)
         outfile.close()
         E.stop()
         sys.exit(0)
 
     #############################################################
     # read GO categories from file
-    if options.filename_input:
+    if args.filename_input:
         E.info("reading association of categories and genes from %s" %
-               (options.filename_input))
-        infile = iotools.open_file(options.filename_input)
+               (args.filename_input))
+        infile = iotools.open_file(args.filename_input)
         gene2gos, go2infos = GO.ReadGene2GOFromFile(infile)
         infile.close()
 
-    if options.filename_gene2name:
+    if args.filename_gene2name:
         E.info("reading gene identifier to gene name mapping from %s" %
-               options.filename_gene2name)
-        infile = iotools.open_file(options.filename_gene2name)
+               args.filename_gene2name)
+        infile = iotools.open_file(args.filename_gene2name)
         gene2name = iotools.read_map(infile, has_header=True)
         infile.close()
         E.info("read %i gene names for %i gene identifiers" %
@@ -365,10 +355,10 @@ def main(argv=None):
 
     #############################################################
     # read GO ontology from file
-    if options.filename_ontology:
-        E.info("reading ontology from %s" % (options.filename_ontology))
+    if args.filename_ontology:
+        E.info("reading ontology from %s" % (args.filename_ontology))
 
-        infile = iotools.open_file(options.filename_ontology)
+        infile = iotools.open_file(args.filename_ontology)
         ontology = GO.readOntology(infile)
         infile.close()
 
@@ -386,33 +376,33 @@ def main(argv=None):
     #############################################################
     # get foreground gene list
     input_foreground, genelists = GO.ReadGeneLists(
-        options.filename_genes,
-        gene_pattern=options.gene_pattern)
+        args.filename_genes,
+        gene_pattern=args.gene_pattern)
 
     E.info("read %i genes for forground in %i gene lists" %
            (len(input_foreground), len(genelists)))
 
     #############################################################
     # get background
-    if options.filename_background:
+    if args.filename_background:
 
         # nick - bug fix: background is the first tuple element from
         # ReadGeneLists
         input_background = GO.ReadGeneLists(
-            options.filename_background,
-            gene_pattern=options.gene_pattern)[0]
+            args.filename_background,
+            gene_pattern=args.gene_pattern)[0]
         E.info("read %i genes for background" % len(input_background))
     else:
         input_background = None
 
     #############################################################
     # sort out which ontologies to test
-    if not options.ontology:
-        if options.filename_input:
-            options.ontology = list(gene2gos.keys())
+    if not args.ontology:
+        if args.filename_input:
+            args.ontology = list(gene2gos.keys())
 
     E.info("found %i ontologies: %s" %
-           (len(options.ontology), options.ontology))
+           (len(args.ontology), args.ontology))
 
     summary = []
     summary.append("\t".join((
@@ -435,7 +425,7 @@ def main(argv=None):
 
     #############################################################
     # get go categories for genes
-    for test_ontology in sorted(options.ontology):
+    for test_ontology in sorted(args.ontology):
 
         # store results for aggregate output of multiple gene lists
         all_results = []
@@ -445,16 +435,16 @@ def main(argv=None):
         E.info("working on ontology %s" % test_ontology)
         #############################################################
         # get/read association of GO categories to genes
-        if options.filename_input:
+        if args.filename_input:
             gene2go, go2info = gene2gos[test_ontology], go2infos[test_ontology]
         else:
             E.info("reading data from database ...")
 
-            dbhandle.Connect(options)
+            dbhandle.Connect(args)
             gene2go, go2info = GO.ReadGene2GOFromDatabase(
                 dbhandle,
                 test_ontology,
-                options.database, options.species)
+                args.database, args.species)
 
             E.info("finished")
 
@@ -468,12 +458,12 @@ def main(argv=None):
                "(%i maps)" %
                (ngenes, ncategories, nmaps))
 
-        if options.minimum_counts > 0:
+        if args.minimum_counts > 0:
             to_remove = set(
                 [x for x, y in counts_per_category.items()
-                 if y < options.minimum_counts])
+                 if y < args.minimum_counts])
             E.info("removing %i categories with less than %i genes" %
-                   (len(to_remove), options.minimum_counts))
+                   (len(to_remove), args.minimum_counts))
             GO.removeCategories(gene2go, to_remove)
 
             ngenes, ncategories, nmaps, counts_per_category = \
@@ -501,7 +491,7 @@ def main(argv=None):
             # background is the first tuple element
             missing = foreground.difference(set(background))
 
-            if options.strict:
+            if args.strict:
                 assert len(missing) == 0, \
                     "%i genes in foreground but not in background: %s" % (
                         len(missing), str(missing))
@@ -529,53 +519,53 @@ def main(argv=None):
 
             #############################################################
             # read GO slims and map GO categories to GO slim categories
-            if options.filename_slims:
+            if args.filename_slims:
                 go_slims = GO.GetGOSlims(
-                    iotools.open_file(options.filename_slims, "r"))
+                    iotools.open_file(args.filename_slims, "r"))
 
-                if options.loglevel >= 1:
+                if args.loglevel >= 1:
                     v = set()
                     for x in list(go_slims.values()):
                         for xx in x:
                             v.add(xx)
-                    options.stdlog.write(
+                    args.stdlog.write(
                         "# read go slims from %s: go=%i, slim=%i\n" %
-                        (options.filename_slims,
+                        (args.filename_slims,
                          len(go_slims),
                          len(v)))
 
-                if options.filename_map_slims:
-                    if options.filename_map_slims == "-":
-                        outfile = options.stdout
+                if args.filename_map_slims:
+                    if args.filename_map_slims == "-":
+                        outfile = args.stdout
                     else:
                         outfile = iotools.open_file(
-                            options.filename_map_slims, "w")
+                            args.filename_map_slims, "w")
 
                     outfile.write("GO\tGOSlim\n")
                     for go, go_slim in sorted(list(go_slims.items())):
                         outfile.write("%s\t%s\n" % (go, go_slim))
 
-                    if outfile != options.stdout:
+                    if outfile != args.stdout:
                         outfile.close()
 
                 gene2go = GO.MapGO2Slims(gene2go, go_slims, ontology=ontology)
 
-                if options.loglevel >= 1:
+                if args.loglevel >= 1:
                     ngenes, ncategories, nmaps, counts_per_category = \
                         GO.CountGO(gene2go)
-                    options.stdlog.write(
+                    args.stdlog.write(
                         "# after go slim filtering: %i genes mapped to "
                         "%i categories (%i maps)\n" % (
                             ngenes, ncategories, nmaps))
 
             #############################################################
             # Just dump out the gene list
-            if options.get_genes:
+            if args.get_genes:
                 fg, bg, ng = [], [], []
 
                 for gene, vv in list(gene2go.items()):
                     for v in vv:
-                        if v.mGOId == options.get_genes:
+                        if v.mGOId == args.get_genes:
                             if gene in genes:
                                 fg.append(gene)
                             elif gene in background:
@@ -587,15 +577,15 @@ def main(argv=None):
                 if not (bg or ng):
                     continue
 
-                options.stdout.write(
-                    "# genes in GO category %s\n" % options.get_genes)
-                options.stdout.write("gene\tset\n")
+                args.stdout.write(
+                    "# genes in GO category %s\n" % args.get_genes)
+                args.stdout.write("gene\tset\n")
                 for x in sorted(fg):
-                    options.stdout.write("%s\t%s\n" % ("fg", x))
+                    args.stdout.write("%s\t%s\n" % ("fg", x))
                 for x in sorted(bg):
-                    options.stdout.write("%s\t%s\n" % ("bg", x))
+                    args.stdout.write("%s\t%s\n" % ("bg", x))
                 for x in sorted(ng):
-                    options.stdout.write("%s\t%s\n" % ("ng", x))
+                    args.stdout.write("%s\t%s\n" % ("ng", x))
 
                 E.info("nfg=%i, nbg=%i, nng=%i" % (len(fg), len(bg), len(ng)))
 
@@ -603,23 +593,23 @@ def main(argv=None):
                 sys.exit(0)
 
             #############################################################
-            outfile = GO.getFileName(options,
+            outfile = GO.getFileName(args,
                                      go=test_ontology,
                                      section='foreground',
                                      set=genelist_name)
 
             outfile.write("gene_id\n%s\n" % ("\n".join(sorted(foreground))))
-            if options.output_filename_pattern:
+            if args.output_filename_pattern:
                 outfile.close()
 
-            outfile = GO.getFileName(options,
+            outfile = GO.getFileName(args,
                                      go=test_ontology,
                                      section='background',
                                      set=genelist_name)
 
             # Jethro bug fix - see section 'build background' for assignment
             outfile.write("gene_id\n%s\n" % ("\n".join(sorted(background))))
-            if options.output_filename_pattern:
+            if args.output_filename_pattern:
                 outfile.close()
 
             #############################################################
@@ -635,11 +625,11 @@ def main(argv=None):
 
             #############################################################
             # calculate fdr for each hypothesis
-            if options.fdr:
+            if args.fdr:
                 fdrs, samples, method = GO.computeFDRs(go_results,
                                                        foreground,
                                                        background,
-                                                       options,
+                                                       args,
                                                        test_ontology,
                                                        gene2go,
                                                        go2info)
@@ -650,33 +640,33 @@ def main(argv=None):
 
             msgs.append("fdr=%s" % method)
 
-            if options.sort_order == "fdr":
+            if args.sort_order == "fdr":
                 pairs.sort(key=lambda x: x[1].mQValue)
-            elif options.sort_order == "ratio":
+            elif args.sort_order == "ratio":
                 pairs.sort(key=lambda x: x[1].mRatio)
-            elif options.sort_order == "pvalue":
+            elif args.sort_order == "pvalue":
                 pairs.sort(key=lambda x: x[1].mPValue)
 
             #############################################################
             #############################################################
             #############################################################
             # output the full result
-            outfile = GO.getFileName(options,
+            outfile = GO.getFileName(args,
                                      go=test_ontology,
                                      section='overall',
                                      set=genelist_name)
 
             GO.outputResults(
-                outfile, pairs, go2info, options, fdrs=fdrs, samples=samples)
+                outfile, pairs, go2info, args, fdrs=fdrs, samples=samples)
 
-            if options.output_filename_pattern:
+            if args.output_filename_pattern:
                 outfile.close()
 
             #############################################################
             #############################################################
             #############################################################
             # filter significant results and output
-            filtered_pairs = GO.selectSignificantResults(pairs, fdrs, options)
+            filtered_pairs = GO.selectSignificantResults(pairs, fdrs, args)
 
             nselected = len(filtered_pairs)
             nselected_up = len([x for x in filtered_pairs if x[1].mRatio > 1])
@@ -685,7 +675,7 @@ def main(argv=None):
 
             assert nselected_up + nselected_down == nselected
 
-            outfile = GO.getFileName(options,
+            outfile = GO.getFileName(args,
                                      go=test_ontology,
                                      section='results',
                                      set=genelist_name)
@@ -693,11 +683,11 @@ def main(argv=None):
             GO.outputResults(outfile,
                              filtered_pairs,
                              go2info,
-                             options,
+                             args,
                              fdrs=fdrs,
                              samples=samples)
 
-            if options.output_filename_pattern:
+            if args.output_filename_pattern:
                 outfile.close()
 
             #############################################################
@@ -715,7 +705,7 @@ def main(argv=None):
             ngenes, ncategories, nmaps, counts_per_category = \
                 GO.CountGO(gene2go)
 
-            outfile = GO.getFileName(options,
+            outfile = GO.getFileName(args,
                                      go=test_ontology,
                                      section='parameters',
                                      set=genelist_name)
@@ -763,16 +753,16 @@ def main(argv=None):
             outfile.write(
                 "significant_down\t%i\tsignificant up-regulated results reported\n" % nselected_down)
             outfile.write(
-                "threshold\t%6.4f\tsignificance threshold\n" % options.threshold)
+                "threshold\t%6.4f\tsignificance threshold\n" % args.threshold)
 
-            if options.output_filename_pattern:
+            if args.output_filename_pattern:
                 outfile.close()
 
             summary.append("\t".join(map(str, (
                 genelist_name,
                 test_ontology,
                 nselected,
-                options.threshold,
+                args.threshold,
                 ngenes,
                 ncategories,
                 nmaps,
@@ -792,19 +782,19 @@ def main(argv=None):
             #############################################################
             #############################################################
             # output the fg patterns
-            outfile = GO.getFileName(options,
+            outfile = GO.getFileName(args,
                                      go=test_ontology,
                                      section='withgenes',
                                      set=genelist_name)
 
-            GO.outputResults(outfile, pairs, go2info, options,
+            GO.outputResults(outfile, pairs, go2info, args,
                              fdrs=fdrs,
                              samples=samples,
                              gene2go=gene2go,
                              foreground=foreground,
                              gene2name=gene2name)
 
-            if options.output_filename_pattern:
+            if args.output_filename_pattern:
                 outfile.close()
 
         if len(genelists) > 1:
@@ -816,7 +806,7 @@ def main(argv=None):
                                              all_genelists_with_results,
                                              test_ontology,
                                              go2info,
-                                             options,
+                                             args,
                                              section='significant')
 
             # all results
@@ -824,17 +814,17 @@ def main(argv=None):
                                              all_genelists_with_results,
                                              test_ontology,
                                              go2info,
-                                             options,
+                                             args,
                                              section='all')
 
-            if options.compute_pairwise:
+            if args.compute_pairwise:
                 GO.pairwiseGOEnrichment(all_results,
                                         all_genelists_with_results,
                                         test_ontology,
                                         go2info,
-                                        options)
+                                        args)
 
-    outfile_summary = options.stdout
+    outfile_summary = args.stdout
     outfile_summary.write("".join(summary))
 
     E.stop()

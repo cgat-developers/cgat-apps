@@ -255,112 +255,111 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-t", "--test", dest="test", type="string",
-                      help="supply help")
+    parser.add_argument("-t", "--test", dest="test", type=str,
+                        help="supply help")
 
-    parser.add_option("--program", dest="program", type="choice",
-                      choices=["kallisto", "sailfish"],
-                      help="use either kallisto or sailfish, "
-                      "for alignment-free quantification")
+    parser.add_argument("--program", dest="program", type=str,
+                        choices=["kallisto", "sailfish"],
+                        help="use either kallisto or sailfish, "
+                        "for alignment-free quantification")
 
-    parser.add_option("--method", dest="method", type="choice",
-                      choices=["make_index", "quant"],
-                      help="method of kallisto to run")
+    parser.add_argument("--method", dest="method", type=str,
+                        choices=["make_index", "quant"],
+                        help="method of kallisto to run")
 
-    parser.add_option("--index-fasta", dest="fa_index", type="string",
-                      help="multi-fasta to use to make index for kallisto")
+    parser.add_argument("--index-fasta", dest="fa_index", type=str,
+                        help="multi-fasta to use to make index for kallisto")
 
-    parser.add_option("--index-file", dest="index_file", type="string",
-                      help="kallisto index file to use for quantificaiton")
+    parser.add_argument("--index-file", dest="index_file", type=str,
+                        help="kallisto index file to use for quantificaiton")
 
-    parser.add_option("--use-bias", dest="bias", action="store_true",
-                      help="use kallisto's bias correction")
+    parser.add_argument("--use-bias", dest="bias", action="store_true",
+                        help="use kallisto's bias correction")
 
-    parser.add_option("--bootstraps", dest="bootstrap", type="int",
-                      help="number of bootstraps to apply to quantification")
+    parser.add_argument("--bootstraps", dest="bootstrap", type=int,
+                        help="number of bootstraps to apply to quantification")
 
-    parser.add_option("--seed", dest="seed", type="int",
-                      help="seed number for random number genration "
-                      "and bootstrapping")
+    parser.add_argument("--seed", dest="seed", type=int,
+                        help="seed number for random number genration "
+                        "and bootstrapping")
 
-    parser.add_option("--just-text", dest="text_only", action="store_true",
-                      help="only output files in plain text, not HDF5")
+    parser.add_argument("--just-text", dest="text_only", action="store_true",
+                        help="only output files in plain text, not HDF5")
 
-    parser.add_option("--library-type", dest="library", type="choice",
-                      choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
-                               "OSF", "OSR", "OU", "SR", "SF", "U"],
-                      help="sailfish fragment library type code")
+    parser.add_argument("--library-type", dest="library", type=str,
+                        choices=["ISF", "ISR", "IU", "MSF", "MSR", "MU",
+                                 "OSF", "OSR", "OU", "SR", "SF", "U"],
+                        help="sailfish fragment library type code")
 
-    parser.add_option("--paired-end", dest="paired", action="store_true",
-                      help="data are paired end")
+    parser.add_argument("--paired-end", dest="paired", action="store_true",
+                        help="data are paired end")
 
-    parser.add_option("--kmer-size", dest="kmer", type="int",
-                      help="kmer size to use for index generation")
+    parser.add_argument("--kmer-size", dest="kmer", type=int,
+                        help="kmer size to use for index generation")
 
-    parser.add_option("--gene-gtf", dest="gene_gtf", type="string",
-                      help="GTF file containing transcripts and gene "
-                      "identifiers to calculate gene-level estimates")
+    parser.add_argument("--gene-gtf", dest="gene_gtf", type=str,
+                        help="GTF file containing transcripts and gene "
+                        "identifiers to calculate gene-level estimates")
 
-    parser.add_option("--threads", dest="threads", type="int",
-                      help="number of threads to use for kallisto "
-                      "quantificaion")
+    parser.add_argument("--threads", dest="threads", type=int,
+                        help="number of threads to use for kallisto "
+                        "quantificaion")
 
-    parser.add_option("--output-directory", dest="outdir", type="string",
-                      help="directory to output transcript abundance "
-                      "estimates to")
+    parser.add_argument("--output-directory", dest="outdir", type=str,
+                        help="directory to output transcript abundance "
+                        "estimates to")
 
-    parser.add_option("--output-file", dest="outfile", type="string",
-                      help="output filename")
+    parser.add_argument("--output-file", dest="outfile", type=str,
+                        help="output filename")
 
     parser.set_defaults(paired=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.method == "make_index":
-        if options.program == "kallisto":
-            runKallistoIndex(fasta_file=options.fa_index,
-                             outfile=options.outfile,
-                             kmer=options.kmer)
-        elif options.program == "sailfish":
-            runSailfishIndex(fasta_file=options.fa_index,
-                             outdir=options.outdir,
-                             threads=options.threads,
-                             kmer=options.kmer)
+    if args.method == "make_index":
+        if args.program == "kallisto":
+            runKallistoIndex(fasta_file=args.fa_index,
+                             outfile=args.outfile,
+                             kmer=args.kmer)
+        elif args.program == "sailfish":
+            runSailfishIndex(fasta_file=args.fa_index,
+                             outdir=args.outdir,
+                             threads=args.threads,
+                             kmer=args.kmer)
         else:
             E.warn("program not recognised, exiting.")
 
-    elif options.method == "quant":
+    elif args.method == "quant":
         infiles = argv[-1]
         qfiles = infiles.split(",")
         # make the output directory if it doesn't exist
-        if os.path.exists(options.outdir):
+        if os.path.exists(args.outdir):
             pass
         else:
-            os.system("mkdir %s" % options.outdir)
+            os.system("mkdir %s" % args.outdir)
 
-        if options.program == "kallisto":
-            runKallistoQuant(fasta_index=options.index_file,
+        if args.program == "kallisto":
+            runKallistoQuant(fasta_index=args.index_file,
                              fastq_files=qfiles,
-                             output_dir=options.outdir,
-                             bias=options.bias,
-                             bootstrap=options.bootstrap,
-                             seed=options.seed,
-                             threads=options.threads,
-                             plaintext=options.text_only)
-        elif options.program == "sailfish":
+                             output_dir=args.outdir,
+                             bias=args.bias,
+                             bootstrap=args.bootstrap,
+                             seed=args.seed,
+                             threads=args.threads,
+                             plaintext=args.text_only)
+        elif args.program == "sailfish":
             infiles = argv[-1]
             qfiles = infiles.split(",")
-            runSailfishQuant(fasta_index=options.index_file,
+            runSailfishQuant(fasta_index=args.index_file,
                              fastq_files=qfiles,
-                             output_dir=options.outdir,
-                             paired=options.paired,
-                             library=options.library,
-                             threads=options.threads,
-                             gene_gtf=options.gene_gtf)
+                             output_dir=args.outdir,
+                             paired=args.paired,
+                             library=args.library,
+                             threads=args.threads,
+                             gene_gtf=args.gene_gtf)
 
         else:
             E.warn("program not recognised, exiting.")
@@ -369,6 +368,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

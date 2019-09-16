@@ -123,28 +123,28 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$", usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-m", "--merge-pairs", dest="merge_pairs",
-                      action="store_true",
-                      help="merge paired-ended reads and output interval "
-                      "for entire fragment [default=%default]. ")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("--max-insert-size", dest="max_insert_size", type="int",
-                      help="only merge paired-end reads if they are less than "
-                      "# bases apart. "
-                      " 0 turns off this filter [default=%default]. ")
+    parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
+                        action="store_true",
+                        help="merge paired-ended reads and output interval "
+                        "for entire fragment. ")
 
-    parser.add_option("--min-insert-size", dest="min_insert_size", type="int",
-                      help="only merge paired-end reads if they are at "
-                      "least # bases apart. "
-                      " 0 turns off this filter [default=%default]. ")
+    parser.add_argument("--max-insert-size", dest="max_insert_size", type=int,
+                        help="only merge paired-end reads if they are less than "
+                        "# bases apart. "
+                        " 0 turns off this filter. ")
 
-    parser.add_option("--bed-format", dest="bed_format", type="choice",
-                      choices=('3', '4', '5', '6'),
-                      help="bed format to output. "
-                      " [default=%default]")
+    parser.add_argument("--min-insert-size", dest="min_insert_size", type=int,
+                        help="only merge paired-end reads if they are at "
+                        "least # bases apart. "
+                        " 0 turns off this filter. ")
+
+    parser.add_argument("--bed-format", dest="bed_format", type=str,
+                        choices=('3', '4', '5', '6'),
+                        help="bed format to output. ")
 
     parser.set_defaults(
         region=None,
@@ -155,21 +155,21 @@ def main(argv=None):
         bed_format='6',
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
-    if len(args) == 0:
-        args.append("-")
+    if len(unknown) == 0:
+        unknown.append("-")
 
-    samfile = pysam.AlignmentFile(args[0], "rb")
+    samfile = pysam.AlignmentFile(unknown[0], "rb")
 
-    options.bed_format = int(options.bed_format)
+    args.bed_format = int(args.bed_format)
 
-    if options.merge_pairs is not None:
+    if args.merge_pairs is not None:
         counter = merge_pairs(samfile,
-                              options.stdout,
-                              min_insert_size=options.min_insert_size,
-                              max_insert_size=options.max_insert_size,
-                              bed_format=options.bed_format)
+                              args.stdout,
+                              min_insert_size=args.min_insert_size,
+                              max_insert_size=args.max_insert_size,
+                              bed_format=args.bed_format)
 
         E.info("category\tcounts\n%s\n" % counter.asTable())
 
@@ -183,7 +183,7 @@ def main(argv=None):
         BAM_CDEL = 2
         BAM_CREF_SKIP = 3
         take = (BAM_CMATCH, BAM_CDEL, BAM_CREF_SKIP)
-        outfile = options.stdout
+        outfile = args.stdout
 
         for read in it:
             if read.is_unmapped:
@@ -207,6 +207,7 @@ def main(argv=None):
                            strand))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

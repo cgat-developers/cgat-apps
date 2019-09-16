@@ -91,41 +91,42 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-m", "--min-overlap", dest="min_overlap",
-                      type="float",
-                      help="minimum overlap [%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("-a", "--bam-file", dest="filename_bam",
-                      metavar="bam", type="string",
-                      help="bam-file to use (required) [%default]")
+    parser.add_argument("-m", "--min-overlap", dest="min_overlap",
+                        type=float,
+                        help="minimum overlap ")
 
-    parser.add_option("-b", "--bed-file", dest="filename_bed",
-                      metavar="bed", type="string",
-                      help="bed-file to use (required) [%default]")
+    parser.add_argument("-a", "--bam-file", dest="filename_bam",
+                        metavar="bam", type=str,
+                        help="bam-file to use (required) ")
 
-    parser.add_option(
+    parser.add_argument("-b", "--bed-file", dest="filename_bed",
+                        metavar="bed", type=str,
+                        help="bed-file to use (required) ")
+
+    parser.add_argument(
         "-s", "--sort-bed", dest="sort_bed",
         action="store_true",
         help="sort the bed file by chromosomal location before "
         "processing. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "--assume-sorted", dest="sort_bed",
         action="store_false",
         help="assume that the bed-file is sorted by chromosomal location. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "--split-intervals", dest="split_intervals",
         action="store_true",
         help="treat split BAM intervals, for example spliced intervals, "
         "as separate intervals. Note that a single alignment might be "
         "counted several times as a result. "
-        "[%default]")
+        )
 
     parser.set_defaults(
         min_overlap=0.5,
@@ -136,17 +137,17 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
-    filename_bam = options.filename_bam
-    filename_bed = options.filename_bed
+    filename_bam = args.filename_bam
+    filename_bed = args.filename_bed
 
     if filename_bam is None and filename_bed is None:
-        if len(args) != 2:
+        if len(unknown) != 2:
             raise ValueError(
                 "please supply a bam and a bed file or two bed-files.")
 
-        filename_bam, filename_bed = args
+        filename_bam, filename_bed = unknown
 
     if filename_bed is None:
         raise ValueError("please supply a bed file to compare to.")
@@ -156,9 +157,9 @@ def main(argv=None):
 
     E.info("intersecting the two files")
 
-    min_overlap = options.min_overlap
+    min_overlap = args.min_overlap
 
-    options.stdout.write("category\talignments\n")
+    args.stdout.write("category\talignments\n")
 
     # get number of columns of reference bed file
     for bed in Bed.iterator(iotools.open_file(filename_bed)):
@@ -213,19 +214,19 @@ def main(argv=None):
 
     data = collections.namedtuple("data", data_fields)
 
-    options.stdout.write("total\t%i\n" % total)
+    args.stdout.write("total\t%i\n" % total)
 
     if total == 0:
         E.warn("no data in %s" % filename_bam)
         return
 
     # SNS: sorting optional, off by default
-    if options.sort_bed:
+    if args.sort_bed:
         bedcmd = "<( gunzip < %s | sort -k1,1 -k2,2n)" % filename_bed
     else:
         bedcmd = filename_bed
 
-    if options.split_intervals:
+    if args.split_intervals:
         split = "-split"
     else:
         split = ""
@@ -259,10 +260,11 @@ def main(argv=None):
             counts_per_alignment[anno] += 1
 
     for key, counts in sorted(counts_per_alignment.items()):
-        options.stdout.write("%s\t%i\n" % (key, counts))
+        args.stdout.write("%s\t%i\n" % (key, counts))
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

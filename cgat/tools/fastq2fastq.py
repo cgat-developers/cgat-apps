@@ -375,31 +375,32 @@ def process_daisy(options):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--output-removed-tsv", dest="output_removed_tsv", type="string",
+    parser.add_argument(
+        "--output-removed-tsv", dest="output_removed_tsv", type=str,
         help="if given, sequence identifiers of removed sequences will "
-        "be stored in this file [%default]")
+        "be stored in this file ")
 
-    parser.add_option(
-        "--output-stats-tsv", dest="output_stats_tsv", type="string",
+    parser.add_argument(
+        "--output-stats-tsv", dest="output_stats_tsv", type=str,
         help="if given, output statistics will be written to this file. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--output-removed-fastq", dest="output_removed_fastq", type="string",
+    parser.add_argument(
+        "--output-removed-fastq", dest="output_removed_fastq", type=str,
         help="if given, removed fastq records will "
-        "be stored in this file [%default]")
+        "be stored in this file ")
 
-    parser.add_option(
-        "-m", "--method", dest="methods", action="append", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="methods", action="append", type=str,
         choices=("filter-N",
                  "filter-identifier",
                  "filter-ONT",
@@ -414,70 +415,70 @@ def main(argv=sys.argv):
                  "unique",
                  "reverse-complement",
                  "grep"),
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
-    parser.add_option(
-        "--set-prefix", dest="set_prefix", type="string",
-        help="set sequence prefix [%default]")
+    parser.add_argument(
+        "--set-prefix", dest="set_prefix", type=str,
+        help="set sequence prefix ")
 
-    parser.add_option(
-        "--input-filter-tsv", dest="input_filter_tsv", type="string",
-        help="list of sequence ides to filter [%default]")
+    parser.add_argument(
+        "--input-filter-tsv", dest="input_filter_tsv", type=str,
+        help="list of sequence ides to filter ")
 
-    parser.add_option(
-        "--min-average-quality", dest="min_average_quality", type="float",
-        help="minimum average quality [%default]")
+    parser.add_argument(
+        "--min-average-quality", dest="min_average_quality", type=float,
+        help="minimum average quality ")
 
-    parser.add_option(
-        "--min-sequence-length", dest="min_sequence_length", type="int",
-        help="minimum sequence length [%default]")
+    parser.add_argument(
+        "--min-sequence-length", dest="min_sequence_length", type=int,
+        help="minimum sequence length ")
 
-    parser.add_option(
-        "--quality-offset", dest="quality_offset", type="int",
-        help="offset to modify quality values with [%default]")
+    parser.add_argument(
+        "--quality-offset", dest="quality_offset", type=int,
+        help="offset to modify quality values with ")
 
-    parser.add_option(
-        "--target-format", dest="target_format", type="choice",
+    parser.add_argument(
+        "--target-format", dest="target_format", type=str,
         choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
         help="guess quality score format and set quality scores "
-        "to format [default=%default].")
+        "to format.")
 
-    parser.add_option(
-        "--guess-format", dest="guess_format", type="choice",
+    parser.add_argument(
+        "--guess-format", dest="guess_format", type=str,
         choices=('sanger', 'solexa', 'phred64', 'integer', 'illumina-1.8'),
-        help="quality score format to assume if ambiguous [default=%default].")
+        help="quality score format to assume if ambiguous.")
 
-    parser.add_option(
-        "--sample-size", dest="sample_size", type="float",
+    parser.add_argument(
+        "--sample-size", dest="sample_size", type=float,
         help="proportion of reads to sample. "
         "Provide a proportion of reads to sample, e.g. 0.1 for 10%, "
-        "0.5 for 50%, etc [default=%default].")
+        "0.5 for 50%, etc.")
 
-    parser.add_option(
-        "--pair-fastq-file", dest="pair", type="string",
+    parser.add_argument(
+        "--pair-fastq-file", dest="pair", type=str,
         help="if data is paired, filename with second pair. "
-        "Implemented for sampling [default=%default].")
+        "Implemented for sampling.")
 
-    parser.add_option(
-        "--map-tsv-file", dest="map_tsv_file", type="string",
+    parser.add_argument(
+        "--map-tsv-file", dest="map_tsv_file", type=str,
         help="filename with tab-separated identifiers mapping for "
-        "method apply [default=%default].")
+        "method apply.")
 
-    parser.add_option(
-        "--num-bases", dest="nbases", type="int",
-        help="number of bases to trim [default=%default].")
+    parser.add_argument(
+        "--num-bases", dest="nbases", type=int,
+        help="number of bases to trim.")
 
-    parser.add_option(
-        "--seed", dest="seed", type="int",
-        help="seed for random number generator [default=%default].")
+    parser.add_argument(
+        "--seed", dest="seed", type=int,
+        help="seed for random number generator.")
 
-    parser.add_option(
-        "--pattern-identifier", dest="renumber_pattern", type="string",
-        help="rename reads in file by pattern [default=%default]")
+    parser.add_argument(
+        "--pattern-identifier", dest="renumber_pattern", type=str,
+        help="rename reads in file by pattern")
 
-    parser.add_option(
-        "--grep-pattern", dest="grep_pattern", type="string",
-        help="subset to reads matching pattern [default=%default]")
+    parser.add_argument(
+        "--grep-pattern", dest="grep_pattern", type=str,
+        help="subset to reads matching pattern")
 
     parser.set_defaults(
         input_fastq_file="-",
@@ -502,30 +503,33 @@ def main(argv=sys.argv):
         quality_offset=0,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) == 1:
-        options.input_fastq_file = args[0]
+    if len(unknown) == 1:
+        args.input_fastq_file = unknown[0]
 
-    if len(options.methods) == 0:
+    if len(args.methods) == 0:
         raise ValueError("no method specified, please use --method")
 
     # this script combines two scripts with different functionalities
     # TODO: to be sanitized
-    if options.methods[0] in ["apply",
-                              "change-format",
-                              "renumber-reads",
-                              "sample",
-                              "sort",
-                              "trim3",
-                              "trim5",
-                              "unique",
-                              "reverse-complement",
-                              "grep"]:
-        options.method = options.methods[0]
-        counter = process_cgat(options)
+    if args.methods[0] in ["apply",
+                           "change-format",
+                           "renumber-reads",
+                           "sample",
+                           "sort",
+                           "trim3",
+                           "trim5",
+                           "unique",
+                           "reverse-complement",
+                           "grep"]:
+        args.method = args.methods[0]
+        counter = process_cgat(args)
     else:
-        counter = process_daisy(options)
+        counter = process_daisy(args)
 
     E.info(counter)
     E.stop()

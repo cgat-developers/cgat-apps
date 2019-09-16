@@ -231,32 +231,27 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: "
-                            "$Id: gff2coverage.py 2781 2009-09-10 11:33:14Z "
-                            "andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome [default=%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("-f", "--features", dest="features", type="string",
-                      action="append", help="features to collect "
-                      "[default=%default]")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
+                        help="filename with genome")
 
-    parser.add_option("-w", "--window-size", dest="window_size", type="int",
-                      help="window size in bp for histogram computation. "
-                      "Determines the bin size.  "
-                      "[default=%default]")
+    parser.add_argument("-f", "--features", dest="features", type=str,
+                        action="append", help="features to collect ")
 
-    parser.add_option("-b", "--num-bins", dest="num_bins", type="int",
-                      help="number of bins for histogram computation "
-                      "if window size is not given. "
-                      "[default=%default]")
+    parser.add_argument("-w", "--window-size", dest="window_size", type=int,
+                        help="window size in bp for histogram computation. "
+                        "Determines the bin size.  ")
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
-                      choices=("genomic", "histogram", ),
-                      help="methods to apply. "
-                      "[default=%default]")
+    parser.add_argument("-b", "--num-bins", dest="num_bins", type=int,
+                        help="number of bins for histogram computation "
+                        "if window size is not given. ")
+
+    parser.add_argument("-m", "--method", dest="method", type=str,
+                        choices=("genomic", "histogram", ),
+                        help="methods to apply. ")
 
     parser.set_defaults(
         genome_file=None,
@@ -267,16 +262,16 @@ def main(argv=None):
         method="genomic",
     )
 
-    (options, args) = E.start(parser, add_output_options=True)
+    (args) = E.start(parser, add_output_options=True)
 
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
     else:
         fasta = None
 
-    if options.method == "histogram":
+    if args.method == "histogram":
 
-        gff = GTF.readFromFile(options.stdin)
+        gff = GTF.readFromFile(args.stdin)
 
         gff.sort(key=lambda x: (x.contig, x.start))
 
@@ -286,30 +281,30 @@ def main(argv=None):
         for entry in gff:
 
             if last_contig != entry.contig:
-                processChunk(last_contig, chunk, options, fasta)
+                processChunk(last_contig, chunk, args, fasta)
                 last_contig = entry.contig
                 chunk = []
 
             chunk.append(entry)
 
-        processChunk(last_contig, chunk, options, fasta)
+        processChunk(last_contig, chunk, args, fasta)
 
-    elif options.method == "genomic":
+    elif args.method == "genomic":
         intervals = collections.defaultdict(int)
         bases = collections.defaultdict(int)
         total = 0
-        for entry in GTF.iterator(options.stdin):
+        for entry in GTF.iterator(args.stdin):
             intervals[(entry.contig, entry.source, entry.feature)] += 1
             bases[(entry.contig, entry.source, entry.feature)
                   ] += entry.end - entry.start
             total += entry.end - entry.start
 
-        options.stdout.write("contig\tsource\tfeature\tintervals\tbases")
+        args.stdout.write("contig\tsource\tfeature\tintervals\tbases")
         if fasta:
-            options.stdout.write(
+            args.stdout.write(
                 "\tpercent_coverage\ttotal_percent_coverage\n")
         else:
-            options.stdout.write("\n")
+            args.stdout.write("\n")
 
         total_genome_size = sum(
             fasta.getContigSizes(with_synonyms=False).values())
@@ -318,18 +313,19 @@ def main(argv=None):
             nbases = bases[key]
             nintervals = intervals[key]
             contig, source, feature = key
-            options.stdout.write("\t".join(("\t".join(key),
-                                            str(nintervals),
-                                            str(nbases))))
+            args.stdout.write("\t".join(("\t".join(key),
+                                         str(nintervals),
+                                         str(nbases))))
             if fasta:
-                options.stdout.write(
+                args.stdout.write(
                     "\t%f" % (100.0 * float(nbases) / fasta.getLength(contig)))
-                options.stdout.write(
+                args.stdout.write(
                     "\t%f\n" % (100.0 * float(nbases) / total_genome_size))
             else:
-                options.stdout.write("\n")
+                args.stdout.write("\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

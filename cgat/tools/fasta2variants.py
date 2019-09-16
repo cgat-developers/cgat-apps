@@ -49,29 +49,30 @@ import cgat.FastaIterator as FastaIterator
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-c", "--is-cds", dest="is_cds", action="store_true",
-                      help="input are cds (nucleotide) sequences [%default]")
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
+                        help="input are cds (nucleotide) sequences ")
 
     parser.set_defaults(
         is_cds=False,
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    options.stdout.write(
+    args.stdout.write(
         "snpid\tidentifier\tpos\treference\tvariant\tcounts\tweight\n")
 
     alphabet = "ACDEFGHIKLMNPQRSTVWY"
 
     snpid = 0
 
-    for entry in FastaIterator.iterate(options.stdin):
+    for entry in FastaIterator.iterate(args.stdin):
         identifier = entry.title
 
-        if options.is_cds:
+        if args.is_cds:
             cds_sequence = entry.sequence.upper()
             assert len(cds_sequence) % 3 == 0, \
                 "length of sequence '%s' is not a multiple of 3" % entry.title
@@ -108,7 +109,7 @@ def main(argv=None):
                 if variant == ref:
                     continue
                 snpid += 1
-                options.stdout.write(
+                args.stdout.write(
                     "%s\n" % "\t".join(
                         ("%010i" % snpid,
                          identifier,
@@ -120,6 +121,7 @@ def main(argv=None):
                          )))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

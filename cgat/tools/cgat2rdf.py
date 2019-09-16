@@ -99,6 +99,7 @@ CLP = Namespace('http://www.humgen.nl/climate/ontologies/clp#')
 def _e(string):
     return string.replace(' ', '_')
 
+
 MAP_FORMATS = {
     'tsv': 'tabular',
     'table': 'tabular',
@@ -387,15 +388,15 @@ def buildParam(**kwargs):
     return param
 
 
-def processScript(script_name, outfile, options):
+def processScript(script_name, outfile, args):
     '''process one script.'''
 
     # call other script
     dirname = os.path.dirname(script_name)
     basename = os.path.basename(script_name)[:-3]
 
-    if options.src_dir:
-        dirname = options.src_dir
+    if args.src_dir:
+        dirname = args.src_dir
         script_name = os.path.join(dirname, basename) + ".py"
 
     sys.path.insert(0, dirname)
@@ -630,10 +631,10 @@ def processScript(script_name, outfile, options):
 
         data['parameters'].append(param)
 
-    if options.output_format == "rdf":
+    if args.output_format == "rdf":
         outfile.write(g.serialize(data, format='turtle') + "\n")
 
-    elif options.output_format == "galaxy":
+    elif args.output_format == "galaxy":
 
         if use_wrapper:
 
@@ -677,28 +678,29 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser()
 
-    parser.add_option("-f", "--format", dest="output_format", type="choice",
-                      choices=("rdf", "galaxy"),
-                      help="output format [%default]. ")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("-l", "--list", dest="filename_list", type="string",
-                      help="filename with list of files to export "
-                      "[%default]. ")
+    parser.add_argument("-f", "--format", dest="output_format", type=str,
+                        choices=("rdf", "galaxy"),
+                        help="output format . ")
 
-    parser.add_option("-s", "--source-dir", dest="src_dir", type="string",
-                      help="directory to look for scripts [%default]. ")
+    parser.add_argument("-l", "--list", dest="filename_list", type=str,
+                        help="filename with list of files to export "
+                        ". ")
 
-    parser.add_option("-r", "--input-regex", dest="input_regex", type="string",
-                      help="regular expression to extract script name "
-                      "[%default]. ")
+    parser.add_argument("-s", "--source-dir", dest="src_dir", type=str,
+                        help="directory to look for scripts . ")
 
-    parser.add_option("-p", "--output-filename-pattern", dest="output_pattern",
-                      type="string",
-                      help="pattern to build output filename. Should contain "
-                      "an '%s' [%default]. ")
+    parser.add_argument("-r", "--input-regex", dest="input_regex", type=str,
+                        help="regular expression to extract script name "
+                        ". ")
+
+    parser.add_argument("-p", "--output-filename-pattern", dest="output_pattern",
+                        type=str,
+                        help="pattern to build output filename. Should contain "
+                        "an '%s' . ")
 
     parser.set_defaults(output_format="rdf",
                         src_dir=None,
@@ -707,11 +709,11 @@ def main(argv=None):
                         filename_list=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     if len(args) == 0:
         E.info("reading script names from stdin")
-        for line in options.stdin:
+        for line in args.stdin:
             if line.startswith("#"):
                 continue
             args.append(line[:-1].split("\t")[0])
@@ -720,47 +722,48 @@ def main(argv=None):
     global ORIGINAL_START
     ORIGINAL_START = E.start
 
-    if options.output_pattern and not options.input_regex:
+    if args.output_pattern and not args.input_regex:
         raise ValueError(
             "please specify --input-regex when using "
             "--output-filename-pattern")
 
-    if options.output_format == "galaxy":
-        options.stdout.write(
+    if args.output_format == "galaxy":
+        args.stdout.write(
             '''<section name="cgat Tools" id="cgat_tools">\n''')
 
     for script_name in args:
         if not script_name.endswith(".py"):
             raise ValueError("expected a python script ending in '.py'")
 
-        if options.input_regex:
+        if args.input_regex:
             try:
                 input_string = re.search(
-                    options.input_regex, script_name).groups()[0]
+                    args.input_regex, script_name).groups()[0]
             except AttributeError:
                 E.warn("can not parse %s - skipped", script_name)
                 continue
 
-        if options.output_pattern:
-            outfile_name = re.sub("%s", input_string, options.output_pattern)
+        if args.output_pattern:
+            outfile_name = re.sub("%s", input_string, args.output_pattern)
             outfile = iotools.open_file(outfile_name, "w")
         else:
-            outfile = options.stdout
+            outfile = args.stdout
 
         E.info("input=%s, output=%s" % (script_name, outfile_name))
-        processScript(script_name, outfile, options)
+        processScript(script_name, outfile, args)
 
-        if options.output_format == "galaxy":
-            options.stdout.write(
+        if args.output_format == "galaxy":
+            args.stdout.write(
                 '''   <tool file="cgat/%s" />\n''' % outfile_name)
 
-        if outfile != options.stdout:
+        if outfile != args.stdout:
             outfile.close()
 
-    if options.output_format == "galaxy":
-        options.stdout.write('''</section>\n''')
+    if args.output_format == "galaxy":
+        args.stdout.write('''</section>\n''')
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

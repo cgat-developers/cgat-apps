@@ -41,26 +41,27 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$")
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-s", "--method=sort --sort-order", dest="sort", type="string",
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-s", "--method=sort --sort-order", dest="sort", type=str,
         help="fields to take (in sorted order).")
 
-    (options, args) = E.start(parser, add_csv_options=True)
+    (args) = E.start(parser, add_csv_options=True)
 
-    reader = csv.DictReader(E.stdin, dialect=options.csv_dialect)
+    reader = csv.DictReader(E.stdin, dialect=args.csv_dialect)
 
-    if options.sort:
-        fields = options.sort.split(",")
+    if args.sort:
+        fields = args.sort.split(",")
     else:
         fields = None
 
     writer = csv.DictWriter(E.stdout,
                             fields,
-                            dialect=options.csv_dialect,
-                            lineterminator=options.csv_lineterminator,
+                            dialect=args.csv_dialect,
+                            lineterminator=args.csv_lineterminator,
                             extrasaction='ignore')
 
     E.stdout.write("\t".join(fields) + "\n")

@@ -60,19 +60,19 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser()
 
-    parser.add_option("-i", "--intervals-bed-file", dest="filename_intervals",
-                      type="string",
-                      help="filename with intervals to use "
-                      "[%default].")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("-e", "--regex-identifier", dest="regex_identifier",
-                      type="string",
-                      help="regular expression to extract identifier from "
-                      "filename [%default].")
+    parser.add_argument("-i", "--intervals-bed-file", dest="filename_intervals",
+                        type=str,
+                        help="filename with intervals to use "
+                        ".")
+
+    parser.add_argument("-e", "--regex-identifier", dest="regex_identifier",
+                        type=str,
+                        help="regular expression to extract identifier from "
+                        "filename .")
 
     parser.set_defaults(
         filename_intervals=None,
@@ -80,23 +80,23 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser, argv=argv, unknowns=True)
 
-    if len(args) < 1:
+    if len(unknown) < 1:
         raise ValueError("please supply at least two BAM files.")
 
     samfiles = []
-    for f in args:
+    for f in unknown:
         samfiles.append(pysam.AlignmentFile(f, "rb"))
 
-    if options.filename_intervals:
+    if args.filename_intervals:
         raise NotImplementedError(
             "It is not yet possible to specify intervals of interest.\
             Repeat command without intervals option.")
 
-    titles = [re.search(options.regex_identifier, x).groups()[0] for x in args]
+    titles = [re.search(args.regex_identifier, x).groups()[0] for x in unknown]
 
-    options.stdout.write("contig\tpos\t%s\n" % "\t".join(titles))
+    args.stdout.write("contig\tpos\t%s\n" % "\t".join(titles))
 
     ninput, nskipped, noutput = 0, 0, 0
     contigs = samfiles[0].references
@@ -134,13 +134,14 @@ def main(argv=None):
         noutput += 1
         for pos in sorted(positions.keys()):
             vals = positions[pos]
-            options.stdout.write("%s\t%i\t%s\n" % (contig, pos,
-                                                   "\t".join(map(str, vals))))
+            args.stdout.write("%s\t%i\t%s\n" % (contig, pos,
+                                                "\t".join(map(str, vals))))
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

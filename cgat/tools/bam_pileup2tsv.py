@@ -58,41 +58,41 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(version="%prog version: $Id$",
+                              usage=globals()["__doc__"])
 
-    parser.add_option(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+    parser.add_argument(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-m", "--method", dest="method", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="method", type=str,
         choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf", "barcode"),
-        help="method to apply [%default]")
+        help="method to apply ")
 
-    parser.add_option(
-        "-e", "--input-bed", dest="input_bed_file", type="string",
+    parser.add_argument(
+        "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
-    parser.add_option(
-        "-r", "--region-string", dest="region_string", type="string",
+    parser.add_argument(
+        "-r", "--region-string", dest="region_string", type=str,
         help="region string. Only apply method in specified region. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--min-base-quality", dest="min_base_quality", type="int",
+    parser.add_argument(
+        "--min-base-quality", dest="min_base_quality", type=int,
         help="minimum base quality for barcode analysis. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-s", "--stepper", dest="stepper", type="choice",
+    parser.add_argument(
+        "-s", "--stepper", dest="stepper", type=str,
         choices=("nofilter", "samtools", "all"))
 
     parser.set_defaults(

@@ -380,55 +380,56 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type="string",
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-r", "--mask-bed-file", "--mask-gff-file", dest="filename_bed", type=str,
         metavar='GFF',
         help="gff formatted file with masking locations. The number of "
         "reads overlapping the intervals in the given file will be "
         "computed. Note that the computation currently does not take "
         "into account indels, so it is an approximate count only. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--ignore-masked-reads", dest="ignore_masked_reads", action="store_true",
         help="as well as counting reads in the file given by --mask-bed-file, "
         "also remove these reads for duplicate and match statistics. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-i", "--num-reads", dest="input_reads", type="int",
+    parser.add_argument(
+        "-i", "--num-reads", dest="input_reads", type=int,
         help="the number of reads - if given, used to provide percentages "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-d", "--output-details", dest="output_details", action="store_true",
         help="output per-read details into a separate file. Read names are "
-        "md5/base64 encoded [%default]")
+        "md5/base64 encoded ")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-readmap", dest="output_readmap", action="store_true",
         help="output map between read name and "
-        "md5/base64 encoded short name[%default]")
+        "md5/base64 encoded short name")
 
-    parser.add_option(
+    parser.add_argument(
         "--add-alignment-details", dest="add_alignment_details", action="store_true",
         help="add alignment details to per-read details. Implies --output-details "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-q", "--fastq-file", dest="filename_fastq",
         help="filename with sequences and quality scores. This file is only "
         "used to collect sequence identifiers. Thus, for paired end data a "
-        "single file is sufficient [%default]")
+        "single file is sufficient ")
 
-    parser.add_option(
+    parser.add_argument(
         "--basic-counts", dest="detailed_count", action="store_false",
         help="perform basic counting and do not compute per read stats. "
         "This is more memory efficient and faster stats computation, "
-        "but only a summary counts table is output [%default]")
+        "but only a summary counts table is output ")
 
     parser.set_defaults(
         filename_bed=None,
@@ -443,60 +444,60 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
-    if options.filename_bed:
+    if args.filename_bed:
         bed_mask = GTF.readAndIndex(
-            GTF.iterator(iotools.open_file(options.filename_bed)))
+            GTF.iterator(iotools.open_file(args.filename_bed)))
     else:
         bed_mask = None
     
-    if options.add_alignment_details:
-        options.output_details = True
+    if args.add_alignment_details:
+        args.output_details = True
 
     is_stdin = True
-    if len(args) > 0:
-        pysam_in = pysam.AlignmentFile(args[0], "rb")
-        if args[0] != "-":
+    if len(unknown) > 0:
+        pysam_in = pysam.AlignmentFile(unknown[0], "rb")
+        if unknown[0] != "-":
             is_stdin = False
-    elif options.stdin == sys.stdin:
+    elif args.stdin == sys.stdin:
         pysam_in = pysam.AlignmentFile("-", "rb")
     else:
-        pysam_in = pysam.AlignmentFile(options.stdin, "rb")
-        if options.stdin != "-":
+        pysam_in = pysam.AlignmentFile(args.stdin, "rb")
+        if args.stdin != "-":
             is_stdin = False
 
-    if options.output_details:
+    if args.output_details:
         outfile_details = E.open_output_file("details", "w")
     else:
         outfile_details = None
 
-    if options.output_readmap:
+    if args.output_readmap:
         outfile_readmap = E.open_output_file("readmap", "w")
     else:
         outfile_readmap = None
 
-    if options.filename_fastq and not os.path.exists(options.filename_fastq):
-        raise IOError("file %s does not exist" % options.filename_fastq)
+    if args.filename_fastq and not os.path.exists(args.filename_fastq):
+        raise IOError("file %s does not exist" % args.filename_fastq)
 
     (counter, flags_counts, nh_filtered, nh_all,
      nm_filtered, nm_all, mapq, mapq_all, max_hi, details_df) = \
         bam2stats_count(pysam_in,
                         bed_mask=bed_mask,
-                        ignore_masked_reads=options.ignore_masked_reads,
+                        ignore_masked_reads=args.ignore_masked_reads,
                         is_stdin=is_stdin,
-                        filename_fastq=options.filename_fastq,
+                        filename_fastq=args.filename_fastq,
                         outfile_details=outfile_details,
-                        add_alignment_details=options.add_alignment_details,
+                        add_alignment_details=args.add_alignment_details,
                         outfile_readmap=outfile_readmap,
-                        detailed_count=options.detailed_count)
+                        detailed_count=args.detailed_count)
 
     if max_hi > 0 and max_hi != max(nh_all.keys()):
         E.warn("max_hi(%i) is inconsistent with max_nh (%i) "
                "- counts will be corrected"
                % (max_hi, max(nh_all.keys())))
 
-    outs = options.stdout
+    outs = args.stdout
     outs.write("category\tcounts\tpercent\tof\n")
 
     def _write(outs, text, numerator, denominator, base):
@@ -550,7 +551,7 @@ def main(argv=None):
                nalignments_mapped,
                'alignments_mapped')
 
-    if options.filename_bed:
+    if args.filename_bed:
         _write(outs,
                "alignments_masked",
                counter.alignments_masked,
@@ -592,7 +593,7 @@ def main(argv=None):
     ###############################
 
     # derive the number of mapped reads in file from alignment counts
-    if options.filename_fastq or not is_stdin:
+    if args.filename_fastq or not is_stdin:
         nreads_total = counter.total_read
         _write(outs,
                "reads_total",
@@ -636,8 +637,8 @@ def main(argv=None):
                                                          nh_all, max_hi)
 
         nreads_missing = 0
-        if options.input_reads:
-            nreads_total = options.input_reads
+        if args.input_reads:
+            nreads_total = args.input_reads
             # unmapped reads in bam file?
             if nreads_unmapped:
                 nreads_missing = nreads_total - nreads_unmapped - nreads_mapped
@@ -673,7 +674,7 @@ def main(argv=None):
     # Output pair information
     ###############################
     if flags_counts["read2"] > 0:
-        if options.filename_fastq:
+        if args.filename_fastq:
             pairs_mapped = counter.total_pair_is_mapped
 
             # sanity check
@@ -829,7 +830,7 @@ def main(argv=None):
     outs.write("match_rate\t%i\t%5.2f\tmatches+insertions\n" %
                (counter.match_counts, counter.match_rate * 100.0))
 
-    if options.force_output or len(nm_filtered) > 0:
+    if args.force_output or len(nm_filtered) > 0:
         outfile = E.open_output_file("nm", "w")
         outfile.write("NM\talignments\n")
         if len(nm_filtered) > 0:
@@ -839,7 +840,7 @@ def main(argv=None):
             outfile.write("0\t%i\n" % (counter.filtered))
         outfile.close()
 
-    if options.force_output or len(nh_all) > 1:
+    if args.force_output or len(nh_all) > 1:
         outfile = E.open_output_file("nh_all", "w")
         outfile.write("NH\treads\n")
         if len(nh_all) > 0:
@@ -849,7 +850,7 @@ def main(argv=None):
             outfile.write("1\t%i\n" % (counter.mapped_reads))
         outfile.close()
 
-    if options.force_output or len(nh_filtered) > 1:
+    if args.force_output or len(nh_filtered) > 1:
         outfile = E.open_output_file("nh", "w")
         outfile.write("NH\treads\n")
         if len(nh_filtered) > 0:
@@ -859,7 +860,7 @@ def main(argv=None):
             outfile.write("1\t%i\n" % (counter.filtered))
         outfile.close()
 
-    if options.force_output or len(mapq_all) > 1:
+    if args.force_output or len(mapq_all) > 1:
         outfile = E.open_output_file("mapq", "w")
         outfile.write("mapq\tall_reads\tfiltered_reads\n")
         for x in range(0, max(mapq_all.keys()) + 1):

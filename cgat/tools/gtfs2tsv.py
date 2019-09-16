@@ -197,27 +197,27 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
         "-e", "--output-equivalent", dest="write_equivalent",
         action="store_true",
-        help="write equivalent entries [default=%default].")
+        help="write equivalent entries.")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--output-full", dest="write_full",
         action="store_true",
-        help="write full gff entries [default=%default].")
+        help="write full gff entries.")
 
-    parser.add_option("-p", "--add-percent", dest="add_percent",
-                      action="store_true",
-                      help="add percentage columns [default=%default].")
+    parser.add_argument("-p", "--add-percent", dest="add_percent",
+                        action="store_true",
+                        help="add percentage columns.")
 
-    parser.add_option("-s", "--ignore-strand", dest="ignore_strand",
-                      action="store_true",
-                      help="ignore strand information [default=%default].")
+    parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
+                        action="store_true",
+                        help="ignore strand information.")
 
     parser.set_defaults(
         write_equivalent=False,
@@ -227,12 +227,14 @@ def main(argv=None):
         as_gtf=False,
     )
 
-    (options, args) = E.start(parser, argv, add_output_options=True)
+    (args, unknowns) = E.start(parser, argv,
+                               add_output_options=True,
+                               unknowns=True)
 
-    if len(args) != 2:
+    if len(unknowns) != 2:
         raise ValueError("two arguments required")
 
-    input_filename1, input_filename2 = args
+    input_filename1, input_filename2 = unknowns
 
     # duplicated features cause a problem. Make sure
     # features are non-overlapping by running
@@ -297,45 +299,46 @@ def main(argv=None):
     # print gene based information
     ##################################################################
     if overlapping_genes:
-        outfile = getFile(options, "genes_ovl")
+        outfile = getFile(args, "genes_ovl")
         outfile.write("gene_id1\tgene_id2\n")
         for a, b in sorted(overlapping_genes):
             outfile.write("%s\t%s\n" % (a, b))
-        if outfile != options.stdout:
+        if outfile != args.stdout:
             outfile.close()
 
-        outfile_total = getFile(options, "genes_total")
+        outfile_total = getFile(args, "genes_total")
         outfile_total.write(
             "set\tngenes\tnoverlapping\tpoverlapping\tnunique\tpunique\n")
 
-        outfile = getFile(options, "genes_uniq1")
+        outfile = getFile(args, "genes_uniq1")
         b = set([x[0] for x in overlapping_genes])
         d = genes1.difference(b)
         outfile.write("gene_id1\n")
         outfile.write("\n".join(sorted(d)) + "\n")
-        if outfile != options.stdout:
+        if outfile != args.stdout:
             outfile.close()
         outfile_total.write("%s\t%i\t%i\t%5.2f\t%i\t%5.2f\n" % (
             os.path.basename(input_filename1), len(
                 genes1), len(b), 100.0 * len(b) / len(a),
             len(d), 100.0 * len(d) / len(genes1)))
 
-        outfile = getFile(options, "genes_uniq2")
+        outfile = getFile(args, "genes_uniq2")
         b = set([x[1] for x in overlapping_genes])
         d = genes2.difference(b)
         outfile.write("gene_id2\n")
         outfile.write("\n".join(sorted(d)) + "\n")
-        if outfile != options.stdout:
+        if outfile != args.stdout:
             outfile.close()
 
         outfile_total.write("%s\t%i\t%i\t%5.2f\t%i\t%5.2f\n" % (
             os.path.basename(input_filename2), len(
                 genes2), len(b), 100.0 * len(b) / len(a),
             len(d), 100.0 * len(d) / len(genes2)))
-        if outfile_total != options.stdout:
+        if outfile_total != args.stdout:
             outfile_total.close()
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())

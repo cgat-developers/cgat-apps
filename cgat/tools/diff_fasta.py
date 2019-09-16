@@ -117,42 +117,43 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
         "-s", "--correct-gap-shift", dest="correct_shift",
         action="store_true",
         help="correct gap length shifts in alignments. "
-        "Requires alignlib_lite.py [%default]")
+        "Requires alignlib_lite.py ")
 
-    parser.add_option(
-        "-1", "--pattern1", dest="pattern1", type="string",
+    parser.add_argument(
+        "-1", "--pattern1", dest="pattern1", type=str,
         help="pattern to extract identifier from in identifiers1. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-2", "--pattern2", dest="pattern2", type="string",
+    parser.add_argument(
+        "-2", "--pattern2", dest="pattern2", type=str,
         help="pattern to extract identifier from in identifiers2. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-o", "--output-section", dest="output", type="choice",
+    parser.add_argument(
+        "-o", "--output-section", dest="output", type=str,
         action="append",
         choices=("diff", "missed", "seqdiff"),
-        help="what to output [%default]")
+        help="what to output ")
 
     parser.set_defaults(correct_shift=False,
                         pattern1="(\S+)",
                         pattern2="(\S+)",
                         output=[])
 
-    (options, args) = E.start(parser)
+    (args, unknown) = E.start(parser, unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError("two files needed to compare.")
 
-    if options.correct_shift:
+    if args.correct_shift:
         try:
             import alignlib_lite
         except ImportError:
@@ -162,18 +163,18 @@ def main(argv=None):
 
     seqs1 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            iotools.open_file(args[0], "r"))])
+            iotools.open_file(unknown[0], "r"))])
     seqs2 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
-            iotools.open_file(args[1], "r"))])
+            iotools.open_file(unknown[1], "r"))])
 
     if not seqs1:
-        raise ValueError("first file %s is empty." % (args[0]))
+        raise ValueError("first file %s is empty." % (unknown[0]))
     if not seqs2:
-        raise ValueError("second file %s is empty." % (args[1]))
+        raise ValueError("second file %s is empty." % (unknown[1]))
 
-    MapIdentifiers(seqs1, options.pattern1)
-    MapIdentifiers(seqs2, options.pattern2)
+    MapIdentifiers(seqs1, args.pattern1)
+    MapIdentifiers(seqs2, args.pattern2)
 
     nsame = 0
     nmissed1 = 0
@@ -187,16 +188,16 @@ def main(argv=None):
     nfixed = 0
     found2 = {}
 
-    write_missed1 = "missed" in options.output
-    write_missed2 = "missed" in options.output
-    write_seqdiff = "seqdiff" in options.output
-    write_diff = "diff" in options.output or write_seqdiff
+    write_missed1 = "missed" in args.output
+    write_missed2 = "missed" in args.output
+    write_seqdiff = "seqdiff" in args.output
+    write_diff = "diff" in args.output or write_seqdiff
 
     for k in sorted(seqs1):
         if k not in seqs2:
             nmissed1 += 1
             if write_missed1:
-                options.stdout.write("---- %s ---- %s\n" % (k, "missed1"))
+                args.stdout.write("---- %s ---- %s\n" % (k, "missed1"))
             continue
 
         found2[k] = 1
@@ -243,7 +244,7 @@ def main(argv=None):
                         status = "masked"
 
             # correct for different gap lengths
-            if options.correct_shift:
+            if args.correct_shift:
 
                 map_a2b = alignlib_lite.py_makeAlignmentVector()
 
@@ -279,18 +280,18 @@ def main(argv=None):
                     print("# warning: not fixable: %s" % k)
 
             if write_diff:
-                options.stdout.write("---- %s ---- %s\n" % (k, status))
+                args.stdout.write("---- %s ---- %s\n" % (k, status))
 
             if write_seqdiff:
-                options.stdout.write("< %s\n> %s\n" % (seqs1[k], seqs2[k]))
+                args.stdout.write("< %s\n> %s\n" % (seqs1[k], seqs2[k]))
 
     for k in sorted(list(seqs2.keys())):
         if k not in found2:
             nmissed2 += 1
             if write_missed2:
-                options.stdout.write("---- %s ---- %s\n" % (k, "missed2"))
+                args.stdout.write("---- %s ---- %s\n" % (k, "missed2"))
 
-    options.stdlog.write("""# Legend:
+    args.stdlog.write("""# Legend:
 """)
 
     E.info("seqs1=%i, seqs2=%i, same=%i, ndiff=%i, nmissed1=%i, nmissed2=%i" %

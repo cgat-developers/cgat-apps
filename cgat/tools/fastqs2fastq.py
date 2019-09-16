@@ -57,29 +57,30 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
-                      choices=('join', ),
-                      help="method to apply [default=%default].")
+    parser.add_argument("-m", "--method", dest="method", type=str,
+                        choices=('join', ),
+                        help="method to apply.")
 
     parser.set_defaults(
         method="join",
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError(
             "please supply at least two fastq files on the commandline")
 
-    fn1, fn2 = args
+    fn1, fn2 = unknown
     c = E.Counter()
-    outfile = options.stdout
+    outfile = args.stdout
 
-    if options.method == "join":
+    if args.method == "join":
         # merge based on diagonals in dotplot
         iter1 = Fastq.iterate(iotools.open_file(fn1))
         iter2 = Fastq.iterate(iotools.open_file(fn2))
@@ -127,6 +128,7 @@ def main(argv=None):
     # write footer and output benchmark information.
     E.info("%s" % str(c))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
