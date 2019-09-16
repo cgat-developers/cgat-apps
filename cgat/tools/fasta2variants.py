@@ -51,6 +51,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-c", "--is-cds", dest="is_cds", action="store_true",
                         help="input are cds (nucleotide) sequences ")
 

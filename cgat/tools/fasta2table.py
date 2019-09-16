@@ -123,6 +123,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-w", "--weights-tsv-file", dest="filename_weights",
         type=str,

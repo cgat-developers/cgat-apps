@@ -92,6 +92,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-o", "--min-overlap", dest="min_overlap", type=int,
                         help="minimum overlap")
 
