@@ -596,7 +596,7 @@ def main(argv=None):
 
     # Keep for backwards compatability
     if len(unknown) == 2:
-        infile, gtf = args
+        infile, gtf = unknown
         args.infiles.append(infile)
         args.gtffile = gtf
 
