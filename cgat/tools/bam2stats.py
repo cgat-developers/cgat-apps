@@ -309,6 +309,7 @@ import cgatcore.iotools as iotools
 import numpy
 import pandas
 import pysam
+import collections
 
 import cgat.GTF as GTF
 from cgat.BamTools.bamtools import bam2stats_count
@@ -872,9 +873,9 @@ def main(argv=None):
             details_df.describe().transpose().to_csv(
                 outf, sep="\t", index_label="metric")
         bins = numpy.arange(0, 1.01, 0.01)
-        histogram_df = pandas.DataFrame.from_items(
+        histogram_df = pandas.DataFrame.from_dict(collections.OrderedDict(
             [(x, numpy.histogram(details_df[x].dropna(),
-                                 bins=bins)[0]) for x in details_df.columns])
+                                 bins=bins)[0]) for x in details_df.columns]))
 
         histogram_df.index = numpy.arange(0, 1.0, 0.01)
 
