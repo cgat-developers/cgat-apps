@@ -18,7 +18,6 @@ Example::
 
 This command demultiplexes and converts BCL files in the given run folder directory.
 All arguments for Illumina's bcl2fastq software must be given with the -p argument. 
-
 Type::
 
    python bcl2fastq.py --help
@@ -56,6 +55,7 @@ import sys
 import glob
 import gzip
 
+
 def main(argv=None):
     """script main.
 
@@ -66,26 +66,26 @@ def main(argv=None):
         argv = sys.argv
 
     parser = E.ArgumentParser()
-    
+
     parser.add_argument("-p", "--arguments", type=str, dest="arguments",   
-                     default="",
-                     help="Pass options and arguments to the executable. Please surround options in \"\"")
-    
+                        default="",
+                        help="Pass options and arguments to the executable. Please surround options in \"\"")
+
     parser.add_argument("-o", "--output-dir", type=str, dest="output",
-                     default=".",
-                     help="Output for the fastq files.")
+                        default=".",
+                        help="Output for the fastq files.")
 
     parser.add_argument("-f", "--fastqc", dest="fastqc",
-                     action="store_true",
-                     help="After demultiplexing open the fastq files in FastQC.")
+                        action="store_true",
+                        help="After demultiplexing open the fastq files in FastQC.")
 
     parser.add_argument("-F", "--fastqc-options", type=str, dest="fastqc_options",
-                      default="",
-                      help="Options for FastQC. Please surround options in \"\"")
+                        default="",
+                        help="Options for FastQC. Please surround options in \"\"")
 
     parser.add_argument("-H", "--bcl2fastq-help", dest="bcl2fastq_help", 
-                      action="store_true",
-                      help="Print help for Illumina's bcl2fastq conversion software")
+                        action="store_true",
+                        help="Print help for Illumina's bcl2fastq conversion software")
 
     (args) = E.start(parser)
 
@@ -99,13 +99,13 @@ def main(argv=None):
         subprocess.run(f"bcl2fastq {args.arguments} -o {args.output}", shell=True)
 
     for infile in glob.glob(f"{args.output}/**/*.fastq.gz", recursive=True):
-            with gzip.GzipFile(f"{infile}", "r") as f:
-                if sum(1 for char in f.read().decode('utf-8') if char == "\n") % 4 != 0:
-                    raise ValueError(f"{infile} is either corrupt or incomplete.")
+        with gzip.GzipFile(f"{infile}", "r") as f:
+            if sum(1 for char in f.read().decode('utf-8') if char == "\n") % 4 != 0:
+                raise ValueError(f"{infile} is either corrupt or incomplete.")
 
     if args.fastqc:
         for infile in glob.glob(f"{args.output}/**/*.fastq.gz", recursive=True):
-                subprocess.run(f"fastqc {infile} {args.fastqc_options}", shell=True)
+            subprocess.run(f"fastqc {infile} {args.fastqc_options}", shell=True)
 
 
 if __name__ == "__main__":
