@@ -825,7 +825,7 @@ def bam2stats_count(AlignmentFile samfile,
                         printf("\n")
 
         details_df = pandas.DataFrame.from_dict(
-            zip(["substitution_rate",
+                 collections.OrderedDict(zip(["substitution_rate",
                  "insertion_rate",
                  "deletion_rate",
                  "error_rate",
@@ -834,7 +834,7 @@ def bam2stats_count(AlignmentFile samfile,
                  insertion_rates,
                  deletion_rates,
                  error_rates,
-                 coverages]))
+                 coverages])))
         # subset to only take mapped reads
         details_df = details_df[mask == 1]
     else:
