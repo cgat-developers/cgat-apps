@@ -601,7 +601,7 @@ def main(argv=None):
         if args.assembly_report_hasIDs == 1:
             ucsccol = args.assembly_report_ucsccol
             ensemblcol = args.assembly_report_ensemblcol
-            df.ix[df[1] == "assembled-molecule", ensemblcol] = df.ix[
+            df.loc[df[1] == "assembled-molecule", ensemblcol] = df.loc[
                 df[1] == "assembled-molecule", 0]
             if args.sanitize_method == "ucsc":
                 assembly_dict = df.set_index(ensemblcol)[ucsccol].to_dict()
