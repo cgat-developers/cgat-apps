@@ -121,7 +121,7 @@ def fetch_ENA(dl_path, outdir, protocol="ascp"):
     """Fetch fastq from ENA given accession"""
 
     if protocol == "ascp":
-        statement = """ascp -QT -l %%(aspera_bandwidth)s -i $ASCP_KEY_PATH
+        statement = """ascp -QT -l %%(aspera_bandwidth)s -i $ASCP_KEY_PATH -P33001
                        era-fasp@fasp.sra.ebi.ac.uk:/%(dl_path)s %(outdir)s """ % locals()
     elif protocol == "http":
         fn = os.path.basename(dl_path)
