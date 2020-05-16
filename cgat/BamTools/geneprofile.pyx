@@ -455,8 +455,7 @@ class RangeCounterBigWig(RangeCounter):
     def count(self, counts, files, contig, ranges ):
         
         # collect pileup profile in region bounded by start and end.
-        cdef int i
-        cdef int rstart, rend, start, end, tstart, tend
+        cdef int rstart, start, end, tstart
 
         if len(ranges) == 0:
             return
@@ -483,6 +482,7 @@ class RangeCounterBigWig(RangeCounter):
                     # check for nan values
                     if value != value:
                         value = 0.0
+
                     counts[rstart] = value
                     
                 current_offset += length
