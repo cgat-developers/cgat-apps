@@ -470,17 +470,24 @@ class RangeCounterBigWig(RangeCounter):
             for start, end in ranges:
                 length = end - start
 
+                if contig not in wigfile.chroms():
+                    continue
+                
                 values = wigfile.values(contig, start, end)
                 if values == None:
                     continue
 
-                for tstart, tend, value in values:
-                    rstart = tstart - start + current_offset
-                    rend = tend - start + current_offset
-                    for i from rstart <= i < rend: counts[i] = value
+                for tstart, value in enumerate(values):
+                    rstart = tstart + current_offset
+
+                    # check for nan values
+                    if value != value:
+                        value = 0.0
+                    counts[rstart] = value
                     
                 current_offset += length
-
+       
+        
 class IntervalsCounter:
     '''aggregate reads/intervals within a certain arrangement of
     intervals (sections). Sections are defined by a transcript-model 
