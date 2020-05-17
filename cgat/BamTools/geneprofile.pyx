@@ -453,7 +453,7 @@ class RangeCounterBigWig(RangeCounter):
             "getTotal not implemented for RangeCounterBigwig")
 
     def count(self, counts, files, contig, ranges ):
-        
+
         # collect pileup profile in region bounded by start and end.
         cdef int rstart, start, end, tstart
 
@@ -465,14 +465,28 @@ class RangeCounterBigWig(RangeCounter):
 
         for wigfile in files:
 
+            if contig not in wigfile.chroms():
+                continue
+
+            contig_length = wigfile.chroms(contig)
+            
             current_offset = 0
             for start, end in ranges:
+
+                start = min(start, contig_length)
+                end = min(end, contig_length)
                 length = end - start
 
-                if contig not in wigfile.chroms():
+                if length <= 0:
                     continue
-                
-                values = wigfile.values(contig, start, end)
+
+                try:
+                    values = wigfile.values(contig, start, end)
+                except RuntimeError:
+                    E.error("Invalid interval found: %s\t%i\t%i contig length: %i" %
+                            (contig, start, end, wigfile.chroms(contig)))
+                    raise
+                    
                 if values == None:
                     continue
 
