@@ -84,7 +84,7 @@ fi
 } # detect_cgat_installation
 
 
-# configure environment variables 
+# configure environment variables
 # set: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE_APPS
 get_cgat_env() {
 
@@ -304,10 +304,10 @@ fi
 
 log "downloading miniconda"
 # download and install conda
-curl -O https://repo.continuum.io/miniconda/${MINICONDA}
+wget https://repo.continuum.io/miniconda/${MINICONDA} -O miniconda.sh;
 
 log "installing miniconda"
-bash ${MINICONDA} -b -p $CONDA_INSTALL_DIR
+bash miniconda.sh -b -p $CONDA_INSTALL_DIR
 source ${CONDA_INSTALL_DIR}/bin/activate
 hash -r
 
@@ -402,7 +402,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
          echo
          echo " There was a problem doing: 'python setup.py develop' "
          echo " Installation did not finish properly. "
-         echo 
+         echo
          echo " Please submit this issue via Git Hub: "
          echo " https://github.com/cgat-developers/cgat-apps/issues "
 	 echo
@@ -433,7 +433,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
    else
       clear
-      echo 
+      echo
       echo " The code was successfully installed!"
       echo
       echo " To activate the CGAT environment type: "
@@ -550,7 +550,7 @@ else
          print_env_vars
 
       fi
-     
+
    else
       # in this case, the installation found was "cgat-scripts" so no need to run tests
       echo
@@ -579,18 +579,18 @@ if [[ ! $? -eq 0 ]] ; then
 
    echo
    echo " There was a problem updating the installation. "
-   echo 
+   echo
    echo " Please submit this issue via Git Hub: "
    echo " https://github.com/cgat-developers/cgat-apps/issues "
-   echo 
+   echo
 
-else 
+else
 
    echo
    echo " All packages were succesfully updated. "
-   echo 
+   echo
 
-fi 
+fi
 
 } # conda_update
 
@@ -607,14 +607,14 @@ if [[ -z "$UNINSTALL_DIR" ]] ; then
    echo " Please uninstall manually."
    echo
    exit 1
-    
+
 else
 
    rm -rf $UNINSTALL_DIR
    if [[ $? -eq 0 ]] ; then
       echo
       echo " CGAT code successfully uninstalled."
-      echo 
+      echo
       exit 0
    else
       echo
@@ -753,7 +753,7 @@ echo " ./install.sh --test [--location </full/path/to/folder/without/trailing/sl
 echo
 echo " To update the Conda packages:"
 echo " ./install.sh --update [--location </full/path/to/folder/without/trailing/slash>]"
-echo 
+echo
 echo " To uninstall the CGAT code:"
 echo " ./install.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
 echo
@@ -945,7 +945,7 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL  ]] ; then
   conda_install
   conda_test
 
-else 
+else
 
   if [[ $INSTALL_PRODUCTION ]] || [[ $INSTALL_DEVEL ]] ; then
      conda_install
@@ -964,4 +964,3 @@ else
   fi
 
 fi # if-variables
-
