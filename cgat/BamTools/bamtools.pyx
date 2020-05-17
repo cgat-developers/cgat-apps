@@ -237,7 +237,7 @@ def bam2stats_count(AlignmentFile samfile,
                 name = fq.name
                 if name.endswith("/1") or name.endswith("/2"):
                     chop = -2
-                
+
             if chop != 0:
                 name = hashlib.md5(fq.name[:chop].encode("ascii")).digest()[:hash_size]
             else:
@@ -246,7 +246,7 @@ def bam2stats_count(AlignmentFile samfile,
             reads[name] = fastq_nreads
 
             fastq_nreads += 1
-        
+
     elif not is_stdin and detailed_count:
         count_fastq = True
         old_pos = samfile.tell()
@@ -260,12 +260,12 @@ def bam2stats_count(AlignmentFile samfile,
                     iteration, len(reads)))
 
             read_name = pysam_bam_get_qname(read._delegate)
-            
+
             # terminate string at first space to
             # truncate read names containing more than
             # just the id
             position = strchr(read_name, ' ')
-            if position != NULL: 
+            if position != NULL:
                 position[0] = '\0'
 
             # compute hash, truncate to half the md5 digest which
@@ -297,7 +297,7 @@ def bam2stats_count(AlignmentFile samfile,
 
     if _add_alignment_details:
         alignment_details = numpy.zeros((fastq_nreads, NCIGAR_CODES + 1), dtype=numpy.uint16)
-                
+
     E.info("starting processing of alignment file")
 
     for iteration, read in enumerate(samfile):
@@ -342,7 +342,7 @@ def bam2stats_count(AlignmentFile samfile,
 
         mapq_all[read.mapq] += 1
 
-        get_cigar_stats(read, base_counts_view, block_counts_view) 
+        get_cigar_stats(read, base_counts_view, block_counts_view)
 
         if not read.is_secondary:
             # for consistency with samtools
@@ -357,7 +357,7 @@ def bam2stats_count(AlignmentFile samfile,
             # truncate read names containing more than
             # just the id
             position = strchr(read_name, ' ')
-            if position != NULL: 
+            if position != NULL:
                 position[0] = '\0'
 
             md5 = hashlib.md5(read_name).digest()[:hash_size]
@@ -387,8 +387,8 @@ def bam2stats_count(AlignmentFile samfile,
             if read.is_qcfail: fastq_count.is_qcfail += 1
             if read.is_duplicate: fastq_count.is_duplicate += 1
             if read.is_paired: fastq_count.is_paired += 1
-                
-            if read.is_unmapped: 
+
+            if read.is_unmapped:
                 fastq_count.is_unmapped += 1
                 if read.is_read1: fastq_count.unmapped_is_read1 += 1
                 if read.is_read2: fastq_count.unmapped_is_read2 += 1
@@ -430,7 +430,7 @@ def bam2stats_count(AlignmentFile samfile,
                     continue
             else:
                 nnotmasked += 1
-            
+
         nfiltered += 1
 
         if nh >= 0: nh_filtered[nh] += 1
@@ -462,7 +462,7 @@ def bam2stats_count(AlignmentFile samfile,
     counter.alignments_duplicates = nduplicates
     counter.alignments_masked = nmasked
     counter.alignments_notmasked = nnotmasked
-    
+
     if match_counts == 0:
         match_counts = 1
 
@@ -522,14 +522,14 @@ def bam2stats_count(AlignmentFile samfile,
     cdef float deletion_rate
     cdef float error_rate
     cdef float coverage
-        
+
     if count_fastq:
         E.info("fastq counting: aggregating counts")
         for qname, index in reads.items():
             fastq_count = &fastq_counts[index]
 
             # paired read data
-            if fastq_count.is_paired: 
+            if fastq_count.is_paired:
                 total_paired += 1
 
                 if fastq_count.is_unmapped == fastq_count.is_paired:
@@ -539,7 +539,7 @@ def bam2stats_count(AlignmentFile samfile,
 
                 total_pair_is_mapped += 1
 
-                if fastq_count.is_proper_pair == 2: 
+                if fastq_count.is_proper_pair == 2:
                     # a unique proper pair
                     total_pair_is_proper_uniq +=1
                     # a duplicate unique proper pair
@@ -557,7 +557,7 @@ def bam2stats_count(AlignmentFile samfile,
                       fastq_count.mapped_is_read2 == 0) \
                     or (fastq_count.mapped_is_read1 == 0 and
                         fastq_count.mapped_is_read2 == 1):
-                    # an incomplete pair - one read of a pair matches uniquely 
+                    # an incomplete pair - one read of a pair matches uniquely
                     # but not the other
                     total_pair_is_incomplete_uniq += 1
                 elif (fastq_count.mapped_is_read1 == 1 and
@@ -571,7 +571,7 @@ def bam2stats_count(AlignmentFile samfile,
                     total_pair_is_other += 1
 
                 # paired read counting
-                if fastq_count.mapped_is_read1: 
+                if fastq_count.mapped_is_read1:
                     if fastq_count.mapped_is_read1 == 1:
                         total_read1_is_mapped_uniquely += 1
                     elif fastq_count.mapped_is_read1 > 1:
@@ -581,7 +581,7 @@ def bam2stats_count(AlignmentFile samfile,
                 else:
                     total_read1_is_missing += 1
 
-                if fastq_count.mapped_is_read2: 
+                if fastq_count.mapped_is_read2:
                     if fastq_count.mapped_is_read2 == 1:
                         total_read2_is_mapped_uniquely += 1
                     elif fastq_count.mapped_is_read2 > 1:
@@ -590,7 +590,7 @@ def bam2stats_count(AlignmentFile samfile,
                     total_read2_is_unmapped += 1
                 else:
                     total_read2_is_missing += 1
-                        
+
             else:
                 # reads without data, could be unpaired or missing
                 total_unpaired += 1
@@ -608,7 +608,7 @@ def bam2stats_count(AlignmentFile samfile,
                         total_read_is_mapped_multiply += 1
                     else:
                         total_read_is_missing += 1
-                    
+
         ###################################################
         # Pair statistics
         counter.total_pairs = total_paired + total_unpaired
@@ -686,7 +686,7 @@ def bam2stats_count(AlignmentFile samfile,
                       "mapped_is_read2",
                       "is_proper_pair",
                       "is_secondary",
-                      "is_qcfail", 
+                      "is_qcfail",
                       "is_duplicate",
                       "is_supplementary"]
 
@@ -760,7 +760,7 @@ def bam2stats_count(AlignmentFile samfile,
                                 coverage = float(alignment_details[read_index, BAM_CMATCH]) /\
                                             (alignment_details[read_index, BAM_CMATCH] +
                                              alignment_details[read_index, BAM_CDEL])
-                               
+
                             # ignore reads > 32k as counters might have wrapped over
                             if fastq_count.read_length >= 32767:
                                 mask[read_index] = 0
@@ -824,8 +824,8 @@ def bam2stats_count(AlignmentFile samfile,
                     else:
                         printf("\n")
 
-        details_df = pandas.DataFrame.from_items(
-            zip(["substitution_rate",
+        details_df = pandas.DataFrame.from_dict(
+                 collections.OrderedDict(zip(["substitution_rate",
                  "insertion_rate",
                  "deletion_rate",
                  "error_rate",
@@ -834,27 +834,27 @@ def bam2stats_count(AlignmentFile samfile,
                  insertion_rates,
                  deletion_rates,
                  error_rates,
-                 coverages]))
+                 coverages])))
         # subset to only take mapped reads
         details_df = details_df[mask == 1]
     else:
         details_df = None
 
-    return (counter, t, 
+    return (counter, t,
             nh_filtered,
-            nh_all, 
+            nh_all,
             nm_filtered,
-            nm_all, 
+            nm_all,
             mapq_filtered,
-            mapq_all, 
+            mapq_all,
             max_hi,
             details_df)
 
 
 class BufferedBAMOutput(object):
-    """receive a list of reads and output reads in 
+    """receive a list of reads and output reads in
     sorted order."""
-    
+
     def __init__(self, samfile):
         self.samfile = samfile
         self.buffer = SortedList(key = lambda x: x.reference_start)
@@ -868,7 +868,7 @@ class BufferedBAMOutput(object):
         self.buffer.add(read)
 
     def flush(self, read):
-        
+
         cdef uint32_t pos
         if len(self.buffer) == 0:
             return
@@ -885,7 +885,7 @@ class BufferedBAMOutput(object):
             # E.debug("flushing buffer: {}, {} left".format(len(to_output),
             #                                               len(self.buffer)))
             self.write(to_output)
-            
+
     def __dealloc__(self):
         self.write(self.buffer)
 
@@ -896,7 +896,7 @@ class BufferedBAMOutput(object):
 class DirectBAMOutput(object):
     """receive a list of reads and output reads as they arrive.
     """
-    
+
     def __init__(self, samfile):
         self.samfile = samfile
 
@@ -1052,10 +1052,10 @@ cdef class SetNH:
     def __iter__(self):
         return self
 
-    def __next__(self): 
+    def __next__(self):
         """python version of next().
         """
-        
+
         while 1:
             if self.stack:
                 return self.stack.pop(0)
@@ -1109,7 +1109,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
     *reference_samfile*.
 
     Detecting non-unique matches:
-    
+
     This method first checks for the NH flag - if set, a unique match
     should have at most NH=1 hits.
 
@@ -1137,7 +1137,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
     cdef bint c_remove_mismatches = remove_mismatches
     cdef bint c_remove_unmapped = remove_unmapped
 
-    cdef int * remove_contig_tids 
+    cdef int * remove_contig_tids
     cdef int nremove_contig_tids = 0
     cdef AlignedSegment read
     cdef AlignedSegment match
@@ -1166,7 +1166,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
     cdef int32_t read_mismatches = 0
 
     # decide which tag to use
-    cdef char * nm_tag = 'NM' 
+    cdef char * nm_tag = 'NM'
     cdef char * cm_tag = 'CM'
     cdef char * tag
 
@@ -1181,7 +1181,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
             raise ValueError("require another bam file for mismatch filtering" )
 
         # L = 1 byte (unsigned char)
-        def _gen(): return array.array('B') 
+        def _gen(): return array.array('B')
         index = collections.defaultdict(_gen)
 
         while ret > 0:
@@ -1209,7 +1209,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
         remove_contig_tids = <int*>malloc(sizeof(int) * nremove_contig_tids)
         for x, rname in enumerate(remove_contigs):
             remove_contig_tids[x] = input_samfile.gettid(rname)
-                
+
     E.info( "starting filtering" )
 
     cdef int nfields = NCIGAR_CODES + 1
@@ -1244,7 +1244,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
             else:
                 nm = 0
 
-            get_cigar_stats(read, base_counts_view, block_counts_view) 
+            get_cigar_stats(read, base_counts_view, block_counts_view)
             error_rate = (10000 * (nm + base_counts_view[BAM_CINS])) /\
                 (base_counts_view[BAM_CMATCH] + base_counts_view[BAM_CINS])
             if error_rate > c_filter_error_rate:
@@ -1257,10 +1257,10 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
             v = bam_aux_get(read._delegate, 'NH')
             if v == NULL:
                 v = bam_aux_get(read._delegate, 'X0')
-            
+
             if v != NULL:
                 nh = <int32_t>bam_aux2i(v)
-                if nh > 1: 
+                if nh > 1:
                     nnonunique += 1
                     continue
         # remove unique alignments
@@ -1269,10 +1269,10 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
             v = bam_aux_get(read._delegate, 'NH')
             if v == NULL:
                 v = bam_aux_get(read._delegate, 'X0')
-            
+
             if v != NULL:
                 nh = <int32_t>bam_aux2i(v)
-                if nh == 1: 
+                if nh == 1:
                     nunique += 1
                     continue
 
@@ -1283,7 +1283,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
                 if remove_contig_tids[x] == read.tid:
                     skip = 1
                     break
-            if skip: 
+            if skip:
                 nremoved_contigs += 1
                 continue
 
@@ -1294,10 +1294,10 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
                 # how many reads you expect test to filter
                 nm = min(index[read.qname])
                 read_mismatches = read.opt(tag)
-                if nm > read_mismatches: 
+                if nm > read_mismatches:
                     nmismatches += 1
                     continue
-        
+
         if minimum_read_length and read.query_length < minimum_read_length:
             nminimum_read_length += 1
             continue
@@ -1308,7 +1308,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
                 if total_qualities / read.query_length < minimum_average_base_quality:
                     nminimum_average_base_quality += 1
                     continue
- 
+
         noutput += 1
         output_samfile.write(read)
 
@@ -1352,13 +1352,13 @@ cdef inline uint32_t get_alignment_length(bam1_t * src):
 
 cdef bytes count_md_tag_mismatches(AlignedSegment read):
     """return byte string with match/mismatch information.
-    
+
     matches: =
     mismatches: *
     insertions into reference: +
     deletions in reference: -
-    
-    
+
+
     """
 
     cdef bam1_t * src = read._delegate
@@ -1495,7 +1495,7 @@ def bam2stats_window_count(AlignmentFile samfile,
     cdef int32_t window_start
     cdef int32_t window_end
     cdef char * sequence
-    cdef int nmatches, nmismatches, ndeletions, ninsertios 
+    cdef int nmatches, nmismatches, ndeletions, ninsertios
 
     cdef int idx_alignment_starts = nflags
     cdef int idx_alignment_ends = idx_alignment_starts + 1
@@ -1518,7 +1518,7 @@ def bam2stats_window_count(AlignmentFile samfile,
     for x from 0 <= x < nflags:
         columns.append(FLAGS[f])
         f = f << 1
-    
+
     columns.extend([
         "alignment_starts",
         "alignment_ends",
@@ -1553,7 +1553,7 @@ def bam2stats_window_count(AlignmentFile samfile,
         contigs, lengths = zip(*pairs)
     else:
         itr = samfile.fetch()
-        
+
     cdef uint32_t total_length = sum(lengths) + _window_size * len(lengths)
     cdef uint32_t ncontigs = len(contigs)
     cdef int ncolumns = len(columns)
@@ -1587,7 +1587,7 @@ def bam2stats_window_count(AlignmentFile samfile,
         if ninput % 1000 == 0:
             E.debug("processing read number {} at {}:{}".format(
                     ninput, read.reference_name, read.reference_start))
-        
+
         tid = read.tid
         if tid < 0:
             continue
@@ -1645,7 +1645,7 @@ def bam2stats_window_count(AlignmentFile samfile,
             elif code == "*":
                 nmismatches += 1
                 ref_pos += 1
-                
+
             if ref_pos >= next_window_start:
                 window_counts[idx][idx_matches] += nmatches
                 window_counts[idx][idx_mismatches] += nmismatches
@@ -1676,7 +1676,7 @@ def bam2stats_window_count(AlignmentFile samfile,
                 # do not increment at x == 0
                 if x and x % _window_size == 0:
                     offset += 1
-                    
+
                 code = sequence[x]
                 if code > 97:
                     code -= 32
@@ -1701,7 +1701,7 @@ def bam2stats_window_count(AlignmentFile samfile,
         next_offset = offsets[idx + 1]
         nwindows = next_offset - offset
         chromosomes.extend([contig] * nwindows)
-        starts.extend(numpy.arange(0, 
+        starts.extend(numpy.arange(0,
                                    window_size * nwindows,
                                    window_size))
         ends.extend(numpy.arange(window_size,
@@ -1710,7 +1710,7 @@ def bam2stats_window_count(AlignmentFile samfile,
         idx += 1
 
     E.info("building dataframe")
-    window_df = pandas.DataFrame(window_counts, 
+    window_df = pandas.DataFrame(window_counts,
                                  columns=columns,
                                  index=[chromosomes, starts, ends])
     window_df.index.names = ["contig", "start", "end"]
@@ -1989,16 +1989,16 @@ def merge_pairs(AlignmentFile input_samfile,
 
     # point to array of contig lengths
     cdef uint32_t *contig_sizes = input_samfile.header.ptr.target_len
-    
+
     if bed_format != None:
-        if bed_format < 3 or bed_format > 6: 
+        if bed_format < 3 or bed_format > 6:
             raise ValueError("a bed file must have at least 3 and at most 6 columns")
         take_columns = bed_format
 
     for read in input_samfile:
         ninput += 1
 
-        flag = read._delegate.core.flag 
+        flag = read._delegate.core.flag
         # remove unmapped reads
         if flag & 4:
             nremoved_unmapped += 1
@@ -2025,7 +2025,7 @@ def merge_pairs(AlignmentFile input_samfile,
         if not flag & 2:
             nremoved_unpaired += 1
             continue
-            
+
         if read.tid != read.mrnm:
             nremoved_contig += 1
             continue
@@ -2049,12 +2049,12 @@ def merge_pairs(AlignmentFile input_samfile,
                           (input_samfile.getrname(read.tid),
                            start, end))
         elif take_columns == 4:
-            outfile.write("%s\t%i\t%i\t%s\n" % 
+            outfile.write("%s\t%i\t%i\t%s\n" %
                           (input_samfile.getrname(read.tid),
                            start, end,
                            read.qname))
         elif take_columns == 5:
-            outfile.write("%s\t%i\t%i\t%s\t%i\n" % 
+            outfile.write("%s\t%i\t%i\t%s\t%i\n" %
                           (input_samfile.getrname(read.tid),
                            start, end,
                            read.qname,
@@ -2066,7 +2066,7 @@ def merge_pairs(AlignmentFile input_samfile,
                 strand = '-'
             else:
                 strand = '+'
-            outfile.write("%s\t%i\t%i\t%s\t%i\t%s\n" % 
+            outfile.write("%s\t%i\t%i\t%s\t%i\t%s\n" %
                           (input_samfile.getrname(read.tid),
                            start, end,
                            read.qname,
@@ -2102,7 +2102,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
                     ignore_transcripts = False ):
     '''
     To conserve memory, the tid and NM flag from *transcripts_samfile*
-    are packed into memory. As a consequence, this method requires 
+    are packed into memory. As a consequence, this method requires
     max(NM) < 256 (2^8) and max(tid) < 16777216 (2^24)
 
     If *unique* is set, only uniquely matching reads will be output.
@@ -2142,11 +2142,11 @@ def bams2bam_filter(AlignmentFile genome_samfile,
     cdef bint c_test_junctions = not ignore_junctions
     cdef bint c_test_transcripts = not ignore_transcripts
     cdef bint c_test_regions = regions
-    cdef int * remove_contig_tids 
+    cdef int * remove_contig_tids
     cdef int nremove_contig_tids = 0
     cdef AlignedSegment read
     cdef AlignedSegment match
-    
+
     # build index
     # this method will start indexing from the current file position
     # if you decide
@@ -2166,7 +2166,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
     cdef int32_t read_mismatches = 0
 
     # decide which tag to use
-    cdef char * nm_tag = 'NM' 
+    cdef char * nm_tag = 'NM'
     cdef char * cm_tag = 'CM'
     cdef char * tag
 
@@ -2182,7 +2182,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
     if c_test_junctions:
         E.info("building junction read index")
 
-        def _gen2(): return array.array('B') 
+        def _gen2(): return array.array('B')
         junctions_index = collections.defaultdict(_gen2)
         ret = 1
         while ret > 0:
@@ -2199,14 +2199,14 @@ def bams2bam_filter(AlignmentFile genome_samfile,
         E.info( "built index for %i junction reads" % len(junctions_index))
 
         map_tid2tid = <int*>calloc(len(junctions_samfile.references), sizeof(int))
-        
+
         for x, contig_name in enumerate(junctions_samfile.references):
             map_tid2tid[x] = genome_samfile.gettid(contig_name)
 
     if c_test_transcripts:
         E.info( "building transcriptome read index" )
         # L = 4 bytes
-        def _gen(): return array.array('L') 
+        def _gen(): return array.array('L')
         transcriptome_index = collections.defaultdict(_gen)
         ret = 1
         while ret > 0:
@@ -2231,7 +2231,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
         remove_contig_tids = <int*>malloc( sizeof(int) * nremove_contig_tids )
         for x, rname in enumerate( remove_contigs):
             remove_contig_tids[x] = genome_samfile.gettid( rname )
-    
+
     E.info( "starting filtering" )
 
     for read in genome_samfile:
@@ -2251,7 +2251,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
             v = bam_aux_get(read._delegate, 'NH')
             if v != NULL:
                 nh = <int32_t>bam_aux2i(v)
-                if nh > 1: 
+                if nh > 1:
                     nnonunique += 1
                     continue
 
@@ -2266,7 +2266,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
             if skip: continue
 
         g_contig = genome_samfile.getrname( read.tid )
-                
+
         # optionally remove reads mapped to certain regions
         if c_test_regions:
             intervals = regions.get( g_contig, read.pos, read.aend )
@@ -2285,12 +2285,12 @@ def bams2bam_filter(AlignmentFile genome_samfile,
                 # how many reads you expect to test
                 nm = min(junctions_index[read.qname])
                 read_mismatches = read.opt(tag)
-                if nm > read_mismatches: 
+                if nm > read_mismatches:
                     nremoved_junctions += 1
                     continue
                 else:
                     skip_junctions.add(read.qname)
-                                        
+
         # set mapped = True, if read is mapped to transcripts
         # set location_ok = True, if read matches in expected location
         # according to transcripts
@@ -2304,7 +2304,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
             except KeyError:
                 nnotfound += 1
                 matches = None
-                
+
             if matches:
 
                 if c_test_mismatches:
@@ -2329,7 +2329,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
                     if g_contig == t_contig and t_start <= read.pos <= t_end:
                         location_ok = True
                         break
-                    
+
         if location_ok:
             ntested += 1
             nlocation_ok += 1
@@ -2357,7 +2357,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
             remove_contig_tids = <int*>malloc( sizeof(int) * nremove_contig_tids )
             for x, rname in enumerate( remove_contigs):
                 remove_contig_tids[x] = junctions_samfile.gettid( rname )
-        
+
         for read in junctions_samfile:
 
             # optionally remove reads matched to certain contigs
@@ -2368,7 +2368,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
                         nremoved_contigs += 1
                         skip = 1
                     break
-                if skip: 
+                if skip:
                     nskipped_junctions += 1
                     continue
 
@@ -2380,7 +2380,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
                 # map tid from junction database to genome database
                 read.tid = map_tid2tid[read.tid]
                 output_samfile.write(read)
-        
+
         free( map_tid2tid )
 
     c = E.Counter()
@@ -2397,7 +2397,7 @@ def bams2bam_filter(AlignmentFile genome_samfile,
     c.unmapped_genome = nunmapped_genome
     c.unmapped_transcript = nunmapped_transcript
     c.notfound = nnotfound
-    c.location_ok = nlocation_ok 
+    c.location_ok = nlocation_ok
     c.location_tested = ntested
 
     if nremove_contig_tids:

@@ -166,7 +166,7 @@ def convert_hierarchy(first_gffs, second_gffs, options):
 
     If multiple gene and transcript_ids are found outputs a record for each combination.
 
-    If no definitive transcript_id is found and options.missing_gene is True, it will use the 
+    If no definitive transcript_id is found and options.missing_gene is True, it will use the
     possible_transcript_id as transcript_id, which is the ID one level below the entry used as gene_id.
     If this is also None (that is there was only on level), sets transcript_id to gene_id.
 
@@ -261,47 +261,45 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-m", "--method", dest="method", type="choice", action="store",
-                      choices=(
-                          "hierarchy", "set-field", "set-pattern", "set-none"),
-                      help="Method to use for conversion")
+    parser.add_argument("-m", "--method", dest="method", type=str, action="store",
+                        choices=("hierarchy", "set-field", "set-pattern", "set-none"),
+                        help="Method to use for conversion")
 
-    parser.add_option("-g", "--gene-type", dest="gene_type", type="string",
-                      help="feature type to get gene_id from if possible [%default]")
+    parser.add_argument("-g", "--gene-type", dest="gene_type", type=str,
+                        help="feature type to get gene_id from if possible ")
 
-    parser.add_option("-t", "--transcript-type", dest="transcript_type", type="string",
-                      help="feature type to get transcript_id from if possible [%default]")
+    parser.add_argument("-t", "--transcript-type", dest="transcript_type", type=str,
+                        help="feature type to get transcript_id from if possible ")
 
-    parser.add_option("-d", "--no-discard", dest="discard", action="store_false",
-                      help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
+    parser.add_argument("-d", "--no-discard", dest="discard", action="store_false",
+                        help="Do not discard feature types specified by GENE_TYPE and TRANSCRIPT_TYPE")
 
-    parser.add_option("--gene-id", dest="gene_field_or_pattern", type="string",
-                      help="Either field or pattern for the gene_id [%default]")
+    parser.add_argument("--gene-id", dest="gene_field_or_pattern", type=str,
+                        help="Either field or pattern for the gene_id ")
 
-    parser.add_option("--transcript-id", dest="transcript_field_or_pattern", type="string",
-                      help="Either field or pattern for the transcript_id [%default]")
+    parser.add_argument("--transcript-id", dest="transcript_field_or_pattern", type=str,
+                        help="Either field or pattern for the transcript_id ")
 
-    parser.add_option("--parent-field", dest="parent", type="string",
-                      help="field that specifies the parent relationship. Currently only"
-                      "if left as Parent will features with multiple parents be parsed"
-                      "correctly""")
+    parser.add_argument("--parent-field", dest="parent", type=str,
+                        help="field that specifies the parent relationship. Currently only"
+                        "if left as Parent will features with multiple parents be parsed"
+                        "correctly""")
 
-    parser.add_option("--read-twice", dest="read_twice", action="store_true",
-                      help="Instead of holding the whole file in memory, read once for parsing the "
-                      "hierarchy, and then again for actaully doing the conversion. Means a real file "
-                      "and not a pipe must be provided.""")
+    parser.add_argument("--read-twice", dest="read_twice", action="store_true",
+                        help="Instead of holding the whole file in memory, read once for parsing the "
+                        "hierarchy, and then again for actaully doing the conversion. Means a real file "
+                        "and not a pipe must be provided.""")
 
-    parser.add_option("--by-chrom", dest="by_chrom", action="store_true",
-                      help="Parse input file one choromosome at a time. Reduces memory usage, "
-                      "but input must be sorted by chromosome and features may not split accross "
-                      " multiple chromosomes""")
+    parser.add_argument("--by-chrom", dest="by_chrom", action="store_true",
+                        help="Parse input file one choromosome at a time. Reduces memory usage, "
+                        "but input must be sorted by chromosome and features may not split accross "
+                        " multiple chromosomes""")
 
-    parser.add_option("--fail-missing-gene", dest="missing_gene", action="store_false",
-                      help="Fail if no feature of type GENE_TYPE is found instead of using "
-                      "defaulting to highest object in hierarchy""")
+    parser.add_argument("--fail-missing-gene", dest="missing_gene", action="store_false",
+                        help="Fail if no feature of type GENE_TYPE is found instead of using "
+                        "defaulting to highest object in hierarchy""")
 
     parser.set_defaults(
         method="hierarchy",
@@ -317,22 +315,22 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    gffs = GFF3.flat_file_iterator(options.stdin)
+    gffs = GFF3.flat_file_iterator(args.stdin)
 
-    if options.by_chrom:
+    if args.by_chrom:
         gffs = GFF3.chrom_iterator(gffs)
     else:
         gffs = [gffs]
 
     # running early so that fails early if configuration is wrong
-    if options.read_twice:
-        # Will throw IOError if options.stdin is not a normal file
+    if args.read_twice:
+        # Will throw IOError if args.stdin is not a normal file
         second_gff = GFF3.flat_file_iterator(
-            iotools.open_file(options.stdin.name))
+            iotools.open_file(args.stdin.name))
 
-        if options.by_chrom:
+        if args.by_chrom:
             second_gff = GFF3.chrom_iterator(second_gff)
         else:
             second_gff = iter([second_gff])
@@ -341,27 +339,28 @@ def main(argv=None):
 
     for chunk in gffs:
 
-        if options.read_twice:
+        if args.read_twice:
             second_gff_chunk = next(second_gff)
         else:
             chunk = list(chunk)
             second_gff_chunk = chunk
 
-        if options.method == "hierarchy":
+        if args.method == "hierarchy":
 
-            convert_hierarchy(chunk, second_gff_chunk, options)
-        elif options.method == "set-field":
-            gene_id_pattern = "%%(%s)s" % options.gene_field_or_pattern
-            transcript_id_pattern = "%%(%s)s" % options.transcript_field_or_pattern
-            convert_set(chunk, gene_id_pattern, transcript_id_pattern, options)
-        elif options.method == "set-pattern":
-            convert_set(chunk, options.gene_field_or_pattern,
-                        options.transcript_field_or_pattern, options)
-        elif options.method == "set-none":
-            convert_set(chunk, None, None, options)
+            convert_hierarchy(chunk, second_gff_chunk, args)
+        elif args.method == "set-field":
+            gene_id_pattern = "%%(%s)s" % args.gene_field_or_pattern
+            transcript_id_pattern = "%%(%s)s" % args.transcript_field_or_pattern
+            convert_set(chunk, gene_id_pattern, transcript_id_pattern, args)
+        elif args.method == "set-pattern":
+            convert_set(chunk, args.gene_field_or_pattern,
+                        args.transcript_field_or_pattern, args)
+        elif args.method == "set-none":
+            convert_set(chunk, None, None, args)
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

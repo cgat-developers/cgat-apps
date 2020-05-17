@@ -128,35 +128,36 @@ def read_liftover_chain(infile):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
-        help="filename with reference sequence in fasta format [%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option(
-        "--input-filename-bam", dest="input_filename_bam", type="string",
-        help="filename with aligned reads [%default]")
+    parser.add_argument(
+        "--input-filename-fasta", dest="input_filename_fasta", type=str,
+        help="filename with reference sequence in fasta format ")
 
-    parser.add_option(
-        "--method", dest="methods", type="choice", action="append",
+    parser.add_argument(
+        "--input-filename-bam", dest="input_filename_bam", type=str,
+        help="filename with aligned reads ")
+
+    parser.add_argument(
+        "--method", dest="methods", type=str, action="append",
         choices=["add-strelka-genotype",
                  "lift-over"],
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
-    parser.add_option(
-        "--input-filename-chain", dest="input_filename_chain", type="string",
-        help="filename with alignment chain for lift-over [%default]")
+    parser.add_argument(
+        "--input-filename-chain", dest="input_filename_chain", type=str,
+        help="filename with alignment chain for lift-over ")
 
-    parser.add_option(
-        "--normal-sample-regex", dest="normal_sample_regex", type="string",
+    parser.add_argument(
+        "--normal-sample-regex", dest="normal_sample_regex", type=str,
         help="regular expression to apply to header to identify normal "
-        "sample id [%default]")
+        "sample id ")
 
-    parser.add_option(
-        "--output-filename-unmapped", dest="output_filename_unmapped", type="string",
-        help="filename with variants that could not be lifted over [%default]")
+    parser.add_argument(
+        "--output-filename-unmapped", dest="output_filename_unmapped", type=str,
+        help="filename with variants that could not be lifted over ")
 
     parser.set_defaults(
         input_filename_fasta=None,
@@ -170,40 +171,41 @@ def main(argv=None):
         output_filename_unmapped=None,
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               argv=argv,
-                              add_output_options=True)
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) > 0:
-        options.input_filename_vcf = args[0]
+    if len(unknown) > 0:
+        args.input_filename_vcf = unknown[0]
 
-    vcf_in = pysam.VariantFile(options.input_filename_vcf)
+    vcf_in = pysam.VariantFile(args.input_filename_vcf)
 
-    if "lift-over" in options.methods:
-        if options.input_filename_chain is None:
+    if "lift-over" in args.methods:
+        if args.input_filename_chain is None:
             raise ValueError("--method=lift-over requires --input-filename-chain")
-        if not os.path.exists(options.input_filename_chain):
+        if not os.path.exists(args.input_filename_chain):
             raise OSError("file {} with chain data does not exist".format(
-                options.input_filename_chain))
-        E.info("reading chain from {}".format(options.input_filename_chain))
-        with iotools.open_file(options.input_filename_chain) as inf:
+                args.input_filename_chain))
+        E.info("reading chain from {}".format(args.input_filename_chain))
+        with iotools.open_file(args.input_filename_chain) as inf:
             map_chain, map_contig2length = read_liftover_chain(inf)
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
+    if args.input_filename_fasta:
+        fasta = pysam.FastaFile(args.input_filename_fasta)
     else:
         fasta = None
 
-    if options.input_filename_bam:
-        bam = pysam.AlignmentFile(options.input_filename_bam)
+    if args.input_filename_bam:
+        bam = pysam.AlignmentFile(args.input_filename_bam)
     else:
         bam = None
 
-    outf = options.stdout
+    outf = args.stdout
 
     c = E.Counter()
 
-    if "add-strelka-genotype" in options.methods:
+    if "add-strelka-genotype" in args.methods:
         map_nt2gt = {"ref": "0/0",
                      "het": "0/1",
                      "hom": "1/1",
@@ -222,7 +224,7 @@ def main(argv=None):
             'added by cgatcore vcf2vcf.">')
 
         header = "\n".join(header)
-        if options.normal_sample_regex:
+        if args.normal_sample_regex:
             normal_sample = re.search(" -bam-file \S+/([^/]+)_S\d+.bam", header).groups()[0]
         else:
             normal_sample = "NORMAL"
@@ -293,7 +295,7 @@ def main(argv=None):
             outf.write("\t".join(fields) + "\n")
             c.output += 1
 
-    elif "lift-over" in options.methods:
+    elif "lift-over" in args.methods:
         header = str(vcf_in.header).splitlines()
 
         if fasta:
@@ -310,8 +312,8 @@ def main(argv=None):
         header.insert(
             len(header) - 1,
             '##liftover=<CHAIN={},REFERENCE={}>'.format(
-                options.input_filename_chain,
-                options.input_filename_fasta))
+                args.input_filename_chain,
+                args.input_filename_fasta))
         outf.write("\n".join(header) + "\n")
 
         unmapped_contigs = set()
@@ -331,8 +333,8 @@ def main(argv=None):
                                 contig, length, expected_lengths[contig]))
             E.info("contig sizes in chain file and fasta files correspond.")
 
-        if options.output_filename_unmapped:
-            outfile_unmapped = iotools.open_file(options.output_filename_unmapped, "w")
+        if args.output_filename_unmapped:
+            outfile_unmapped = iotools.open_file(args.output_filename_unmapped, "w")
             outfile_unmapped.write("\n".join(header) + "\n")
         else:
             outfile_unmapped = None

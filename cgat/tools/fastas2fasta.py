@@ -70,17 +70,16 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id: fastas2fasta.py 2782 2009-09-10 11:40:29Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    (options, args) = E.start(parser)
+    (args, unknown) = E.start(parser, unknowns=True)
 
-    if len(args) < 2:
+    if len(unknown) < 2:
         raise ValueError(
             "please supply at least two filenames to concatenate.")
 
     iterators = []
-    for a in args:
+    for a in unknown:
         iterators.append(FastaIterator.FastaIterator(iotools.open_file(a, "r")))
 
     ninput, noutput, nerrors = 0, 0, 0
@@ -108,12 +107,13 @@ def main(argv=None):
 
         noutput += 1
 
-        options.stdout.write(">%s\n%s\n" % (ids[0],
-                                            "".join(sequences)))
+        args.stdout.write(">%s\n%s\n" % (ids[0],
+                                         "".join(sequences)))
 
     E.info("ninput=%i, noutput=%i, nerrors=%i" % (ninput, noutput, nerrors))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

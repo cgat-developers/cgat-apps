@@ -94,38 +94,35 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
         "-o", "--output-only-attributes", dest="only_attributes",
         action="store_true",
-        help="output only attributes as separate columns "
-        "[default=%default].")
+        help="output only attributes as separate columns ")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--attributes-as-columns", dest="output_full",
         action="store_true",
         help="output attributes as separate columns "
-        "[default=%default].")
+        )
 
-    parser.add_option("--is-gff3", dest="is_gtf", action="store_false",
-                      help="input file is in gtf format [default=%default] ")
+    parser.add_argument("--is-gff3", dest="is_gtf", action="store_false",
+                        help="input file is in gtf format")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--invert", dest="invert", action="store_true",
-        help="convert tab-separated table back to gtf "
-        "[default=%default].")
+        help="convert tab-separated table back to gtf.")
 
-    parser.add_option(
-        "-m", "--output-map", dest="output_map", type="choice",
+    parser.add_argument(
+        "-m", "--output-map", dest="output_map", type=str,
         choices=(
             "transcript2gene",
             "peptide2gene",
             "peptide2transcript"),
-        help="output a map mapping transcripts to genes "
-        "[default=%default].")
+        help="output a map mapping transcripts to genes.")
 
     parser.set_defaults(
         only_attributes=False,
@@ -135,20 +132,20 @@ def main(argv=None):
         is_gtf=True
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.output_full:
+    if args.output_full:
         # output full table with column for each attribute
 
         attributes = set()
         data = []
-        if options.is_gtf:
-            for gtf in GTF.iterator(options.stdin):
+        if args.is_gtf:
+            for gtf in GTF.iterator(args.stdin):
                 data.append(gtf)
                 attributes = attributes.union(set(gtf.keys()))
 
         else:
-            for gff in GFF3.iterator_from_gff(options.stdin):
+            for gff in GFF3.iterator_from_gff(args.stdin):
                 data.append(gff)
                 attributes = attributes.union(set(gff.attributes))
 
@@ -159,8 +156,8 @@ def main(argv=None):
         attributes = sorted(list(attributes))
 
         # Select whether gtf of gff for output columns
-        if options.is_gtf:
-            if options.only_attributes:
+        if args.is_gtf:
+            if args.only_attributes:
                 header = ["gene_id", "transcript_id"] + attributes
             else:
                 header = ["contig", "source", "feature",
@@ -168,7 +165,7 @@ def main(argv=None):
                           "frame", "gene_id",
                           "transcript_id", ] + attributes
         else:
-            if options.only_attributes:
+            if args.only_attributes:
                 header = attributes
             else:
                 header = ["contig", "source", "feature",
@@ -177,9 +174,9 @@ def main(argv=None):
 
         attributes_new = header
 
-        options.stdout.write("\t".join(header) + "\n")
+        args.stdout.write("\t".join(header) + "\n")
 
-        if options.is_gtf:
+        if args.is_gtf:
             for gtf in data:
                 first = True
                 for a in attributes_new:
@@ -188,16 +185,16 @@ def main(argv=None):
                     except (AttributeError, KeyError):
                         val = ""
                     if first:
-                        options.stdout.write("%s" % val)
+                        args.stdout.write("%s" % val)
                         first = False
                     else:
-                        options.stdout.write("\t%s" % val)
-                options.stdout.write("\n")
+                        args.stdout.write("\t%s" % val)
+                args.stdout.write("\n")
         else:
             for gff in data:
-                options.stdout.write(("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t") % (gff.contig,
-                                                                             gff.source, gff.feature, gff.start, gff.end,
-                                                                             gff.score, gff.strand, gff.frame))
+                args.stdout.write(("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t") % (gff.contig,
+                                                                          gff.source, gff.feature, gff.start, gff.end,
+                                                                          gff.score, gff.strand, gff.frame))
 
                 first = True
                 for a in attributes:
@@ -206,17 +203,17 @@ def main(argv=None):
                     except (AttributeError, KeyError):
                         val = ''
                     if first:
-                        options.stdout.write("%s" % val)
+                        args.stdout.write("%s" % val)
                         first = False
                     else:
-                        options.stdout.write("\t%s" % val)
-                options.stdout.write("\n")
+                        args.stdout.write("\t%s" % val)
+                args.stdout.write("\n")
 
-    elif options.invert:
+    elif args.invert:
 
         gtf = GTF.Entry()
         header = None
-        for line in options.stdin:
+        for line in args.stdin:
             if line.startswith("#"):
                 continue
             data = line[:-1].split("\t")
@@ -246,38 +243,38 @@ def main(argv=None):
             if gtf.frame is None:
                 gtf.frame = "."
             # output gtf entry in gtf format
-            options.stdout.write("%s\n" % str(gtf))
+            args.stdout.write("%s\n" % str(gtf))
 
-    elif options.output_map:
+    elif args.output_map:
 
-        if options.output_map == "transcript2gene":
+        if args.output_map == "transcript2gene":
             fr = lambda x: x.transcript_id
             to = lambda x: x.gene_id
-            options.stdout.write("transcript_id\tgene_id\n")
-        elif options.output_map == "peptide2gene":
+            args.stdout.write("transcript_id\tgene_id\n")
+        elif args.output_map == "peptide2gene":
             fr = lambda x: x.protein_id
             to = lambda x: x.gene_id
-            options.stdout.write("peptide_id\tgene_id\n")
-        elif options.output_map == "peptide2transcript":
+            args.stdout.write("peptide_id\tgene_id\n")
+        elif args.output_map == "peptide2transcript":
             fr = lambda x: x.protein_id
             to = lambda x: x.transcript_id
-            options.stdout.write("peptide_id\ttranscript_id\n")
+            args.stdout.write("peptide_id\ttranscript_id\n")
 
         map_fr2to = {}
-        for gtf in GTF.iterator(options.stdin):
+        for gtf in GTF.iterator(args.stdin):
             try:
                 map_fr2to[fr(gtf)] = to(gtf)
             except (AttributeError, KeyError):
                 pass
 
         for x, y in sorted(map_fr2to.items()):
-            options.stdout.write("%s\t%s\n" % (x, y))
+            args.stdout.write("%s\t%s\n" % (x, y))
     else:
         header = ("contig", "source", "feature", "start", "end", "score",
                   "strand", "frame", "gene_id", "transcript_id", "attributes")
-        options.stdout.write("\t".join(header) + "\n")
+        args.stdout.write("\t".join(header) + "\n")
 
-        for gtf in GTF.iterator(options.stdin):
+        for gtf in GTF.iterator(args.stdin):
             attributes = []
             for a in list(gtf.keys()):
                 if a in ("gene_id", "transcript_id"):
@@ -290,9 +287,10 @@ def main(argv=None):
             if gtf.frame is None:
                 gtf.frame = "."
 
-            options.stdout.write(str(gtf) + "\n")
+            args.stdout.write(str(gtf) + "\n")
 
     E.stop()
+
 
 if __name__ == '__main__':
     sys.exit(main())

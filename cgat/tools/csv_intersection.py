@@ -8,7 +8,7 @@ Purpose
 -------
 
 .. todo::
-   
+
    describe purpose of the script.
 
 Usage
@@ -58,55 +58,56 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: csv_intersection.py 2782 2009-09-10 11:40:29Z andreas $")
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-u", "--unique", dest="unique", action="store_true",
-                      help="output rows are uniq.")
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
+                        help="output rows are uniq.")
 
     parser.set_defaults(
         remove=False,
         unique=False,
     )
 
-    (options, args) = E.start(parser, add_csv_options=True)
+    (args, unknown) = E.start(parser, add_csv_options=True, unknowns=True)
 
     if len(args) != 2:
         raise ValueError("please specify two files to join")
 
-    options.filename1, options.filename2 = args
+    args.filename1, args.filename2 = unknown
 
-    table1 = readTable(iotools.open_file(options.filename1, "r"))
-    table2 = readTable(iotools.open_file(options.filename2, "r"))
+    table1 = readTable(iotools.open_file(args.filename1, "r"))
+    table2 = readTable(iotools.open_file(args.filename2, "r"))
 
-    if options.unique:
+    if args.unique:
         outfile = UniqueBuffer(sys.stdout)
     else:
-        outfile = options.stdout
+        outfile = args.stdout
 
     # build new field list
     new_fields = []
 
-    for x in options.join_fields1:
+    for x in args.join_fields1:
         new_fields.append(x)
 
     for x in fields1:
-        if x not in options.join_fields1:
+        if x not in args.join_fields1:
             new_fields.append(x)
-        if x not in options.join_fields2:
+        if x not in args.join_fields2:
             new_fields.append(x)
 
         writer = csv.DictWriter(outfile,
                                 fields,
-                                dialect=options.csv_dialect,
-                                lineterminator=options.csv_lineterminator,
+                                dialect=args.csv_dialect,
+                                lineterminator=args.csv_lineterminator,
                                 extrasaction='ignore')
 
     if len(lines) > 0:
 
         old_fields = lines[0][:-1].split("\t")
 
-        if options.remove:
+        if args.remove:
             fields = []
             for x in old_fields:
                 if x not in input_fields:
@@ -115,7 +116,7 @@ def main(argv=None):
             fields = input_fields
 
         reader = csv.DictReader(lines,
-                                dialect=options.csv_dialect)
+                                dialect=args.csv_dialect)
 
         print("\t".join(fields))
 
@@ -125,6 +126,7 @@ def main(argv=None):
             writer.writerow(row)
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

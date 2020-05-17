@@ -163,7 +163,6 @@ def test_cmdline():
     global ORIGINAL_START
     if ORIGINAL_START is None:
         ORIGINAL_START = E.start
-
     # read the first two columns
     map_option2action = iotools.read_map(
         iotools.open_file(FILENAME_OPTIONLIST),
@@ -223,6 +222,8 @@ def test_cmdline():
             pass
 
         for option in PARSER.option_list:
+            print("=================")
+            print(option)
             # ignore options added by optparse
             if option.dest is None:
                 continue

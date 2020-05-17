@@ -187,27 +187,27 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
         "-e", "--exclusive-overlap", dest="exclusive",
         action="store_true",
         help="Intervals reported will be merged across the "
         "positive set and do not overlap any interval in any of the "
-        "other sets [default=%default].")
+        "other sets.")
 
-    parser.add_option(
-        "-p", "--pattern-identifier", dest="pattern_id", type="string",
+    parser.add_argument(
+        "-p", "--pattern-identifier", dest="pattern_id", type=str,
         help="pattern to convert a filename "
-        "to an id [default=%default].")
+        "to an id.")
 
-    parser.add_option(
-        "-m", "--method", dest="method", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="method", type=str,
         choices=("merged-combinations",
                  "unmerged-combinations"),
-        help="method to perform [default=%default]")
+        help="method to perform")
 
     parser.set_defaults(
         pattern_id="(.*).bed.gz",
@@ -216,27 +216,30 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) < 2:
+    if len(unknown) < 2:
         raise ValueError("at least two arguments required")
 
     tags, bedfiles = [], []
-    for infile in args:
+    for infile in unknown:
         bedfiles.append(pysam.Tabixfile(infile, "r"))
-        tags.append(re.search(options.pattern_id, infile).groups()[0])
+        tags.append(re.search(args.pattern_id, infile).groups()[0])
 
     indices = list(range(len(bedfiles)))
-    is_exclusive = options.exclusive
+    is_exclusive = args.exclusive
 
-    if options.method == "merged-combinations":
+    if args.method == "merged-combinations":
 
         if is_exclusive:
             start = 1
         else:
             start = 2
 
-        options.stdout.write("combination\twithout\tcounts\n")
+        args.stdout.write("combination\twithout\tcounts\n")
 
         for ncombinants in range(start, len(bedfiles) + 1):
             for combination in itertools.combinations(indices, ncombinants):
@@ -264,13 +267,13 @@ def main(argv=None):
                 outf.close()
                 E.info("combination %s finished: %s" % (tag, c))
 
-                options.stdout.write("%s\t%s\t%i\n" % (
+                args.stdout.write("%s\t%s\t%i\n" % (
                     ":".join([tags[x] for x in combination]),
                     ":".join([tags[x] for x in other]),
                     c.output))
 
-    elif options.method == "unmerged-combinations":
-        options.stdout.write("track\tcombination\twithout\tcounts\n")
+    elif args.method == "unmerged-combinations":
+        args.stdout.write("track\tcombination\twithout\tcounts\n")
 
         for foreground in indices:
 
@@ -310,7 +313,7 @@ def main(argv=None):
                     outf.close()
                     E.info("combination %s finished: %s" % (tag, c))
 
-                    options.stdout.write("%s\t%s\t%s\t%i\n" % (
+                    args.stdout.write("%s\t%s\t%s\t%i\n" % (
                         tags[foreground],
                         ":".join([tags[x] for x in combination]),
                         ":".join([tags[x] for x in other]),

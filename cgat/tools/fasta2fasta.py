@@ -153,11 +153,12 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-m", "--method", dest="methods", type="choice", action="append",
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-m", "--method", dest="methods", type=str, action="append",
         choices=("translate",
                  "translate-to-stop",
                  "truncate-at-stop",
@@ -186,57 +187,53 @@ def main(argv=None):
                  "shuffle"),
         help="method to apply to sequences.")
 
-    parser.add_option(
-        "-p", "--parameters", dest="parameters", type="string",
-        help="parameter stack for methods that require one "
-        "[default=%default].")
+    parser.add_argument(
+        "-p", "--parameters", dest="parameters", type=str,
+        help="parameter stack for methods that require one ")
 
-    parser.add_option(
+    parser.add_argument(
         "-x", "--ignore-errors", dest="ignore_errors", action="store_true",
-        help="ignore errors [default = %default].")
+        help="ignore errors.")
 
-    parser.add_option("--sample-proportion", dest="sample_proportion",
-                      type="float",
-                      help="sample proportion [default = %default].")
+    parser.add_argument("--sample-proportion", dest="sample_proportion",
+                        type=float,
+                        help="sample proportion.")
 
-    parser.add_option(
-        "--exclude-pattern", dest="exclude_pattern", type="string",
-        help="exclude all sequences with ids matching pattern "
-        "[default = %default].")
+    parser.add_argument(
+        "--exclude-pattern", dest="exclude_pattern", type=str,
+        help="exclude all sequences with ids matching pattern ")
 
-    parser.add_option(
-        "--include-pattern", dest="include_pattern", type="string",
-        help="include only sequences with ids matching pattern "
-        "[default = %default].")
+    parser.add_argument(
+        "--include-pattern", dest="include_pattern", type=str,
+        help="include only sequences with ids matching pattern ")
 
-    parser.add_option(
-        "--filter-method", dest="filter_methods", type="string",
+    parser.add_argument(
+        "--filter-method", dest="filter_methods", type=str,
         action="append",
-        help="filtering methods to apply "
-        "[default = %default].")
+        help="filtering methods to apply ")
 
-    parser.add_option(
-        "-t", "--sequence-type", dest="type", type="choice",
+    parser.add_argument(
+        "-t", "--sequence-type", dest="type", type=str,
         choices=("aa", "na"),
-        help="sequence type (aa or na) [%default]. This option determines "
-        "which characters to use for masking [default = %default].")
+        help="sequence type (aa or na) . This option determines "
+        "which characters to use for masking.")
 
-    parser.add_option(
+    parser.add_argument(
         "-l", "--template-identifier", dest="template_identifier",
-        type="string",
-        help="template for numerical identifier [default = %default] "
+        type=str,
+        help="template for numerical identifier"
         "for the operation --build-map. A %i is replaced by the position "
         "of the sequence in the file.")
 
-    parser.add_option(
+    parser.add_argument(
         "--map-tsv-file", dest="map_tsv_file",
-        type="string",
+        type=str,
         help="input filename with map for identifiers. The first row is a header")
 
-    parser.add_option(
-        "--fold-width", dest="fold_width", type="int",
-        help="fold width for sequence output. 0 is unfolded [%default]")
-    
+    parser.add_argument(
+        "--fold-width", dest="fold_width", type=int,
+        help="fold width for sequence output. 0 is unfolded ")
+
     parser.set_defaults(
         methods=[],
         parameters="",
@@ -257,69 +254,70 @@ def main(argv=None):
         input_filename_map=None,
         fold_width=80
     )
-    
-    (options, args) = E.start(parser)
 
-    if len(args) > 0:
-        options.input_filename_fasta = args[0]
-    
-    options.parameters = options.parameters.split(",")
+    (args, unknown) = E.start(parser,
+                              unknowns=True)
+
+    if len(unknown) > 0:
+        args.input_filename_fasta = unknown[0]
+
+    args.parameters = args.parameters.split(",")
 
     rx_include, rx_exclude = None, None
-    if options.include_pattern:
-        rx_include = re.compile(options.include_pattern)
-    if options.exclude_pattern:
-        rx_exclude = re.compile(options.exclude_pattern)
+    if args.include_pattern:
+        rx_include = re.compile(args.include_pattern)
+    if args.exclude_pattern:
+        rx_exclude = re.compile(args.exclude_pattern)
 
-    iterator = FastaIterator.FastaIterator(options.stdin)
+    iterator = FastaIterator.FastaIterator(args.stdin)
 
     nseq = 0
 
     map_seq2nid = {}
 
-    map_identifier = ("apply-map" in options.methods or
-                      "map-identifier" in options.methods)
+    map_identifier = ("apply-map" in args.methods or
+                      "map-identifier" in args.methods)
     if map_identifier:
-        if options.input_filename_map is None:
+        if args.input_filename_map is None:
             raise ValueError("for method=map-identifier use --map-tsv-file")
-        with iotools.open_file(options.input_filename_map) as infile:
+        with iotools.open_file(args.input_filename_map) as infile:
             map_identifier = iotools.read_map(infile, has_header=True)
 
-    if options.type == "na":
-        mask_chars = options.na_mask_chars
-        mask_char = options.na_mask_char
+    if args.type == "na":
+        mask_chars = args.na_mask_chars
+        mask_char = args.na_mask_char
     else:
-        mask_chars = options.aa_mask_chars
-        mask_char = options.aa_mask_char
+        mask_chars = args.aa_mask_chars
+        mask_char = args.aa_mask_char
 
-    if "map-codons" in options.methods:
-        map_codon2code = iotools.ReadMap(open(options.parameters[0], "r"))
-        del options.parameters[0]
+    if "map-codons" in args.methods:
+        map_codon2code = iotools.ReadMap(open(args.parameters[0], "r"))
+        del args.parameters[0]
 
-    if "mask-soft" in options.methods:
-        f = options.parameters[0]
-        del options.parameters[0]
+    if "mask-soft" in args.methods:
+        f = args.parameters[0]
+        del args.parameters[0]
         hard_masked_iterator = FastaIterator.FastaIterator(open(f, "r"))
 
-    if "mask-codons" in options.methods or "back-translate" in options.methods:
+    if "mask-codons" in args.methods or "back-translate" in args.methods:
 
         # open a second stream to read sequences from
-        f = options.parameters[0]
-        del options.parameters[0]
+        f = args.parameters[0]
+        del args.parameters[0]
 
         other_iterator = FastaIterator.FastaIterator(open(f, "r"))
 
-    if "sample" in options.methods:
-        if not options.sample_proportion:
+    if "sample" in args.methods:
+        if not args.sample_proportion:
             raise ValueError("specify a sample proportion")
-        sample_proportion = options.sample_proportion
+        sample_proportion = args.sample_proportion
     else:
         sample_proportion = None
 
     filter_min_sequence_length = None
     filter_max_sequence_length = None
     filter_id_list = None
-    for f in options.filter_methods:
+    for f in args.filter_methods:
         if f.startswith("min-length"):
             filter_min_sequence_length = int(f.split("=")[1])
         elif f.startswith("max-length"):
@@ -335,11 +333,11 @@ def main(argv=None):
             raise ValueError(
                 "length of sequence %s not divisible by 3" % (title))
 
-    iterator = pysam.FastxFile(options.input_filename_fasta)
+    iterator = pysam.FastxFile(args.input_filename_fasta)
 
     c = E.Counter()
 
-    fold_width = options.fold_width
+    fold_width = args.fold_width
 
     def fold(s, w):
         return "\n".join([s[x:x+w] for x in range(0, len(s), w)])
@@ -367,19 +365,19 @@ def main(argv=None):
             c.skipped += 1
             continue
 
-        for method in options.methods:
+        for method in args.methods:
 
             if method == "translate":
                 # translate such that gaps are preserved
                 seq = []
 
-                ls = len(re.sub('[%s]' % options.gap_chars, sequence, ""))
+                ls = len(re.sub('[%s]' % args.gap_chars, sequence, ""))
 
                 if ls % 3 != 0:
                     msg = "length of sequence %s (%i) not divisible by 3" % (
                         record.name, ls)
                     c.errors += 1
-                    if options.ignore_errors:
+                    if args.ignore_errors:
                         E.warn(msg)
                         continue
                     else:
@@ -405,14 +403,14 @@ def main(argv=None):
                         record.name, other_record.title)
 
                 other_sequence = re.sub(
-                    "[ %s]" % options.gap_chars, "", other_record.sequence)
+                    "[ %s]" % args.gap_chars, "", other_record.sequence)
 
                 if len(other_sequence) % 3 != 0:
                     raise ValueError(
                         "length of sequence %s not divisible by 3" %
                         (other_record.title))
 
-                r = re.sub("[%s]" % options.gap_chars, "", sequence)
+                r = re.sub("[%s]" % args.gap_chars, "", sequence)
                 if len(other_sequence) != len(r) * 3:
                     raise ValueError(
                         "length of sequences do not match: %i vs %i" %
@@ -420,8 +418,8 @@ def main(argv=None):
 
                 x = 0
                 for aa in sequence:
-                    if aa in options.gap_chars:
-                        c = options.gap_char * 3
+                    if aa in args.gap_chars:
+                        c = args.gap_char * 3
                     else:
                         c = other_sequence[x:x + 3]
                         x += 3
@@ -449,13 +447,13 @@ def main(argv=None):
                 new_sequence = []
 
                 if method == "mask-stops":
-                    char = options.na_mask_char
+                    char = args.na_mask_char
                 elif method == "remove-stops":
-                    char = options.gap_char
+                    char = args.gap_char
 
                 for x in sequence:
 
-                    if x not in options.gap_chars:
+                    if x not in args.gap_chars:
                         codon.append(x.upper())
 
                     c.append(x)
@@ -466,7 +464,7 @@ def main(argv=None):
                         if Genomics.IsStopCodon(codon):
 
                             for x in c:
-                                if x in options.gap_chars:
+                                if x in args.gap_chars:
                                     new_sequence.append(x)
                                 else:
                                     new_sequence.append(char)
@@ -563,7 +561,7 @@ def main(argv=None):
 
                 seq = []
                 for s in sequence:
-                    if s in options.gap_chars:
+                    if s in args.gap_chars:
                         continue
                     seq.append(s)
 
@@ -591,7 +589,7 @@ def main(argv=None):
             elif method == "build-map":
                 # build a map of identifiers
                 id = re.match("^(\S+)", record.name).groups()[0]
-                new_id = options.template_identifier % nseq
+                new_id = args.template_identifier % nseq
                 if id in map_seq2nid:
                     raise "duplicate fasta entries - can't map those: %s" % id
                 map_seq2nid[id] = new_id
@@ -642,11 +640,11 @@ def main(argv=None):
                 seq = list(sequence)
                 c = 0
                 for x in other_sequence:
-                    if x in options.aa_mask_chars:
+                    if x in args.aa_mask_chars:
                         if x.isupper():
-                            seq[c:c + 3] = [options.na_mask_char.upper()] * 3
+                            seq[c:c + 3] = [args.na_mask_char.upper()] * 3
                         else:
-                            seq[c:c + 3] = [options.na_mask_char.lower()] * 3
+                            seq[c:c + 3] = [args.na_mask_char.lower()] * 3
                     c += 3
 
                 sequence = "".join(seq)
@@ -664,25 +662,25 @@ def main(argv=None):
         record.sequence = sequence
         if fold_width >= 0:
             if record.comment:
-                options.stdout.write(">{} {}\n{}\n".format(
+                args.stdout.write(">{} {}\n{}\n".format(
                     record.name,
                     record.comment,
                     fold(record.sequence, fold_width)))
             else:
-                options.stdout.write(">{}\n{}\n".format(
+                args.stdout.write(">{}\n{}\n".format(
                     record.name,
                     fold(record.sequence, fold_width)))
         else:
-            options.stdout.write(str(record) + "\n")
+            args.stdout.write(str(record) + "\n")
 
         c.output += 1
 
-    if "build-map" in options.methods:
-        p = options.parameters[0]
+    if "build-map" in args.methods:
+        p = args.parameters[0]
         if p:
             outfile = iotools.open_file(p, "w")
         else:
-            outfile = options.stdout
+            outfile = args.stdout
 
         outfile.write("old\tnew\n")
         for old_id, new_id in list(map_seq2nid.items()):
@@ -692,6 +690,7 @@ def main(argv=None):
 
     E.info(c)
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

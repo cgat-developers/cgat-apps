@@ -15,9 +15,9 @@ RUN apt-get update && apt-get install -y \
     unzip
 
 # Install CGAT code
-RUN wget --no-check-certificate https://raw.github.com/CGATOxford/cgat/master/install-CGAT-tools.sh && \
+RUN wget --no-check-certificate https://raw.github.com/CGATOxford/cgat/master/install.sh && \
     mkdir /shared && \
-    bash install-CGAT-tools.sh --cgat-devel --zip --location /shared
+    bash install.sh --cgat-devel --zip --location /shared
 
 # Set environment variables
 ENV PATH=/shared/conda-install/envs/cgat-devel/bin:$PATH

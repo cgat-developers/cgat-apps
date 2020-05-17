@@ -397,140 +397,139 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id: gff2gff.py$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-m", "--method", dest="method", type="choice",
-                      choices=(
-                          "add-flank",
-                          "add-upstream-flank",
-                          "add-downstream-flank",
-                          "crop",
-                          "crop-unique",
-                          "complement-groups",
-                          "combine-groups",
-                          "filter-range",
-                          "join-features",
-                          "merge-features",
-                          "sanitize",
-                          "to-forward-coordinates",
-                          "to-forward-strand",
-                          "rename-chr"),
-                      help="method to apply [%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option(
+    parser.add_argument("-m", "--method", dest="method", type=str,
+                        choices=("add-flank",
+                                 "add-upstream-flank",
+                                 "add-downstream-flank",
+                                 "crop",
+                                 "crop-unique",
+                                 "complement-groups",
+                                 "combine-groups",
+                                 "filter-range",
+                                 "join-features",
+                                 "merge-features",
+                                 "sanitize",
+                                 "to-forward-coordinates",
+                                 "to-forward-strand",
+                                 "rename-chr"),
+                        help="method to apply ")
+
+    parser.add_argument(
         "--ignore-strand", dest="ignore_strand",
         help="ignore strand information.", action="store_true")
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input will be treated as gtf [default=%default].")
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
+                        help="input will be treated as gtf.")
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--contigs-tsv-file", dest="input_filename_contigs",
-        type="string",
+        type=str,
         help="filename with contig lengths.")
 
-    parser.add_option(
-        "--agp-file", dest="input_filename_agp", type="string",
+    parser.add_argument(
+        "--agp-file", dest="input_filename_agp", type=str,
         help="agp file to map coordinates from contigs to scaffolds.")
 
-    parser.add_option(
-        "-g", "--genome-file", dest="genome_file", type="string",
+    parser.add_argument(
+        "-g", "--genome-file", dest="genome_file", type=str,
         help="filename with genome.")
 
-    parser.add_option(
-        "--crop-gff-file", dest="filename_crop_gff", type="string",
+    parser.add_argument(
+        "--crop-gff-file", dest="filename_crop_gff", type=str,
         help="GFF/GTF file to crop against.")
 
-    parser.add_option(
-        "--group-field", dest="group_field", type="string",
+    parser.add_argument(
+        "--group-field", dest="group_field", type=str,
         help="""gff field/attribute to group by such as gene_id, "
-        "transcript_id, ... [%default].""")
+        "transcript_id, ... .""")
 
-    parser.add_option(
-        "--filter-range", dest="filter_range", type="string",
+    parser.add_argument(
+        "--filter-range", dest="filter_range", type=str,
         help="extract all elements overlapping a range. A range is "
         "specified by eithor 'contig:from..to', 'contig:+:from..to', "
         "or 'from,to' .")
 
-    parser.add_option(
-        "--sanitize-method", dest="sanitize_method", type="choice",
+    parser.add_argument(
+        "--sanitize-method", dest="sanitize_method", type=str,
         choices=("ucsc", "ensembl", "genome"),
         help="method to use for sanitizing chromosome names. "
-        "[%default].")
+        ".")
 
-    parser.add_option(
-        "--flank-method", dest="flank_method", type="choice",
+    parser.add_argument(
+        "--flank-method", dest="flank_method", type=str,
         choices=("add", "extend"),
         help="method to use for adding flanks. ``extend`` will "
         "extend existing features, while ``add`` will add new features. "
-        "[%default].")
+        ".")
 
-    parser.add_option(
+    parser.add_argument(
         "--skip-missing", dest="skip_missing", action="store_true",
         help="skip entries on missing contigs. Otherwise an "
-        "exception is raised [%default].")
+        "exception is raised .")
 
-    parser.add_option(
-        "--contig-pattern", dest="contig_pattern", type="string",
+    parser.add_argument(
+        "--contig-pattern", dest="contig_pattern", type=str,
         help="a comma separated list of regular expressions specifying "
-        "contigs to be removed when running method sanitize [%default].")
+        "contigs to be removed when running method sanitize .")
 
-    parser.add_option(
-        "--assembly-report", dest="assembly_report", type="string",
+    parser.add_argument(
+        "--assembly-report", dest="assembly_report", type=str,
         help="path to assembly report file which allows mapping of "
-        "ensembl to ucsc contigs when running method sanitize [%default].")
+        "ensembl to ucsc contigs when running method sanitize .")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report-hasids",
-        dest="assembly_report_hasIDs", type="int",
+        dest="assembly_report_hasIDs", type=int,
         help="path to assembly report file which allows mapping of "
-        "ensembl to ucsc contigs when running method sanitize [%default].")
+        "ensembl to ucsc contigs when running method sanitize .")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report-ucsccol", dest="assembly_report_ucsccol",
-        type="int",
+        type=int,
         help="column in the assembly report containing ucsc contig ids"
-        "[%default].")
+        ".")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-report-ensemblcol", dest="assembly_report_ensemblcol",
-        type="int",
-        help="column in the assembly report containing ensembl contig ids"
-        "[%default].")
+        type=int,
+        help="column in the assembly report containing ensembl contig ids")
 
-    parser.add_option(
+    parser.add_argument(
         "--assembly-extras", dest="assembly_extras",
-        type="str",
+        type=str,
         help="additional mismatches between gtf and fasta to fix when"
-        "sanitizing the genome [%default].")
+        "sanitizing the genome .")
 
-    parser.add_option(
-        "--extension-upstream", dest="extension_upstream", type="float",
-        help="extension for upstream end [%default].")
+    parser.add_argument(
+        "--extension-upstream", dest="extension_upstream", type=float,
+        help="extension for upstream end .")
 
-    parser.add_option(
-        "--extension-downstream", dest="extension_downstream", type="float",
-        help="extension for downstream end [%default].")
+    parser.add_argument(
+        "--extension-downstream", dest="extension_downstream", type=float,
+        help="extension for downstream end .")
 
-    parser.add_option(
-        "--min-distance", dest="min_distance", type="int",
-        help="minimum distance of features to merge/join [%default].")
+    parser.add_argument(
+        "--min-distance", dest="min_distance", type=int,
+        help="minimum distance of features to merge/join .")
 
-    parser.add_option(
-        "--max-distance", dest="max_distance", type="int",
-        help="maximum distance of features to merge/join [%default].")
+    parser.add_argument(
+        "--max-distance", dest="max_distance", type=int,
+        help="maximum distance of features to merge/join .")
 
-    parser.add_option(
-        "--min-features", dest="min_features", type="int",
-        help="minimum number of features to merge/join [%default].")
+    parser.add_argument(
+        "--min-features", dest="min_features", type=int,
+        help="minimum number of features to merge/join .")
 
-    parser.add_option(
-        "--max-features", dest="max_features", type="int",
-        help="maximum number of features to merge/join [%default].")
+    parser.add_argument(
+        "--max-features", dest="max_features", type=int,
+        help="maximum number of features to merge/join .")
 
-    parser.add_option(
-        "--rename-chr-file", dest="rename_chr_file", type="string",
+    parser.add_argument(
+        "--rename-chr-file", dest="rename_chr_file", type=str,
         help="mapping table between old and new chromosome names."
         "TAB separated 2-column file.")
 
@@ -567,23 +566,23 @@ def main(argv=None):
         assembly_extras=None
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     contigs = None
     genome_fasta = None
     chr_map = None
 
-    if options.input_filename_contigs:
+    if args.input_filename_contigs:
         contigs = Genomics.readContigSizes(
-            iotools.open_file(options.input_filename_contigs, "r"))
+            iotools.open_file(args.input_filename_contigs, "r"))
 
-    if options.genome_file:
-        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        genome_fasta = IndexedFasta.IndexedFasta(args.genome_file)
         contigs = genome_fasta.getContigSizes()
 
-    if options.rename_chr_file:
+    if args.rename_chr_file:
         chr_map = {}
-        with open(options.rename_chr_file, 'r') as filein:
+        with open(args.rename_chr_file, 'r') as filein:
             reader = csv.reader(filein, delimiter='\t')
             for row in reader:
                 if len(row) != 2:
@@ -593,20 +592,20 @@ def main(argv=None):
         if not len(chr_map.keys()) > 0:
             raise ValueError("Empty mapping dictionnary")
 
-    if options.assembly_report:
-        df = pd.read_csv(options.assembly_report, comment="#",
+    if args.assembly_report:
+        df = pd.read_csv(args.assembly_report, comment="#",
                          header=None, sep="\t")
         # fixes naming inconsistency in assembly report: ensembl chromosome
         # contigs found in columnn 0, ensembl unassigned contigs found in
         # column 4.
-        if options.assembly_report_hasIDs == 1:
-            ucsccol = options.assembly_report_ucsccol
-            ensemblcol = options.assembly_report_ensemblcol
-            df.ix[df[1] == "assembled-molecule", ensemblcol] = df.ix[
+        if args.assembly_report_hasIDs == 1:
+            ucsccol = args.assembly_report_ucsccol
+            ensemblcol = args.assembly_report_ensemblcol
+            df.loc[df[1] == "assembled-molecule", ensemblcol] = df.loc[
                 df[1] == "assembled-molecule", 0]
-            if options.sanitize_method == "ucsc":
+            if args.sanitize_method == "ucsc":
                 assembly_dict = df.set_index(ensemblcol)[ucsccol].to_dict()
-            elif options.sanitize_method == "ensembl":
+            elif args.sanitize_method == "ensembl":
                 assembly_dict = df.set_index(ucsccol)[ensemblcol].to_dict()
             else:
                 raise ValueError(''' When using assembly report,
@@ -615,43 +614,43 @@ def main(argv=None):
                 ''')
         else:
             assembly_dict = {}
-        if options.assembly_extras is not None:
-            assembly_extras = options.assembly_extras.split(",")
+        if args.assembly_extras is not None:
+            assembly_extras = args.assembly_extras.split(",")
             for item in assembly_extras:
                 item = item.split("-")
                 assembly_dict[item[0]] = item[1]
 
-    if options.method in ("forward_coordinates", "forward_strand",
-                          "add-flank", "add-upstream-flank",
-                          "add-downstream-flank") \
+    if args.method in ("forward_coordinates", "forward_strand",
+                       "add-flank", "add-upstream-flank",
+                       "add-downstream-flank") \
        and not contigs:
         raise ValueError("inverting coordinates requires genome file")
 
-    if options.input_filename_agp:
+    if args.input_filename_agp:
         agp = AGP.AGP()
-        agp.readFromFile(iotools.open_file(options.input_filename_agp, "r"))
+        agp.readFromFile(iotools.open_file(args.input_filename_agp, "r"))
     else:
         agp = None
 
-    gffs = GTF.iterator(options.stdin)
+    gffs = GTF.iterator(args.stdin)
 
-    if options.method in ("add-upstream-flank",
-                          "add-downstream-flank",
-                          "add-flank"):
+    if args.method in ("add-upstream-flank",
+                       "add-downstream-flank",
+                       "add-flank"):
 
-        add_upstream_flank = "add-upstream-flank" == options.method
-        add_downstream_flank = "add-downstream-flank" == options.method
-        if options.method == "add-flank":
+        add_upstream_flank = "add-upstream-flank" == args.method
+        add_downstream_flank = "add-downstream-flank" == args.method
+        if args.method == "add-flank":
             add_upstream_flank = add_downstream_flank = True
 
-        upstream_flank = int(options.extension_upstream)
-        downstream_flank = int(options.extension_downstream)
-        extend_flank = options.flank_method == "extend"
+        upstream_flank = int(args.extension_upstream)
+        downstream_flank = int(args.extension_downstream)
+        extend_flank = args.flank_method == "extend"
 
-        if options.is_gtf:
+        if args.is_gtf:
             iterator = GTF.flat_gene_iterator(gffs)
         else:
-            iterator = GTF.joined_iterator(gffs, options.group_field)
+            iterator = GTF.joined_iterator(gffs, args.group_field)
 
         for chunk in iterator:
             is_positive = Genomics.IsPositiveStrand(chunk[0].strand)
@@ -708,15 +707,15 @@ def main(argv=None):
                 chunk.reverse()
 
             for gff in chunk:
-                options.stdout.write(str(gff) + "\n")
+                args.stdout.write(str(gff) + "\n")
 
-    elif options.method == "complement-groups":
+    elif args.method == "complement-groups":
 
         iterator = GTF.joined_iterator(gffs,
-                                       group_field=options.group_field)
+                                       group_field=args.group_field)
 
         for chunk in iterator:
-            if options.is_gtf:
+            if args.is_gtf:
                 chunk = [x for x in chunk if x.feature == "exon"]
                 if len(chunk) == 0:
                     continue
@@ -727,13 +726,13 @@ def main(argv=None):
             x.feature = "intron"
             for c in chunk[1:]:
                 x.end = c.start
-                options.stdout.write(str(x) + "\n")
+                args.stdout.write(str(x) + "\n")
                 x.start = c.end
 
-    elif options.method == "combine-groups":
+    elif args.method == "combine-groups":
 
         iterator = GTF.joined_iterator(gffs,
-                                       group_field=options.group_field)
+                                       group_field=args.group_field)
 
         for chunk in iterator:
             chunk.sort(key=lambda x: (x.contig, x.start))
@@ -741,50 +740,50 @@ def main(argv=None):
             x.copy(chunk[0])
             x.end = chunk[-1].end
             x.feature = "segment"
-            options.stdout.write(str(x) + "\n")
+            args.stdout.write(str(x) + "\n")
 
-    elif options.method == "join-features":
+    elif args.method == "join-features":
         for gff in combineGFF(gffs,
-                              min_distance=options.min_distance,
-                              max_distance=options.max_distance,
-                              min_features=options.min_features,
-                              max_features=options.max_features,
+                              min_distance=args.min_distance,
+                              max_distance=args.max_distance,
+                              min_features=args.min_features,
+                              max_features=args.max_features,
                               merge=False,
-                              output_format=options.output_format):
-            options.stdout.write(str(gff) + "\n")
+                              output_format=args.output_format):
+            args.stdout.write(str(gff) + "\n")
 
-    elif options.method == "merge-features":
+    elif args.method == "merge-features":
         for gff in combineGFF(gffs,
-                              min_distance=options.min_distance,
-                              max_distance=options.max_distance,
-                              min_features=options.min_features,
-                              max_features=options.max_features,
+                              min_distance=args.min_distance,
+                              max_distance=args.max_distance,
+                              min_features=args.min_features,
+                              max_features=args.max_features,
                               merge=True,
-                              output_format=options.output_format):
-            options.stdout.write(str(gff) + "\n")
+                              output_format=args.output_format):
+            args.stdout.write(str(gff) + "\n")
 
-    elif options.method == "crop":
-        for gff in cropGFF(gffs, options.filename_crop_gff):
-            options.stdout.write(str(gff) + "\n")
+    elif args.method == "crop":
+        for gff in cropGFF(gffs, args.filename_crop_gff):
+            args.stdout.write(str(gff) + "\n")
 
-    elif options.method == "crop-unique":
+    elif args.method == "crop-unique":
         for gff in cropGFFUnique(gffs):
-            options.stdout.write(str(gff) + "\n")
+            args.stdout.write(str(gff) + "\n")
 
-    elif options.method == "filter-range":
+    elif args.method == "filter-range":
 
         contig, strand, interval = None, None, None
         try:
             contig, strand, start, sep, end = re.match(
                 "(\S+):(\S+):(\d+)(\.\.|-)(\d+)",
-                options.filter_range).groups()
+                args.filter_range).groups()
         except AttributeError:
             pass
 
         if not contig:
             try:
                 contig, start, sep, end = re.match(
-                    "(\S+):(\d+)(\.\.|-)(\d+)", options.filter_range).groups()
+                    "(\S+):(\d+)(\.\.|-)(\d+)", args.filter_range).groups()
                 strand = None
             except AttributeError:
                 pass
@@ -792,9 +791,9 @@ def main(argv=None):
         if not contig:
             try:
                 start, end = re.match(
-                    "(\d+)(\.\.|\,|\-)(\d+)", options.filter_range).groups()
+                    "(\d+)(\.\.|\,|\-)(\d+)", args.filter_range).groups()
             except AttributeError:
-                raise "can not parse range %s" % options.filter_range
+                raise "can not parse range %s" % args.filter_range
             contig = None
             strand = None
 
@@ -809,9 +808,9 @@ def main(argv=None):
         for gff in GTF.iterator_filtered(gffs, contig=contig,
                                          strand=strand,
                                          interval=interval):
-            options.stdout.write(str(gff) + "\n")
+            args.stdout.write(str(gff) + "\n")
 
-    elif options.method == "sanitize":
+    elif args.method == "sanitize":
 
         def assemblyReport(id):
             if id in assembly_dict.keys():
@@ -819,24 +818,24 @@ def main(argv=None):
             # if not in dict, the contig name is forced
             # into the desired convention, this is helpful user
             # modified gff files that contain additional contigs
-            elif options.sanitize_method == "ucsc":
+            elif args.sanitize_method == "ucsc":
                 if not id.startswith("contig") and not id.startswith("chr"):
                     id = "chr%s" % id
-            elif options.sanitize_method == "ensembl":
+            elif args.sanitize_method == "ensembl":
                 if id.startswith("contig"):
                     return id[len("contig"):]
                 elif id.startswith("chr"):
                     return id[len("chr"):]
             return id
 
-        if options.sanitize_method == "genome":
+        if args.sanitize_method == "genome":
             if genome_fasta is None:
                 raise ValueError(
                     "please specify --genome-file= when using "
                     "--sanitize-method=genome")
             f = genome_fasta.getToken
         else:
-            if options.assembly_report is None:
+            if args.assembly_report is None:
                 raise ValueError(
                     "please specify --assembly-report= when using "
                     "--sanitize-method=ucsc or ensembl")
@@ -850,7 +849,7 @@ def main(argv=None):
             try:
                 gff.contig = f(gff.contig)
             except KeyError:
-                if options.skip_missing:
+                if args.skip_missing:
                     skipped_contigs[gff.contig] += 1
                     continue
                 else:
@@ -862,14 +861,14 @@ def main(argv=None):
                     outofrange_contigs[gff.contig] += 1
                     continue
 
-            if options.contig_pattern:
+            if args.contig_pattern:
                 to_remove = [re.compile(x)
-                             for x in options.contig_pattern.split(",")]
+                             for x in args.contig_pattern.split(",")]
                 if any([x.search(gff.contig) for x in to_remove]):
                     filtered_contigs[gff.contig] += 1
                     continue
 
-            options.stdout.write(str(gff) + "\n")
+            args.stdout.write(str(gff) + "\n")
 
         if skipped_contigs:
             E.info("skipped %i entries on %i contigs: %s" %
@@ -890,21 +889,21 @@ def main(argv=None):
                     len(list(filtered_contigs.keys())),
                     str(filtered_contigs)))
 
-    elif options.method == "rename-chr":
+    elif args.method == "rename-chr":
         if not chr_map:
-                raise ValueError("please supply mapping file")
+            raise ValueError("please supply mapping file")
 
         for gff in renameChromosomes(gffs, chr_map):
-            options.stdout.write(str(gff) + "\n")
+            args.stdout.write(str(gff) + "\n")
 
     else:
 
         for gff in gffs:
 
-            if options.method == "forward_coordinates":
+            if args.method == "forward_coordinates":
                 gff.invert(contigs[gff.contig])
 
-            if options.method == "forward_strand":
+            if args.method == "forward_strand":
                 gff.invert(contigs[gff.contig])
                 gff.strand = "+"
 
@@ -913,9 +912,10 @@ def main(argv=None):
                 gff.contig, gff.start, gff.end = agp.mapLocation(
                     gff.contig, gff.start, gff.end)
 
-            options.stdout.write(str(gff) + "\n")
+            args.stdout.write(str(gff) + "\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

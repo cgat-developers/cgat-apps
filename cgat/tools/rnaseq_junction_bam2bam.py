@@ -64,29 +64,30 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-t", "--template-bam-file", dest="filename_genome_bam", type="string",
-                      help="input bam file for header information [%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("-s", "--contigs-tsv-file", dest="filename_contigs", type="string",
-                      help="filename with contig sizes [%default]")
+    parser.add_argument("-t", "--template-bam-file", dest="filename_genome_bam", type=str,
+                        help="input bam file for header information ")
 
-    parser.add_option("-o", "--colour", dest="colour_mismatches", action="store_true",
-                      help="mismatches will use colour differences (CM tag) [%default]")
+    parser.add_argument("-s", "--contigs-tsv-file", dest="filename_contigs", type=str,
+                        help="filename with contig sizes ")
 
-    parser.add_option("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
-                      help="ignore mismatches [%default]")
+    parser.add_argument("-o", "--colour", dest="colour_mismatches", action="store_true",
+                        help="mismatches will use colour differences (CM tag) ")
 
-    parser.add_option("-c", "--remove-contigs", dest="remove_contigs", type="string",
-                      help="','-separated list of contigs to remove [%default]")
+    parser.add_argument("-i", "--ignore-mismatches", dest="ignore_mismatches", action="store_true",
+                        help="ignore mismatches ")
 
-    parser.add_option("-f", "--force-output", dest="force", action="store_true",
-                      help="force overwriting of existing files [%default]")
+    parser.add_argument("-c", "--remove-contigs", dest="remove_contigs", type=str,
+                        help="','-separated list of contigs to remove ")
 
-    parser.add_option("-u", "--unique", dest="unique", action="store_true",
-                      help="remove reads not matching uniquely [%default]")
+    parser.add_argument("-f", "--force-output", dest="force", action="store_true",
+                        help="force overwriting of existing files ")
+
+    parser.add_argument("-u", "--unique", dest="unique", action="store_true",
+                        help="remove reads not matching uniquely ")
 
     parser.set_defaults(
         filename_genome_bam=None,
@@ -100,14 +101,14 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     genomefile, referencenames, referencelengths = None, None, None
 
-    if options.filename_genome_bam:
-        genomefile = pysam.AlignmentFile(options.filename_genome_bam, "rb")
-    elif options.filename_contigs:
-        contigs = iotools.ReadMap(iotools.open_file(options.filename_contigs))
+    if args.filename_genome_bam:
+        genomefile = pysam.AlignmentFile(args.filename_genome_bam, "rb")
+    elif args.filename_contigs:
+        contigs = iotools.ReadMap(iotools.open_file(args.filename_contigs))
         data = list(zip(*list(contigs.items())))
         referencenames, referencelengths = data[0], list(map(int, data[1]))
     else:
@@ -119,7 +120,7 @@ def main(argv=None):
                                   referencenames=referencenames,
                                   referencelengths=referencelengths)
 
-    if options.colour_mismatches:
+    if args.colour_mismatches:
         tag = "CM"
     else:
         tag = "NM"
@@ -208,6 +209,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

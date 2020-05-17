@@ -3,8 +3,6 @@ import numpy
 import scipy.stats
 import unittest
 import cgat.Stats as Stats
-from rpy2.robjects import r as R
-import rpy2.robjects as ro
 
 
 class TestStats(unittest.TestCase):
@@ -52,6 +50,7 @@ class TestStats(unittest.TestCase):
         self.assertAlmostEqual(self.mSignificance, r, places=self.nplaces)
 
 
+@unittest.skip("needs refactoring without rpy2")
 class TestFDRRAgainstR(unittest.TestCase):
 
     '''test python against qvalue implementation.
@@ -120,6 +119,7 @@ def getRelativeError(a, b):
     return abs(a - b) / a
 
 
+@unittest.skip("needs refactoring without rpy2")
 class TestFDRPythonAgainstRDataset1(unittest.TestCase):
 
     '''test full python implemenation against R.'''

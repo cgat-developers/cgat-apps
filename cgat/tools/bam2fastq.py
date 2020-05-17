@@ -59,24 +59,25 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version="1.0")
 
     parser.set_defaults(
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
     # do sth
-    if len(args) == 1:
-        fastqfile1 = args[0]
-        fastqfile2 = options.output_filename_pattern % "2"
-    elif len(args) == 2:
-        fastqfile1, fastqfile2 = args
+    if len(unknown) == 1:
+        fastqfile1 = unknown[0]
+        fastqfile2 = args.output_filename_pattern % "2"
+    elif len(unknown) == 2:
+        fastqfile1, fastqfile2 = unknown
     else:
-        fastqfile1 = options.output_filename_pattern % "1"
-        fastqfile2 = options.output_filename_pattern % "2"
+        fastqfile1 = args.output_filename_pattern % "1"
+        fastqfile2 = args.output_filename_pattern % "2"
 
     # only output compressed data
     if not fastqfile1.endswith(".gz"):
@@ -84,8 +85,8 @@ def main(argv=None):
     if not fastqfile2.endswith(".gz"):
         fastqfile2 += ".gz"
 
-    if options.stdin != sys.stdin:
-        samfile = pysam.AlignmentFile(options.stdin.name, "rb")
+    if args.stdin != sys.stdin:
+        samfile = pysam.AlignmentFile(args.stdin.name, "rb")
     else:
         samfile = pysam.AlignmentFile("-", "rb")
 

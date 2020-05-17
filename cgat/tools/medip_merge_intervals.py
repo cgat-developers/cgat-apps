@@ -12,11 +12,11 @@ adjacent intervals that show a similar expression change.
 
 Input is data like this::
 
-   contig start end treatment_name  treatment_mean  treatment_std   control_name    control_mean    control_std     pvalue  qvalue  l2fold  fold    significant     status                                                                                 
-   chr1 10000 11000        CD14    32.9785173324   0       CD4     41.7117152603   0       0.199805206526  1.0     0.338926100945  1.26481475319   0       OK                                                                                   
-   chr1 14000 15000        CD14    9.32978709019   0       CD4     9.31489982941   0       1.0     1.0     -0.00230390372974       0.998404330063  0       OK                                                                                   
-   chr1 15000 16000        CD14    9.04603350905   0       CD4     9.01484414416   0       1.0     1.0     -0.00498279072069       0.996552150193  0       OK                                                                                   
-   chr1 16000 17000        CD14    0.457565479197  0       CD4     0.14910378845   0       0.677265200643  1.0     -1.61766129852  0.325863281276  0       OK                                                                                   
+   contig start end treatment_name  treatment_mean  treatment_std   control_name    control_mean    control_std     pvalue  qvalue  l2fold  fold    significant     status
+   chr1 10000 11000        CD14    32.9785173324   0       CD4     41.7117152603   0       0.199805206526  1.0     0.338926100945  1.26481475319   0       OK
+   chr1 14000 15000        CD14    9.32978709019   0       CD4     9.31489982941   0       1.0     1.0     -0.00230390372974       0.998404330063  0       OK
+   chr1 15000 16000        CD14    9.04603350905   0       CD4     9.01484414416   0       1.0     1.0     -0.00498279072069       0.996552150193  0       OK
+   chr1 16000 17000        CD14    0.457565479197  0       CD4     0.14910378845   0       0.677265200643  1.0     -1.61766129852  0.325863281276  0       OK
 
 The second and third window would be merged, as
 
@@ -57,7 +57,7 @@ Example::
 Type::
 
    python cgat_script_template.py --help
- 
+
 for command line help.
 
 
@@ -90,43 +90,44 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-o", "--min-overlap", dest="min_overlap", type="int",
-                      help="minimum overlap")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option(
+    parser.add_argument("-o", "--min-overlap", dest="min_overlap", type=int,
+                        help="minimum overlap")
+
+    parser.add_argument(
         "-w", "--pattern-window",
-        dest="pattern_window", type="string",
+        dest="pattern_window", type=str,
         help="regular expression to extract window coordinates from "
-        "test id [%default]")
+        "test id ")
 
-    parser.add_option(
+    parser.add_argument(
         "-i", "--invert", dest="invert", action="store_true",
-        help="invert direction of fold change [%default]")
+        help="invert direction of fold change ")
 
     parser.set_defaults(min_overlap=10,
                         invert=False,
                         pattern_window="(\S+):(\d+)-(\d+)"),
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
-    outfiles = iotools.FilePool(options.output_filename_pattern)
+    outfiles = iotools.FilePool(args.output_filename_pattern)
 
-    if options.invert:
+    if args.invert:
         test_f = lambda l2fold: l2fold < 0
     else:
         test_f = lambda l2fold: l2fold > 0
 
     def read():
 
-        rx_window = re.compile(options.pattern_window)
+        rx_window = re.compile(args.pattern_window)
         # filter any of the DESeq/EdgeR message that end up at the top of the
         # output file
 
-        for data in iotools.iterate(options.stdin):
+        for data in iotools.iterate(args.stdin):
 
             contig, start, end = rx_window.match(data.test_id).groups()
             start, end = list(map(int, (start, end)))
@@ -174,7 +175,7 @@ def main(argv=None):
 
     counter = E.Counter()
 
-    options.stdout.write("\t".join(DATA._fields) + "\n")
+    args.stdout.write("\t".join(DATA._fields) + "\n")
 
     # set of all sample names - used to create empty files
     samples = set()
@@ -185,7 +186,7 @@ def main(argv=None):
 
     group_id = 0
 
-    for group in grouper(iter(all_data), distance=options.min_overlap):
+    for group in grouper(iter(all_data), distance=args.min_overlap):
         group_id += 1
 
         start, end = group[0].start, group[-1].end
@@ -237,7 +238,7 @@ def main(argv=None):
                         group_id,
                         sum([x.control_mean for x in group]) / n))
 
-        options.stdout.write("\t".join(map(str, outdata)) + "\n")
+        args.stdout.write("\t".join(map(str, outdata)) + "\n")
 
         counter.output += 1
 
@@ -250,6 +251,7 @@ def main(argv=None):
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

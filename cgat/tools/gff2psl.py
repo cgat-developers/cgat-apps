@@ -56,23 +56,22 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id: gff2psl.py 2781 2009-09-10 11:33:14Z andreas $", usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input is gtf.")
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
+                        help="input is gtf.")
 
-    parser.add_option("--no-header", dest="with_header", action="store_false",
-                      help="do not output BLAT header [default=%default].")
+    parser.add_argument("--no-header", dest="with_header", action="store_false",
+                        help="do not output BLAT header.")
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome.")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
+                        help="filename with genome.")
 
-    parser.add_option("--queries-tsv-file", dest="input_filename_queries", type="string",
-                      help="fasta filename with queries [default=%default].")
+    parser.add_argument("--queries-tsv-file", dest="input_filename_queries", type=str,
+                        help="fasta filename with queries.")
 
-    parser.add_option("--allow-duplicates", dest="allow_duplicates", action="store_true",
-                      help="""permit duplicate entries. Adjacent exons of a transcript will still be merged [default=%default]."""  )
+    parser.add_argument("--allow-duplicates", dest="allow_duplicates", action="store_true",
+                        help="""permit duplicate entries. Adjacent exons of a transcript will still be merged.""")
 
     parser.set_defaults(is_gtf=False,
                         genome_file=None,
@@ -80,34 +79,34 @@ def main(argv=None):
                         allow_duplicates=False,
                         test=None)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (args) = E.start(parser, add_pipe_options=True)
 
-    if options.genome_file:
-        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        genome_fasta = IndexedFasta.IndexedFasta(args.genome_file)
     else:
         genome_fasta = None
 
-    if options.input_filename_queries:
+    if args.input_filename_queries:
         queries_fasta = IndexedFasta.IndexedFasta(
-            options.input_filename_queries)
+            args.input_filename_queries)
     else:
         queries_fasta = None
 
     ninput, noutput, nskipped = 0, 0, 0
 
-    if options.is_gtf:
+    if args.is_gtf:
         iterator = GTF.transcript_iterator(GTF.iterator_filtered(GTF.iterator(sys.stdin),
                                                                  feature="exon"),
-                                           strict=not options.allow_duplicates)
+                                           strict=not args.allow_duplicates)
     else:
         iterator = GTF.joined_iterator(GTF.iterator(sys.stdin))
 
-    if options.with_header:
-        options.stdout.write(Blat.Match().getHeader() + "\n")
+    if args.with_header:
+        args.stdout.write(Blat.Match().getHeader() + "\n")
 
     for gffs in iterator:
 
-        if options.test and ninput >= options.test:
+        if args.test and ninput >= args.test:
             break
 
         ninput += 1
@@ -144,12 +143,13 @@ def main(argv=None):
 
         entry.fromMap(result)
 
-        options.stdout.write(str(entry) + "\n")
+        args.stdout.write(str(entry) + "\n")
         noutput += 1
 
     E.info("ninput=%i, noutput=%i, nskipped=%i" % (ninput, noutput, nskipped))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

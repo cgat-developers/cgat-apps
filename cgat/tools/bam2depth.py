@@ -21,23 +21,22 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
-        help="filename with reference sequence in fasta format [%default]")
+    parser.add_argument(
+        "--input-filename-fasta", dest="input_filename_fasta", type=str,
+        help="filename with reference sequence in fasta format ")
 
-    parser.add_option(
-        "--counting-mode", dest="counting_mode", type="choice",
+    parser.add_argument(
+        "--counting-mode", dest="counting_mode", type=str,
         choices=("all", "pileup_defaults"),
         help="counting mode. all=all reads/bases. pileup-defaults= "
         "use default pileup thresholds. Options will be added to "
-        "--mpileup-options. [%default].")
+        "--mpileup-options. .")
 
-    parser.add_option(
-        "--mpileup-options", dest="mpileup_options", type="string",
-        help="pileup options to use [%default]")
+    parser.add_argument(
+        "--mpileup-options", dest="mpileup_options", type=str,
+        help="pileup options to use ")
 
     parser.set_defaults(
         mpileup_options="",
@@ -47,13 +46,13 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     bamfile = args[0]
 
-    mpileup_options = options.mpileup_options
+    mpileup_options = args.mpileup_options
 
-    if options.counting_mode == "all":
+    if args.counting_mode == "all":
         mpileup_options += " -Q 0 -B -A"
 
     read_depth_histogram = collections.defaultdict(int)
@@ -62,7 +61,7 @@ def main(argv=None):
     # deletions are marked by something like -2AA at the first
     # position and a '*' for subsequent positions
     rx_deletions = re.compile("([-][0-9]+|[*])")
-    report_step = options.report_step
+    report_step = args.report_step
     npositions = 0
 
     samtools = iotools.which("samtools")
@@ -73,7 +72,7 @@ def main(argv=None):
         "{mpileup_options} "
         "{bamfile} ".format(
             samtools=samtools,
-            reference_fasta=options.input_filename_fasta,
+            reference_fasta=args.input_filename_fasta,
             mpileup_options=mpileup_options,
             bamfile=os.path.abspath(bamfile)))
 
@@ -108,9 +107,9 @@ def main(argv=None):
     keys = sorted(set(read_depth_histogram.keys()).union(
         base_depth_histogram.keys()))
 
-    options.stdout.write("depth\tread_depth_positions\tbase_depth_positions\n")
+    args.stdout.write("depth\tread_depth_positions\tbase_depth_positions\n")
     for key in keys:
-        options.stdout.write("{}\t{}\t{}\n".format(
+        args.stdout.write("{}\t{}\t{}\n".format(
                 key,
                 read_depth_histogram[key],
                 base_depth_histogram[key]))

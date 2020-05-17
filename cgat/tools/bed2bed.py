@@ -254,9 +254,11 @@ def merge(iterator,
             to_join[strand].append(bed)
 
         for strand in sorted(to_join):
-            if to_join[strand]:
-                yield to_join[strand]
-        raise StopIteration
+                if to_join[strand]:
+                    try:
+                        yield to_join[strand]
+                    except:
+                        return
 
     c = E.Counter()
 
@@ -499,78 +501,77 @@ def renameChromosomes(iterator, chr_map):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id: bed2bed.py 2861 2010-02-23 17:36:32Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
     # IMS: new method: extend intervals by set amount
-    parser.add_option("-m", "--method", dest="methods", type="choice",
-                      action="append",
-                      choices=("merge", "filter-genome", "bins",
-                               "block", "sanitize-genome", "shift", "extend",
-                               "filter-names", "rename-chr"),
-                      help="method to apply [default=%default]")
+    parser.add_argument("-m", "--method", dest="methods", type=str,
+                        action="append",
+                        choices=("merge", "filter-genome", "bins",
+                                 "block", "sanitize-genome", "shift", "extend",
+                                 "filter-names", "rename-chr"),
+                        help="method to apply")
 
-    parser.add_option("--num-bins", dest="num_bins", type="int",
-                      help="number of bins into which to merge (used for "
-                      "method `bins) [default=%default]")
+    parser.add_argument("--num-bins", dest="num_bins", type=int,
+                        help="number of bins into which to merge (used for "
+                        "method `bins)")
 
-    parser.add_option("--bin-edges", dest="bin_edges", type="string",
-                      help="bin_edges for binning method [default=%default]")
+    parser.add_argument("--bin-edges", dest="bin_edges", type=str,
+                        help="bin_edges for binning method")
 
-    parser.add_option(
-        "--binning-method", dest="binning_method", type="choice",
+    parser.add_argument(
+        "--binning-method", dest="binning_method", type=str,
         choices=(
             "equal-bases", "equal-intervals", "equal-range"),
         help="method used for binning (used for method `bins` if no "
-        "bin_edges is given) [default=%default]")
+        "bin_edges is given)")
 
-    parser.add_option(
-        "--merge-distance", dest="merge_distance", type="int",
+    parser.add_argument(
+        "--merge-distance", dest="merge_distance", type=int,
         help="distance in bases over which to merge that are not "
-        "directly adjacent [default=%default]")
+        "directly adjacent")
 
-    parser.add_option(
-        "--merge-min-intervals", dest="merge_min_intervals", type="int",
+    parser.add_argument(
+        "--merge-min-intervals", dest="merge_min_intervals", type=int,
         help="only output merged intervals that are build from at least "
-        "x intervals [default=%default]")
+        "x intervals")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-by-name", dest="merge_by_name",
         action="store_true",
-        help="only merge intervals with the same name [default=%default]")
+        help="only merge intervals with the same name")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-and-resolve-blocks", dest="resolve_blocks",
         action="store_true",
         help="When merging bed12 entrys, should blocks be resolved?")
 
-    parser.add_option(
+    parser.add_argument(
         "--merge-stranded", dest="stranded",
         action="store_true",
         help="Only merge intervals on the same strand")
 
-    parser.add_option(
+    parser.add_argument(
         "--remove-inconsistent-names", dest="remove_inconsistent_names",
         action="store_true",
         help="when merging, do not output intervals where the names of "
-        "overlapping intervals do not match [default=%default]")
+        "overlapping intervals do not match")
 
-    parser.add_option(
-        "--offset", dest="offset",  type="int",
-        help="offset for shifting intervals [default=%default]")
+    parser.add_argument(
+        "--offset", dest="offset",  type=int,
+        help="offset for shifting intervals")
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome.")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
+                        help="filename with genome.")
 
-    parser.add_option("-b", "--bam-file", dest="bam_file", type="string",
-                      help="bam-formatted filename with genome.")
+    parser.add_argument("-b", "--bam-file", dest="bam_file", type=str,
+                        help="bam-formatted filename with genome.")
 
-    parser.add_option("--filter-names-file", dest="names", type="string",
-                      help="list of names to keep. One per line")
+    parser.add_argument("--filter-names-file", dest="names", type=str,
+                        help="list of names to keep. One per line")
 
-    parser.add_option("--rename-chr-file", dest="rename_chr_file", type="string",
-                      help="mapping table between old and new chromosome names."
-                      "TAB separated 2-column file.")
+    parser.add_argument("--rename-chr-file", dest="rename_chr_file", type=str,
+                        help="mapping table between old and new chromosome names."
+                        "TAB separated 2-column file.")
 
     parser.set_defaults(methods=[],
                         merge_distance=0,
@@ -588,23 +589,23 @@ def main(argv=sys.argv):
                         remove_inconsistent_names=False,
                         resolve_blocks=False)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (args) = E.start(parser, add_pipe_options=True)
 
     contigs = None
     chr_map = None
 
     # Why provide full indexed genome, when a tsv of contig sizes would do?
-    if options.genome_file:
-        genome_fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        genome_fasta = IndexedFasta.IndexedFasta(args.genome_file)
         contigs = genome_fasta.getContigSizes()
 
-    if options.bam_file:
-        samfile = pysam.AlignmentFile(options.bam_file)
+    if args.bam_file:
+        samfile = pysam.AlignmentFile(args.bam_file)
         contigs = dict(list(zip(samfile.references, samfile.lengths)))
 
-    if options.rename_chr_file:
+    if args.rename_chr_file:
         chr_map = {}
-        with open(options.rename_chr_file, 'r') as filein:
+        with open(args.rename_chr_file, 'r') as filein:
             reader = csv.reader(filein, delimiter='\t')
             for row in reader:
                 if len(row) != 2:
@@ -613,9 +614,9 @@ def main(argv=sys.argv):
         if not len(chr_map.keys()) > 0:
             raise ValueError("Empty mapping dictionnary")
 
-    processor = Bed.iterator(options.stdin)
+    processor = Bed.iterator(args.stdin)
 
-    for method in options.methods:
+    for method in args.methods:
         if method == "filter-genome":
             if not contigs:
                 raise ValueError("please supply contig sizes")
@@ -627,17 +628,17 @@ def main(argv=sys.argv):
         elif method == "merge":
             processor = merge(
                 processor,
-                options.merge_distance,
-                by_name=options.merge_by_name,
-                min_intervals=options.merge_min_intervals,
-                remove_inconsistent=options.remove_inconsistent_names,
-                resolve_blocks=options.resolve_blocks,
-                stranded=options.stranded)
+                args.merge_distance,
+                by_name=args.merge_by_name,
+                min_intervals=args.merge_min_intervals,
+                remove_inconsistent=args.remove_inconsistent_names,
+                resolve_blocks=args.resolve_blocks,
+                stranded=args.stranded)
         elif method == "bins":
-            if options.bin_edges:
-                bin_edges = list(map(float, options.bin_edges.split(",")))
+            if args.bin_edges:
+                bin_edges = list(map(float, args.bin_edges.split(",")))
                 # IMS: check bin edges are valid
-                if not(len(bin_edges) == options.num_bins + 1):
+                if not(len(bin_edges) == args.num_bins + 1):
                     raise ValueError(
                         "Number of bin edge must be one more than "
                         "number of bins")
@@ -645,8 +646,8 @@ def main(argv=sys.argv):
                 bin_edges = None
             processor, bin_edges = Bed.binIntervals(
                 processor,
-                num_bins=options.num_bins,
-                method=options.binning_method,
+                num_bins=args.num_bins,
+                method=args.binning_method,
                 bin_edges=bin_edges)
             E.info("# split bed: bin_edges=%s" % (str(bin_edges)))
 
@@ -657,16 +658,16 @@ def main(argv=sys.argv):
             if not contigs:
                 raise ValueError("please supply genome file")
             processor = shiftIntervals(
-                processor, contigs, offset=options.offset)
+                processor, contigs, offset=args.offset)
         # IMS: new method: extend intervals by set amount
         elif method == "extend":
             if not contigs:
                 raise ValueError("please supply genome file")
-            processor = extendInterval(processor, contigs, options.offset)
+            processor = extendInterval(processor, contigs, args.offset)
         elif method == "filter-names":
-            if not options.names:
+            if not args.names:
                 raise ValueError("please supply list of names to filter")
-            names = [name.strip() for name in open(options.names)]
+            names = [name.strip() for name in open(args.names)]
             processor = filterNames(processor, names)
         elif method == "rename-chr":
             if not chr_map:
@@ -675,12 +676,13 @@ def main(argv=sys.argv):
 
     noutput = 0
     for bed in processor:
-        options.stdout.write(str(bed) + "\n")
+        args.stdout.write(str(bed) + "\n")
         noutput += 1
 
     E.info("noutput=%i" % (noutput))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

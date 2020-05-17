@@ -62,46 +62,46 @@ def read_vcf_positions_into_dataframe(filename, filters=None):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "--regex-filename", dest="regex_filename", type="string",
+    parser.add_argument(
+        "--regex-filename", dest="regex_filename", type=str,
         help="extract column name from filename via regular expression "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--filter", dest="filters", type="choice", action="append",
+    parser.add_argument(
+        "--filter", dest="filters", type=str, action="append",
         choices=("PASS", "SNP"),
         help="apply filters to VCFs when reading "
-        "[%default]")
+        )
 
     parser.set_defaults(
         regex_filename=None,
         filters=[],
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               argv=argv,
-                              add_output_options=True)
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) < 2:
+    if len(unknown) < 2:
         raise ValueError("requiring at least 2 input filenames")
 
     dfs = []
-    for filename in args:
-        if options.regex_filename:
+    for filename in unknown:
+        if args.regex_filename:
             try:
-                name = re.search(options.regex_filename, filename).groups()[0]
+                name = re.search(args.regex_filename, filename).groups()[0]
             except AttributeError:
                 raise ValueError("regular expression '{}' does not match {}".format(
-                    options.regex_filename, filename))
+                    args.regex_filename, filename))
         else:
             name = iotools.snip(os.path.basename(filename), ".vcf.gz")
 
         E.debug("reading data from {}".format(filename))
         df = read_vcf_positions_into_dataframe(filename,
-                                               filters=options.filters)
+                                               filters=args.filters)
         df[name] = 1
         dfs.append(df)
 
@@ -115,7 +115,7 @@ def main(argv=None):
     set_counts = set_counts.reset_index()
     set_counts.columns = list(set_counts.columns[:-1]) + ["counts"]
 
-    set_counts.to_csv(options.stdout,
+    set_counts.to_csv(args.stdout,
                       sep="\t",
                       index=False)
     E.stop()

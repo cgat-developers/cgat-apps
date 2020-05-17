@@ -186,6 +186,7 @@ class CounterOverlap(Counter):
 
         return "\t".join(r)
 
+
 CounterPeaksResult = collections.namedtuple(
     "CounterPeaksResult", ("length nreads avgval peakval npeaks peakcenter"))
 
@@ -516,31 +517,28 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-g", "--genome-file", dest="genome_file", type="string",
-                      help="filename with genome [default=%default].")
+    parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
+                        help="filename with genome.")
 
-    parser.add_option(
-        "-b", "--bam-file", dest="bam_files", type="string",
+    parser.add_argument(
+        "-b", "--bam-file", dest="bam_files", type=str,
         help="filename with read mapping information. Multiple files can be "
-        "submitted in a comma-separated list [default=%default].")
+        "submitted in a comma-separated list.")
 
-    parser.add_option(
-        "--control-bam-file", dest="control_bam_files", type="string",
+    parser.add_argument(
+        "--control-bam-file", dest="control_bam_files", type=str,
         help="filename with read mapping information for input/control. "
-        "Multiple files can be submitted in a comma-separated list "
-        "[default=%default].")
+        "Multiple files can be submitted in a comma-separated list ")
 
-    parser.add_option(
-        "--filename-format", dest="filename_format", type="choice",
+    parser.add_argument(
+        "--filename-format", dest="filename_format", type=str,
         choices=("bed", "gff", "gtf"),
-        help="format of secondary stream [default=%default].")
+        help="format of secondary stream.")
 
-    parser.add_option(
-        "-c", "--counter", dest="counters", type="choice", action="append",
+    parser.add_argument(
+        "-c", "--counter", dest="counters", type=str, action="append",
         choices=("length",
                  "overlap",
                  "peaks",
@@ -548,44 +546,41 @@ def main(argv=None):
                  "composition-cpg",
                  "classifier-chipseq",
                  "motif"),
-        help="select counters to apply [default=%default].")
+        help="select counters to apply.")
 
-    parser.add_option(
-        "--motif-sequence", dest="motif_sequence", type="string",
-        help="specify a sequence to search for"
-        "[default=%default].")
+    parser.add_argument(
+        "--motif-sequence", dest="motif_sequence", type=str,
+        help="specify a sequence to search for")
 
-    parser.add_option(
-        "-o", "--offset", dest="offsets", type="int", action="append",
+    parser.add_argument(
+        "-o", "--offset", dest="offsets", type=int, action="append",
         help="tag offsets for tag counting - supply as many as there "
-        "are bam-files [default=%default].")
+        "are bam-files")
 
-    parser.add_option(
-        "--control-offset", dest="control_offsets", type="int",
+    parser.add_argument(
+        "--control-offset", dest="control_offsets", type=int,
         action="append",
         help="control tag offsets for tag counting - supply as many as "
-        "there are bam-files [default=%default].")
+        "there are bam-files.")
 
-    parser.add_option(
+    parser.add_argument(
         "-a", "--output-all-fields", dest="all_fields", action="store_true",
         help="output all fields in original bed file, by default only "
-        "the first 4 are output [default=%default].")
+        "the first 4 are output.")
 
-    parser.add_option(
-        "--output-bed-headers", dest="bed_headers", type="string",
-        help="supply ',' separated list of headers for bed component "
-        "[default=%default].")
+    parser.add_argument(
+        "--output-bed-headers", dest="bed_headers", type=str,
+        help="supply ',' separated list of headers for bed component ")
 
-    parser.add_option(
-        "-f", "--gff-file", dest="filename_gff", type="string",
+    parser.add_argument(
+        "-f", "--gff-file", dest="filename_gff", type=str,
         action="append", metavar='bed',
-        help="filename with extra gff files. The order is important "
-        "[default=%default].")
+        help="filename with extra gff files. The order is important")
 
-    parser.add_option(
+    parser.add_argument(
         "--has-header", dest="has_header", action="store_true",
         help="bed file with headers. Headers and first columns are "
-        "preserved [default=%default]")
+        "preserved ")
 
     parser.set_defaults(
         genome_file=None,
@@ -602,18 +597,18 @@ def main(argv=None):
         motif_sequence=None
     )
 
-    (options, args) = E.start(parser)
+    (args) = E.start(parser)
 
-    if options.bed_headers is not None:
-        bed_headers = [x.strip() for x in options.bed_headers.split(",")]
+    if args.bed_headers is not None:
+        bed_headers = [x.strip() for x in args.bed_headers.split(",")]
         if len(bed_headers) < 3:
             raise ValueError("a bed file needs at least three columns")
     else:
         bed_headers = None
 
-    if options.has_header:
+    if args.has_header:
         while 1:
-            line = options.stdin.readline()
+            line = args.stdin.readline()
             if not line:
                 E.warn("empty bed file with no header")
                 E.stop()
@@ -622,68 +617,68 @@ def main(argv=None):
                 break
         bed_headers = line[:-1].split("\t")
 
-    if "motif" in options.counters and not options.motif_sequence:
+    if "motif" in args.counters and not args.motif_sequence:
         raise ValueError("if using motif must specify a motif-sequence")
 
     # get files
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
     else:
         fasta = None
 
-    if options.bam_files:
+    if args.bam_files:
         bam_files = []
-        for bamfile in options.bam_files.split(","):
+        for bamfile in args.bam_files.split(","):
             bam_files.append(pysam.AlignmentFile(bamfile, "rb"))
     else:
         bam_files = None
 
-    if options.control_bam_files:
+    if args.control_bam_files:
         control_bam_files = []
-        for bamfile in options.control_bam_files.split(","):
+        for bamfile in args.control_bam_files.split(","):
             control_bam_files.append(pysam.AlignmentFile(bamfile, "rb"))
     else:
         control_bam_files = None
 
     counters = []
 
-    for c in options.counters:
+    for c in args.counters:
         if c == "length":
             counters.append(CounterLength(fasta=fasta,
-                                          options=options))
+                                          options=args))
 
         elif c == "overlap":
-            counters.append(CounterOverlap(filename=options.filename_gff[0],
+            counters.append(CounterOverlap(filename=args.filename_gff[0],
                                            fasta=fasta,
-                                           options=options))
-            del options.filename_gff[0]
+                                           options=args))
+            del args.filename_gff[0]
         elif c == "peaks":
             counters.append(CounterPeaks(bam_files,
-                                         options.offsets,
+                                         args.offsets,
                                          control_bam_files,
-                                         options.control_offsets,
-                                         options=options))
+                                         args.control_offsets,
+                                         options=args))
         elif c == "composition-na":
             counters.append(CounterCompositionNucleotides(fasta=fasta,
-                                                          options=options))
+                                                          options=args))
         elif c == "composition-cpg":
             counters.append(CounterCompositionCpG(fasta=fasta,
-                                                  options=options))
+                                                  options=args))
         elif c == "classifier-chipseq":
             counters.append(ClassifierChIPSeq(
-                filename_gff=options.filename_gff,
+                filename_gff=args.filename_gff,
                 fasta=fasta,
-                options=options,
+                options=args,
                 prefix=None))
-            del options.filename_gff[0]
+            del args.filename_gff[0]
 
         elif c == "motif":
             counters.append(CounterMotif(fasta=fasta,
-                                         motif=options.motif_sequence))
+                                         motif=args.motif_sequence))
 
     extra_fields = None
 
-    for bed in Bed.iterator(options.stdin):
+    for bed in Bed.iterator(args.stdin):
 
         if extra_fields is None:
 
@@ -697,8 +692,8 @@ def main(argv=None):
             else:
                 bed_headers = Bed.Headers[:bed.columns]
 
-            options.stdout.write("\t".join(bed_headers))
-            options.stdout.write("\t" + "\t".join(
+            args.stdout.write("\t".join(bed_headers))
+            args.stdout.write("\t" + "\t".join(
                 [x.getHeader() for x in counters]) + "\n")
 
             extra_fields = list(range(len(bed_headers) - 3))
@@ -706,20 +701,21 @@ def main(argv=None):
         for counter in counters:
             counter.update(bed)
 
-        if options.all_fields:
-            options.stdout.write(str(bed))
+        if args.all_fields:
+            args.stdout.write(str(bed))
         else:
-            options.stdout.write(
+            args.stdout.write(
                 "\t".join([bed.contig,
                            str(bed.start),
                            str(bed.end)] + [bed.fields[x]
                                             for x in extra_fields]))
         for counter in counters:
-            options.stdout.write("\t%s" % str(counter))
+            args.stdout.write("\t%s" % str(counter))
 
-        options.stdout.write("\n")
+        args.stdout.write("\n")
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

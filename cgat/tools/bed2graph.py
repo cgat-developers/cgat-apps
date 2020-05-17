@@ -7,7 +7,7 @@ bed2graph.py - compute the overlap graph between two bed files
 Purpose
 -------
 
-This script ouputs a list of the names of all overlapping intervals 
+This script ouputs a list of the names of all overlapping intervals
 between two bed files.
 
 Usage
@@ -40,34 +40,37 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id: bed2graph.py 2861 2010-02-23 17:36:32Z andreas $", usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-o", "--output-section", dest="output", type="choice",
-                      choices=("full", "name"),
-                      help="output either ``full`` overlapping entries, only the ``name``s. [default=%default].")
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument("-o", "--output-section", dest="output", type=str,
+                        choices=("full", "name"),
+                        help="output either ``full`` overlapping entries, only the ``name``s.")
 
     parser.set_defaults(
         output="full",
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError("two arguments required")
 
-    if args[0] == "-":
-        infile1 = options.stdin
+    if unknown[0] == "-":
+        infile1 = args.stdin
     else:
-        infile1 = iotools.open_file(args[0], "r")
+        infile1 = iotools.open_file(unknown[0], "r")
 
-    infile2 = iotools.open_file(args[1], "r")
+    infile2 = iotools.open_file(unknown[1], "r")
 
     idx = Bed.readAndIndex(infile2, with_values=True)
 
-    output = options.output
-    outfile = options.stdout
+    output = args.output
+    outfile = args.stdout
 
     if output == "name":
         outfile.write("name1\tname2\n")

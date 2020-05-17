@@ -9,7 +9,8 @@ CGAT Apps is a collection of scripts to analyse high-throughput sequencing data.
 
 After installation, use the ``cgat`` command to see how to use them.
 
-More details coming soon, so stay tuned!
+We are attempting to improve our documentation. However, our current documentation
+can be found `here <https://www.cgat.org/downloads/public/cgat/documentation/>`_
 
 For questions, please open a discussion on the GitHub 
 `issue page <https://github.com/cgat-developers/cgat-apps/issues>`_.
@@ -17,22 +18,30 @@ For questions, please open a discussion on the GitHub
 Installation
 ============
 
-Install using Conda
--------------------
-
+End users: install using Conda
+------------------------------
 The preferred method to install CGAT Apps is using the installation script, which uses
 `Conda <https://conda.io>`_.
+
+To install cgat-apps using conda::
+    
+    conda install -c conda-forge -c bioconda cgat-apps
+
+Developers: try the installation script
+---------------------------------------
+Alternatively, installation can be performed using our install script that will
+automate the process for you.
 
 Here are the steps::
 
         # download installation script:
-        curl -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/master/install-CGAT-tools.sh
+        curl -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/master/install.sh
 
         # see help:
-        bash install-CGAT-tools.sh
+        bash install.sh
 
         # install the development version (recommended, no production version yet):
-        bash install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
+        bash install.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
 
         # the code is downloaded in zip format by default. If you want to get a git clone, use:
         --git # for an HTTPS clone

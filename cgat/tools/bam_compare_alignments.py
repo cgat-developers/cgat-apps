@@ -117,22 +117,22 @@ def group_pairs(stream):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(version="%prog version: $Id$",
+                              usage=globals()["__doc__"])
 
-    parser.add_option(
-        "-i", "--input-bam", dest="input_bam_file", type="string",
+    parser.add_argument(
+        "-i", "--input-bam", dest="input_bam_file", type=str,
         help="input bam file")
 
-    parser.add_option(
-        "-f", "--reference-bam", dest="reference_bam_file", type="string",
-        help="reference BAM file [%default]")
+    parser.add_argument(
+        "-f", "--reference-bam", dest="reference_bam_file", type=str,
+        help="reference BAM file ")
 
-    parser.add_option(
-        "-q", "--query-name-regex", dest="query_name_regex", type="string",
+    parser.add_argument(
+        "-q", "--query-name-regex", dest="query_name_regex", type=str,
         help="regular expression to apply on query name. "
         "Potentially required to match samtools sort order and should "
-        "evaluate to an integer [%default]")
+        "evaluate to an integer ")
 
     parser.set_defaults(
         input_bam_file=None,

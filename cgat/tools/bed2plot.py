@@ -133,46 +133,45 @@ class IGV(object):
 def main(argv=sys.argv):
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$", usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-s", "--session", dest="session",
-                      type="string",
-                      help="load session before creating plots "
-                      "[%default]")
+    parser.add_argument("-s", "--session", dest="session",
+                        type=str,
+                        help="load session before creating plots "
+                        )
 
-    parser.add_option("-d", "--snapshot-dir", dest="snapshotdir",
-                      type="string",
-                      help="directory to save snapshots in [%default]")
+    parser.add_argument("-d", "--snapshot-dir", dest="snapshotdir",
+                        type=str,
+                        help="directory to save snapshots in ")
 
-    parser.add_option("-f", "--format", dest="format", type="choice",
-                      choices=("png", "eps", "svg"),
-                      help="output file format [%default]")
+    parser.add_argument("-f", "--format", dest="format", type=str,
+                        choices=("png", "eps", "svg"),
+                        help="output file format ")
 
-    parser.add_option("-o", "--host", dest="host", type="string",
-                      help="host that IGV is running on [%default]")
+    parser.add_argument("-o", "--host", dest="host", type=str,
+                        help="host that IGV is running on ")
 
-    parser.add_option("-p", "--port", dest="port", type="int",
-                      help="port that IGV listens at [%default]")
+    parser.add_argument("-p", "--port", dest="port", type=int,
+                        help="port that IGV listens at ")
 
-    parser.add_option("-e", "--extend", dest="extend", type="int",
-                      help="extend each interval by a number of bases "
-                      "[%default]")
+    parser.add_argument("-e", "--extend", dest="extend", type=int,
+                        help="extend each interval by a number of bases "
+                        )
 
-    parser.add_option("-x", "--expand", dest="expand", type="float",
-                      help="expand each region by a certain factor "
-                      "[%default]")
+    parser.add_argument("-x", "--expand", dest="expand", type=float,
+                        help="expand each region by a certain factor "
+                        )
 
-    parser.add_option("--session-only", dest="session_only",
-                      action="store_true",
-                      help="plot session after opening, "
-                      "ignore intervals "
-                      "[%default]")
+    parser.add_argument("--session-only", dest="session_only",
+                        action="store_true",
+                        help="plot session after opening, "
+                        "ignore intervals "
+                        )
 
-    parser.add_option("-n", "--name", dest="name", type="choice",
-                      choices=("bed-name", "increment"),
-                      help="name to use for snapshot "
-                      "[%default]")
+    parser.add_argument("-n", "--name", dest="name", type=str,
+                        choices=("bed-name", "increment"),
+                        help="name to use for snapshot "
+                        )
 
     parser.set_defaults(
         command="igv.sh",
@@ -189,61 +188,61 @@ def main(argv=sys.argv):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     igv_process = None
-    if options.new_instance:
+    if args.new_instance:
         E.info("starting new IGV process")
-        igv_process = IGV.startIGV(command=options.command,
-                                   port=options.port)
+        igv_process = IGV.startIGV(command=args.command,
+                                   port=args.port)
         E.info("new IGV process started")
 
-    E.info("connection to process on %s:%s" % (options.host, options.port))
-    E.info("saving images in %s" % options.snapshotdir)
-    igv = IGV(host=options.host,
-              port=options.port,
-              snapshot_dir=os.path.abspath(options.snapshotdir))
+    E.info("connection to process on %s:%s" % (args.host, args.port))
+    E.info("saving images in %s" % args.snapshotdir)
+    igv = IGV(host=args.host,
+              port=args.port,
+              snapshot_dir=os.path.abspath(args.snapshotdir))
 
-    if options.session:
-        E.info('loading session from %s' % options.session)
-        igv.load(options.session)
+    if args.session:
+        E.info('loading session from %s' % args.session)
+        igv.load(args.session)
         E.info('loaded session')
 
-    if options.session_only:
+    if args.session_only:
         E.info('plotting session only ignoring any intervals')
-        fn = "%s.%s" % (os.path.basename(options.session), options.format)
+        fn = "%s.%s" % (os.path.basename(args.session), args.format)
         E.info("writing snapshot to '%s'" %
-               os.path.join(options.snapshotdir, fn))
+               os.path.join(args.snapshotdir, fn))
         igv.save(fn)
 
     else:
         c = E.Counter()
-        for bed in pysam.tabix_iterator(options.stdin,
+        for bed in pysam.tabix_iterator(args.stdin,
                                         parser=pysam.asBed()):
 
             c.input += 1
 
             # IGV can not deal with white-space in filenames
-            if options.name == "bed-name":
+            if args.name == "bed-name":
                 name = re.sub("\s", "_", bed.name)
-            elif options.name == "increment":
+            elif args.name == "increment":
                 name = str(c.input)
 
             E.info("going to %s:%i-%i for %s" %
                    (bed.contig, bed.start, bed.end, name))
 
             start, end = bed.start, bed.end
-            extend = options.extend
-            if options.expand:
+            extend = args.extend
+            if args.expand:
                 d = end - start
-                extend = max(extend, (options.expand * d - d) // 2)
+                extend = max(extend, (args.expand * d - d) // 2)
 
             start -= extend
             end += extend
 
             igv.go("%s:%i-%i" % (bed.contig, start, end))
 
-            fn = E.get_output_file("%s.%s" % (name, options.format))
+            fn = E.get_output_file("%s.%s" % (name, args.format))
             E.info("writing snapshot to '%s'" % fn)
             igv.save(fn)
 
@@ -251,11 +250,12 @@ def main(argv=sys.argv):
 
         E.info(c)
 
-    if igv_process is not None and not options.keep_open:
+    if igv_process is not None and not args.keep_open:
         E.info('shutting down IGV')
         igv_process.send_signal(signal.SIGKILL)
-        
+
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())

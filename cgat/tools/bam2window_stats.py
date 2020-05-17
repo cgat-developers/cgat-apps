@@ -23,27 +23,26 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "--region", dest="region", type="string",
-        help="region to restrict analysis to [%default]")
+    parser.add_argument(
+        "--region", dest="region", type=str,
+        help="region to restrict analysis to ")
 
-    parser.add_option(
-        "--window-size", dest="window_size", type="int",
-        help="window size to use [%default]")
+    parser.add_argument(
+        "--window-size", dest="window_size", type=int,
+        help="window size to use ")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-all-windows", dest="output_all_windows", action="store_true",
         help="output all windows. By default, windows without reads are skipped "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "--reference-fasta", "--input-filename-fasta",
-        dest="input_filename_fasta", type="string",
+        dest="input_filename_fasta", type=str,
         help="filename with reference sequence. If given, used to "
-        "compute G+C content in windows [%default]")
+        "compute G+C content in windows ")
 
     parser.set_defaults(
         force_output=False,
@@ -54,32 +53,32 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args) = E.start(parser, argv=argv, add_output_options=True)
 
     is_stdin = True
     if len(args) > 0:
         pysam_in = pysam.AlignmentFile(args[0], "rb")
         if args[0] != "-":
             is_stdin = False
-    elif options.stdin == sys.stdin:
+    elif args.stdin == sys.stdin:
         pysam_in = pysam.AlignmentFile("-", "rb")
     else:
-        pysam_in = pysam.AlignmentFile(options.stdin, "rb")
-        if options.stdin != "-":
+        pysam_in = pysam.AlignmentFile(args.stdin, "rb")
+        if args.stdin != "-":
             is_stdin = False
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
+    if args.input_filename_fasta:
+        fasta = pysam.FastaFile(args.input_filename_fasta)
     else:
         fasta = None
 
     counts_df = bam2stats_window_count(
         pysam_in,
-        region=options.region,
-        window_size=options.window_size,
+        region=args.region,
+        window_size=args.window_size,
         fasta=fasta)
 
-    if not options.output_all_windows:
+    if not args.output_all_windows:
         counts_df = counts_df[counts_df.alignments > 0]
 
     # add G+C content
@@ -88,7 +87,7 @@ def main(argv=None):
         counts_df.fillna(0, inplace=True)
 
     counts_df.to_csv(
-        options.stdout,
+        args.stdout,
         sep="\t")
 
     E.stop()
