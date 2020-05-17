@@ -63,6 +63,7 @@ class MemeMotif:
         No ambiguity will be used '''
 
         probs = [map(float, line) for line in self.letter_probability_matrix]
+        probs = [list(line) for line in probs]
         consensus = [self.alphabet[line.index(max(line))] for line in probs]
         return ''.join(consensus)
             
@@ -155,6 +156,7 @@ class MemeMotifFile(MotifList):
         except AttributeError:
 
             self.header = []
+            current_motif = None
             for line in buffer_or_Motiffile:
                 line.strip()
                 if self.motif_line_re.match(line):
@@ -165,6 +167,9 @@ class MemeMotifFile(MotifList):
                     
             self.header = '\n'.join(self.header)
 
+            if current_motif is None:
+                return
+            
             for line in buffer_or_Motiffile:
                 line.strip()
 
@@ -175,7 +180,7 @@ class MemeMotifFile(MotifList):
                 if self.matrix_line_re.match(line):
                     current_motif.parse_probability_line(line)
                     for i in range(current_motif.motif_len):
-                        line = buffer_or_Motiffile.next()
+                        line = next(buffer_or_Motiffile)
                         line.strip()
                         current_motif.letter_probability_matrix.append(
                             line.split())
