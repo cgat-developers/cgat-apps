@@ -62,13 +62,13 @@ def transcript2bed12(transcript):
     end = max(entry.end for entry in transcript)
 
     try:
-        thickStart = min(entry.start for entry in transcript 
+        thickStart = min(entry.start for entry in transcript
                          if entry.feature == "CDS")
         thickEnd = max(entry.end for entry in transcript
                        if entry.feature == "CDS")
     except ValueError:
 
-        # if there is no CDS, then set first base of transcript as 
+        # if there is no CDS, then set first base of transcript as
         # start
 
         if transcript[0].strand == "-":
@@ -91,7 +91,7 @@ def transcript2bed12(transcript):
 
     new_entry["thickStart"] = thickStart
     new_entry["thickEnd"] = thickEnd
-    
+
     new_entry["blockCount"] = exon_count
     new_entry["blockStarts"] = ",".join(map(str, exon_starts))
     new_entry["blockSizes"] = ",".join(map(str, exon_lengths))
@@ -101,26 +101,24 @@ def transcript2bed12(transcript):
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("--is-gtf", dest="is_gtf", action="store_true",
-                      help="input file is in gtf format [default=%default] ")
+    parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
+                        help="input file is in gtf format")
 
-    parser.add_option(
-        "--set-name", dest="name", type="choice",
+    parser.add_argument(
+        "--set-name", dest="name", type=str,
         help="field from the GFF/GTF file to use as the "
-        "name field in the BED file [%default]",
+        "name field in the BED file ",
         choices=("gene_id", "transcript_id", "class", "family",
                  "feature", "source", "repName", "gene_biotype"))
 
-    parser.add_option(
-        "--track", dest="track", type="choice",
+    parser.add_argument(
+        "--track", dest="track", type=str,
         choices=("feature", "source", None),
-        help="use feature/source field to define BED tracks "
-        "[default=%default]")
+        help="use feature/source field to define BED tracks ")
 
-    parser.add_option(
+    parser.add_argument(
         "--bed12-from-transcripts", dest="bed12", action="store_true",
         default=False,
         help="Process GTF file into Bed12 entries, with blocks as exons"
@@ -131,37 +129,37 @@ def main(argv=sys.argv):
         name="gene_id",
         is_gtf=False)
 
-    (options, args) = E.start(parser, add_pipe_options=True)
+    (args) = E.start(parser, add_pipe_options=True)
 
     ninput, noutput = 0, 0
 
-    iterator = GTF.iterator(options.stdin)
+    iterator = GTF.iterator(args.stdin)
 
-    if options.bed12:
+    if args.bed12:
         iterator = GTF.transcript_iterator(iterator)
 
-    if options.track:
+    if args.track:
         all_input = list(iterator)
 
-        if options.track == "feature":
+        if args.track == "feature":
             grouper = lambda x: x.feature
-        elif options.track == "source":
+        elif args.track == "source":
             grouper = lambda x: x.source
 
         all_input.sort(key=grouper)
 
         bed = Bed.Bed()
         for key, vals in itertools.groupby(all_input, grouper):
-            options.stdout.write("track name=%s\n" % key)
+            args.stdout.write("track name=%s\n" % key)
             for gff in vals:
                 ninput += 1
-                
-                if options.bed12:
+
+                if args.bed12:
                     bed = transcript2bed12(gff)
                 else:
-                    bed.fromGTF(gff, name=options.name)
-                
-                options.stdout.write(str(bed) + "\n")
+                    bed.fromGTF(gff, name=args.name)
+
+                args.stdout.write(str(bed) + "\n")
                 noutput += 1
 
     else:
@@ -169,17 +167,18 @@ def main(argv=sys.argv):
         for gff in iterator:
             ninput += 1
 
-            if options.bed12:
+            if args.bed12:
                 bed = transcript2bed12(gff)
             else:
-                bed.fromGTF(gff, name=options.name)
-            
-            options.stdout.write(str(bed) + "\n")
+                bed.fromGTF(gff, name=args.name)
+
+            args.stdout.write(str(bed) + "\n")
 
             noutput += 1
 
     E.info("ninput=%i, noutput=%i" % (ninput, noutput))
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -111,22 +111,20 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-g", "--genome-file", dest="genome_file", type="string",
-        help="filename with genome [default=%default].")
+    parser.add_argument(
+        "-g", "--genome-file", dest="genome_file", type=str,
+        help="filename with genome.")
 
-    parser.add_option(
-        "-a", "--aggregate-by", dest="aggregate", type="choice",
+    parser.add_argument(
+        "-a", "--aggregate-by", dest="aggregate", type=str,
         choices=("name", "contig", "track", "none"),
-        help="aggregate counts by feature [default=%default].")
+        help="aggregate counts by feature.")
 
-    parser.add_option(
+    parser.add_argument(
         "-p", "--add-percent", dest="add_percent", action="store_true",
-        help="add percentages [default=%default].")
+        help="add percentages.")
 
     parser.set_defaults(
         genome_file=None,
@@ -134,17 +132,17 @@ def main(argv=None):
         add_percent=False,
     )
 
-    (options, args) = E.start(parser, argv)
+    (args) = E.start(parser, argv)
 
     # get files
-    if options.genome_file:
-        fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    if args.genome_file:
+        fasta = IndexedFasta.IndexedFasta(args.genome_file)
     else:
-        if options.add_percent:
+        if args.add_percent:
             raise ValueError("--add-percent option requires --genome-file")
         fasta = None
 
-    if options.add_percent and not options.aggregate == "contig":
+    if args.add_percent and not args.aggregate == "contig":
         raise NotImplementedError(
             "--add-percent option requires --aggregate=contig")
 
@@ -152,38 +150,38 @@ def main(argv=None):
     total = Counter()
     output_totals = True
 
-    if options.aggregate == "track":
+    if args.aggregate == "track":
         keyf = lambda x: x.track
-    elif options.aggregate == "name":
+    elif args.aggregate == "name":
         keyf = lambda x: x.name
-    elif options.aggregate == "contig":
+    elif args.aggregate == "contig":
         keyf = lambda x: x.contig
     else:
         keyf = lambda x: "all"
         output_totals = False
 
-    for bed in Bed.iterator(options.stdin):
+    for bed in Bed.iterator(args.stdin):
         counts[keyf(bed)].add(bed)
         total.add(bed)
 
-    outf = options.stdout
+    outf = args.stdout
 
     key = "track"
-    if options.add_percent:
+    if args.add_percent:
         outf.write("%s\t%s\n" % (key, "\t".join(Counter.headers_percent)))
     else:
         outf.write("%s\t%s\n" % (key, "\t".join(Counter.headers)))
 
     total_bases = 0
     for key, count in sorted(counts.items()):
-        if options.add_percent:
+        if args.add_percent:
             total_bases += fasta.getLength(key)
             count.setSize(fasta.getLength(key))
 
         outf.write("%s\t%s\n" % (key, str(count)))
 
     if output_totals:
-        if options.add_percent:
+        if args.add_percent:
             count.setSize(total_bases)
         outf.write("%s\t%s\n" % ("total", str(total)))
     E.stop()

@@ -13,31 +13,30 @@ from cgat.BamTools.bamtools import bam2bam_split_reads
 
 def main(argv=sys.argv):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-i", "--input-bam", dest="input_bam_file", type="string",
-        help="input bam file [%default]")
+    parser.add_argument(
+        "-i", "--input-bam", dest="input_bam_file", type=str,
+        help="input bam file ")
 
-    parser.add_option(
-        "-o", "--output-bam", dest="output_bam_file", type="string",
-        help="input bam file [%default].")
+    parser.add_argument(
+        "-o", "--output-bam", dest="output_bam_file", type=str,
+        help="input bam file .")
 
-    parser.add_option(
-        "-r", "--max-read-length", dest="max_read_length", type="int",
-        help="maximum read length [%default].")
+    parser.add_argument(
+        "-r", "--max-read-length", dest="max_read_length", type=int,
+        help="maximum read length .")
 
-    parser.add_option(
-        "-m", "--output-mode", dest="output_mode", type="choice",
+    parser.add_argument(
+        "-m", "--output-mode", dest="output_mode", type=str,
         choices=["buffered", "direct"],
         help="output mode for files. 'buffered' will output reads in correct "
         "sort order, 'direct' will require the output BAM file to be sorted separately."
-        "[%default].")
+        ".")
 
-    parser.add_option(
-        "--region", dest="region", type="string",
-        help="genomic region, only split in BAM file within this region [%default].")
+    parser.add_argument(
+        "--region", dest="region", type=str,
+        help="genomic region, only split in BAM file within this region .")
 
     parser.set_defaults(
         input_bam_file="-",

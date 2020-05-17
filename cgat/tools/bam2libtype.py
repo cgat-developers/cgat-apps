@@ -61,22 +61,23 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$", usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-i", "--max-iterations", type="int",
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-i", "--max-iterations", type=int,
         help="maximum number of iterations. Set to 0 to go through all reads "
-        "[%default]")
+        )
 
     parser.set_defaults(
         max_iteratiors=10000
     )
 
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    samfile = pysam.AlignmentFile(options.stdin, "rb")
-    outfile = options.stdout
+    samfile = pysam.AlignmentFile(args.stdin, "rb")
+    outfile = args.stdout
 
     # initialise counts for each library type
     MSR = 0
@@ -92,7 +93,7 @@ def main(argv=None):
 
     for iteration, read in enumerate(samfile):
 
-        if options.max_iterations and iteration > int(options.max_iterations):
+        if args.max_iterations and iteration > int(args.max_iterations):
             break
 
         if read.qname not in reads_processed:

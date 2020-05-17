@@ -168,61 +168,62 @@ import pyBigWig
 import cgat.BamTools.peakshape as bam2peakshape
 
 
-def buildOptionParser(argv):
+def buildArgumentParser(argv):
 
     if not argv:
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-f", "--format", dest="format", type="choice",
-                      choices=("bam", "bigwig"),
-                      help="format of genomic input files for densities "
-                      "[%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option(
+    parser.add_argument("-f", "--format", dest="format", type=str,
+                        choices=("bam", "bigwig"),
+                        help="format of genomic input files for densities "
+                        )
+
+    parser.add_argument(
         "-o", "--use-interval", dest="use_interval", action="store_true",
         help="only count tags that are in interval given "
         "in bed file. Otherwise, use a fixed width window (see --window-size) "
-        "around peak [%default]")
+        "around peak ")
 
-    parser.add_option(
-        "-w", "--window-size", dest="window_size", type="int",
+    parser.add_argument(
+        "-w", "--window-size", dest="window_size", type=int,
         help="window size in bp on either side of a peak used for getting "
         "read densities. If ``--window-size`` is 1000, the actual window size"
         "will be 2kb, 1kb on either side of the peak in an interval"
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-b", "--bin-size", dest="bin_size", type="int",
+    parser.add_argument(
+        "-b", "--bin-size", dest="bin_size", type=int,
         help="bin-size in bp for computing read densities. "
         "If ``--window-size`` is set to 1000 and ``--bin-size`` to 10, "
         "there will be 100 bins on either side of a peak. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--smooth-method", dest="smooth_method", type="choice",
+    parser.add_argument(
+        "--smooth-method", dest="smooth_method", type=str,
         choices=("none", "sum", "sg"),
         help="smooting method to apply to density data before sampling "
         "according to ``bin-size``. sg=SavitzkyGolay, sum=sum density in bin, "
         "none=no smoothing "
-        "[%default]")
+        )
 
-    parser.add_option("-s", "--sort-order", dest="sort_orders",
-                      type="choice",
-                      action="append",
-                      choices=("peak-height", "peak-width", "unsorted",
-                               "interval-width", "interval-score"),
-                      help="output sort order for matrices. "
-                      "[%default]")
+    parser.add_argument("-s", "--sort-order", dest="sort_orders",
+                        type=str,
+                        action="append",
+                        choices=("peak-height", "peak-width", "unsorted",
+                                 "interval-width", "interval-score"),
+                        help="output sort order for matrices. "
+                        )
 
-    parser.add_option(
+    parser.add_argument(
         "-c", "--control-bam-file", "--control-bigwig-file",
         action="append",
         dest="control_files",
-        type="string",
+        type=str,
         help="control file. If given, two peakshapes are computed, "
         "one for the primary data and one for the control data. "
         "The control file is centered around the same "
@@ -231,38 +232,38 @@ def buildOptionParser(argv):
         "comparisons. Multiple control files can be given. The "
         "control files should have the same format as the "
         "principal input file "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--random-shift", dest="random_shift", action="store_true",
         help="shift intervals in random direction up/downstream of interval "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-e", "--centring-method", dest="centring_method", type="choice",
+    parser.add_argument(
+        "-e", "--centring-method", dest="centring_method", type=str,
         choices=("reads", "middle"),
         help="centring method. Available are: "
         "reads=use density to determine peak, "
         "middle=use middle of interval "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-n", "--normalize-matrix", dest="normalization", type="choice",
+    parser.add_argument(
+        "-n", "--normalize-matrix", dest="normalization", type=str,
         choices=("none", "sum"),
         help="matrix normalisation to perform. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "--use-strand", dest="strand_specific", action="store_true",
         help="use strand information in intervals. Intervals on the "
         "negative strand are flipped "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-i", "--shift-size", dest="shift", type="int",
+    parser.add_argument(
+        "-i", "--shift-size", dest="shift", type=int,
         help="shift for reads. When processing bam files, "
         "reads will be shifted upstream/downstream by this amount. "
-        "[%default]")
+        )
 
     parser.set_defaults(
         bin_size=10,
@@ -547,63 +548,63 @@ def main(argv=None):
     parses command line options in sys.argv, unless *argv* is given.
     """
 
-    parser = buildOptionParser(argv)
+    parser = buildArgumentParser(argv)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError(
             "please specify one bam- or wig-file and one bed file")
 
-    if options.control_files:
-        E.info("using control files: %s" % ",".join(options.control_files))
+    if args.control_files:
+        E.info("using control files: %s" % ",".join(args.control_files))
 
-    infile, bedfile = args
+    infile, bedfile = unknown
     control_files = []
 
-    if options.format == "bigwig":
+    if args.format == "bigwig":
         fg_file = pyBigWig.open(infile)
-        for control_file in options.control_files:
+        for control_file in args.control_files:
             control_files.append(pyBigWig.open(control_file))
         counter = bam2peakshape.CounterBigwig(
-            smooth_method=options.smooth_method)
+            smooth_method=args.smooth_method)
 
-    elif options.format == "bam":
+    elif args.format == "bam":
         fg_file = pysam.AlignmentFile(infile, "rb")
-        for control_file in options.control_files:
+        for control_file in args.control_files:
             control_files.append(pysam.AlignmentFile(control_file, "rb"))
         counter = bam2peakshape.CounterBam(
-            shift=options.shift,
-            smooth_method=options.smooth_method)
+            shift=args.shift,
+            smooth_method=args.smooth_method)
 
     features_per_interval, bins = buildDensityMatrices(
         Bed.iterator(iotools.open_file(bedfile)),
         fg_file,
         control_files,
         counter,
-        window_size=options.window_size,
-        bin_size=options.bin_size,
-        strand_specific=options.strand_specific,
-        centring_method=options.centring_method,
-        use_interval=options.use_interval,
-        random_shift=options.random_shift,
-        smooth_method=options.smooth_method,
-        report_step=options.report_step)
+        window_size=args.window_size,
+        bin_size=args.bin_size,
+        strand_specific=args.strand_specific,
+        centring_method=args.centring_method,
+        use_interval=args.use_interval,
+        random_shift=args.random_shift,
+        smooth_method=args.smooth_method,
+        report_step=args.report_step)
 
     if len(features_per_interval) == 0:
         E.warn("no data - no output")
         E.stop()
         return
 
-    outputFeatureTable(options.stdout, features_per_interval, bins)
+    outputFeatureTable(args.stdout, features_per_interval, bins)
 
     # apply normalization
     # Note: does not normalize control?
     # Needs reworking, currently it does not normalize across
     # all samples nor does the work "sum" reflect the per million
     # normalization.
-    if options.normalization == "sum":
+    if args.normalization == "sum":
         E.info("starting sum normalization")
         # get total counts across all intervals
         norm = 0.0
@@ -616,7 +617,6 @@ def main(argv=None):
         # normalise
         new_data = []
         for foreground, bed, controls, shifted in features_per_interval:
-
             foreground = foreground._replace(
                 counts=numpy.array(foreground.counts,
                                    dtype=numpy.float) / norm)
@@ -637,7 +637,7 @@ def main(argv=None):
         E.info("no normalization performed")
 
     # center bins
-    out_bins = bins[:-1] + options.bin_size
+    out_bins = bins[:-1] + args.bin_size
 
     # build tracks
     def _toTrack(filename):
@@ -646,13 +646,13 @@ def main(argv=None):
     outputMatrices(features_per_interval,
                    out_bins,
                    foreground_track=_toTrack(infile),
-                   control_tracks=[_toTrack(x) for x in options.control_files],
-                   shifted=options.random_shift,
-                   sort_orders=options.sort_orders)
+                   control_tracks=[_toTrack(x) for x in args.control_files],
+                   shifted=args.random_shift,
+                   sort_orders=args.sort_orders)
 
     # write footer and output benchmark information.
     E.stop()
 
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
-

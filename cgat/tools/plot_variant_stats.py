@@ -79,42 +79,41 @@ def compute_log_depth_ratio(dataframe, min_depth=10):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-m", "--method", dest="method", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="method", type=str,
         choices=["mutation-profile-bar-plot",
                  "depth-profile-line-plot",
                  "manhattan-plot"],
-        help="methods to apply [%default]")
+        help="methods to apply ")
 
-    parser.add_option(
-        "-t", "--transformation", dest="transformations", type="choice",
+    parser.add_argument(
+        "-t", "--transformation", dest="transformations", type=str,
         action="append",
         choices=["log-depth-ratio"],
-        help="dataframe transformation options [%default]")
+        help="dataframe transformation options ")
 
-    parser.add_option(
-        "-r", "--regex-filename", dest="regex_filename", type="string",
-        help="[%default]")
+    parser.add_argument(
+        "-r", "--regex-filename", dest="regex_filename", type=str,
+        help="")
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--input-file-format", dest="input_file_format", type="choice",
+    parser.add_argument(
+        "--input-file-format", dest="input_file_format", type=str,
         choices=("tsv", "bcftools-query"),
         help="input file format "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--plot-options", dest="plot_options", type="string",
+    parser.add_argument(
+        "--plot-options", dest="plot_options", type=str,
         help="plot options to pass through to the plotter. The string is "
         "eval'ed, for example: --plot-options='window_size=3, ylabel=\"12\"' "
-        "[%default]")
+        )
 
     parser.set_defaults(
         method=None,
@@ -124,18 +123,19 @@ def main(argv=None):
         transformations=[],
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               argv=argv,
-                              add_output_options=True)
+                              add_output_options=True,
+                              unknowns=True)
 
-    filenames = args
+    filenames = unknown
 
     if len(filenames) == 0:
         E.info("reading from stdin")
-        filenames = [options.stdin]
+        filenames = [args.stdin]
 
-    if options.plot_options is not None:
-        plot_options = eval("dict({})".format(options.plot_options))
+    if args.plot_options is not None:
+        plot_options = eval("dict({})".format(args.plot_options))
     else:
         plot_options = {}
 
@@ -144,7 +144,7 @@ def main(argv=None):
         E.info("working on {}".format(filename))
 
         try:
-            if options.input_file_format == "bcftools-query":
+            if args.input_file_format == "bcftools-query":
                 # for bctools query, header starts with "#".
 
                 dataframe = pandas.read_csv(filename,
@@ -165,12 +165,12 @@ def main(argv=None):
 
         E.info("read data from {}".format(filename))
 
-        if options.regex_filename:
-            section = re.search(options.regex_filename, filename).groups()[0]
+        if args.regex_filename:
+            section = re.search(args.regex_filename, filename).groups()[0]
         else:
             section = "{}".format(index + 1)
 
-        for method in options.transformations:
+        for method in args.transformations:
             if method == "log-depth-ratio":
                 dataframe = compute_log_depth_ratio(dataframe)
 
@@ -178,16 +178,16 @@ def main(argv=None):
             E.warn("dataframe from {} is empty - skipped".format(filename))
             continue
 
-        if options.method == "mutation-profile-bar-plot":
+        if args.method == "mutation-profile-bar-plot":
             plot_mutation_profile_bar_plot(dataframe, section, **plot_options)
 
-        elif options.method == "depth-profile-line-plot":
+        elif args.method == "depth-profile-line-plot":
             plot_depth_profile_plot(dataframe, section, **plot_options)
 
-        elif options.method == "manhattan-plot":
+        elif args.method == "manhattan-plot":
             plot_manhattan_plot(dataframe,
                                 section,
-                                filename_fasta=options.reference_fasta_file,
+                                filename_fasta=args.reference_fasta_file,
                                 **plot_options)
 
     E.stop()

@@ -262,30 +262,29 @@ class CounterBAMAllelicDepth(CounterBAM):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-s", "--sample-size", dest="sample_size", type="float",
+    parser.add_argument(
+        "-s", "--sample-size", dest="sample_size", type=float,
         help="sample size. If less than 0, take a proportion of the chromosome size. "
-        "If greater than 0, take a fixed number of variants [%default]")
+        "If greater than 0, take a fixed number of variants ")
 
-    parser.add_option(
-        "--input-filename-fasta", dest="input_filename_fasta", type="string",
-        help="filename with reference sequence in fasta format [%default]")
+    parser.add_argument(
+        "--input-filename-fasta", dest="input_filename_fasta", type=str,
+        help="filename with reference sequence in fasta format ")
 
-    parser.add_option(
-        "--input-filename-bam", dest="input_filename_bam", type="string",
-        help="filename with aligned reads [%default]")
+    parser.add_argument(
+        "--input-filename-bam", dest="input_filename_bam", type=str,
+        help="filename with aligned reads ")
 
-    parser.add_option(
+    parser.add_argument(
         "--no-vcf-columns", dest="no_vcf_columns", action="store_true",
         help="do not output vcf columns")
 
-    parser.add_option(
-        "--counter", dest="counters", type="choice", action="append",
+    parser.add_argument(
+        "--counter", dest="counters", type=str, action="append",
         choices=["context", "bam-indels", "bam-allelic-depth", "indel-type"],
-        help="counters to apply [%default]")
+        help="counters to apply ")
 
     parser.set_defaults(
         input_filename_fasta=None,
@@ -300,28 +299,29 @@ def main(argv=None):
         counters=[],
     )
 
-    (options, args) = E.start(parser,
+    (args, unknown) = E.start(parser,
                               argv=argv,
-                              add_output_options=True)
+                              add_output_options=True,
+                              unknowns=True)
 
-    if len(args) > 0:
-        options.input_filename_vcf = args[0]
+    if len(unknown) > 0:
+        args.input_filename_vcf = unknown[0]
 
-    vcf_in = pysam.VariantFile(options.input_filename_vcf)
+    vcf_in = pysam.VariantFile(args.input_filename_vcf)
 
     counters = []
 
-    if options.input_filename_fasta:
-        fasta = pysam.FastaFile(options.input_filename_fasta)
+    if args.input_filename_fasta:
+        fasta = pysam.FastaFile(args.input_filename_fasta)
     else:
         fasta = None
 
-    if options.input_filename_bam:
-        bam = pysam.AlignmentFile(options.input_filename_bam)
+    if args.input_filename_bam:
+        bam = pysam.AlignmentFile(args.input_filename_bam)
     else:
         bam = None
 
-    for counter in options.counters:
+    for counter in args.counters:
         if counter == "context":
             counters.append(CounterContext(fasta))
         elif counter == "bam-indels":
@@ -331,8 +331,8 @@ def main(argv=None):
         elif counter == "indel-type":
             counters.append(CounterIndelType())
 
-    outf = options.stdout
-    if not options.no_vcf_columns:
+    outf = args.stdout
+    if not args.no_vcf_columns:
         header = str(vcf_in.header).strip().split("\n")[-1].strip()[1:].split("\t")
 
     else:
@@ -349,7 +349,7 @@ def main(argv=None):
         for counter in counters:
             counter.count(record)
 
-        if not options.no_vcf_columns:
+        if not args.no_vcf_columns:
             outf.write("{}\t".format(
                 str(record).strip()))
         else:

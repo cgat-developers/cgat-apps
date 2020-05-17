@@ -51,7 +51,7 @@ trap 'error_handler ${LINENO} $? ${BASH_COMMAND}' ERR INT TERM
 
 # log installation information
 log() {
-   echo "# install-CGAT-tools.sh log | `hostname` | `date` | $1 "
+   echo "# install.sh log | `hostname` | `date` | $1 "
 }
 
 # report error and exit
@@ -84,21 +84,21 @@ fi
 } # detect_cgat_installation
 
 
-# configure environment variables 
+# configure environment variables
 # set: CGAT_HOME, CONDA_INSTALL_DIR, CONDA_INSTALL_TYPE_APPS
 get_cgat_env() {
 
 if [[ $TRAVIS_INSTALL ]] ; then
 
    CGAT_HOME=$TRAVIS_BUILD_DIR
-   CONDA_INSTALL_TYPE_APPS="apps-nosetests.yml"
-   CONDA_INSTALL_TYPE_CORE="core-production.yml"
+   CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+   CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
 
 elif [[ $JENKINS_INSTALL ]] ; then
 
    CGAT_HOME=$WORKSPACE
-   CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
-   CONDA_INSTALL_TYPE_CORE="core-production.yml"
+   CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+   CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
 
 else
 
@@ -107,11 +107,11 @@ else
    fi
 
    if [[ $INSTALL_PRODUCTION ]] ; then
-      CONDA_INSTALL_TYPE_APPS="apps-production.yml"
-      CONDA_INSTALL_TYPE_CORE="core-production.yml"
+      CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+      CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
    elif [[ $INSTALL_DEVEL ]] ; then
-      CONDA_INSTALL_TYPE_APPS="apps-devel.yml"
-      CONDA_INSTALL_TYPE_CORE="core-devel.yml"
+      CONDA_INSTALL_TYPE_APPS="cgat-apps.yml"
+      CONDA_INSTALL_TYPE_CORE="cgat-core.yml"
    elif [[ $INSTALL_TEST ]] || [[ $INSTALL_UPDATE ]] ; then
       if [[ -d $CGAT_HOME/conda-install ]] ; then
          AUX=`find $CGAT_HOME/conda-install/envs/cgat-* -maxdepth 0`
@@ -304,10 +304,10 @@ fi
 
 log "downloading miniconda"
 # download and install conda
-curl -O https://repo.continuum.io/miniconda/${MINICONDA}
+wget https://repo.continuum.io/miniconda/${MINICONDA} -O miniconda.sh;
 
 log "installing miniconda"
-bash ${MINICONDA} -b -p $CONDA_INSTALL_DIR
+bash miniconda.sh -b -p $CONDA_INSTALL_DIR
 source ${CONDA_INSTALL_DIR}/bin/activate
 hash -r
 
@@ -402,7 +402,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
          echo
          echo " There was a problem doing: 'python setup.py develop' "
          echo " Installation did not finish properly. "
-         echo 
+         echo
          echo " Please submit this issue via Git Hub: "
          echo " https://github.com/cgat-developers/cgat-apps/issues "
 	 echo
@@ -415,7 +415,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
       [[ $CODE_DOWNLOAD_TYPE -ge 1 ]] && git checkout -- setup.py
 
       # environment pinning
-      python scripts/conda.py
+      # python scripts/conda.py
 
    fi # if INSTALL_DEVEL
 
@@ -433,7 +433,7 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
    else
       clear
-      echo 
+      echo
       echo " The code was successfully installed!"
       echo
       echo " To activate the CGAT environment type: "
@@ -550,7 +550,7 @@ else
          print_env_vars
 
       fi
-     
+
    else
       # in this case, the installation found was "cgat-scripts" so no need to run tests
       echo
@@ -579,18 +579,18 @@ if [[ ! $? -eq 0 ]] ; then
 
    echo
    echo " There was a problem updating the installation. "
-   echo 
+   echo
    echo " Please submit this issue via Git Hub: "
    echo " https://github.com/cgat-developers/cgat-apps/issues "
-   echo 
+   echo
 
-else 
+else
 
    echo
    echo " All packages were succesfully updated. "
-   echo 
+   echo
 
-fi 
+fi
 
 } # conda_update
 
@@ -607,14 +607,14 @@ if [[ -z "$UNINSTALL_DIR" ]] ; then
    echo " Please uninstall manually."
    echo
    exit 1
-    
+
 else
 
    rm -rf $UNINSTALL_DIR
    if [[ $? -eq 0 ]] ; then
       echo
       echo " CGAT code successfully uninstalled."
-      echo 
+      echo
       exit 0
    else
       echo
@@ -675,7 +675,7 @@ test_mix_branch_release() {
 # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
 test_core_branch() {
    RELEASE_TEST=0
-   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/README.rst || RELEASE_TEST=$?
+   curl --output /dev/null --silent --head --fail https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/README.md || RELEASE_TEST=$?
    if [[ ${RELEASE_TEST} -ne 0 ]] ; then
       echo
       echo " The branch provided for cgat-core does not exist: ${CORE_BRANCH}"
@@ -733,29 +733,29 @@ cleanup_env() {
 help_message() {
 echo
 echo " This script uses Conda to install cgat-apps. To proceed, please type:"
-echo " ./install-CGAT-tools.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --devel [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " The default install folder will be: $HOME/cgat-install"
 echo
 echo " It will create a new Conda environment ready to run the CGAT code."
 echo
 echo " It is also possible to install/test a specific branch of the code on github:"
-echo " ./install-CGAT-tools.sh --devel --branch <name-of-branch> [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --devel --branch <name-of-branch> [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " By default, cgat-apps will install the master branch of cgat-core:"
 echo " https://github.com/cgat-developers/cgat-core"
 echo
 echo " Change that with:"
-echo " ./install-CGAT-tools.sh --devel --core-branch <name-of-branch>"
+echo " ./install.sh --devel --core-branch <name-of-branch>"
 echo
 echo " To test the installation:"
-echo " ./install-CGAT-tools.sh --test [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --test [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " To update the Conda packages:"
-echo " ./install-CGAT-tools.sh --update [--location </full/path/to/folder/without/trailing/slash>]"
-echo 
+echo " ./install.sh --update [--location </full/path/to/folder/without/trailing/slash>]"
+echo
 echo " To uninstall the CGAT code:"
-echo " ./install-CGAT-tools.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
+echo " ./install.sh --uninstall [--location </full/path/to/folder/without/trailing/slash>]"
 echo
 echo " Please submit any issues via Git Hub:"
 echo " https://github.com/cgat-developers/cgat-apps/issues"
@@ -945,7 +945,7 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL  ]] ; then
   conda_install
   conda_test
 
-else 
+else
 
   if [[ $INSTALL_PRODUCTION ]] || [[ $INSTALL_DEVEL ]] ; then
      conda_install
@@ -964,4 +964,3 @@ else
   fi
 
 fi # if-variables
-

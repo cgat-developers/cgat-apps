@@ -38,19 +38,19 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-g", "--genome-file", dest="genome_file", type="string",
-        help="filename with Samtools indexed genome [default=%default].")
-    parser.add_option(
-        "-w", "--window-size", dest="window", type="int",
-        help="Window size for tiling [default=%default].")
-    parser.add_option(
-        "-s", "--shift-size", dest="shift", type="int",
-        help="Window shift for tiling [default=%default].")
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
+        "-g", "--genome-file", dest="genome_file", type=str,
+        help="filename with Samtools indexed genome.")
+    parser.add_argument(
+        "-w", "--window-size", dest="window", type=int,
+        help="Window size for tiling.")
+    parser.add_argument(
+        "-s", "--shift-size", dest="shift", type=int,
+        help="Window shift for tiling.")
 
     parser.set_defaults(
         genome_file=None,
@@ -60,18 +60,18 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     ninput, nunchanged, nchanged = 0, 0, 0
 
     # Open input file
-    E.info("Opening input file: %s" % options.genome_file)
-    fasta = IndexedFasta.IndexedFasta(options.genome_file)
+    E.info("Opening input file: %s" % args.genome_file)
+    fasta = IndexedFasta.IndexedFasta(args.genome_file)
     contigs = fasta.getContigSizes(with_synonyms=False)
 
     # Open output file
-    bed = options.stdout
-    shift = options.shift
+    bed = args.stdout
+    shift = args.shift
 
     # Loop over input files and convert to soft clipped
     nwindows = 0
@@ -80,7 +80,7 @@ def main(argv=None):
         ncontigs += 1
         i = 0
         while (i < stop):
-            j = min(i + options.window, stop)
+            j = min(i + args.window, stop)
             #bed.write( """%(contig)s\t%(i)i\t%(j)i\t%(contig)s:%(i)i..%(j)i\n""" % locals() )
             bed.write( """%(contig)s\t%(i)i\t%(j)i\n""" % locals() )
             nwindows += 1

@@ -470,7 +470,7 @@ class RangeCounterBigWig(RangeCounter):
             for start, end in ranges:
                 length = end - start
 
-                values = wigfile.get(contig, start, end)
+                values = wigfile.values(contig, start, end)
                 if values == None:
                     continue
 

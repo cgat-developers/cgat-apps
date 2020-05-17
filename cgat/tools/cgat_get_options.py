@@ -129,17 +129,16 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
+    parser.add_argument(
         "--inplace", dest="inplace", action="store_true",
         help="update option list in place. New options will"
         "be added to the list given by --options-tsv-file. "
-        "Options will only be added, not removed [%default]")
+        "Options will only be added, not removed ")
 
-    parser.add_option(
-        "--options-tsv-file", dest="tsv_file", type="string",
+    parser.add_argument(
+        "--options-tsv-file", dest="tsv_file", type=str,
         help="existing table with options. Will be updated if "
         "--in-place is set [default]")
 
@@ -148,16 +147,16 @@ def main(argv=None):
         tsv_file=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     old_options = None
-    if options.tsv_file:
-        if not os.path.exists(options.tsv_file):
+    if args.tsv_file:
+        if not os.path.exists(args.tsv_file):
             raise OSError(
                 "filename %s not found, see --options-tsv-file" %
-                options.tsv_file)
+                args.tsv_file)
         old_options = pandas.read_csv(
-            iotools.open_file(options.tsv_file),
+            iotools.open_file(args.tsv_file),
             sep="\t",
             index_col=0,
         )
@@ -189,11 +188,11 @@ def main(argv=None):
         if x not in all_options:
             all_options[x].append("--")
 
-    if options.inplace:
-        outfile = iotools.open_file(options.tsv_file, "w")
-        E.info("updating file '%s'" % options.tsv_file)
+    if args.inplace:
+        outfile = iotools.open_file(args.tsv_file, "w")
+        E.info("updating file '%s'" % args.tsv_file)
     else:
-        outfile = options.stdout
+        outfile = args.stdout
 
     outfile.write("option\taction\tcomment\talternative\tfiles\n")
     for o, v in sorted(all_options.items()):
@@ -211,7 +210,7 @@ def main(argv=None):
         outfile.write("\t".join((list(map(
             str, (o, action, comment, alternative, ",".join(v)))))) + "\n")
 
-    if outfile != options.stdout:
+    if outfile != args.stdout:
         outfile.close()
 
     # write footer and output benchmark information.

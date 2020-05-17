@@ -213,8 +213,7 @@ class Counter:
 
         (self.mGenes1, self.mGenesOverlapping1,
          self.mExons1, self.mExonsOverlapping1,
-         self.mBases1, self.mBasesOverlapping1 ) = \
-            self._count(filename1, idx2)
+         self.mBases1, self.mBasesOverlapping1) = self._count(filename1, idx2)
 
         self.mGenesUnique1 = self.mGenes1 - self.mGenesOverlapping1
         self.mExonsUnique1 = self.mExons1 - self.mExonsOverlapping1
@@ -224,8 +223,7 @@ class Counter:
 
         (self.mGenes2, self.mGenesOverlapping2,
          self.mExons2, self.mExonsOverlapping2,
-         self.mBases2, self.mBasesOverlapping2 ) = \
-            self._count(filename2, idx1)
+         self.mBases2, self.mBasesOverlapping2) = self._count(filename2, idx1)
 
         self.mGenesUnique2 = self.mGenes2 - self.mGenesOverlapping2
         self.mExonsUnique2 = self.mExons2 - self.mExonsOverlapping2
@@ -242,20 +240,20 @@ class Counter:
             self.mExonsUnique1, self.mExonsUnique2,
             self.mBases1, self.mBases2,
             self.mBasesOverlapping1, self.mBasesOverlapping2,
-            self.mBasesUnique1, self.mBasesUnique2 ) ) ) + "\t" +\
+            self.mBasesUnique1, self.mBasesUnique2))) + "\t" +\
             "\t".join([iotools.pretty_percent(*x) for x in (
-                (self.mGenesOverlapping1, self.mGenes1),
-                (self.mGenesOverlapping2, self.mGenes2),
-                (self.mGenesUnique1, self.mGenes1),
-                (self.mGenesUnique2, self.mGenes2),
-                (self.mExonsOverlapping1, self.mExons1),
-                (self.mExonsOverlapping2, self.mExons2),
-                (self.mExonsUnique1, self.mExons1),
-                (self.mExonsUnique2, self.mExons2),
-                (self.mBasesOverlapping1, self.mBases1),
-                (self.mBasesOverlapping2, self.mBases2),
-                (self.mBasesUnique1, self.mBases1),
-                (self.mBasesUnique2, self.mBases2))])
+                        (self.mGenesOverlapping1, self.mGenes1),
+                        (self.mGenesOverlapping2, self.mGenes2),
+                        (self.mGenesUnique1, self.mGenes1),
+                        (self.mGenesUnique2, self.mGenes2),
+                        (self.mExonsOverlapping1, self.mExons1),
+                        (self.mExonsOverlapping2, self.mExons2),
+                        (self.mExonsUnique1, self.mExons1),
+                        (self.mExonsUnique2, self.mExons2),
+                        (self.mBasesOverlapping1, self.mBases1),
+                        (self.mBasesOverlapping2, self.mBases2),
+                        (self.mBasesUnique1, self.mBases1),
+                        (self.mBasesUnique2, self.mBases2))])
 
 
 class CounterGenes(Counter):
@@ -290,7 +288,7 @@ class CounterGenes(Counter):
 
             if len(intervals) == 0:
                 continue
-	
+
             overlapping_genes.add(this.gene_id)
 
         infile.close()
@@ -331,30 +329,27 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-s", "--ignore-strand", dest="ignore_strand",
-                      action="store_true",
-                      help="ignore strand information [default=%default].")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option(
-        "-u", "--update", dest="filename_update", type="string",
+    parser.add_argument("-s", "--ignore-strand", dest="ignore_strand",
+                        action="store_true",
+                        help="ignore strand information.")
+
+    parser.add_argument(
+        "-u", "--update", dest="filename_update", type=str,
         help="if filename is given, previous results will be read"
-        "from there and only changed sets will be computed "
-        "[default=%default].")
+        "from there and only changed sets will be computed ")
 
-    parser.add_option(
-        "-p", "--pattern-identifier", dest="pattern_id", type="string",
-        help="pattern to convert a filename to an id"
-        "[default=%default].")
+    parser.add_argument(
+        "-p", "--pattern-identifier", dest="pattern_id", type=str,
+        help="pattern to convert a filename to an id")
 
-    parser.add_option(
+    parser.add_argument(
         "-g", "--output-only-genes", dest="output_only_genes",
         action="store_true",
-        help="only output gene stats (includes gene lists)"
-        " [default=%default].")
+        help="only output gene stats (includes gene lists)")
 
     parser.set_defaults(
         ignore_strand=False,
@@ -363,14 +358,14 @@ def main(argv=None):
         output_only_genes=False,
     )
 
-    (options, args) = E.start(parser)
+    (args, unknown) = E.start(parser, unknowns=True)
 
-    if len(args) < 2:
+    if len(unknown) < 2:
         print(USAGE)
         raise ValueError("at least two arguments required")
 
-    if options.filename_update:
-        infile = iotools.open_file(options.filename_update, "r")
+    if args.filename_update:
+        infile = iotools.open_file(args.filename_update, "r")
         previous_results = {}
         for line in infile:
             if line.startswith("#"):
@@ -391,14 +386,14 @@ def main(argv=None):
     else:
         previous_results = {}
 
-    if options.output_only_genes:
+    if args.output_only_genes:
         counter = CounterGenes()
     else:
         counter = Counter()
 
-    options.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
+    args.stdout.write("set1\tset2\t%s\n" % counter.getHeader())
 
-    pattern_id = re.compile(options.pattern_id)
+    pattern_id = re.compile(args.pattern_id)
 
     def getTitle(x):
         try:
@@ -407,29 +402,30 @@ def main(argv=None):
             return x
 
     ncomputed, nupdated = 0, 0
-    for x in range(len(args)):
-        title1 = getTitle(args[x])
+    for x in range(len(unknown)):
+        title1 = getTitle(unknown[x])
         for y in range(0, x):
-            title2 = getTitle(args[y])
+            title2 = getTitle(unknown[y])
             if previous_results:
                 try:
                     prev = previous_results[title1][title2]
                 except KeyError:
                     pass
                 else:
-                    options.stdout.write(
+                    args.stdout.write(
                         "%s\t%s\t%s\n" % ((title1, title2, prev)))
                     nupdated += 1
                     continue
 
-            counter.count(args[x], args[y])
-            options.stdout.write(
+            counter.count(unknown[x], unknown[y])
+            args.stdout.write(
                 "%s\t%s\t%s\n" % ((title1, title2, str(counter))))
             ncomputed += 1
 
     E.info("nupdated=%i, ncomputed=%i" % (nupdated, ncomputed))
 
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

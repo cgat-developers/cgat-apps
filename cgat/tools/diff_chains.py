@@ -250,6 +250,7 @@ def buildPairs(infile):
 
     return pairs
 
+
 DiffResult = collections.namedtuple(
     "DiffResult", "total same different unique")
 
@@ -333,20 +334,21 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id: chain2psl.py 2899 2010-04-13 14:37:37Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
-                      help="output mismatches [%default]")
+    parser.add_argument("--version", action='version', version="1.0")
 
-    parser.add_option("-a", "--output-matches", dest="output_matches", action="store_true",
-                      help="output matches [%default]")
+    parser.add_argument("-m", "--output-mismatches", dest="output_mismatches", action="store_true",
+                        help="output mismatches ")
 
-    parser.add_option("-u", "--output-unique", dest="output_unique", action="store_true",
-                      help="output unique positions [%default]")
+    parser.add_argument("-a", "--output-matches", dest="output_matches", action="store_true",
+                        help="output matches ")
 
-    parser.add_option("-r", "--restrict", dest="restrict", type="string",
-                      help="restrict analysis to a chromosome pair (chr1:chr1:+) [%default]")
+    parser.add_argument("-u", "--output-unique", dest="output_unique", action="store_true",
+                        help="output unique positions ")
+
+    parser.add_argument("-r", "--restrict", dest="restrict", type=str,
+                        help="restrict analysis to a chromosome pair (chr1:chr1:+) ")
 
     parser.set_defaults(
         output_mismatches=False,
@@ -355,12 +357,14 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args, unknown) = E.start(parser,
+                              argv=argv,
+                              unknowns=True)
 
-    if len(args) != 2:
+    if len(unknown) != 2:
         raise ValueError("expected two chain files")
 
-    filename_chain1, filename_chain2 = args
+    filename_chain1, filename_chain2 = unknown
 
     E.info("validating chain 1")
     if not validateChain(iotools.open_file(filename_chain1)):
@@ -380,8 +384,8 @@ def main(argv=None):
     pairs2 = buildPairs(iotools.open_file(filename_chain2))
     E.info("read %i pairs" % len(pairs2))
 
-    if options.restrict:
-        restrict = tuple(options.restrict.split(":"))
+    if args.restrict:
+        restrict = tuple(args.restrict.split(":"))
         pairs1 = {restrict: pairs1[restrict]}
         pairs2 = {restrict: pairs2[restrict]}
 
@@ -392,7 +396,7 @@ def main(argv=None):
 
     all_keys = sorted(list(set(list(comparison1.keys()) + list(comparison2.keys()))))
 
-    outfile = options.stdout
+    outfile = args.stdout
     headers = ("mapped", "identical", "different", "unique")
     outfile.write("contig1\tcontig2\tstrand\t%s\t%s\t%s\t%s\n" %
                   (
@@ -466,15 +470,16 @@ def main(argv=None):
                                       ))) + "\n")
 
     # output mismapped residues
-    if options.output_mismatches or options.output_unique:
+    if args.output_mismatches or args.output_unique:
         outputMismatches(pairs1, pairs2,
-                         output_mismatches=options.output_mismatches,
-                         output_unique=options.output_unique,
-                         output_matches=options.output_matches,
+                         output_mismatches=args.output_mismatches,
+                         output_unique=args.output_unique,
+                         output_matches=args.output_matches,
                          )
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

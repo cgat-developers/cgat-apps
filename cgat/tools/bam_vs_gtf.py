@@ -102,14 +102,15 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
+    parser.add_argument("--version", action='version', version="1.0")
+
+    parser.add_argument(
         "-e", "--exons-file", "--gtf-file",
-        dest="filename_exons", type="string", metavar="gtf",
+        dest="filename_exons", type=str, metavar="gtf",
         help="gtf formatted file with non-overlapping exon "
-        "locations (required). [%default]")
+        "locations (required). ")
 
     parser.set_defaults(
         filename_exons=None,
@@ -117,10 +118,10 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknown) = E.start(parser, argv=argv, add_output_options=True, unknowns=True)
 
     exons = GTF.readAndIndex(
-        GTF.iterator(iotools.open_file(options.filename_exons)))
+        GTF.iterator(iotools.open_file(args.filename_exons)))
 
     pysam_in = pysam.AlignmentFile("-", "rb")
 
@@ -129,15 +130,15 @@ def main(argv=None):
     nspliced_nooverlap = 0
     nspliced_halfoverlap = 0
     nspliced_bothoverlap = 0
-    nspliced_overrun = [0] * 2 * (options.read_length + 10)
+    nspliced_overrun = [0] * 2 * (args.read_length + 10)
     nspliced_exact = 0
     nspliced_inexact = 0
     nunspliced = 0
     nunspliced_overlap = 0
     nunspliced_ignored = 0
     nunspliced_nooverlap = 0
-    nunspliced_overrun = [0] * (options.read_length + 10)
-    overrun_offset = options.read_length + 10
+    nunspliced_overrun = [0] * (args.read_length + 10)
+    overrun_offset = args.read_length + 10
     ninput = 0
     nunmapped = 0
 
@@ -277,7 +278,7 @@ def main(argv=None):
     c.spliced_underrun = sum(_nspliced_underrun[1:])
     c.spliced_overrun = sum(_nspliced_overrun[1:])
 
-    outfile = options.stdout
+    outfile = args.stdout
     outfile.write("category\tcounts\n")
     for k, v in sorted(c.items()):
         outfile.write("%s\t%i\n" % (k, v))

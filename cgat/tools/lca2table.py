@@ -43,22 +43,21 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser()
 
-    parser.add_option("-s", "--summarise", dest="summarise", type="choice",
-                      choices=("level-counts", "taxa-counts", "individual"),
-                      help="summarise the taxa counts - no. phyla etc")
+    parser.add_argument("-s", "--summarise", dest="summarise", type=str,
+                        choices=("level-counts", "taxa-counts", "individual"),
+                        help="summarise the taxa counts - no. phyla etc")
 
-    parser.add_option("--output-map", dest="output_map", action="store_true",
-                      help="ouput map of taxonomy")
+    parser.add_argument("--output-map", dest="output_map", action="store_true",
+                        help="ouput map of taxonomy")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
-    if options.output_map:
+    if args.output_map:
         found = []
-        options.stdout.write("""Domain\t \
+        args.stdout.write("""Domain\t \
         kingdom\t \
         phylum\t \
         class\t \
@@ -68,7 +67,7 @@ def main(argv=None):
         species\n""")
         # only output the mapping file - do not continue
         # summarise regardless of the specified options
-        for lca in LCA.iterate(options.stdin):
+        for lca in LCA.iterate(args.stdin):
 
             # if bacteria or archaea the kingdom will
             # be the domain
@@ -89,10 +88,10 @@ def main(argv=None):
                 continue
             else:
                 found.append(hierarchy)
-                options.stdout.write("\t".join(hierarchy) + "\n")
+                args.stdout.write("\t".join(hierarchy) + "\n")
         return
 
-    if options.summarise == "level-counts":
+    if args.summarise == "level-counts":
         level_counts = collections.defaultdict(set)
         total = 0
         nreads_domain = 0
@@ -114,7 +113,7 @@ def main(argv=None):
         nreads_subspecies_plus = 0
 
         c = E.Counter()
-        for lca in LCA.iterate(options.stdin):
+        for lca in LCA.iterate(args.stdin):
             total += 1
             if lca.domain != "NA":
                 nreads_domain += 1
@@ -208,7 +207,6 @@ def main(argv=None):
 
             # removed subspecies mapping for the time
             # being
-            
             # if lca.subspecies != "NA":
             #     nreads_subspecies += 1
             #     level_counts["subspecies"].add(lca.subspecies)
@@ -221,37 +219,37 @@ def main(argv=None):
             # else:
             #     c.subspecies_plus_unmapped += 1
 
-        options.stdout.write("\t".join(["ndomain",
-                                        "nkingdom",
-                                        "nkingdom+",
-                                        "nphylum",
-                                        "nphylum+",
-                                        "nclass",
-                                        "nclass+",
-                                        "norder",
-                                        "norder+",
-                                        "nfamily",
-                                        "nfamily+",
-                                        "ngenus",
-                                        "ngenus+",
-                                        "nspecies",
-                                        "nspecies+",
-                                        "nseqkingdom",
-                                        "nseqkingdom+",
-                                        "nseqphylum",
-                                        "nseqphylum+",
-                                        "nseqclass",
-                                        "nseqclass+",
-                                        "nseqorder",
-                                        "nseqorder+",
-                                        "nseqfamily",
-                                        "nseqfamily+",
-                                        "nseqgenus",
-                                        "nseqgenus+",
-                                        "nseqspecies",
-                                        "nseqspecies+"]) + "\n")
+        args.stdout.write("\t".join(["ndomain",
+                                     "nkingdom",
+                                     "nkingdom+",
+                                     "nphylum",
+                                     "nphylum+",
+                                     "nclass",
+                                     "nclass+",
+                                     "norder",
+                                     "norder+",
+                                     "nfamily",
+                                     "nfamily+",
+                                     "ngenus",
+                                     "ngenus+",
+                                     "nspecies",
+                                     "nspecies+",
+                                     "nseqkingdom",
+                                     "nseqkingdom+",
+                                     "nseqphylum",
+                                     "nseqphylum+",
+                                     "nseqclass",
+                                     "nseqclass+",
+                                     "nseqorder",
+                                     "nseqorder+",
+                                     "nseqfamily",
+                                     "nseqfamily+",
+                                     "nseqgenus",
+                                     "nseqgenus+",
+                                     "nseqspecies",
+                                     "nseqspecies+"]) + "\n")
 
-        options.stdout.write("\t".join(map(
+        args.stdout.write("\t".join(map(
             str, [len(level_counts["domain"]),
                   len(level_counts["kingdom"]),
                   len(level_counts["kingdom+"]),
@@ -281,7 +279,7 @@ def main(argv=None):
                   nreads_genus_plus,
                   nreads_species,
                   nreads_species_plus])) + "\n")
-    elif options.summarise == "taxa-counts":
+    elif args.summarise == "taxa-counts":
         unmapped = collections.defaultdict(int)
         total = 0
         taxa_counts = {"domain": collections.defaultdict(int),
@@ -301,7 +299,7 @@ def main(argv=None):
                        "species+": collections.defaultdict(int)}
 
         c = E.Counter()
-        for lca in LCA.iterate(options.stdin):
+        for lca in LCA.iterate(args.stdin):
             total += 1
             if lca.domain != "NA":
                 taxa_counts["domain"][lca.domain] += 1
@@ -379,11 +377,11 @@ def main(argv=None):
                 c.species_plus_unmapped += 1
                 unmapped["species+"] += 1
 
-        options.stdout.write("level\ttaxa\tcount\tproportion\trpm\n")
+        args.stdout.write("level\ttaxa\tcount\tproportion\trpm\n")
         for level, taxa_count in sorted(taxa_counts.items()):
             total_level = total - unmapped[level]
             for taxa, count in sorted(taxa_count.items()):
-                options.stdout.write("\t".join(
+                args.stdout.write("\t".join(
                     [level,
                      taxa,
                      str(count),
@@ -393,45 +391,46 @@ def main(argv=None):
 
         E.info(c)
 
-    elif options.summarise == "individual":
+    elif args.summarise == "individual":
         # each read is output with its respective
         # taxon assignments
-        options.stdout.write("\t".join(["id",
-                                        "domain",
-                                        "kingdom",
-                                        "kingdom+",
-                                        "phylum",
-                                        "phylum+",
-                                        "class",
-                                        "class+",
-                                        "order",
-                                        "order+",
-                                        "family",
-                                        "family+",
-                                        "genus",
-                                        "genus+",
-                                        "species",
-                                        "species+"]) + "\n")
-        for lca in LCA.iterate(options.stdin):
-            options.stdout.write("\t".join([lca.identifier,
-                                            lca.domain,
-                                            lca.kingdom,
-                                            lca.kingdom_plus,
-                                            lca.phylum,
-                                            lca.phylum_plus,
-                                            lca._class,
-                                            lca._class_plus,
-                                            lca.order,
-                                            lca.order_plus,
-                                            lca.family,
-                                            lca.family_plus,
-                                            lca.genus,
-                                            lca.genus_plus,
-                                            lca.species,
-                                            lca.species_plus]) + "\n")
+        args.stdout.write("\t".join(["id",
+                                     "domain",
+                                     "kingdom",
+                                     "kingdom+",
+                                     "phylum",
+                                     "phylum+",
+                                     "class",
+                                     "class+",
+                                     "order",
+                                     "order+",
+                                     "family",
+                                     "family+",
+                                     "genus",
+                                     "genus+",
+                                     "species",
+                                     "species+"]) + "\n")
+        for lca in LCA.iterate(args.stdin):
+            args.stdout.write("\t".join([lca.identifier,
+                                         lca.domain,
+                                         lca.kingdom,
+                                         lca.kingdom_plus,
+                                         lca.phylum,
+                                         lca.phylum_plus,
+                                         lca._class,
+                                         lca._class_plus,
+                                         lca.order,
+                                         lca.order_plus,
+                                         lca.family,
+                                         lca.family_plus,
+                                         lca.genus,
+                                         lca.genus_plus,
+                                         lca.species,
+                                         lca.species_plus]) + "\n")
 
     # write footer and output benchmark information.
     E.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -48,40 +48,39 @@ def compute_table_summary(table):
 
 def main(argv=None):
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_option(
-        "-d", "--delimiter", dest="delimiter", type="string",
-        help="delimiter to separate columns [%default]")
+    parser.add_argument(
+        "-d", "--delimiter", dest="delimiter", type=str,
+        help="delimiter to separate columns ")
 
-    parser.add_option(
-        "-m", "--method", dest="methods", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="methods", type=str,
         action="append",
         choices=["row-describe", "column-describe"],
-        help="additional methods to apply [%default]")
+        help="additional methods to apply ")
 
     parser.set_defaults(
         delimiter="\t",
         methods=[],
     )
 
-    (options, args) = E.start(parser,
-                              argv=argv,
-                              add_output_options=True)
+    (args) = E.start(parser,
+                     argv=argv,
+                     add_output_options=True)
 
-    if not options.methods:
-        options.methods = ["summary"]
+    if not args.methods:
+        args.methods = ["summary"]
 
-    table = pandas.read_csv(options.stdin, options.delimiter)
+    table = pandas.read_csv(args.stdin, args.delimiter)
 
-    options.stdout.write("metric\tcount\tpercent\tinfo\n")
+    args.stdout.write("metric\tcount\tpercent\tinfo\n")
 
-    for method in options.methods:
+    for method in args.methods:
         label = re.sub("-", "_", method)
         if method == "summary":
             for category, count, denominator, info in compute_table_summary(table):
-                options.stdout.write("\t".join(map(str, (
+                args.stdout.write("\t".join(map(str, (
                     category,
                     count,
                     iotools.pretty_percent(count, denominator, na=""),

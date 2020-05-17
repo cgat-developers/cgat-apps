@@ -58,41 +58,40 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.ArgumentParser()
 
-    parser.add_option(
-        "-i", "--input-fastq-file", dest="input_fastq_file", type="string",
+    parser.add_argument(
+        "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-m", "--method", dest="method", type="choice",
+    parser.add_argument(
+        "-m", "--method", dest="method", type=str,
         choices=("read-variant", "depth-vcf", "read-list", "coverage-vcf", "barcode"),
-        help="method to apply [%default]")
+        help="method to apply ")
 
-    parser.add_option(
-        "-e", "--input-bed", dest="input_bed_file", type="string",
+    parser.add_argument(
+        "-e", "--input-bed", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "
-        "in bed format to restrict analysis to. [%default]")
+        "in bed format to restrict analysis to. ")
 
-    parser.add_option(
-        "-r", "--region-string", dest="region_string", type="string",
+    parser.add_argument(
+        "-r", "--region-string", dest="region_string", type=str,
         help="region string. Only apply method in specified region. "
-        "[%default]")
+        )
 
-    parser.add_option(
+    parser.add_argument(
         "-f", "--reference-fasta-file", dest="reference_fasta_file",
         help="reference genomic sequence in fasta format. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "--min-base-quality", dest="min_base_quality", type="int",
+    parser.add_argument(
+        "--min-base-quality", dest="min_base_quality", type=int,
         help="minimum base quality for barcode analysis. "
-        "[%default]")
+        )
 
-    parser.add_option(
-        "-s", "--stepper", dest="stepper", type="choice",
+    parser.add_argument(
+        "-s", "--stepper", dest="stepper", type=str,
         choices=("nofilter", "samtools", "all"))
 
     parser.set_defaults(
@@ -105,37 +104,39 @@ def main(argv=None):
         region_string=None)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv, add_output_options=True)
+    (args, unknowns) = E.start(parser, argv=argv,
+                               add_output_options=True,
+                               unknowns=True)
 
-    pysam_in = pysam.AlignmentFile(args[0], "rb")
+    pysam_in = pysam.AlignmentFile(unknowns[0], "rb")
 
-    if options.input_bed_file:
-        if not os.path.exists(options.input_bed_file):
+    if args.input_bed_file:
+        if not os.path.exists(args.input_bed_file):
             raise OSError("input bed file {} does not exist".format(
-                options.input_bed_file))
-        bed_in = pysam.TabixFile(options.input_bed_file)
+                args.input_bed_file))
+        bed_in = pysam.TabixFile(args.input_bed_file)
     else:
         bed_in = None
 
-    if options.region_string is not None:
-        itr = generate_from_region(pysam_in, options.region,
-                                   stepper=options.stepper,
-                                   min_base_quality=options.min_base_quality)
+    if args.region_string is not None:
+        itr = generate_from_region(pysam_in, args.region,
+                                   stepper=args.stepper,
+                                   min_base_quality=args.min_base_quality)
     elif bed_in is not None:
         itr = generate_from_bed(pysam_in, bed_in,
-                                stepper=options.stepper,
-                                min_base_quality=options.min_base_quality)
+                                stepper=args.stepper,
+                                min_base_quality=args.min_base_quality)
     else:
         itr = generate_from_bam(pysam_in,
-                                stepper=options.stepper,
-                                min_base_quality=options.min_base_quality)
+                                stepper=args.stepper,
+                                min_base_quality=args.min_base_quality)
 
-    reference_fasta = pysam.FastaFile(options.reference_fasta_file)
+    reference_fasta = pysam.FastaFile(args.reference_fasta_file)
 
-    outf = options.stdout
+    outf = args.stdout
     counter = E.Counter()
 
-    if options.method == "read-variant":
+    if args.method == "read-variant":
         outf.write("chromosome\tposition\tref\ttypes\n")
 
         for pileupcolumn in itr:
@@ -176,9 +177,9 @@ def main(argv=None):
                 reference_base,
                 json.dumps(d)))
 
-    elif options.method in ("depth-vcf", "coverage-vcf"):
-        if options.regex_sample_name:
-            sample_name = re.search(options.regex_sample_name, args[0]).groups()[0]
+    elif args.method in ("depth-vcf", "coverage-vcf"):
+        if args.regex_sample_name:
+            sample_name = re.search(args.regex_sample_name, unknowns[0]).groups()[0]
         else:
             sample_name = "unknown"
 
@@ -191,7 +192,7 @@ def main(argv=None):
             "#CHROM\tPOS\tID\tREF\tALT\tQUAL\t"
             "FILTER\tINFO\tFORMAT\t{}\n".format(sample_name))
 
-        is_depth = options.method == "depth-vcf"
+        is_depth = args.method == "depth-vcf"
 
         for idx, pileupcolumn in enumerate(itr):
 
@@ -220,7 +221,7 @@ def main(argv=None):
                 alt_base,
                 n))
 
-    elif options.method == "read-list":
+    elif args.method == "read-list":
         outf.write("chromosome\tposition\treference_base\tbase\tquality\tquery_name\n")
 
         for pileupcolumn in itr:
@@ -245,7 +246,7 @@ def main(argv=None):
                     quality,
                     read.alignment.query_name))
 
-    elif options.method == "barcode":
+    elif args.method == "barcode":
 
         rows = []
         for c in itr:
