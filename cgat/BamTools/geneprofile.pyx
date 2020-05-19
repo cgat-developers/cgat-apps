@@ -453,10 +453,9 @@ class RangeCounterBigWig(RangeCounter):
             "getTotal not implemented for RangeCounterBigwig")
 
     def count(self, counts, files, contig, ranges ):
-        
+
         # collect pileup profile in region bounded by start and end.
-        cdef int i
-        cdef int rstart, rend, start, end, tstart, tend
+        cdef int rstart, start, end, tstart
 
         if len(ranges) == 0:
             return
@@ -466,21 +465,43 @@ class RangeCounterBigWig(RangeCounter):
 
         for wigfile in files:
 
+            if contig not in wigfile.chroms():
+                continue
+
+            contig_length = wigfile.chroms(contig)
+            
             current_offset = 0
             for start, end in ranges:
+
+                start = min(start, contig_length)
+                end = min(end, contig_length)
                 length = end - start
 
-                values = wigfile.values(contig, start, end)
+                if length <= 0:
+                    continue
+
+                try:
+                    values = wigfile.values(contig, start, end)
+                except RuntimeError:
+                    E.error("Invalid interval found: %s\t%i\t%i contig length: %i" %
+                            (contig, start, end, wigfile.chroms(contig)))
+                    raise
+                    
                 if values == None:
                     continue
 
-                for tstart, tend, value in values:
-                    rstart = tstart - start + current_offset
-                    rend = tend - start + current_offset
-                    for i from rstart <= i < rend: counts[i] = value
+                for tstart, value in enumerate(values):
+                    rstart = tstart + current_offset
+
+                    # check for nan values
+                    if value != value:
+                        value = 0.0
+
+                    counts[rstart] = value
                     
                 current_offset += length
-
+       
+        
 class IntervalsCounter:
     '''aggregate reads/intervals within a certain arrangement of
     intervals (sections). Sections are defined by a transcript-model 
