@@ -967,7 +967,7 @@ def main(argv=None):
                     length = transcript[-1].end - transcript[0].start
                     r.append((length, transcript))
                 r.sort()
-                return r[-1][1]
+                return r[0][1]
 
             def selectRepresentativeTranscript(gene):
                 '''select a representative transcript.
