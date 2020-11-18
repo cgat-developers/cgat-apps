@@ -46,6 +46,7 @@ import six
 
 from cgat import Genomics as Genomics
 
+
 class SequenceProperties(object):
     """Base class.
 
