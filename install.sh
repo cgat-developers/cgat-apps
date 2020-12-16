@@ -184,10 +184,10 @@ echo
 # While we wait for a response, we'll try to clean up the conda
 # installation folder as much as possible
 conda_cleanup() {
-mamba clean --index-cache
-mamba clean --lock
-mamba clean --tarballs -y
-mamba clean --packages -y
+conda clean --index-cache
+conda clean --lock
+conda clean --tarballs -y
+conda clean --packages -y
 }
 
 
