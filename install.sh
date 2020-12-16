@@ -184,10 +184,10 @@ echo
 # While we wait for a response, we'll try to clean up the conda
 # installation folder as much as possible
 conda_cleanup() {
-conda clean --index-cache
-conda clean --lock
-conda clean --tarballs -y
-conda clean --packages -y
+mamba clean --index-cache
+mamba clean --lock
+mamba clean --tarballs -y
+mamba clean --packages -y
 }
 
 
@@ -316,8 +316,9 @@ log "updating conda environment"
 # Conda 4.4 breaks everything again!
 # Conda 4.5 looks better
 #conda install --quiet --yes 'conda=4.3.33'
-conda update --all --yes
-conda info -a
+conda install mamba -c conda-forge
+mamba update --all --yes
+mamba info -a
 
 log "installing CGAT environment"
 # Now using conda environment files:
@@ -329,10 +330,10 @@ curl -o env-apps.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-a
 
 curl -o env-core.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-core/${CORE_BRANCH}/conda/environments/${CONDA_INSTALL_TYPE_CORE}
 
-conda env create --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml
-conda env update --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml
+mamba env create --quiet --name ${CONDA_INSTALL_ENV} --file env-apps.yml
+mamba env update --quiet --name ${CONDA_INSTALL_ENV} --file env-core.yml
 
-conda env export --name ${CONDA_INSTALL_ENV}
+mamba env export --name ${CONDA_INSTALL_ENV}
 
 # activate cgat environment
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
@@ -348,8 +349,8 @@ if [[ -z ${TRAVIS_INSTALL} ]] ; then
 
       # install extra deps
       curl -o env-extra.yml -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/${TRAVIS_BRANCH}/conda/environments/apps-extra.yml
-      conda env update --quiet --file env-extra.yml
-      conda env export --name cgat-a
+      mamba env update --quiet --file env-extra.yml
+      mamba env export --name cgat-a
 
       # download the code out of jenkins
       if [[ -z ${JENKINS_INSTALL} ]] ; then
@@ -470,7 +471,7 @@ if [[ $TRAVIS_INSTALL ]] || [[ $JENKINS_INSTALL ]] ; then
    source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
 
    # show conda environment used for testing
-   conda env export
+   mamba env export
 
    # install cgat-core
    install_cgat_core
@@ -573,7 +574,7 @@ conda_update() {
 get_cgat_env
 
 source $CONDA_INSTALL_DIR/bin/activate $CONDA_INSTALL_ENV
-conda update --all
+mamba update --all
 
 if [[ ! $? -eq 0 ]] ; then
 
