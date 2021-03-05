@@ -11,7 +11,7 @@ channels:
 
 dependencies:
 # python dependencies
-- python >= 3.6
+- python <= 3.7
 - alignlib-lite
 - biopython
 - cython
@@ -23,7 +23,7 @@ dependencies:
 - pep8
 - pybedtools
 - pybigwig
-- pysam
+- pysam==0.15.2
 - python-lzo
 - pyyaml
 - quicksect
