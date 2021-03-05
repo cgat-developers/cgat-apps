@@ -23,7 +23,7 @@ dependencies:
 - pep8
 - pybedtools
 - pybigwig
-- pysam=0.15.2
+- pysam==0.15.2
 - python-lzo
 - pyyaml
 - quicksect
