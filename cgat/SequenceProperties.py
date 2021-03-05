@@ -553,7 +553,7 @@ class SequencePropertiesDegeneracy (SequencePropertiesLength):
             xx = []
             for y in range(5):
                 yy = {}
-                for z in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
+                for z in "GATCBDSW":
                     yy[z] = 0
                 xx.append(yy)
             self.mCountsDegeneracy.append(xx)
@@ -565,7 +565,7 @@ class SequencePropertiesDegeneracy (SequencePropertiesLength):
 
         for x in (0, 1, 2):
             for y in range(5):
-                for z in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
+                for z in "GATCBDSW":
                     self.mCountsDegeneracy[x][y][
                         z] += other.mCountsDegeneracy[x][y][z]
 
