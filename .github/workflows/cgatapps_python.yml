@@ -46,5 +46,4 @@ jobs:
           python setup.py install
           pip install nose
           nosetests -v tests/test_style.py
-          nosetests -v tests/test_commandline.py
           nosetests -v tests/test_scripts.py

@@ -221,6 +221,22 @@ def test_cmdline():
         except DummyError:
             pass
 
+        for option in PARSER.parse_args(parser):
+            print("=================")
+            print(option)
+            # ignore options added by optparse
+            if option.dest is None:
+                continue
+
+            optstring = option.get_opt_string()
+            if optstring.startswith("--"):
+                optstring = optstring[2:]
+
+            check_option.description = script_name + ":" + optstring
+
+            yield(check_option, optstring, os.path.abspath(f),
+                  map_option2action)
+
         # clear up
         del sys.modules[modulename]
 
