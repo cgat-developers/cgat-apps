@@ -1,0 +1,47 @@
+name: cgat-apps
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.7", "3.8"]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if conda/environments/cgat-core.yml has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key:
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+            hashFiles('conda/environments/cgat-apps.yml') }}
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          mamba-version: "*"
+          python-version: ${{ matrix.python-version }}
+          channels: conda-forge, bioconda, defaults
+          channel-priority: true
+          activate-environment: cgat-core
+          environment-file: conda/environments/cgat-apps.yml
+      - name: Show conda
+        run: |
+          conda info
+          conda list
+      - name: Test
+        run: |
+          python setup.py install
+          pytest --pep8 tests
