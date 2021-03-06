@@ -293,7 +293,7 @@ extensions = [
 ]
 
 for e in extensions:
-    e.cython_directives = {'language_level': "3"} #all are Python-3
+    e.cython_directives = {'language_level': "3str"} #all are Python-3
 
 setup(
     # package information
