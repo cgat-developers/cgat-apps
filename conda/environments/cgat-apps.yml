@@ -27,7 +27,7 @@ dependencies:
 - pysam=0.15.2
 - python-lzo
 - pyyaml
-- pytest
+- pytest<4.0
 - quicksect
 - rdflib
 - scikit-learn
