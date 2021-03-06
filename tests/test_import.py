@@ -54,7 +54,8 @@ EXCLUDE = (
     'bed2table',
     # The following fail because of version imports from cgat-core table(s)
     "table2table",
-    "combine_tables")
+    "combine_tables",
+    "cgat.NCL")
 
 
 def check_import(filename, outfile):
@@ -121,4 +122,3 @@ def test_imports():
                 continue
             check_import.description = os.path.abspath(f)
             yield(check_import, os.path.abspath(f), outfile)
-
