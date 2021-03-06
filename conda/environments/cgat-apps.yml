@@ -15,6 +15,7 @@ dependencies:
 - alignlib-lite
 - biopython
 - cython
+- cgatcore
 - jinja2
 - matplotlib
 - nose
