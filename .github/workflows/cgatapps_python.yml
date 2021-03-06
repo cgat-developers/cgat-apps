@@ -44,4 +44,7 @@ jobs:
       - name: Test
         run: |
           python setup.py install
-          pytest --pep8 tests
+          pytest -v tests/test_import.py
+          pytest -v tests/test_style.py
+          pytest -v tests/test_commandline.py
+          pytest -v tests/test_scripts.py
