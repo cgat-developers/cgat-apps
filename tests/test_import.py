@@ -55,7 +55,7 @@ EXCLUDE = (
     # The following fail because of version imports from cgat-core table(s)
     "table2table",
     "combine_tables",
-    "NCL")
+    "__init__")
 
 
 def check_import(filename, outfile):
@@ -64,8 +64,6 @@ def check_import(filename, outfile):
     dirname, basename = os.path.split(prefix)
 
     if basename in EXCLUDE:
-        return
-    if dirname in EXCLUDE:
         return
 
     if os.path.exists(prefix + ".pyc"):
