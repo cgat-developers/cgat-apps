@@ -46,6 +46,5 @@ jobs:
           python setup.py install
           pip install nose
           conda clean -i
-          nosetests -v tests/test_import.py
           nosetests -v tests/test_style.py
           nosetests -v tests/test_scripts.py
