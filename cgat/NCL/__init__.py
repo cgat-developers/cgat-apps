@@ -1,4 +1,4 @@
-import cnestedlist
+from . import cnestedlist
 
 import sqlite3
 import os
