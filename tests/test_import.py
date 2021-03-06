@@ -55,7 +55,7 @@ EXCLUDE = (
     # The following fail because of version imports from cgat-core table(s)
     "table2table",
     "combine_tables",
-    "cgat.NCL")
+    "cnestedlist")
 
 
 def check_import(filename, outfile):
