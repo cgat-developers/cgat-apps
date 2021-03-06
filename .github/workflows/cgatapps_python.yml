@@ -35,7 +35,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           channels: conda-forge, bioconda, defaults
           channel-priority: true
-          activate-environment: cgat-core
+          activate-environment: cgat-a
           environment-file: conda/environments/cgat-apps.yml
       - name: Show conda
         run: |
