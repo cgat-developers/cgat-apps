@@ -44,7 +44,8 @@ jobs:
       - name: Test
         run: |
           python setup.py install
-          pytest -v tests/test_import.py
-          pytest -v tests/test_style.py
-          pytest -v tests/test_commandline.py
-          pytest -v tests/test_scripts.py
+          pip install nose
+          nosetests -v tests/test_import.py
+          nosetests -v tests/test_style.py
+          nosetests -v tests/test_commandline.py
+          nosetests -v tests/test_scripts.py
