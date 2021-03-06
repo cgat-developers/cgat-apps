@@ -13,7 +13,7 @@ dependencies:
 # python dependencies
 - python >= 3.6
 - alignlib-lite
-- biopython
+- biopython<=1.77
 - cython
 - cgatcore
 - jinja2
