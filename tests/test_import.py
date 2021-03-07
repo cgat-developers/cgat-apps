@@ -32,7 +32,6 @@ from nose.tools import ok_
 
 # DIRECTORIES to examine for python modules/scripts
 EXPRESSIONS = (
-    ('tests', 'tests/*.py'),
     ('tools', 'cgat/tools/*.py'),
     ('cgat', 'cgat/*.py'))
 
