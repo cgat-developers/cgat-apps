@@ -1245,7 +1245,7 @@ def bam2bam_filter_bam(AlignmentFile input_samfile,
                 nm = 0
 
             get_cigar_stats(read, base_counts_view, block_counts_view)
-            error_rate = (10000 * (nm + base_counts_view[BAM_CINS])) /\
+            error_rate = (10000 * (nm + base_counts_view[BAM_CINS])) //\
                 (base_counts_view[BAM_CMATCH] + base_counts_view[BAM_CINS])
             if error_rate > c_filter_error_rate:
                 nerror_rate += 1

@@ -17,9 +17,9 @@ class NCLSimple(object):
     no additional data.
 
     If *filestem* is not given, an new database is created
-    in memory. If *filestem* is given, a database is opened 
-    from disk. If it does not exist or *force* is set to True, 
-    a new database is created. 
+    in memory. If *filestem* is given, a database is opened
+    from disk. If it does not exist or *force* is set to True,
+    a new database is created.
 
     Convenience wrapper around low-level ncl functions.
 
@@ -97,7 +97,7 @@ class NCL(NCLSimple):
         self.mValues = []
         # route calls to __getitem__ directly to list if in memory
         if self.mFromDisk:
-            fn = self.mFilestem + ".vals" 
+            fn = self.mFilestem + ".vals"
             self.mDBHandle = sqlite3.connect(fn)
 
     def add(self, start, end, value):
