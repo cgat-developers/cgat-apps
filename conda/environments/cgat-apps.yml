@@ -54,3 +54,4 @@ dependencies:
 - wget
 - zlib
 - nomkl
+- lapack
