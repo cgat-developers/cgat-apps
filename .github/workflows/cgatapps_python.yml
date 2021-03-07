@@ -45,6 +45,7 @@ jobs:
         run: |
           python setup.py install
           pip install nose
-          conda clean -i
+          mamba uninstall numpy
+          mamba install numpy
           nosetests -v tests/test_style.py
           nosetests -v tests/test_scripts.py
