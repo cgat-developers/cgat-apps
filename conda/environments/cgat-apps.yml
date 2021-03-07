@@ -19,7 +19,7 @@ dependencies:
 - jinja2
 - matplotlib
 - nose
-- numpy==1.19.2
+- numpy
 - pandas
 - pep8
 - pybedtools
@@ -31,7 +31,7 @@ dependencies:
 - quicksect
 - rdflib
 - scikit-learn
-- scipy
+- scipy==1.5.3
 - seaborn
 - setuptools
 - six
