@@ -19,7 +19,7 @@ dependencies:
 - jinja2
 - matplotlib
 - nose
-- numpy
+- numpy==1.19.2
 - pandas
 - pep8
 - pybedtools
