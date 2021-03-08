@@ -24,7 +24,7 @@ dependencies:
 - pep8
 - pybedtools
 - pybigwig
-- pysam=0.15.2
+- pysam
 - python-lzo
 - pyyaml
 - pytest<=5.4.3
