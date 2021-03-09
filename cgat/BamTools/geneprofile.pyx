@@ -15,15 +15,15 @@ CountResult = collections.namedtuple(
     "Counts", "upstream upstream_utr cds downstream_utr downstream")
 
 class RangeCounter:
-    
-    def __init__(self, countfiles, 
-                 controlfiles=None, 
-                 control_factor=None, 
+
+    def __init__(self, countfiles,
+                 controlfiles=None,
+                 control_factor=None,
                  *args, **kwargs ):
 
         self.countfiles = countfiles
         self.controlfiles = controlfiles
-        self.control_factor = control_factor 
+        self.control_factor = control_factor
         if self.control_factor is None:
             if self.controlfiles is not None:
                 # count number of tags in each file for normalization purposes
@@ -72,7 +72,7 @@ class RangeCounter:
             # E.debug( "normed length = %i, unnormed length =%i " % (lnormed, lunnormed) )
             if lunnormed > lnormed:
                 # compress by taking only counts at certain points within intervals
-                take = numpy.unique( numpy.array( numpy.floor( 
+                take = numpy.unique( numpy.array( numpy.floor(
                             numpy.arange( 0, lunnormed - 1, lunnormed / lnormed ) ), dtype = int ) )
             elif lunnormed == lnormed:
                 # same size, no scaling
@@ -80,7 +80,7 @@ class RangeCounter:
             else:
                 # expand by taking more counts
                 take = numpy.array( numpy.arange(0, lunnormed, lunnormed / lnormed ), dtype = int )[:length]
-                
+
             assert len(take) == length, "size of arrays unequal: %i != %i from %i" % (len(take), length, lunnormed)
 
             self.counts = self.counts[take]
@@ -88,7 +88,7 @@ class RangeCounter:
                 self.counts_bg = self.counts_bg[take]
 
         if self.controlfiles:
-            # scale background 
+            # scale background
             self.counts += 1
             self.counts_bg += 1
             self.counts = numpy.array( self.counts, dtype=float) * \
@@ -160,11 +160,11 @@ class RangeCounterBAM(RangeCounter):
 
 
 class RangeCounterBAMShift(RangeCounterBAM):
-    '''count densities using bam files. 
+    '''count densities using bam files.
 
     Before counting, reads are shifted and extended by a fixed amount.
     '''
-    def __init__(self, countfiles, shifts, extends, 
+    def __init__(self, countfiles, shifts, extends,
                  controlfiles = None,
                  *args, **kwargs ):
         '''
@@ -213,8 +213,8 @@ class RangeCounterBAMShift(RangeCounterBAM):
         # shifting:
         # forward strand reads:
         #   - shift read upstream by shift
-        #   - extend read upstream by extend 
-        # reverse strand: 
+        #   - extend read upstream by extend
+        # reverse strand:
         #   - shift read downstream by shift
         #   - extend read downstream by extend
 
@@ -222,8 +222,8 @@ class RangeCounterBAMShift(RangeCounterBAM):
         # exon boundaries
         # 1. Density will accumulate at the ends as reads are shifted
         # up and downstream. However, shifted density will end up
-        # in the introns and thus not counted. 
-        # 2. The densities along exon boundaries will always be 
+        # in the introns and thus not counted.
+        # 2. The densities along exon boundaries will always be
         # discontinuous.
 
         cdef int extend
@@ -245,7 +245,7 @@ class RangeCounterBAMShift(RangeCounterBAM):
                     continue
 
                 for read in samfile.fetch(contig, xstart, xend):
-                    if read.is_reverse: 
+                    if read.is_reverse:
                         rstart = read.aend - start - shift_extend
                     else:
                         rstart = read.pos - start + shift
@@ -265,8 +265,8 @@ class RangeCounterBAMMerge(RangeCounterBAM):
     Reads are not shifted.
     '''
     def __init__(self, countfiles,
-                 merge_pairs, 
-                 min_insert_size, max_insert_size, 
+                 merge_pairs,
+                 min_insert_size, max_insert_size,
                  controlfiles = None,
                  *args, **kwargs ):
         '''
@@ -307,7 +307,7 @@ class RangeCounterBAMMerge(RangeCounterBAM):
 
             for start, end in ranges:
                 length = end - start
-                
+
                 xstart, xend = start, end
 
                 # skip bamfiles where contig is not present
@@ -315,7 +315,7 @@ class RangeCounterBAMMerge(RangeCounterBAM):
                     continue
 
                 for read in samfile.fetch(contig, xstart, xend):
-                    flag = read._delegate.core.flag 
+                    flag = read._delegate.core.flag
                     # remove unmapped reads
                     if flag & 4:
                         continue
@@ -349,7 +349,7 @@ class RangeCounterBAMMerge(RangeCounterBAM):
 class RangeCounterBAMBaseAccuracy(RangeCounterBAM):
     '''count densities using bam files with base accuracy.
     '''
-    def __init__(self, 
+    def __init__(self,
                  *args, **kwargs):
         '''
         '''
@@ -370,7 +370,7 @@ class RangeCounterBAMBaseAccuracy(RangeCounterBAM):
         cdef int work_offset
         cdef int pos
         cdef int length
-        
+
         cdef AlignmentFile samfile
 
         for samfile in files:
@@ -392,9 +392,9 @@ class RangeCounterBAMBaseAccuracy(RangeCounterBAM):
                         try:
                             counts[i - start + current_offset] += 1
                         except IndexError:
-                            print len(counts)
-                            print "i=", i, "start=",start, "end=", end, "current_offset=", current_offset
-                            print "positions=", positions
+                            print(len(counts))
+                            print("i=", i, "start=",start, "end=", end, "current_offset=", current_offset)
+                            print("positions=", positions)
                             raise
 
                 current_offset += length
@@ -403,7 +403,7 @@ class RangeCounterBed(RangeCounter):
 
     def __init__(self, *args, **kwargs):
         RangeCounter.__init__(self, *args, **kwargs)
-                
+
     def getTotal(self, bedfile):
         '''return total number of tags in bedfile.'''
         cdef int total = 0
@@ -412,7 +412,7 @@ class RangeCounterBed(RangeCounter):
         return total
 
     def count(self, counts, files, contig, ranges):
-        
+
         # collect pileup profile in region bounded by start and end.
         cdef int i
         cdef int xstart, xend, rstart, rend, start, end
@@ -441,13 +441,13 @@ class RangeCounterBed(RangeCounter):
 
                 current_offset += length
 
-        
+
 
 class RangeCounterBigWig(RangeCounter):
 
     def __init__(self, *args, **kwargs ):
         RangeCounter.__init__(self, *args, **kwargs )
-        
+
     def getTotal(self, filename):
         raise NotImplementedError(
             "getTotal not implemented for RangeCounterBigwig")
@@ -469,7 +469,7 @@ class RangeCounterBigWig(RangeCounter):
                 continue
 
             contig_length = wigfile.chroms(contig)
-            
+
             current_offset = 0
             for start, end in ranges:
 
@@ -486,7 +486,7 @@ class RangeCounterBigWig(RangeCounter):
                     E.error("Invalid interval found: %s\t%i\t%i contig length: %i" %
                             (contig, start, end, wigfile.chroms(contig)))
                     raise
-                    
+
                 if values == None:
                     continue
 
@@ -498,14 +498,14 @@ class RangeCounterBigWig(RangeCounter):
                         value = 0.0
 
                     counts[rstart] = value
-                    
+
                 current_offset += length
-       
-        
+
+
 class IntervalsCounter:
     '''aggregate reads/intervals within a certain arrangement of
-    intervals (sections). Sections are defined by a transcript-model 
-    and might be configurations such as upstream/exon/downstream, 
+    intervals (sections). Sections are defined by a transcript-model
+    and might be configurations such as upstream/exon/downstream,
     exon/intron, etc.
 
     Derived class should provide a ``self.count()`` method that accepts
@@ -513,15 +513,15 @@ class IntervalsCounter:
     collects counts within some configuration based on the
     transcript structure and then calls ``self.aggregate()`` to
     aggregate these counts.
-    
+
     The base class provides normalization and book keeping methods
     for the aggregation process.
     '''
 
     format = "%i"
 
-    def __init__(self, counter, 
-                 normalization = None, 
+    def __init__(self, counter,
+                 normalization = None,
                  outfile_profiles = None,
                  *args, **kwargs ):
         '''counter is an object to provide counts in a list of regions
@@ -531,7 +531,7 @@ class IntervalsCounter:
         self.counter = counter
 
         # normalization method to use before aggregation
-        self.normalization = normalization        
+        self.normalization = normalization
         # lables of categories to count (introns, exons, ...)
         self.fields = []
         # number of items counted in each category (1012 introns, 114 exons, ...)
@@ -591,7 +591,7 @@ class IntervalsCounter:
             self.format = "%i"
 
         for x,c in enumerate(self.aggregate_counts):
-            self.aggregate_counts[x] = numpy.zeros( len(c), dtype = self.dtype ) 
+            self.aggregate_counts[x] = numpy.zeros( len(c), dtype = self.dtype )
 
     def addName( self, name ):
         '''record name currently being processed.'''
@@ -623,7 +623,7 @@ class IntervalsCounter:
 
             if len(c) == 0:
                 continue
-            
+
             if norm > 0:
                 # apply uniform normalization
                 cc = c / norm
@@ -660,7 +660,7 @@ class IntervalsCounter:
         counts
            Normalize each segment individually by
            the number of regions included.
-        
+
         background
            Apply background normalization to complete
            profile.
@@ -668,17 +668,17 @@ class IntervalsCounter:
         '''
         if normalize is None or normalize == "none":
             profile = numpy.concatenate(self.aggregate_counts)
-        
+
         elif normalize in ("area", "background"):
             profile = numpy.concatenate(self.aggregate_counts)
             profile = numpy.array(profile, dtype=numpy.float)
-            
+
             if normalize == "area":
                 background = profile.sum()
-                
+
             elif normalize == "background":
                 # take counts at either end of profile
-                background_counts = numpy.concatenate( 
+                background_counts = numpy.concatenate(
                     [profile[:background_region_bins],
                      profile[-background_region_bins:]])
                 # compute mean()
@@ -696,20 +696,20 @@ class IntervalsCounter:
 
     def writeLengthStats(self, outfile):
         '''output length stats to outfile.'''
-        
+
         outfile.write("region\t%s\n" % "\t".join(Stats.Summary.fields))
         for field, l in zip(self.fields, self.lengths):
             outfile.write("%s\t%s\n" % (field, str(Stats.Summary(l))))
 
     def update(self, gtf):
-        
+
         counted = self.count(gtf)
 
         if counted and self.outfile_profiles:
             name = gtf[0].transcript_id
             self.outfile_profiles.write("%s\t%s\n" % (name,
                                         "\t".join( [ "\t".join( map(str, x) ) for x in self.last_counts ] ) ) )
-        
+
         return counted
 
     def __str__(self):
@@ -719,9 +719,9 @@ class UnsegmentedCounter(IntervalsCounter):
     '''clone a segmented counter as a single
     unsegmented counter.
     '''
-    
+
     name = None
-    
+
     def __init__(self, counter,
                  *args,
                  **kwargs ):
@@ -737,7 +737,7 @@ class SeparateExonCounter(IntervalsCounter):
     '''
     name = "separateexonprofile"
 
-    def __init__(self, counter, 
+    def __init__(self, counter,
                  int resolution_upstream,
                  int resolution_first_exon,
                  int resolution_last_exon,
@@ -750,7 +750,7 @@ class SeparateExonCounter(IntervalsCounter):
                  **kwargs):
 
         IntervalsCounter.__init__(self, counter, *args, **kwargs)
-	      
+
         self.extension_upstream = extension_upstream
         self.extension_downstream = extension_downstream
         self.resolution_first_exon = resolution_first_exon
@@ -775,7 +775,7 @@ class SeparateExonCounter(IntervalsCounter):
         Returns a tuple with ranges for first, middle and last exons,
         upstream and downstream.  Does not count genes with 1 exon.
         '''
-        
+
         contig = gtf[0].contig
         exons = GTF.asRanges(gtf, "exon")
         if len(exons) == 0:
@@ -804,7 +804,7 @@ class SeparateExonCounter(IntervalsCounter):
             self.extension_downstream = (last_end - first_start)*self.scale_flanks
             self.extension_upstream = (last_end - first_start)*self.scale_flanks
             E.dubg("scale flanks")
-            
+
         if gtf[0].strand == "-":
             downstream = [(max(0, first_start - self.extension_downstream),
                            first_start),]
@@ -835,9 +835,9 @@ class SeparateExonCounter(IntervalsCounter):
         E.debug("counting downstream")
         self.counts_downstream = self.counter.getCounts(contig, downstream,
                                                         self.resolution_downstream)
-        
+
         E.debug("counting finished" )
-        
+
         ## revert for negative strand
         if gtf[0].strand == "-":
             self.counts_first_exon = self.counts_first_exon[::-1]
@@ -864,7 +864,7 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
     '''
     name = "separateexonprofilewithintrons"
 
-    def __init__(self, counter, 
+    def __init__(self, counter,
                  int resolution_upstream,
                  int resolution_first_exon,
                  int resolution_last_exon,
@@ -878,7 +878,7 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
                  **kwargs):
 
         IntervalsCounter.__init__(self, counter, *args, **kwargs)
-	      
+
         self.extension_upstream = extension_upstream
         self.extension_downstream = extension_downstream
         self.resolution_first_exon = resolution_first_exon
@@ -905,7 +905,7 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
         Returns a tuple with ranges for first, middle and last exons, introns,
         upstream and downstream.  Does not count genes with 1 exon.
         '''
-        
+
         contig = gtf[0].contig
         exons = GTF.asRanges(gtf, "exon")
         introns = Intervals.complement(exons)
@@ -918,7 +918,7 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
         if len(introns) == 0:
             E.warn("no introns in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
             return 0
-	  
+
         if len(exons) == 2:
             first = [exons[0]]
             last = [exons[-1]]
@@ -941,7 +941,7 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
             self.extension_downstream = (last_end - first_start)*self.scale_flanks
             self.extension_upstream = (last_end - first_start)*self.scale_flanks
             E.dubg("scale flanks")
-            
+
         if gtf[0].strand == "-":
             downstream = [(max(0, first_start - self.extension_downstream),
                            first_start),]
@@ -976,9 +976,9 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
         E.debug("counting downstream")
         self.counts_downstream = self.counter.getCounts(contig, downstream,
                                                         self.resolution_downstream)
-        
+
         E.debug("counting finished" )
-        
+
         ## revert for negative strand
         if gtf[0].strand == "-":
             self.counts_first_exon = self.counts_first_exon[::-1]
@@ -1002,17 +1002,17 @@ class SeparateExonWithIntronCounter(IntervalsCounter):
 
 class GeneCounter( IntervalsCounter ):
     '''count reads in exons and upstream/downstream of genes/transcripts.
-    
+
     Only protein coding transcripts are counted (i.e. those with a CDS)
     '''
-    
+
     name = "geneprofile"
-    
-    def __init__(self, counter, 
+
+    def __init__(self, counter,
                  int resolution_upstream,
                  int resolution_exons,
                  int resolution_downstream,
-                 int extension_upstream = 0, 
+                 int extension_upstream = 0,
                  int extension_downstream = 0,
                  int scale_flanks = 0,
                  *args,
@@ -1021,26 +1021,26 @@ class GeneCounter( IntervalsCounter ):
         IntervalsCounter.__init__(self, counter, *args, **kwargs )
 
         self.extension_upstream = extension_upstream
-        self.extension_downstream = extension_downstream 
+        self.extension_downstream = extension_downstream
         self.resolution_exons = resolution_exons
         self.resolution_upstream = resolution_upstream
         self.resolution_downstream = resolution_downstream
         self.scale_flanks = scale_flanks
 
-        for field, length in zip( 
+        for field, length in zip(
             ("upstream", "exons", "downstream"),
             (resolution_upstream,
              resolution_exons,
              resolution_downstream ) ):
             self.add( field, length )
-        
+
     def count( self, gtf ):
         '''build ranges to be analyzed from a gene model.
 
         Returns a tuple with ranges for exons, upstream, downstream.
         '''
 
-        contig = gtf[0].contig 
+        contig = gtf[0].contig
         exons = GTF.asRanges( gtf, "exon" )
         if len(exons) == 0:
             E.warn( "no exons in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
@@ -1054,12 +1054,12 @@ class GeneCounter( IntervalsCounter ):
 
         if gtf[0].strand == "-":
             downstream = [( max(0, exon_start - self.extension_downstream),
-                            exon_start ),] 
+                            exon_start ),]
             upstream = [( exon_end,
                           exon_end + self.extension_upstream),]
         else:
             upstream = [(max(0, exon_start - self.extension_upstream),
-                         exon_start ),] 
+                         exon_start ),]
             downstream = [(exon_end,
                            exon_end + self.extension_downstream ),]
 
@@ -1068,9 +1068,9 @@ class GeneCounter( IntervalsCounter ):
                                                    exons,
                                                    self.resolution_exons)
         E.debug("counting upstream" )
-        self.counts_upstream = self.counter.getCounts(contig, 
+        self.counts_upstream = self.counter.getCounts(contig,
                                                       upstream,
-                                                      self.resolution_upstream) 
+                                                      self.resolution_upstream)
         E.debug("counting downstream" )
         self.counts_downstream = self.counter.getCounts(contig,
                                                         downstream,
@@ -1083,7 +1083,7 @@ class GeneCounter( IntervalsCounter ):
             self.counts_exons = self.counts_exons[::-1]
             self.counts_upstream = self.counts_upstream[::-1]
             self.counts_downstream = self.counts_downstream[::-1]
-            
+
         self.addLengths( upstream, exons, downstream )
 
         self.aggregate( self.counts_upstream,
@@ -1095,23 +1095,23 @@ class GeneCounter( IntervalsCounter ):
 
 class GeneCounterWithIntrons( IntervalsCounter ):
     '''count reads in exons, in introns and the upstream/downstream of genes/transcripts.
-    
-    Assumes all the behavior of GeneCounter class, because the code is modified based on 
+
+    Assumes all the behavior of GeneCounter class, because the code is modified based on
     GeneCounter Class. Class created by Tim on 16 May. 2013.
-    
+
     Both  protein coding transcripts, and non coding transcripts are counted.
     (i.e. both those with a CDS, and those without a CDS are counted)
     '''
-    
+
     name = "geneprofilewithintrons"
-    
-    def __init__(self, 
+
+    def __init__(self,
                  counter,
                  int resolution_upstream,
                  int resolution_exons,
                  int resolution_introns,  #Tim 16 May. 2013. for introns
                  int resolution_downstream,
-                 int extension_upstream = 0, 
+                 int extension_upstream = 0,
                  int extension_downstream = 0,
                  int scale_flanks = 0,
                  *args,
@@ -1120,43 +1120,43 @@ class GeneCounterWithIntrons( IntervalsCounter ):
         IntervalsCounter.__init__(self, counter, *args, **kwargs )
 
         self.extension_upstream = extension_upstream
-        self.extension_downstream = extension_downstream 
+        self.extension_downstream = extension_downstream
         self.resolution_exons = resolution_exons
         self.resolution_introns = resolution_introns   #Tim 16 May. 2013. for introns
         self.resolution_upstream = resolution_upstream
         self.resolution_downstream = resolution_downstream
         self.scale_flanks = scale_flanks
 
-        for field, length in zip( 
+        for field, length in zip(
             ("upstream", "exons", "introns", "downstream"),  #Tim 16 May. 2013. for introns
             (resolution_upstream,
              resolution_exons,
              resolution_introns,  #Tim 16 May. 2013. for introns
              resolution_downstream ) ):
             self.add( field, length )
-        
+
     def count( self, gtf ):
         '''build ranges to be analyzed from a gene model.
 
         Returns a tuple with ranges for upstream, exons, introns, downstream.
         '''
 
-        contig = gtf[0].contig 
+        contig = gtf[0].contig
         exons = GTF.asRanges( gtf, "exon" )
         introns = Intervals.complement(exons) #Tim 16 May. 2013. for introns
-        
+
         if len(exons) == 0:
             E.warn( "no exons in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
             return 0
-            
-        # Tim 16 May. 2013. for introns. 
-        # Genes have no introns are omitted for counting in all other regions. Because 
+
+        # Tim 16 May. 2013. for introns.
+        # Genes have no introns are omitted for counting in all other regions. Because
         # include them will distort the relative height of exons/introns in the profile.
-        # In most gene profile plots, the relative height of different regions 
-        # is very important info, thus omit the gene will ensure the correctness for the 
+        # In most gene profile plots, the relative height of different regions
+        # is very important info, thus omit the gene will ensure the correctness for the
         # relative height across different regions.
         # Particularly true when user use normalization method: total-max.
-        if len(introns) == 0:   
+        if len(introns) == 0:
             E.debug( "Omitted this gene entirely because there are no introns in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
             return 0
 
@@ -1167,18 +1167,18 @@ class GeneCounterWithIntrons( IntervalsCounter ):
             E.debug("scale flanks")
 
         if gtf[0].strand == "-":
-            downstream = [ ( max(0, exon_start - self.extension_downstream), exon_start ), ] 
+            downstream = [ ( max(0, exon_start - self.extension_downstream), exon_start ), ]
             upstream = [ ( exon_end, exon_end + self.extension_upstream ), ]
         else:
-            upstream = [ ( max(0, exon_start - self.extension_upstream), exon_start ), ] 
+            upstream = [ ( max(0, exon_start - self.extension_upstream), exon_start ), ]
             downstream = [ ( exon_end, exon_end + self.extension_downstream ), ]
 
         E.debug("counting exons" )
         self.counts_exons = self.counter.getCounts( contig, exons, self.resolution_exons  )
-        E.debug("counting introns" ) #Tim 16 May. 2013. for introns. 
-        self.counts_introns = self.counter.getCounts( contig, introns, self.resolution_introns  )        
+        E.debug("counting introns" ) #Tim 16 May. 2013. for introns.
+        self.counts_introns = self.counter.getCounts( contig, introns, self.resolution_introns  )
         E.debug("counting upstream" )
-        self.counts_upstream = self.counter.getCounts( contig, upstream, self.resolution_upstream ) 
+        self.counts_upstream = self.counter.getCounts( contig, upstream, self.resolution_upstream )
         E.debug("counting downstream" )
         self.counts_downstream = self.counter.getCounts( contig, downstream, self.resolution_downstream )
 
@@ -1187,15 +1187,15 @@ class GeneCounterWithIntrons( IntervalsCounter ):
         ## revert for negative strand
         if gtf[0].strand == "-":
             self.counts_exons = self.counts_exons[::-1]
-            self.counts_introns = self.counts_introns[::-1]   #Tim 16 May. 2013. for introns. 
+            self.counts_introns = self.counts_introns[::-1]   #Tim 16 May. 2013. for introns.
             self.counts_upstream = self.counts_upstream[::-1]
             self.counts_downstream = self.counts_downstream[::-1]
-            
-        self.addLengths( upstream, exons, introns, downstream )   #Tim 16 May. 2013. for introns. 
+
+        self.addLengths( upstream, exons, introns, downstream )   #Tim 16 May. 2013. for introns.
 
         self.aggregate( self.counts_upstream,
                         self.counts_exons,
-                        self.counts_introns,  #Tim 16 May. 2013. for introns. 
+                        self.counts_introns,  #Tim 16 May. 2013. for introns.
                         self.counts_downstream )
 
         return 1
@@ -1205,14 +1205,14 @@ class GeneCounterWithIntrons( IntervalsCounter ):
 class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
     '''count reads in exons of genes/transcripts from the three prime
     polyA tail, without shrinking or lengthening the gene as it would
-    in other genecounter mode in this script.  
+    in other genecounter mode in this script.
 
     In other words, only count the reads that fall on the exons of the
     (virtual maximal) mRNA transcript.  Note that the distance is
     relative to TTS (three prime polyA tail) on the mNRA transcript,
     insteads of on the genomic assembly is used for the counting and
     plotting.
-    
+
     For mRNA with multiple exons, the exons are first stiched together
     into one piece of mRNA (the virtual maximal transcript for each
     gene). Subsequently, the mRNA is being used for counting. This is
@@ -1222,24 +1222,24 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
     considered as covering the entire intron, or spliced out introns
     will be counted as covered by reads.  (this option imply the
     --base-accuracy option).
-    
+
     Also count reads in introns (in exactly the same manner as if they
     are exons described above ) of genes/transcripts from the three
     prime polyA tail.
-    
+
     Note:
 
     * Both protein coding transcripts and non coding
     transcripts are counted.  i.e. both those with a CDS, and those
     without a CDS are counted.
-    
+
     * Only genes/transcripts with total length longer than the
     --extension-exons-absolute-distance-topolya is counted (i.e. those
     genes/transcripts shorter than this is omitted because they will
     only contribute to the last len(gene) base pair of the graph, thus
     end-up ploting a graph appears to have three prime bias even when
     there is no three prime bias at all.
-    
+
     There is one alternative way of dealing with this issue: is to
     count the number of times a nucleotide is being visited, and
     normalize against the counts curve with the visits counting
@@ -1250,28 +1250,28 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
     effort to implement the alternative way,
 
     '''
-    
+
     name = "geneprofileabsolutedistancefromthreeprimeend"   #Tim 31th Aug 2013
-    
-    def __init__(self, 
+
+    def __init__(self,
                  counter,
                  int resolution_upstream,
                  int resolution_downstream,
                  int resolution_exons_absolute_distance_topolya,
                  int resolution_introns_absolute_distance_topolya,
-                 # int resolution_exons_absolute_distance_tostartsite,   # Tim 31th Aug 2013: 
-                                                                         # a possible feature for future,  if five prime bias is of your interest. 
+                 # int resolution_exons_absolute_distance_tostartsite,   # Tim 31th Aug 2013:
+                                                                         # a possible feature for future,  if five prime bias is of your interest.
                                                                          #(you need to create another class). It is not very difficult to derive from this class, but is not implemented yet
-                                                                         # This future feature is slightly different the TSS profile already implemented, because in this future feature introns are skipped, 
+                                                                         # This future feature is slightly different the TSS profile already implemented, because in this future feature introns are skipped,
                  # int resolution_introns_absolute_distance_tostartsite, # feature not implemented yet
-                 
-                 int extension_upstream = 0, 
+
+                 int extension_upstream = 0,
                  int extension_downstream = 0,
                  int extension_exons_absolute_distance_topolya = 0,
                  int extension_introns_absolute_distance_topolya = 0,
                  # int extension_exons_absolute_distance_tostartsite = 0,   # feature not implemented yet
                  # int extension_introns_absolute_distance_tostartsite = 0, # feature not implemented yet
-                 
+
                  int scale_flanks = 0,
                  *args,
                  **kwargs ):
@@ -1279,15 +1279,15 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
         IntervalsCounter.__init__(self, counter, *args, **kwargs )
 
         self.extension_upstream = extension_upstream
-        self.extension_downstream = extension_downstream 
+        self.extension_downstream = extension_downstream
         self.resolution_upstream = resolution_upstream
         self.resolution_downstream = resolution_downstream
-        
+
         self.resolution_exons_absolute_distance_topolya = resolution_exons_absolute_distance_topolya     #Tim 31th Aug 2013
         self.resolution_introns_absolute_distance_topolya = resolution_introns_absolute_distance_topolya #Tim 31th Aug 2013
         self.extension_exons_absolute_distance_topolya = extension_exons_absolute_distance_topolya       #Tim 31th Aug 2013
         self.extension_introns_absolute_distance_topolya = extension_introns_absolute_distance_topolya   #Tim 31th Aug 2013
-        
+
         self.scale_flanks = scale_flanks
 
         for field, length in zip(
@@ -1299,36 +1299,36 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
                 (resolution_upstream,
                  resolution_exons_absolute_distance_topolya,
                  resolution_introns_absolute_distance_topolya,
-                 resolution_downstream) 
+                 resolution_downstream)
         ):
             self.add(field, length)
 
-            
+
     #Tim 31th Aug 2013: Important function in this class to stich together the exons into one complete of mRNA
     def __chopAllTranscriptToAFixedLengthForTheThreePrimeBiasCounting(self, gtf , exons, extension_threePrimeBiasNotZoomed ):
         '''
         works for both exons and introns, the variable name exons is only symolic here,
-        it means either exons, or introns depending on the regions you passed in 
+        it means either exons, or introns depending on the regions you passed in
         during function call
-        
-        in order to use the gene2profile code to plot 3prime bias plot, 
-        if a gene is longer than my plotting size (e.g. 5kb), because I 
-        do not want to let the code to shrink the gene, I need to create 
-        a "chopped gene" that only has the first several bp (e.g. 5kb) 
-        closest to the 3prime, so the gene always appears to be of the length 
+
+        in order to use the gene2profile code to plot 3prime bias plot,
+        if a gene is longer than my plotting size (e.g. 5kb), because I
+        do not want to let the code to shrink the gene, I need to create
+        a "chopped gene" that only has the first several bp (e.g. 5kb)
+        closest to the 3prime, so the gene always appears to be of the length
         "extension_threePrimeBiasNotZoomed", (e.g. 5kb)
-        
+
         In this version, shorter genes are omitted at count() becase len([])==0.
         It is oimitted in the same mannar that was used to
         omit the genes without any exons, by returnning [], which can be interpreted
         by the calling function as omit, or take any other further actions.
-       
+
         '''
-        
-        if len(exons)==0: return []  # this is to cater for the case where there's 
+
+        if len(exons)==0: return []  # this is to cater for the case where there's
                                      # one exon, and no intron, but I am plotted\
                                      # unzoomed introns as well
-        
+
         leftoverBasepairAllowance = extension_threePrimeBiasNotZoomed
         exons_chopped = []
         if gtf[0].strand == "-":
@@ -1336,12 +1336,12 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
                 exonSize = exon[1]-exon[0]
                 if leftoverBasepairAllowance > exonSize:
                     leftoverBasepairAllowance -= exonSize
-                    exons_chopped.append(exon)            # append is the correct way, coz we process the first exon first. 
-                                                            # so subsequent exons shall be appended so that the basepair ordering 
-                                                            # is in reverse ordering alone the gene body, likewise, the exon 
-                                                            # ordering is also the reverse ordering alone the gene body. In the 
+                    exons_chopped.append(exon)            # append is the correct way, coz we process the first exon first.
+                                                            # so subsequent exons shall be appended so that the basepair ordering
+                                                            # is in reverse ordering alone the gene body, likewise, the exon
+                                                            # ordering is also the reverse ordering alone the gene body. In the
                                                             # end, just before counts are aggregated, there will be code:
-                                                            # if "-": counts_exons_NotZoomedAndChopped_ForThreePrimeBias[::-1] to flip 
+                                                            # if "-": counts_exons_NotZoomedAndChopped_ForThreePrimeBias[::-1] to flip
                                                             # everything in base pair resolution.
                     E.debug(str(exons_chopped))
                 else:
@@ -1354,7 +1354,7 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
                     E.debug( "Exon intervals preparation function: gene %s:%s, leftoverBasepairAllowance= %s " % (gtf[0].transcript_id, gtf[0].strand, leftoverBasepairAllowance)  )
                     E.debug( str(exons_chopped) )
                     break
-                    # gene is longer than my window, thus chopped, 
+                    # gene is longer than my window, thus chopped,
                     # once in this section of code, exons_chopped is the final chopped gene, thus break from loop
                     # and later, exons_chopped is being return at the end of the function.
 
@@ -1375,55 +1375,55 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
                     E.debug( "Exon intervals preparation function: gene %s:%s, leftoverBasepairAllowance= %s " % (gtf[0].transcript_id, gtf[0].strand, leftoverBasepairAllowance)  )
                     E.debug( str(exons_chopped) )
                     break
-                    # gene is longer than my window, thus chopped, 
+                    # gene is longer than my window, thus chopped,
                     # once in this section of code, exons_chopped is the final chopped gene, thus break from loop
                     # and later, exons_chopped is being return at the end of the function.
         else:
             E.error( "In exon intervals preparation function: strand is neither + nor - in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id) )
-            # in this situation, gene direction column in the GTF file have some problems, 
-            # exons_chopped is still [], and is being return 
-            # at the end of the function. 
+            # in this situation, gene direction column in the GTF file have some problems,
+            # exons_chopped is still [], and is being return
+            # at the end of the function.
             # so that his componet is skipped by the counter
-            
+
         #gene is nicely chopped, so that no alloance is left.
-        if leftoverBasepairAllowance==0: 
+        if leftoverBasepairAllowance==0:
             return exons_chopped
-            
+
         # gene is shorter than my window, thus it is not chopped to any shorter at all.
         # you can return three different signals to the caller function, and they have different meanings:
         # if you return the gene, it will be expanded and counted, thus might not be your desired behaviour.
         # if you return None, it will be throwing an exception in count()
-        # if you return [], thus len([])==0, the whole gene will be quitely omitted. 
-        elif leftoverBasepairAllowance>0: 
-            E.debug( "In exon intervals preparation function: gene %s:%s is shorter than the defined threeprimebiaswindow: %s ." % (gtf[0].gene_id, gtf[0].transcript_id, extension_threePrimeBiasNotZoomed) )            
+        # if you return [], thus len([])==0, the whole gene will be quitely omitted.
+        elif leftoverBasepairAllowance>0:
+            E.debug( "In exon intervals preparation function: gene %s:%s is shorter than the defined threeprimebiaswindow: %s ." % (gtf[0].gene_id, gtf[0].transcript_id, extension_threePrimeBiasNotZoomed) )
             return []
-        
+
         #leftoverBasepairAllowance is neither ==0 nor >0, there must be a bug in the code.
-        else: 
+        else:
             E.error( "In exon intervals preparation function: leftoverBasepairAllowance after chopping is neither ==0 nor >0 in gene %s:%s. It must be a bug" % (gtf[0].gene_id, gtf[0].transcript_id) )
-            E.error( "In exon intervals preparation function: details:: before: s%, after: s%, strand: s%."%(str(exons), str(exons_chopped), gtf[0].strand)    )  
-            
+            E.error( "In exon intervals preparation function: details:: before: s%, after: s%, strand: s%."%(str(exons), str(exons_chopped), gtf[0].strand)    )
+
         #the __chopgenestoshowthreePrimeBiasNotZoomed subfunction ends here # this return below is never be used according to the logic above. i.e. unless it enters the else: warn due to a bug, this return statement is never executed.
         return
-        
-            
+
+
     def count( self, gtf ):
         '''build ranges to be analyzed from a gene model.
 
         Returns a tuple with ranges for upstream, exons, introns, downstream.
         '''
 
-        contig = gtf[0].contig 
+        contig = gtf[0].contig
         exons = GTF.asRanges( gtf, "exon" )
         # skip genes without exons
         if len(exons) == 0: return 0
 
         introns = Intervals.complement(exons) #Tim 31th Aug 2013
-        
+
         if len(exons) == 0:
             E.warn( "In counter function: seems like a seriouse problem, there are no exons in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
             return 0
-            
+
         if len(introns) == 0:
             E.debug( "In counter function: no introns in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
             # Tim 31th Aug 2013 :
@@ -1431,7 +1431,7 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
             # return 0 here because if no intron, we do not want to count this whole gene.
             # otherwise, the relative height among intron, exon, upstream, downstream will be wrong
             return 0
-            
+
         exon_start, exon_end = exons[0][0], exons[-1][1]
         if self.scale_flanks > 0:
             self.extension_downstream = (exon_end - exon_start)*self.scale_flanks
@@ -1439,12 +1439,12 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
             E.debug("In counter function: scale flanks")
 
         if gtf[0].strand == "-":
-            downstream = [ ( max(0, exon_start - self.extension_downstream), exon_start ), ] 
+            downstream = [ ( max(0, exon_start - self.extension_downstream), exon_start ), ]
             upstream = [ ( exon_end, exon_end + self.extension_upstream ), ]
         else:
-            upstream = [ ( max(0, exon_start - self.extension_upstream), exon_start ), ] 
+            upstream = [ ( max(0, exon_start - self.extension_upstream), exon_start ), ]
             downstream = [ ( exon_end, exon_end + self.extension_downstream ), ]
-        
+
         # within the __chopAllTranscriptToAFixedLengthForTheThreePrimeBiasCounting function, the flipping for genes on "-" strand is already taken care of. Tim 31th Aug 2013
         exons_NotZoomedAndChopped_ForThreePrimeBias   = self.__chopAllTranscriptToAFixedLengthForTheThreePrimeBiasCounting( gtf, exons,   self.extension_exons_absolute_distance_topolya   )
         introns_NotZoomedAndChopped_ForThreePrimeBias = self.__chopAllTranscriptToAFixedLengthForTheThreePrimeBiasCounting( gtf, introns, self.extension_introns_absolute_distance_topolya )
@@ -1454,7 +1454,7 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
             # do not warn here because there are many genes's total exon length might be short.
             # return 0 here because if no exons, we do not want to count this whole gene.
             # otherwise, the relative height of intron and exon will be wrong
-            return 0        
+            return 0
         if len(introns_NotZoomedAndChopped_ForThreePrimeBias) == 0:
             E.debug( "In counter function: after introns concat together, it is not long enough in gene %s:%s" % (gtf[0].gene_id, gtf[0].transcript_id))
             # Tim 31th Aug 2013  :
@@ -1462,10 +1462,10 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
             # return 0 here because if no intron, we do not want to count this whole gene.
             # otherwise, the relative height of intron and exon will be wrong
             return 0
-                        
-            
+
+
         E.debug("counting upstream" )
-        self.counts_upstream = self.counter.getCounts( contig, upstream, self.resolution_upstream ) 
+        self.counts_upstream = self.counter.getCounts( contig, upstream, self.resolution_upstream )
         E.debug("counting downstream" )
         self.counts_downstream = self.counter.getCounts( contig, downstream, self.resolution_downstream )
         E.debug("counting exons NotZoomedAndChopped ForThreePrimeBias" )
@@ -1474,27 +1474,27 @@ class GeneCounterAbsoluteDistanceFromThreePrimeEnd( IntervalsCounter ):
         self.counts_introns_NotZoomedAndChopped_ForThreePrimeBias = self.counter.getCounts( contig, introns_NotZoomedAndChopped_ForThreePrimeBias, self.resolution_introns_absolute_distance_topolya )
         E.debug("counting finished" )
 
-        
+
         if gtf[0].strand == "+":
-            # nothings needs to be flipped for positive strand gene 
-            pass 
+            # nothings needs to be flipped for positive strand gene
+            pass
         elif gtf[0].strand == "-":
             # flip for negative strand genes
             self.counts_upstream = self.counts_upstream[::-1]
             self.counts_downstream = self.counts_downstream[::-1]
-            #Tim 31th Aug 2013 
+            #Tim 31th Aug 2013
             self.counts_exons_NotZoomedAndChopped_ForThreePrimeBias   = self.counts_exons_NotZoomedAndChopped_ForThreePrimeBias[::-1]
             self.counts_introns_NotZoomedAndChopped_ForThreePrimeBias = self.counts_introns_NotZoomedAndChopped_ForThreePrimeBias[::-1]
-          
-        self.addLengths( upstream, 
-                         exons_NotZoomedAndChopped_ForThreePrimeBias, 
-                         introns_NotZoomedAndChopped_ForThreePrimeBias, 
-                         downstream )                   #Tim 31th Aug 2013 
-                
+
+        self.addLengths( upstream,
+                         exons_NotZoomedAndChopped_ForThreePrimeBias,
+                         introns_NotZoomedAndChopped_ForThreePrimeBias,
+                         downstream )                   #Tim 31th Aug 2013
+
         self.aggregate( self.counts_upstream,
                         self.counts_exons_NotZoomedAndChopped_ForThreePrimeBias,
-                        self.counts_introns_NotZoomedAndChopped_ForThreePrimeBias,                        
-                        self.counts_downstream )        #Tim 31th Aug 2013 
+                        self.counts_introns_NotZoomedAndChopped_ForThreePrimeBias,
+                        self.counts_downstream )        #Tim 31th Aug 2013
 
         return 1
 
@@ -1503,14 +1503,14 @@ class UTRCounter( IntervalsCounter ):
     to the extension outside.'''
 
     name = "utrprofile"
-    
-    def __init__(self, counter, 
+
+    def __init__(self, counter,
                  int resolution_upstream,
                  int resolution_upstream_utr,
                  int resolution_cds,
                  int resolution_downstream_utr,
                  int resolution_downstream,
-                 int extension_upstream = 0, 
+                 int extension_upstream = 0,
                  int extension_downstream = 0,
                  *args,
                  **kwargs ):
@@ -1518,14 +1518,14 @@ class UTRCounter( IntervalsCounter ):
         IntervalsCounter.__init__(self, counter, *args, **kwargs )
 
         self.extension_upstream = extension_upstream
-        self.extension_downstream = extension_downstream 
+        self.extension_downstream = extension_downstream
         self.resolution_cds = resolution_cds
         self.resolution_upstream = resolution_upstream
         self.resolution_downstream = resolution_downstream
         self.resolution_upstream_utr = resolution_upstream_utr
         self.resolution_downstream_utr = resolution_downstream_utr
 
-        for field, length in zip( 
+        for field, length in zip(
             ("upstream", "upstream_utr", "cds", "downstream_utr", "downstream"),
             (resolution_upstream,
              resolution_upstream_utr,
@@ -1533,7 +1533,7 @@ class UTRCounter( IntervalsCounter ):
              resolution_downstream_utr,
              resolution_downstream ) ):
             self.add( field, length )
-        
+
     def count( self, gtf ):
         '''build ranges to be analyzed from a gene model.
 
@@ -1541,7 +1541,7 @@ class UTRCounter( IntervalsCounter ):
         downstream_utr, upstream, downstream.
         '''
 
-        contig = gtf[0].contig 
+        contig = gtf[0].contig
         exons = GTF.asRanges( gtf, "exon" )
         # skip genes without exons
         if len(exons) == 0: return 0
@@ -1556,18 +1556,18 @@ class UTRCounter( IntervalsCounter ):
         if gtf[0].strand == "-":
             self.upstream_utr = [ x for x in utrs if x[0] >= cds_end ]
             self.downstream_utr = [ x for x in utrs if x[1] <= cds_start ]
-            self.downstream = [ ( max(0, exon_start - self.extension_downstream), exon_start ), ] 
+            self.downstream = [ ( max(0, exon_start - self.extension_downstream), exon_start ), ]
             self.upstream = [ ( exon_end, exon_end + self.extension_upstream ), ]
         else:
             self.upstream_utr = [ x for x in utrs if x[1] <= cds_start ]
             self.downstream_utr = [ x for x in utrs if x[0] >= cds_end ]
-            self.upstream = [ ( max(0, exon_start - self.extension_upstream), exon_start ), ] 
+            self.upstream = [ ( max(0, exon_start - self.extension_upstream), exon_start ), ]
             self.downstream = [ ( exon_end, exon_end + self.extension_downstream ), ]
-        
+
         E.debug("counting cds" )
         self.counts_cds = self.counter.getCounts( contig, self.cds, self.resolution_cds  )
         E.debug("counting upstream" )
-        self.counts_upstream = self.counter.getCounts( contig, self.upstream, self.resolution_upstream ) 
+        self.counts_upstream = self.counter.getCounts( contig, self.upstream, self.resolution_upstream )
         E.debug("counting downstream" )
         self.counts_downstream = self.counter.getCounts( contig, self.downstream, self.resolution_downstream )
 
@@ -1609,8 +1609,8 @@ class RegionCounter( GeneCounter ):
     '''count in complete region given by gene/transcript.'''
 
     name = "intervalprofile"
-    
-    def __init__(self, 
+
+    def __init__(self,
                  *args,
                  **kwargs ):
 
@@ -1627,18 +1627,18 @@ class RegionCounter( GeneCounter ):
         g.copy( gtf[0] )
         g.start = gtf[0].start
         g.end = gtf[-1].end
-        
+
         return GeneCounter.count( self, [ g ] )
 
 class MidpointCounter( GeneCounter ):
     '''count in complete region given by gene/transcript.'''
 
     name = "midpointprofile"
-    
-    def __init__(self, counter, 
+
+    def __init__(self, counter,
                  int resolution_upstream,
                  int resolution_downstream,
-                 int extension_upstream = 0, 
+                 int extension_upstream = 0,
                  int extension_downstream = 0,
                  int scale_flanks = 0,
                  *args,
@@ -1647,23 +1647,23 @@ class MidpointCounter( GeneCounter ):
         IntervalsCounter.__init__(self, counter, *args, **kwargs )
 
         self.extension_upstream = extension_upstream
-        self.extension_downstream = extension_downstream 
+        self.extension_downstream = extension_downstream
         self.resolution_upstream = resolution_upstream
         self.resolution_downstream = resolution_downstream
 
-        for field, length in zip( 
+        for field, length in zip(
             ("upstream", "downstream"),
             (resolution_upstream,
              resolution_downstream ) ):
             self.add( field, length )
-        
+
     def count( self, gtf ):
         '''build ranges to be analyzed from a gene model.
 
         Returns a tuple with ranges for exons, upstream, downstream.
         '''
 
-        contig = gtf[0].contig 
+        contig = gtf[0].contig
         exons = GTF.asRanges( gtf, "exon" )
         # skip genes without exons
         if len(exons) == 0: return 0
@@ -1671,14 +1671,14 @@ class MidpointCounter( GeneCounter ):
         midpoint = (exon_end - exon_start) // 2 + exon_start
 
         if gtf[0].strand == "-":
-            downstream = [ ( max(0, midpoint - self.extension_downstream), midpoint ), ] 
+            downstream = [ ( max(0, midpoint - self.extension_downstream), midpoint ), ]
             upstream = [ ( midpoint, midpoint + self.extension_upstream ), ]
         else:
-            upstream = [ ( max(0, midpoint - self.extension_upstream), midpoint ), ] 
+            upstream = [ ( max(0, midpoint - self.extension_upstream), midpoint ), ]
             downstream = [ ( midpoint, midpoint + self.extension_downstream ), ]
-        
+
         E.debug("counting upstream" )
-        self.counts_upstream = self.counter.getCounts( contig, upstream, self.resolution_upstream ) 
+        self.counts_upstream = self.counter.getCounts( contig, upstream, self.resolution_upstream )
         E.debug("counting downstream" )
         self.counts_downstream = self.counter.getCounts( contig, downstream, self.resolution_downstream )
 
@@ -1688,14 +1688,14 @@ class MidpointCounter( GeneCounter ):
         if gtf[0].strand == "-":
             self.counts_upstream = self.counts_upstream[::-1]
             self.counts_downstream = self.counts_downstream[::-1]
-            
+
         self.addLengths( upstream, downstream )
 
         self.aggregate( self.counts_upstream,
                         self.counts_downstream )
 
         return 1
-        
+
 class TSSCounter( IntervalsCounter ):
     '''count profile at transcription start/end site.
 
@@ -1705,18 +1705,18 @@ class TSSCounter( IntervalsCounter ):
     '''
 
     name = "tssprofile"
-    
+
     def __init__(self, counter, extension_out = 0, extension_in = 0, *args, **kwargs):
         IntervalsCounter.__init__(self, counter, *args, **kwargs )
 
         self.extension_out = extension_out
-        self.extension_in = extension_in 
+        self.extension_in = extension_in
 
         for field, length in zip( ("tss", "tts"),
                                   ( extension_out + extension_in,
                                     extension_out + extension_in ) ):
             self.add( field, length )
-        
+
     def count( self, gtf ):
 
         contig, strand = gtf[0].contig, gtf[0].strand
@@ -1728,14 +1728,14 @@ class TSSCounter( IntervalsCounter ):
 
         # no max(0, ...) here as these ranges need to have always the same length
         if strand == "-":
-            self.tts_ranges = [ (max(0, self.tss - self.extension_out), 
+            self.tts_ranges = [ (max(0, self.tss - self.extension_out),
                                  self.tss + self.extension_in), ]
-            self.tss_ranges = [ (max(0, self.tts - self.extension_in), 
+            self.tss_ranges = [ (max(0, self.tts - self.extension_in),
                                  self.tts + self.extension_out), ]
         else:
-            self.tss_ranges = [ (max(0, self.tss - self.extension_out), 
+            self.tss_ranges = [ (max(0, self.tss - self.extension_out),
                                  self.tss + self.extension_in), ]
-            self.tts_ranges = [ (max(0, self.tts - self.extension_in), 
+            self.tts_ranges = [ (max(0, self.tts - self.extension_in),
                                  self.tts + self.extension_out), ]
         E.debug( "tss=%s, tts=%s" % (self.tss_ranges, self.tts_ranges) )
 
@@ -1746,7 +1746,7 @@ class TSSCounter( IntervalsCounter ):
         if strand == "-":
             self.counts_tss = self.counts_tss[::-1]
             self.counts_tts = self.counts_tts[::-1]
-            
+
         self.aggregate( self.counts_tss, self.counts_tts )
 
         return 1
@@ -1775,7 +1775,7 @@ def countFromGTF(counters,
         if iteration % 100 == 0:
             E.debug( "iteration %i: counts=%s" % (iteration, ",".join( map( str, counters) ) ))
 
-    E.info( "counts: %s: %s" % (str(c), ",".join( map(str,counts)))) 
+    E.info( "counts: %s: %s" % (str(c), ",".join( map(str,counts))))
     return names
 
 
@@ -1800,9 +1800,5 @@ def countFromCounts( counters,
         if iteration % 100 == 0:
             E.debug( "iteration %i: counts=%s" % (iteration, ",".join( map( str, counters) ) ))
 
-    E.info( "counts per counter: %s: %s" % (str(c), ",".join( map(str,counts)))) 
+    E.info( "counts per counter: %s: %s" % (str(c), ",".join( map(str,counts))))
     return
-
-        
-    
-        

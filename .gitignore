@@ -1,5 +1,4 @@
 *.py[cod]
-.*
 *.log
 
 # exclude recipes - add manuall

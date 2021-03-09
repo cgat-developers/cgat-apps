@@ -121,4 +121,3 @@ def test_imports():
                 continue
             check_import.description = os.path.abspath(f)
             yield(check_import, os.path.abspath(f), outfile)
-
