@@ -1,6 +1,5 @@
 [![cgat-apps](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml/badge.svg)](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml)
 
-=========
 CGAT Apps
 =========
 
