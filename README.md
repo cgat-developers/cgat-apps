@@ -1,5 +1,4 @@
-.. image:: https://travis-ci.org/cgat-developers/cgat-apps.svg?branch=master
-    :target: https://travis-ci.org/cgat-developers/cgat-apps
+[![cgat-apps](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml/badge.svg)](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml)
 
 =========
 CGAT Apps
@@ -10,10 +9,10 @@ CGAT Apps is a collection of scripts to analyse high-throughput sequencing data.
 After installation, use the ``cgat`` command to see how to use them.
 
 We are attempting to improve our documentation. However, our current documentation
-can be found `here <https://www.cgat.org/downloads/public/cgat/documentation/>`_
+can be found [here](https://www.cgat.org/downloads/public/cgat/documentation/)
 
 For questions, please open a discussion on the GitHub 
-`issue page <https://github.com/cgat-developers/cgat-apps/issues>`_.
+[issue page](https://github.com/cgat-developers/cgat-apps/issues)
 
 Installation
 ============
@@ -21,7 +20,7 @@ Installation
 End users: install using Conda
 ------------------------------
 The preferred method to install CGAT Apps is using the installation script, which uses
-`Conda <https://conda.io>`_.
+[Conda](https://conda.io).
 
 To install cgat-apps using conda::
     
@@ -68,5 +67,5 @@ For example, to strip sequence and quality information from a bam_ file, type::
 
    cgat bam2bam --strip=sequence < in.bam > out.bam
 
-.. _cgat-core: https://github.com/cgat-developers/cgat-core
-.. _bam: http://en.wikipedia.org/wiki/SAMtools
+[cgat-core](https://github.com/cgat-developers/cgat-core)
+[samtools](http://en.wikipedia.org/wiki/SAMtools)
