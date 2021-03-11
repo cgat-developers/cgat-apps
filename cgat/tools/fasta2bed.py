@@ -196,25 +196,44 @@ def ungapped_regions(seq, gap_chars):
     first = True
     size = len(seq)
     # enumerate over the sequence
-    for x, c in enumerate(seq):
 
-        # if the base is a gapped char
-        if c in gap_chars:
-            # if is_gap False
-            if not is_gap:
-                # last base is now position of current base
-                last = x
-                is_gap = True
-        else:
-            if is_gap:
-                if first:
-                    first = False
-                    yield(int(0), last-1)
+    if is_gap:
+        for x, c in enumerate(seq):
 
-                yield(last, x)
+            # if the base is a gapped char
+            if c in gap_chars:
+                # if is_gap False
+                if not is_gap:
+                    # last base is now position of current base
+                    last = x
+                    is_gap = True
+            else:
+                if is_gap:
+                    yield(last, x)
 
-                last = x
-                is_gap = False
+                    last = x
+                    is_gap = False
+    else:
+        start = True
+        for x, c in enumerate(seq):
+
+            # if the base is a gapped char
+            if c in gap_chars:
+                # if is_gap False
+                if not is_gap:
+                    # last base is now position of current base
+                    last = x
+                    is_gap = True
+            else:
+                if is_gap and start:
+                    yield(last, 0)
+                    start = False
+                if is_gap:
+                    yield(last, x)
+
+                    last = x
+                    is_gap = False
+
     if is_gap:
         yield last, size
 
@@ -255,9 +274,8 @@ def segmentUngapped(infile, gap_char, min_gap_size=0):
         last_end = 0
         for start, end in ungapped_regions(cur_record.sequence, gap_char):
 
-            if start == 0:
-                yield(contig, start, end, 0)
-                continue
+            if end == 0:
+                yield(contig, end, start, 0)
 
             if end - start < min_gap_size:
                 continue
