@@ -164,17 +164,29 @@ def segmentFixedWidthWindows(infile, window_size, window_shift):
 
 def gapped_regions(seq, gap_chars):
     '''iterator yielding gapped regions in seq.'''
+    # check to see if there is a gap at the beginning
     is_gap = seq[0] in gap_chars
     last = 0
+    first = True
     size = len(seq)
+    # enumerate over the sequence
     for x, c in enumerate(seq):
+
+        # if the base is a gapped char
         if c in gap_chars:
+            # if is_gap False
             if not is_gap:
+                # last base is now position of current base
                 last = x
                 is_gap = True
         else:
             if is_gap:
+                if first:
+                    first = False
+                    yield(int(0), last-1)
+
                 yield(last, x)
+
                 last = x
                 is_gap = False
     if is_gap:
@@ -216,6 +228,11 @@ def segmentUngapped(infile, gap_char, min_gap_size=0):
 
         last_end = 0
         for start, end in gapped_regions(cur_record.sequence, gap_char):
+
+            if start == 0:
+                yield(contig, start, end, 0)
+                continue
+
             if end - start < min_gap_size:
                 continue
 
