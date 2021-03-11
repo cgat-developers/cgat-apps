@@ -221,7 +221,7 @@ def test_cmdline():
         except DummyError:
             pass
 
-        for option in PARSER.option_list:
+        for option in PARSER.parse_args(parser):
             print("=================")
             print(option)
             # ignore options added by optparse

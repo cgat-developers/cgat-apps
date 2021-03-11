@@ -5,7 +5,7 @@ import random
 import tempfile
 import shutil
 import os
-from cgat.NCL.cnestedlist import IntervalDB, IntervalFileDB
+from cgat import NCL as ncl
 
 
 class TestIntervalDB(unittest.TestCase):
@@ -31,11 +31,11 @@ class TestIntervalDB(unittest.TestCase):
             self.assertEqual(result, b)
 
     def testBuild(self):
-        index = IntervalDB()
+        index = ncl.cnestedlist.IntervalDB()
         index.fromlist(self.l)
 
         # test adding an empty interval
-        index = IntervalDB()
+        index = ncl.cnestedlist.IntervalDB()
         l = self.l[:]
         index.fromlist(l)
         l.append((0, 0, 4))
@@ -44,7 +44,7 @@ class TestIntervalDB(unittest.TestCase):
         # self.assertRaises(ValueError, index.fromlist, l)
 
     def buildIndex(self, l):
-        index = IntervalDB()
+        index = ncl.cnestedlist.IntervalDB()
         index.fromlist(self.l)
         return index
 
@@ -96,10 +96,10 @@ class TestIntervalFileDB(TestIntervalDB):
         self.tmpfile = os.path.join(self.tmpdir, "tmp")
 
     def buildIndex(self, l):
-        tmp = IntervalDB()
+        tmp = ncl.cnestedlist.IntervalDB()
         tmp.fromlist(self.l)
         tmp.write_binaries(self.tmpfile)
-        index = IntervalFileDB(self.tmpfile)
+        index = ncl.cnestedlist.IntervalFileDB(self.tmpfile)
         return index
 
     def tearDown(self):
