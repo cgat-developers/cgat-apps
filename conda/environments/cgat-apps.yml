@@ -13,8 +13,9 @@ dependencies:
 # python dependencies
 - python >= 3.6
 - alignlib-lite
-- biopython
+- biopython<=1.77
 - cython
+- cgatcore
 - jinja2
 - matplotlib
 - nose
@@ -26,10 +27,11 @@ dependencies:
 - pysam=0.15.2
 - python-lzo
 - pyyaml
+- pytest<=5.4.3
 - quicksect
 - rdflib
 - scikit-learn
-- scipy
+- scipy==1.5.3
 - seaborn
 - setuptools
 - six
