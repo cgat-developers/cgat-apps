@@ -35,16 +35,12 @@ except ImportError:
 ########################################################################
 ########################################################################
 # Import setuptools
-# Use existing setuptools, otherwise try ez_setup.
+# Use existing setuptools, otherwise raise ImportError.
 try:
     import setuptools
-except ImportError:
-    # try to get via ez_setup
-    # ez_setup did not work on all machines tested as
-    # it uses curl with https protocol, which is not
-    # enabled in ScientificLinux
-    import ez_setup
-    ez_setup.use_setuptools()
+except ImportError as error:
+    print(error.__class__.__name__ + ": " + error.message)
+
 
 from setuptools import setup, find_packages, Extension
 
