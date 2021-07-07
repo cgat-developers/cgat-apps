@@ -35,16 +35,12 @@ except ImportError:
 ########################################################################
 ########################################################################
 # Import setuptools
-# Use existing setuptools, otherwise try ez_setup.
+# Use existing setuptools, otherwise raise ImportError.
 try:
     import setuptools
-except ImportError:
-    # try to get via ez_setup
-    # ez_setup did not work on all machines tested as
-    # it uses curl with https protocol, which is not
-    # enabled in ScientificLinux
-    import ez_setup
-    ez_setup.use_setuptools()
+except ImportError as error:
+    print(error.__class__.__name__ + ": " + error.message)
+
 
 from setuptools import setup, find_packages, Extension
 
@@ -139,35 +135,6 @@ HTTPS_REQUIREMENT = re.compile(
 install_requires = []
 dependency_links = []
 
-for requirement in (
-        l.strip() for l in open('requires.txt') if not l.startswith("#")):
-    match = REPO_REQUIREMENT.match(requirement)
-    if match:
-        assert which(match.group('vcs')) is not None, \
-            ("VCS '%(vcs)s' must be installed in order to "
-             "install %(link)s" % match.groupdict())
-        install_requires.append("%(package)s==%(version)s" % match.groupdict())
-        dependency_links.append(match.group('link'))
-        continue
-
-    if requirement.startswith("https"):
-        install_requires.append(requirement)
-        continue
-
-    match = HTTPS_REQUIREMENT.match(requirement)
-    if match:
-        install_requires.append("%(package)s>=%(version)s" % match.groupdict())
-        dependency_links.append(match.group('link'))
-        continue
-
-    install_requires.append(requirement)
-
-if major == 2:
-    install_requires.extend(['web.py>=0.37',
-                             'xlwt>=0.7.4',
-                             'matplotlib-venn>=0.5'])
-elif major == 3:
-    pass
 
 cgat_packages = find_packages()
 cgat_package_dirs = {'cgat': 'cgat'}
