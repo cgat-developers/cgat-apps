@@ -11,7 +11,7 @@ Genomics
 
 .. toctree::
    :maxdepth: 1
-   
+
    scripts/bam2geneprofile.rst
    scripts/bed2bed.rst
    scripts/bed2gff.rst
@@ -134,7 +134,7 @@ Stats
    scripts/calculate_histogram_2D.rst
    scripts/simulate_function.rst
    scripts/histograms2kl.rst
- 
+
 Tools
 -----
 
@@ -265,7 +265,6 @@ Unsorted
    scripts/metaphlan2table.rst
    scripts/numbers2rgb.rst
    scripts/runExpression.rst
-   scripts/runGO.rst
    scripts/runMEDIPS.rst
    scripts/runSPP.rst
    scripts/runZinba.rst
