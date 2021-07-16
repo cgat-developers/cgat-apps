@@ -32,10 +32,10 @@ Modules for parsing and working for data in specific formats.
    modules/BamTools.rst
    modules/Bed.rst
    modules/Biomart.rst
-   modules/Blat.rst    
-   modules/CBioPortal.rst 
+   modules/Blat.rst
+   modules/CBioPortal.rst
    modules/FastaIterator.rst
-   modules/Fastq.rst 
+   modules/Fastq.rst
    modules/GFF3.rst
    modules/GTF.rst
    modules/IndexedFasta.rst
@@ -50,9 +50,9 @@ Algorithms
 .. toctree::
    :maxdepth: 1
 
-   modules/AString.rst 
+   modules/AString.rst
    modules/Counts.rst
-   modules/Expression.rst 
+   modules/Expression.rst
    modules/GO.rst
    modules/Genomics.rst
    modules/Intervals.rst
@@ -79,7 +79,7 @@ output.
    modules/WrapperMACS.rst
    modules/WrapperZinba.rst
    modules/MAST.rst
-   modules/Glam2.rst 
+   modules/Glam2.rst
    modules/Glam2Scan.rst
    modules/Tophat.rst
    modules/IGV.rst
@@ -97,7 +97,6 @@ Math and Stats
 .. toctree::
    :maxdepth: 1
 
-   modules/CorrespondenceAnalysis.rst
    modules/Histogram.rst
    modules/Histogram2D.rst
    modules/Stats.rst
@@ -132,7 +131,7 @@ CGAT infrastructure such as logging, dependency tracking, etc.
    modules/Requirements.rst
    modules/Style.rst
    modules/Logfile.rst
-   modules/CSV2DB.rst 
+   modules/CSV2DB.rst
 
 Other
 -----
@@ -151,4 +150,3 @@ Modules not sorted into categories.
 
 .. toctree::
    :maxdepth: 2
-
