@@ -124,7 +124,6 @@ CGAT infrastructure such as logging, dependency tracking, etc.
    :maxdepth: 1
 
    modules/Requirements.rst
-   modules/Style.rst
    modules/Logfile.rst
    modules/CSV2DB.rst
 
