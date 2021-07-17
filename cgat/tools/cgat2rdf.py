@@ -9,9 +9,6 @@ Purpose
 This script creates an rdf description of a cgat
 script.
 
-Optionally, the script outputs also a galaxy xml
-description of the scripts' interface.
-
 Usage
 -----
 
@@ -60,12 +57,6 @@ correctly, :file:`cgat2rdf.py` makes use of the following information:
    directly. For textual arguments, :file:`cgat2rdf.py` tests if the
    :attr:`metavar` attribute has been set. When set, the content of
    this attribute will determine the file type.
-
-The interface decription can be exported either as :term:`RDF` or in a variety
-of other formats:
-
-galaxy
-    Galaxy xml file.
 
 Command line options
 --------------------
@@ -634,39 +625,8 @@ def processScript(script_name, outfile, args):
     if args.output_format == "rdf":
         outfile.write(g.serialize(data, format='turtle') + "\n")
 
-    elif args.output_format == "galaxy":
-
-        if use_wrapper:
-
-            # add hidden option for wrapper
-            param = buildParam(
-                name='wrapper-command',
-                ns_name='wrapper-command',
-                display='hidden',
-                type='text',
-                value=data['binary'],
-                label='wrapper',
-                description='wrapper',
-                arg_long="--wrapper-command")
-
-            data['parameters'].append(param)
-
-            # point to wrapper
-            data['binary'] = os.path.join(dirname, "cgat_galaxy_wrapper.py")
-
-        displayMap = collections.defaultdict(list)
-
-        for param in data['parameters']:
-            displayMap[param['display']].append(param)
-
-        displayMap['normal'] = displayMap['show']
-
-        target = Template(
-           iotools.open_file('/ifs/devel/andreas/cgat/scripts/cgat2rdf/galaxy.xml').read())
-        outfile.write(target.render(data=data,
-                                    displayMap=displayMap,
-                                    outputs=outputs) + "\n")
-
+    else:
+        raise Exception("The only supported output format is rdf")
 
 def main(argv=None):
     """script main.
@@ -683,7 +643,7 @@ def main(argv=None):
     parser.add_argument("--version", action='version', version="1.0")
 
     parser.add_argument("-f", "--format", dest="output_format", type=str,
-                        choices=("rdf", "galaxy"),
+                        choices=("rdf"),
                         help="output format . ")
 
     parser.add_argument("-l", "--list", dest="filename_list", type=str,
@@ -727,10 +687,6 @@ def main(argv=None):
             "please specify --input-regex when using "
             "--output-filename-pattern")
 
-    if args.output_format == "galaxy":
-        args.stdout.write(
-            '''<section name="cgat Tools" id="cgat_tools">\n''')
-
     for script_name in args:
         if not script_name.endswith(".py"):
             raise ValueError("expected a python script ending in '.py'")
@@ -752,15 +708,8 @@ def main(argv=None):
         E.info("input=%s, output=%s" % (script_name, outfile_name))
         processScript(script_name, outfile, args)
 
-        if args.output_format == "galaxy":
-            args.stdout.write(
-                '''   <tool file="cgat/%s" />\n''' % outfile_name)
-
         if outfile != args.stdout:
             outfile.close()
-
-    if args.output_format == "galaxy":
-        args.stdout.write('''</section>\n''')
 
     E.stop()
 
