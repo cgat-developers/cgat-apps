@@ -628,6 +628,7 @@ def processScript(script_name, outfile, args):
     else:
         raise Exception("The only supported output format is rdf")
 
+
 def main(argv=None):
     """script main.
 
