@@ -40,7 +40,6 @@ Modules for parsing and working for data in specific formats.
    modules/GTF.rst
    modules/IndexedFasta.rst
    modules/IndexedGenome.rst
-   modules/Maq.rst
    modules/Sra.rst
    modules/VCF.rst
 
@@ -53,10 +52,8 @@ Algorithms
    modules/AString.rst
    modules/Counts.rst
    modules/Expression.rst
-   modules/GO.rst
    modules/Genomics.rst
    modules/Intervals.rst
-   modules/Mali.rst
    modules/Motifs.rst
    modules/SequencePairProperties.rst
    modules/SequenceProperties.rst
