@@ -70,18 +70,10 @@ output.
    :maxdepth: 1
 
    modules/WrapperCodeML.rst
-   modules/WrapperMuscle.rst
    modules/Bioprospector.rst
    modules/WrapperIDR.rst
-   modules/WrapperMACS.rst
-   modules/WrapperZinba.rst
    modules/MAST.rst
-   modules/Glam2.rst
-   modules/Glam2Scan.rst
-   modules/Tophat.rst
    modules/IGV.rst
-   modules/LCA.rst
-   modules/Diamond.rst
    modules/Masker.rst
 
 Data processing
