@@ -29,9 +29,9 @@ jobs:
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
             hashFiles('conda/environments/cgat-apps.yml') }}
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: mamba-org/provision-with-micromamba@main
         with:
-          mamba-version: "0.7.0"
+          mamba-version: "*"
           python-version: ${{ matrix.python-version }}
           channels: conda-forge, bioconda, defaults
           channel-priority: true
