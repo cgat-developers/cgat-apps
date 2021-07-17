@@ -261,7 +261,6 @@ Unsorted
    scripts/gff32gtf.rst
    scripts/gff_compare.rst
    scripts/gi2parents.rst
-   scripts/lca2table.rst
    scripts/metaphlan2table.rst
    scripts/numbers2rgb.rst
    scripts/runExpression.rst
