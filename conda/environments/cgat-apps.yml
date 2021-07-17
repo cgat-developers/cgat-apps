@@ -11,7 +11,7 @@ channels:
 
 dependencies:
 # python dependencies
-- python >= 3.6
+- python
 - alignlib-lite
 - biopython<=1.77
 - cython
@@ -36,6 +36,7 @@ dependencies:
 - setuptools
 - six
 - sortedcontainers
+- pip==20.2
 # R dependencies
 # Misc dependencies
 # WARNING: gdc-client is Py2 only. Please install it on a separate conda env
