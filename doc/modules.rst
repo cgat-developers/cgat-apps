@@ -84,7 +84,6 @@ output.
    modules/Tophat.rst
    modules/IGV.rst
    modules/LCA.rst
-   modules/Metaphlan.rst
    modules/Diamond.rst
    modules/Masker.rst
 
