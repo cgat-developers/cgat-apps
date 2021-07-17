@@ -96,7 +96,6 @@ Math and Stats
    modules/Histogram.rst
    modules/Histogram2D.rst
    modules/Stats.rst
-   modules/MatlabTools.rst
    modules/MatrixTools.rst
 
 Toolboxes
