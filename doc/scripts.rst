@@ -244,7 +244,6 @@ Unsorted
    scripts/csv_select.rst
    scripts/data2resamples.rst
    scripts/data2spike.rst
-   scripts/diamond2counts.rst
    scripts/diff_transcript_sets.rst
    scripts/diffgene2venn.rst
    scripts/distance2clusters.rst
