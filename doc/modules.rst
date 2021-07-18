@@ -71,7 +71,6 @@ output.
 
    modules/WrapperCodeML.rst
    modules/Bioprospector.rst
-   modules/WrapperIDR.rst
    modules/MAST.rst
    modules/IGV.rst
    modules/Masker.rst
