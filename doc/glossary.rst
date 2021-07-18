@@ -16,9 +16,9 @@ File formats
 	(`BAM <http://samtools.sourceforge.net/>`_).
 
     bed
-	File containing genomic intervals. 
+	File containing genomic intervals.
 	(`BED <https://genome.ucsc.edu/FAQ/FAQformat.html#format1>`_).
-	
+
     vcf
         `Variant call format
         <http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41>`_.
@@ -27,7 +27,7 @@ File formats
 	`General transfer format
         <http://www.ensembl.org/info/website/upload/gff.html>`_.
 	Format to store genes and transcripts.
-    
+
     gff
 	`General feature format <http://www.ensembl.org/info/website/upload/gff.html>`_.
 
@@ -36,20 +36,20 @@ File formats
         genomic ranges (`BIGWIG <https://genome.ucsc.edu/goldenPath/help/bigWig.html>`_).
 
     fasta
-        Sequence format. 
+        Sequence format.
 
     wiggle
         Format for displaying numerical values across genomic
         ranges (`Wiggle <https://genome.ucsc.edu/goldenPath/help/wiggle.html>`_).
 
-    psl  
+    psl
     	Genomic alignment format. The format is described in detail
 	`(PSL <https://genome.ucsc.edu/FAQ/FAQformat.html#format2>`_.
 
     sam
         Format to store genomic alignments
 	`(SAM <http://samtools.sourceforge.net/>`_).
-	
+
     gdl
         gdl
 
@@ -80,9 +80,6 @@ File formats
 
     axt
         axt
-
-    maf
-        maf
    
     agp
         `AGP format <https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/>`_
@@ -98,7 +95,7 @@ Other terms
     test directory
         Directory that contains the :file:`test.yaml`, input and
 	reference files for testing scripts.
-	
+
     experiment
         experiment
 
@@ -117,7 +114,7 @@ Other terms
     submit host
         pass
 
-    execution host 
+    execution host
         pass
 
     edge list
@@ -161,7 +158,7 @@ Other terms
         A pipeline that is project specific. Usually code is developed
 	first inside a project pipeline. When it becomes generally
         useful, it may be refactored into a production pipeline.
-	 
+
     stdin
         Unix standard input. Most CGAT tools read data from stdin.
 
@@ -170,11 +167,9 @@ Other terms
 
     stderr
         Unix standard error. This is where errors go.
-  
+
     loglevel
         Verbosity of logging information. The logging level can be
         determined by the ``--verbose`` option. A
 	level of ``0`` means no logging output, while ``1`` is information
 	messages only, while ``2`` outputs also debugging information.
-
- 
