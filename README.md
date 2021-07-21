@@ -4,16 +4,11 @@
   <img src='https://readthedocs.org/projects/cgat-apps/badge/?version=latest' alt='Documentation Status' /></a>
   <a href='https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml'>
     <img src='https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml/badge.svg' alt='Github Action status' /></a>
-
-	<a href="https://twitter.com/cgat_oxford?lang=en", alt="Twitter followers">
-		<img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter" /></a>
-	<a href="https://twitter.com/cgat_oxford?lang=en", alt="Twitter followers">
-		<img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter" /></a>
+  <a href="https://twitter.com/cgat_oxford?lang=en", alt="Twitter followers">
+    <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter" /></a>
+  <a href="https://twitter.com/cgat_oxford?lang=en", alt="Twitter followers">
+	<img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter" /></a>
 </p>
-
-[![cgat-apps](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml/badge.svg)](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml)
-
-[![Documentation Status](https://readthedocs.org/projects/cgat-apps/badge/?version=latest)](https://cgat-apps.readthedocs.io/en/latest/?badge=latest)
 
 CGAT Apps
 =========
