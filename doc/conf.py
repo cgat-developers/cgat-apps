@@ -228,8 +228,8 @@ htmlhelp_basename = 'Gpipedoc'
 # [howto/manual]).
 latex_documents = [(
     'index', 'Gpipe.tex',
-    ur'Gpipe Documentation',
-    ur'Andreas Heger',
+    'Gpipe Documentation',
+    'Andreas Heger',
     'manual'),
 ]
 
@@ -252,6 +252,6 @@ latex_documents = [(
 
 
 def setup(app):
-    app.add_stylesheet("my-styles.css") # also can be a full URL
+    app.add_css_file("my-styles.css") # also can be a full URL
     # app.add_stylesheet("ANOTHER.css")
 # app.add_stylesheet("AND_ANOTHER.css")
