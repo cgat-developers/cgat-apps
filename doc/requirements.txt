@@ -1,0 +1,9 @@
+# File: docs/requirements.txt
+
+sphinx==3.4.3
+sphinx_rtd_theme==0.5.1
+readthedocs-sphinx-search==0.1.0rc3
+pysam==0.15.2
+numpy==1.21.0
+cython==0.29.24
+setuptools==52.0.0
