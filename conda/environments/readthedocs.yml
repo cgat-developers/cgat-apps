@@ -1,0 +1,9 @@
+name: cgatapps
+
+channels:
+ - conda-forge
+ - bioconda
+ - defaults
+
+dependencies:
+ - python
