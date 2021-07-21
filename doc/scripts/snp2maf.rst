@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.snp2maf
+.. automodule:: cgat.tools.snp2maf
 
 .. program-output:: cgat snp2maf -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.list_overlap
+.. automodule:: cgat.tools.list_overlap
 
 .. program-output:: cgat list-overlap -?
 

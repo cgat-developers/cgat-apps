@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.gtf2reads
+.. automodule:: cgat.tools.gtf2reads
 
 .. program-output:: cgat gtf2reads -?
 

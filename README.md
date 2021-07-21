@@ -1,57 +1,64 @@
+
+<p align="left">
+<a href='https://cgat-apps.readthedocs.io/en/latest/?badge=latest'>
+  <img src='https://readthedocs.org/projects/cgat-apps/badge/?version=latest' alt='Documentation Status' /></a>
+  <a href='https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml'>
+    <img src='https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml/badge.svg' alt='Github Action status' /></a>
+
+	<a href="https://twitter.com/cgat_oxford?lang=en", alt="Twitter followers">
+		<img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter" /></a>
+	<a href="https://twitter.com/cgat_oxford?lang=en", alt="Twitter followers">
+		<img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter" /></a>
+</p>
+
 [![cgat-apps](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml/badge.svg)](https://github.com/cgat-developers/cgat-apps/actions/workflows/cgatapps_python.yml)
+
+[![Documentation Status](https://readthedocs.org/projects/cgat-apps/badge/?version=latest)](https://cgat-apps.readthedocs.io/en/latest/?badge=latest)
 
 CGAT Apps
 =========
 
-CGAT Apps is a collection of scripts to analyse high-throughput sequencing data.
+CGAT Apps is a collection of scripts to aid the analysis of high-throughput sequencing data.
 
 After installation, use the ``cgat`` command to see how to use them.
 
-We are attempting to improve our documentation. However, our current documentation
-can be found [here](https://www.cgat.org/downloads/public/cgat/documentation/)
+Documentation
+=============
 
-For questions, please open a discussion on the GitHub 
+We are attempting to improve our documentation. However, our current documentation
+can be found [here](https://cgat-apps.readthedocs.io/en/latest/)
+
+For questions, please open a discussion on the GitHub
 [issue page](https://github.com/cgat-developers/cgat-apps/issues)
 
 Installation
 ============
 
-End users: install using Conda
-------------------------------
+Conda Installation
+------------------
 The preferred method to install CGAT Apps is using the installation script, which uses
-[Conda](https://conda.io).
+[mamba](https://github.com/mamba-org/mamba), the fast C implementation of [Conda](https://conda.io).
 
-To install cgat-apps using conda::
-    
-    conda install -c conda-forge -c bioconda cgat-apps
+To install cgat-apps using mamba::
+
+    mamba install -c conda-forge -c bioconda cgat-apps
 
 Developers: try the installation script
 ---------------------------------------
-Alternatively, installation can be performed using our install script that will
-automate the process for you.
 
 Here are the steps::
 
-        # download installation script:
-        curl -O https://raw.githubusercontent.com/cgat-developers/cgat-apps/master/install.sh
+        # Install conda and mamba according the the documentation. Next
+        # install the conda packages for cgat-apps to work
+        conda env create -f conda/environments/cgat-apps.yml
 
-        # see help:
-        bash install.sh
-
-        # install the development version (recommended, no production version yet):
-        bash install.sh --devel [--location </full/path/to/folder/without/trailing/slash>]
-
-        # the code is downloaded in zip format by default. If you want to get a git clone, use:
-        --git # for an HTTPS clone
-        --git-ssh # for a SSH clone (you need to be a cgat-developer contributor on GitHub to do this)
-
-        # enable the conda environment as requested by the installation script
-        # NB: you probably want to automate this by adding the instructions below to your .bashrc
-        source </full/path/to/folder/without/trailing/slash>/conda-install/etc/profile.d/conda.sh
-        conda activate base
+        # enable the conda environment
         conda activate cgat-a
 
-        # finally, please run the cgatflow command-line tool to check the installation:
+        # Install the development version of cgat-apps
+        python setup.py develop
+
+        # finally, please run the cgat command-line tool to check the installation:
         cgat --help
 
 The installation script will put everything under the specified location. The aim is to provide a portable
@@ -65,6 +72,3 @@ Run the ``cgat --help`` command to see what scripts are available and how to use
 For example, to strip sequence and quality information from a bam_ file, type::
 
    cgat bam2bam --strip=sequence < in.bam > out.bam
-
-[cgat-core](https://github.com/cgat-developers/cgat-core)
-[samtools](http://en.wikipedia.org/wiki/SAMtools)

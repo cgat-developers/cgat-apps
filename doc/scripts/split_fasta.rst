@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.split_fasta
+.. automodule:: cgat.tools.split_fasta
 
 .. program-output:: cgat split-fasta -?
 

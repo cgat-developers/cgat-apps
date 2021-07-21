@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.merge_tables
+.. automodule:: cgat.tools.merge_tables
 
 .. program-output:: cgat merge-tables -?
 

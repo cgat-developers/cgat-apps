@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.csv_set
+.. automodule:: cgat.tools.csv_set
 
 .. program-output:: cgat csv-set -?
 

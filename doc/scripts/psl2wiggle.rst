@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.psl2wiggle
+.. automodule:: cgat.tools.psl2wiggle
 
 .. program-output:: cgat psl2wiggle -?
 

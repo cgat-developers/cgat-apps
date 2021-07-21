@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.compare_clusters
+.. automodule:: cgat.tools.compare_clusters
 
 .. program-output:: cgat compare-clusters -?
 

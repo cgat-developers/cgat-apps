@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.psl2stats
+.. automodule:: cgat.tools.psl2stats
 
 .. program-output:: cgat psl2stats -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.split_file
+.. automodule:: cgat.tools.split_file
 
 .. program-output:: cgat split-file -?
 

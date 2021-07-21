@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.table2table
+.. automodule:: cgat.tools.table2table
 
 .. program-output:: cgat table2table -?
 

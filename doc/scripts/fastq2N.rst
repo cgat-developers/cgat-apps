@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.fastq2N
+.. automodule:: cgat.tools.fastq2N
 
 .. program-output:: cgat fastq2N -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.split_links
+.. automodule:: cgat.tools.split_links
 
 .. program-output:: cgat split-links -?
 

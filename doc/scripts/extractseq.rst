@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.extractseq
+.. automodule:: cgat.tools.extractseq
 
 .. program-output:: cgat extractseq -?
 

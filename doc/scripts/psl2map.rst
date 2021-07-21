@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.psl2map
+.. automodule:: cgat.tools.psl2map
 
 .. program-output:: cgat psl2map -?
 

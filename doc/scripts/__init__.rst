@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.__init__
+.. automodule:: cgat.tools.__init__
 
 .. program-output:: cgat --init-- -?
 

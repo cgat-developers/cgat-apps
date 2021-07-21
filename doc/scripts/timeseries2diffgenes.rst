@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.timeseries2diffgenes
+.. automodule:: cgat.tools.timeseries2diffgenes
 
 .. program-output:: cgat timeseries2diffgenes -?
 

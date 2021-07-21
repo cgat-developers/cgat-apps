@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.gff2gff
+.. automodule:: cgat.tools.gff2gff
 
 .. program-output:: cgat gff2gff -?
 

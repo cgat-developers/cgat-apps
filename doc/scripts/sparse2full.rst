@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.sparse2full
+.. automodule:: cgat.tools.sparse2full
 
 .. program-output:: cgat sparse2full -?
 

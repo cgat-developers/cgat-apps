@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.beds2counts
+.. automodule:: cgat.tools.beds2counts
 
 .. program-output:: cgat beds2counts -?
 

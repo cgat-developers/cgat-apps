@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.fasta2nj
+.. automodule:: cgat.tools.fasta2nj
 
 .. program-output:: cgat fasta2nj -?
 
