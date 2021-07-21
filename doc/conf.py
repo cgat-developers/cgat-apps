@@ -99,14 +99,15 @@ rst_epilog = '''
 '''
 
 sys.path.insert(0, "../scripts")
-import cgat.version
+#import cgat.version
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = version.__version__
+version = "0.6.2"
+#version.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
