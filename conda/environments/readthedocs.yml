@@ -1,0 +1,13 @@
+name: cgatapps
+
+channels:
+ - conda-forge
+ - bioconda
+ - defaults
+
+dependencies:
+ - python
+ - pysam
+ - nose
+ - numpy
+ - cython
