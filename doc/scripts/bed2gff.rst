@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.bed2gff
+.. automodule:: cgat.tools.bed2gff
 
 .. program-output:: cgat bed2gff -?
 

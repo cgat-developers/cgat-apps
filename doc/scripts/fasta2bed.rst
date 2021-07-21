@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.fasta2bed
+.. automodule:: cgat.tools.fasta2bed
 
 .. program-output:: cgat fasta2bed -?
 

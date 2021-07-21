@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.bam2UniquePairs
+.. automodule:: cgat.tools.bam2UniquePairs
 
 .. program-output:: cgat bam2UniquePairs -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.counts2table
+.. automodule:: cgat.tools.counts2table
 
 .. program-output:: cgat counts2table -?
 

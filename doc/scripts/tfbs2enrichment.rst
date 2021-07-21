@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.tfbs2enrichment
+.. automodule:: cgat.tools.tfbs2enrichment
 
 .. program-output:: cgat tfbs2enrichment -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.runMEDIPS
+.. automodule:: cgat.tools.runMEDIPS
 
 .. program-output:: cgat runMEDIPS -?
 

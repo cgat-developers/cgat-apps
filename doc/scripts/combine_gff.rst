@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.combine_gff
+.. automodule:: cgat.tools.combine_gff
 
 .. program-output:: cgat combine-gff -?
 

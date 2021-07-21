@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.modify_table
+.. automodule:: cgat.tools.modify_table
 
 .. program-output:: cgat modify-table -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.index2bed
+.. automodule:: cgat.tools.index2bed
 
 .. program-output:: cgat index2bed -?
 

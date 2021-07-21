@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.runSPP
+.. automodule:: cgat.tools.runSPP
 
 .. program-output:: cgat runSPP -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.plot_matrix
+.. automodule:: cgat.tools.plot_matrix
 
 .. program-output:: cgat plot-matrix -?
 

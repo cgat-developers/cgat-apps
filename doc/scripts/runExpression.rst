@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.runExpression
+.. automodule:: cgat.tools.runExpression
 
 .. program-output:: cgat runExpression -?
 
