@@ -6,8 +6,7 @@ channels:
  - defaults
 
 dependencies:
- - python
- - pysam
- - nose
- - numpy
- - cython
+ - cgat-apps
+ - sphinx==3.4.3
+ - sphinx_rtd_theme==0.5.1
+ - readthedocs-sphinx-search==0.1.0rc3
