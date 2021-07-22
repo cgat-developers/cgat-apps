@@ -5,10 +5,8 @@ version: 2
 sphinx:
   configuration: doc/conf.py
 
-python:
-  version: 3.7
-  install:
-    - requirements: doc/requirements.txt
+conda:
+    file: conda/environments/readthedocs.yml
 
 #conda:
 #    file: conda/environments/readthedocs.yml
