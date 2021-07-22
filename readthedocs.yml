@@ -1,16 +1,12 @@
 # File: .readthedocs.yaml
-
-version: 2
 build:
   image: latest
 conda:
-    file: doc/readthedocs.yml
+    file: doc/environment.yml
 sphinx:
   configuration: doc/conf.py
 python:
-  version: 3
-  install:
-    - method: setuptools
-      path: .
+  version: 3.8
+  setup_py_install: true
 #conda:
 #    file: conda/environments/readthedocs.yml
