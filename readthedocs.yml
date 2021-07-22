@@ -4,11 +4,11 @@ version: 2
 build:
   image: latest
 conda:
-    file: conda/environments/readthedocs.yml
+    file: doc/readthedocs.yml
 sphinx:
   configuration: doc/conf.py
 python:
-  version: 3.8
+  version: 3
   install:
     - method: setuptools
       path: .
