@@ -5,8 +5,6 @@ conda:
     file: doc/environment.yml
 sphinx:
   configuration: doc/conf.py
-python:
-  version: 3.7
-  setup_py_install: true
+
 #conda:
 #    file: conda/environments/readthedocs.yml
