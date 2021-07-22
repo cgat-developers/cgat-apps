@@ -17,8 +17,8 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.extend([os.path.abspath('../CGAT'),
-                 os.path.abspath('../scripts'),
+sys.path.extend([os.path.abspath('../cgat'),
+                 os.path.abspath('../cgat/tools'),
                  os.path.abspath('../CGATPipelines'),
                  os.path.abspath('python')])
 
@@ -64,7 +64,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'CGAT-apps'
-copyright = u'2011, 2012, 2013, 2014, 2015, 2016, 2017 2018 CGAT'
+copyright = u'2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 CGAT'
 
 
 # Included at the end of each rst file
@@ -98,7 +98,7 @@ rst_epilog = '''
 .. _alignlib: https://github.com/AndreasHeger/alignlib
 '''
 
-sys.path.insert(0, "../scripts")
+sys.path.insert(0, "../cgat/tools")
 #import cgat.version
 
 # The version info for the project you're documenting, acts as replacement for
