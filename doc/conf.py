@@ -33,7 +33,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.ifconfig',
               'sphinx.ext.inheritance_diagram',
               'sphinx.ext.intersphinx',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon',
+              'sphinxcontrib.programoutput']
 
 intersphinx_mapping = {'python': ('http://docs.python.org/2.7', None)}
 
