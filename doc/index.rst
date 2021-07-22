@@ -1,12 +1,12 @@
 .. _cgat:
 
 =======================================================
-CGAT |version| - Computational Genomics Analysis Tools 
+CGAT |version| - Computational Genomics Analysis Tools
 =======================================================
 
 CGAT is a collection of tools for the computational genomicist written
 in the Python language (Should work with Python 2.7, but we only actively
-support Python 3.6+). 
+support Python 3.6+).
 The tools have been developed and accumulated
 in various genome projects (`Heger & Ponting, 2007`_, `Warren et al.,
 2008`_) and NGS projects (`Ramagopalan et al., 2010`_). The tools are
@@ -25,7 +25,6 @@ are below, followed by a :ref:`quickstart` guide.
    CGATMissionStatement
    CGATInstallation
    CGATUsage
-   CGATRecipes
    CGATToolMap
    CGATReference
    developing
@@ -33,7 +32,7 @@ are below, followed by a :ref:`quickstart` guide.
    CGATRelease
 
 .. _quickstart:
-   
+
 Quickstart
 ==========
 
@@ -54,10 +53,10 @@ The following unix statement downloads the ENSEMBL gene set containing
 over-lapping transcripts, and outputs a set of non-overlapping genomic
 annotations in gff format (:file:`annotations.gff`) by piping the data
 through various CGAT tools::
- 
+
    wget ftp://ftp.ensembl.org/pub/release-72/gtf/homo_sapiens/Homo_sapiens.GRCh37.72.gtf.gz
    | gunzip
-   | awk '$2 == "protein_coding"' 
+   | awk '$2 == "protein_coding"'
    | cgat gff2ff --genome-file=hg19 --method=sanitize --skip-missing
    | cgat gtf2gtf --method=sort --sort-order=gene
    | cgat gtf2gtf --method=merge-exons --with-utr
@@ -71,10 +70,10 @@ through various CGAT tools::
 
    The statements above need an indexed genome. To create such an
    indexed genome for hg19, type the following::
-  
+
       wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
       | index_fasta.py hg19 - > hg19.log
-   
+
 CGAT-apps can be chained into a single work flow using unix
 pipes. The above sequence of commands in turn (1) reconciles UCSC and
 ENSEMBL naming schemes for chromosome names, (2) merges all exons of
@@ -91,7 +90,7 @@ analysis.
 Choosing different options can provide different sets of
 answers. Instead of merging all exons per gene, the longest transcript
 might be selected by replacing (2) with ``gtf2gtf
---method=filter --filter-method=longest-transcript``. 
+--method=filter --filter-method=longest-transcript``.
 Or, instead of genomic annotations, regulatory domains such as defined by GREAT might be obtained by
 removing (3) and replacing (4) with ``gtf2gff --method=great-domains``.
 
@@ -100,8 +99,8 @@ the number of transcription factor binding sites using bed-tools or
 other interval intersections. Here, we will use another CGAT tool,
 ``gtf2table``, to do the counting and classification::
 
-   zcat /ifs/devel/gat/tutorial/data/srf.hg19.bed 
-   | cgat bed2gff --as-gtf 
+   zcat /ifs/devel/gat/tutorial/data/srf.hg19.bed
+   | cgat bed2gff --as-gtf
    | cgat gtf2table --counter=classifier-chipseq --gff-file=annotations.gff.gz
 
 The scripts follow a consistent naming scheme centered around common
@@ -128,17 +127,16 @@ Glossary
 .. toctree::
    :maxdepth: 2
 
-   glossary.rst   
+   glossary.rst
 
 Disclaimer
 ==========
 
-This collection of scripts is the outcome of 10 years working in various 
-fields in bioinformatics. It contains both the good, the bad and the ugly. 
+This collection of scripts is the outcome of 10 years working in various
+fields in bioinformatics. It contains both the good, the bad and the ugly.
 Use at your own risk.
 
 .. _Heger & Ponting, 2007: https://www.ncbi.nlm.nih.gov/pubmed/17989258
 .. _Warren et al., 2008: https://www.nature.com/articles/nature06936
 .. _Ramagopalan et al., 2010: https://www.ncbi.nlm.nih.gov/pubmed/20736230
 .. _pip: https://pip.pypa.io/en/stable/
-
