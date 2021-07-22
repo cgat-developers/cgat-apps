@@ -40,7 +40,7 @@ develop-eggs
 lib
 lib64
 doc/_build
-doc/_static
+
 
 # Installer logs
 pip-log.txt
