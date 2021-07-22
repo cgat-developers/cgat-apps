@@ -6,7 +6,7 @@ channels:
  - defaults
 
 dependencies:
- - python==3.8
+ - python==3.7
  - cgat-apps
  - pip:
    - sphinx==3.4.3
