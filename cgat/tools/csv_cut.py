@@ -69,6 +69,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-r", "--remove", dest="remove", action="store_true",
                         help="remove specified columns, keep all others.")
 

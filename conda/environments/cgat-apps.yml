@@ -15,8 +15,8 @@ dependencies:
 - alignlib-lite
 - biopython<=1.77
 - cython
-- cgatcore
 - jinja2
+- cgatcore
 - matplotlib
 - nose
 - numpy
@@ -24,33 +24,23 @@ dependencies:
 - pep8
 - pybedtools
 - pybigwig
-- pysam=0.15.2
-- python-lzo
+- pysam
 - pyyaml
 - pytest<=5.4.3
 - quicksect
 - rdflib
 - scikit-learn
 - scipy==1.5.3
-- seaborn
 - setuptools
 - six
 - sortedcontainers
-# R dependencies
-# Misc dependencies
-# WARNING: gdc-client is Py2 only. Please install it on a separate conda env
 - bedtools
-- coreutils
 - grep
 - htslib
-- libpng
 - samtools
-- sra-tools
 - tar
 - ucsc-bedgraphtobigwig
 - ucsc-wigtobigwig
 # does not exist on OSX
-# - util-linux
 - wget
 - zlib
-- nomkl

@@ -38,6 +38,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-k", "--keep-header", dest="keep_header", type=int,
                         help="randomize, but keep header in place ")
 

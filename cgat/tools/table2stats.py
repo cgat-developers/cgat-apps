@@ -50,6 +50,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-d", "--delimiter", dest="delimiter", type=str,
         help="delimiter to separate columns ")
