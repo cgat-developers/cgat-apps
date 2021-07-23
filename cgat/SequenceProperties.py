@@ -46,8 +46,6 @@ import six
 
 from cgat import Genomics as Genomics
 
-import Bio.Alphabet.IUPAC
-
 
 class SequenceProperties(object):
     """Base class.
@@ -223,7 +221,7 @@ class SequencePropertiesNA(SequenceProperties):
         self.mCountsOthers = 0
         # counts of nucleotides
         self.mCountsNA = {}
-        self.mAlphabet = Bio.Alphabet.IUPAC.unambiguous_dna.letters + "N"
+        self.mAlphabet = "GATCN"
         for x in self.mAlphabet:
             self.mCountsNA[x] = 0
 
@@ -313,7 +311,7 @@ class SequencePropertiesDN(SequenceProperties):
         SequenceProperties.__init__(self)
         self.mCountsDinuc = {}
         self.mCountsOthers = 0
-        self.mAlphabet = Bio.Alphabet.IUPAC.unambiguous_dna.letters
+        self.mAlphabet = "GATC"
         for dinucleotide in itertools.product(self.mAlphabet, repeat=2):
             self.mCountsDinuc["".join(dinucleotide)] = 0
 
@@ -555,7 +553,7 @@ class SequencePropertiesDegeneracy (SequencePropertiesLength):
             xx = []
             for y in range(5):
                 yy = {}
-                for z in Bio.Alphabet.IUPAC.extended_dna.letters:
+                for z in "GATCBDSW":
                     yy[z] = 0
                 xx.append(yy)
             self.mCountsDegeneracy.append(xx)
@@ -567,7 +565,7 @@ class SequencePropertiesDegeneracy (SequencePropertiesLength):
 
         for x in (0, 1, 2):
             for y in range(5):
-                for z in Bio.Alphabet.IUPAC.extended_dna.letters:
+                for z in "GATCBDSW":
                     self.mCountsDegeneracy[x][y][
                         z] += other.mCountsDegeneracy[x][y][z]
 
@@ -603,7 +601,7 @@ class SequencePropertiesDegeneracy (SequencePropertiesLength):
             xx = []
             for y in range(5):
                 yy = {}
-                for z in Bio.Alphabet.IUPAC.extended_dna.letters:
+                for z in "GATCBDSW":
                     yy[z] = 0
                 xx.append(yy)
             self.mCountsDegeneracy.append(xx)
@@ -759,7 +757,7 @@ class SequencePropertiesAA(SequenceProperties):
 
         # counts of amino acids
         self.mCountsAA = {}
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             self.mCountsAA[x] = 0
 
     def addProperties(self, other):
@@ -781,7 +779,7 @@ class SequencePropertiesAA(SequenceProperties):
         # counts of amino acids
         self.mCountsAA = {}
 
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             self.mCountsAA[x] = 0
 
         for codon in (sequence[x:x + 3] for x in range(0, len(sequence), 3)):
@@ -792,19 +790,19 @@ class SequencePropertiesAA(SequenceProperties):
 
         fields = SequenceProperties.getFields(self)
         t = 0
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             fields.append("%i" % self.mCountsAA[x])
             t += self.mCountsAA[x]
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             fields.append("%f" % (float(self.mCountsAA[x]) / t))
         return fields
 
     def getHeaders(self):
         '''Return list of data headers'''
         headers = SequenceProperties.getHeaders(self)
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             headers.append("n%s" % x)
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             headers.append("p%s" % x)
         return headers
 
@@ -824,7 +822,7 @@ class SequencePropertiesAminoAcids(SequenceProperties):
 
         # counts of amino acids
         self.mCountsAA = {}
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             self.mCountsAA[x] = 0
         self.mOtherCounts = 0
 
@@ -840,7 +838,7 @@ class SequencePropertiesAminoAcids(SequenceProperties):
         SequenceProperties.loadSequence(self, sequence, seqtype)
 
         # set to zero
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             self.mCountsAA[x] = 0
         self.mOtherCounts = 0
 
@@ -858,15 +856,15 @@ class SequencePropertiesAminoAcids(SequenceProperties):
 
         t = 0
 
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             fields.append("%i" % self.mCountsAA[x])
             t += self.mCountsAA[x]
 
         if t > 0:
-            for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+            for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
                 fields.append("%f" % (float(self.mCountsAA[x]) / t))
         else:
-            for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+            for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
                 fields.append("0")
 
         return fields
@@ -874,9 +872,9 @@ class SequencePropertiesAminoAcids(SequenceProperties):
     def getHeaders(self):
 
         fields = SequenceProperties.getHeaders(self)
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             fields.append("n%s" % x)
-        for x in Bio.Alphabet.IUPAC.extended_protein.letters:
+        for x in "ACDEFGHIKLMNPQRSTVWYBXZJUO":
             fields.append("p%s" % x)
 
         return fields

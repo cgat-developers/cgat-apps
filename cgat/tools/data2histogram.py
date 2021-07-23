@@ -40,6 +40,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-r", "--range", dest="range", type=str,
                         help="range to calculate histogram for.")
     parser.add_argument("-b", "--bin-size", dest="bin_size", type=str,
