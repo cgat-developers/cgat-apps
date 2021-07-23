@@ -44,6 +44,7 @@ import _csv
 import hashlib
 from cgatcore.csvutils import CommentStripper, DictReaderLarge
 
+
 class UniqueBuffer:
     mKeys = {}
 
