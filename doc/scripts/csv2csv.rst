@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.csv2csv
+.. automodule:: cgat.tools.csv2csv
 
 .. program-output:: cgat csv2csv -?
 

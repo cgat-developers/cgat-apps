@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.matrix2matrix
+.. automodule:: cgat.tools.matrix2matrix
 
 .. program-output:: cgat matrix2matrix -?
 

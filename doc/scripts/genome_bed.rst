@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.genome_bed
+.. automodule:: cgat.tools.genome_bed
 
 .. program-output:: cgat genome-bed -?
 

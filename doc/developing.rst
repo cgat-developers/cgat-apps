@@ -25,7 +25,7 @@ following are true:
    the major input and output can be read from and written to standard
    input and standard output, respectively. 
 
-3. The script follows the naming convention of CGAT scripts. 
+3. The script follows the naming convention of cgat.tools. 
 
 4. The scripts follows the :ref:`styleguide`.
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.histogram2histogram
+.. automodule:: cgat.tools.histogram2histogram
 
 .. program-output:: cgat histogram2histogram -?
 

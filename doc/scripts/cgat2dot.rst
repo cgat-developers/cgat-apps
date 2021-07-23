@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.cgat2dot
+.. automodule:: cgat.tools.cgat2dot
 
 .. program-output:: cgat cgat2dot -?
 

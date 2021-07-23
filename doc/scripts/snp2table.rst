@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.snp2table
+.. automodule:: cgat.tools.snp2table
 
 .. program-output:: cgat snp2table -?
 

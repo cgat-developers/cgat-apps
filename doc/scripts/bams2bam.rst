@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.bams2bam
+.. automodule:: cgat.tools.bams2bam
 
 .. program-output:: cgat bams2bam -?
 

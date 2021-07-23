@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.diff_bam
+.. automodule:: cgat.tools.diff_bam
 
 .. program-output:: cgat diff-bam -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.medip_merge_intervals
+.. automodule:: cgat.tools.medip_merge_intervals
 
 .. program-output:: cgat medip-merge-intervals -?
 

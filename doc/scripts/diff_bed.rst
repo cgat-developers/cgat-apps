@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.diff_bed
+.. automodule:: cgat.tools.diff_bed
 
 .. program-output:: cgat diff-bed -?
 

@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.index_fasta
+.. automodule:: cgat.tools.index_fasta
 
 .. program-output:: cgat index-fasta -?
 

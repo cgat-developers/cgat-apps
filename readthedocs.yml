@@ -1,0 +1,10 @@
+# File: .readthedocs.yaml
+build:
+  image: latest
+conda:
+    file: doc/environment.yml
+sphinx:
+  configuration: doc/conf.py
+
+#conda:
+#    file: conda/environments/readthedocs.yml

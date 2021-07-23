@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.gff2coverage
+.. automodule:: cgat.tools.gff2coverage
 
 .. program-output:: cgat gff2coverage -?
 

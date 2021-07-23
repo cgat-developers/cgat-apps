@@ -1,5 +1,6 @@
 *.py[cod]
 *.log
+.DS_Store
 
 # exclude recipes - add manuall
 recipes
@@ -39,7 +40,7 @@ develop-eggs
 lib
 lib64
 doc/_build
-doc/_static
+
 
 # Installer logs
 pip-log.txt

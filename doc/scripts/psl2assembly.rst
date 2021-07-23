@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.psl2assembly
+.. automodule:: cgat.tools.psl2assembly
 
 .. program-output:: cgat psl2assembly -?
 

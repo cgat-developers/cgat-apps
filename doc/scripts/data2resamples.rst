@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.data2resamples
+.. automodule:: cgat.tools.data2resamples
 
 .. program-output:: cgat data2resamples -?
 

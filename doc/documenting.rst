@@ -5,7 +5,7 @@ Documentation
 Overview
 ========
 
-CGAT scripts and modules use sphinx_ for documentation. The philosophy
+cgat.tools.and modules use sphinx_ for documentation. The philosophy
 is to maintain documentation and code together. Thus, most
 documentation will be kept inside the actual scripts and modules,
 supported by overview documents explaining usage and higher level

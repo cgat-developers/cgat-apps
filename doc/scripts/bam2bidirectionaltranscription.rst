@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.bam2bidirectionaltranscription
+.. automodule:: cgat.tools.bam2bidirectionaltranscription
 
 .. program-output:: cgat bam2bidirectionaltranscription -?
 

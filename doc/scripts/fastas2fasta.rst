@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.fastas2fasta
+.. automodule:: cgat.tools.fastas2fasta
 
 .. program-output:: cgat fastas2fasta -?
 

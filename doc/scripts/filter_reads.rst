@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.filter_reads
+.. automodule:: cgat.tools.filter_reads
 
 .. program-output:: cgat filter-reads -?
 

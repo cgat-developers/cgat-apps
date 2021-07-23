@@ -17,8 +17,8 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.extend([os.path.abspath('../CGAT'),
-                 os.path.abspath('../scripts'),
+sys.path.extend([os.path.abspath('../cgat'),
+                 os.path.abspath('../cgat/tools'),
                  os.path.abspath('../CGATPipelines'),
                  os.path.abspath('python')])
 
@@ -33,7 +33,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.ifconfig',
               'sphinx.ext.inheritance_diagram',
               'sphinx.ext.intersphinx',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon',
+              'sphinxcontrib.programoutput']
 
 intersphinx_mapping = {'python': ('http://docs.python.org/2.7', None)}
 
@@ -64,7 +65,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'CGAT-apps'
-copyright = u'2011, 2012, 2013, 2014, 2015, 2016, 2017 2018 CGAT'
+copyright = u'2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 CGAT'
 
 
 # Included at the end of each rst file
@@ -98,15 +99,16 @@ rst_epilog = '''
 .. _alignlib: https://github.com/AndreasHeger/alignlib
 '''
 
-sys.path.insert(0, "../scripts")
-import version
+sys.path.insert(0, "../cgat/tools")
+#import cgat.version
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = version.__version__
+version = "0.6.2"
+#version.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -228,8 +230,8 @@ htmlhelp_basename = 'Gpipedoc'
 # [howto/manual]).
 latex_documents = [(
     'index', 'Gpipe.tex',
-    ur'Gpipe Documentation',
-    ur'Andreas Heger',
+    'Gpipe Documentation',
+    'Andreas Heger',
     'manual'),
 ]
 
@@ -252,6 +254,6 @@ latex_documents = [(
 
 
 def setup(app):
-    app.add_stylesheet("my-styles.css") # also can be a full URL
+    app.add_css_file("my-styles.css") # also can be a full URL
     # app.add_stylesheet("ANOTHER.css")
 # app.add_stylesheet("AND_ANOTHER.css")

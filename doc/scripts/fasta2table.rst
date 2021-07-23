@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.fasta2table
+.. automodule:: cgat.tools.fasta2table
 
 .. program-output:: cgat fasta2table -?
 

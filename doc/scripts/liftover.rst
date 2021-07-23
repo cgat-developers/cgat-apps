@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.liftover
+.. automodule:: cgat.tools.liftover
 
 .. program-output:: cgat liftover -?
 

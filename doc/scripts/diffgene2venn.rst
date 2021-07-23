@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.diffgene2venn
+.. automodule:: cgat.tools.diffgene2venn
 
 .. program-output:: cgat diffgene2venn -?
 

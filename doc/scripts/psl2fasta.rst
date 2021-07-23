@@ -1,5 +1,5 @@
 
-.. automodule:: CGAT.scripts.psl2fasta
+.. automodule:: cgat.tools.psl2fasta
 
 .. program-output:: cgat psl2fasta -?
 

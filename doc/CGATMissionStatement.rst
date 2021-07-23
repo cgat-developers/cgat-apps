@@ -1,11 +1,8 @@
 ======================================
-Background
+Mission statement
 ======================================
 
-Mission statement
-=================
-
-The CGAT code collection has been written over several years in
+The CGAT-apps code collection has been written over several years in
 the context of comparative genomics and more recently next-generation
 sequencing analysis.
 
@@ -24,7 +21,7 @@ various other toolkits. As all toolkits, and ours, continue to evolve,
 this is a very dynamic relationship. For example, our workflows frequently
 use other toolkits, in particular bedtools_ and the `UCSC tools`_, for
 high-performance computations. Usage of common genomic file formats
-and a command line interface ensures compatibility. 
+and a command line interface ensures compatibility.
 
 Below is a list of toolkits with similar or complementarity
 functionality to the CGAT code collection and quotes from their
@@ -58,7 +55,7 @@ respective web-sites:
   software in true open source spirit. EMBOSS also integrates a range of
   currently available packages and tools for sequence analysis into a
   seamless whole. EMBOSS breaks the historical trend towards commercial
-  software packages. 
+  software packages.
 
 * GROK_
   GROK (Genomic Region Operation Toolkit) is "Swiss Army knife" library
@@ -68,7 +65,7 @@ respective web-sites:
   features. Applications of GROK include file format conversions, set
   operations, overlap queries, and filtering and transformation
   operations. Supported file formats include BAM/SAM, BED, BedGraph,
-  CSV, FASTQ, GFF/GTF, VCF and Wiggle. 
+  CSV, FASTQ, GFF/GTF, VCF and Wiggle.
 
 * biopieces_
   The Biopieces are a collection of bioinformatics tools that can be
@@ -81,7 +78,7 @@ respective web-sites:
 
 * fastx-toolkit_
   The FASTX-Toolkit is a collection of command line tools for
-  Short-Reads FASTA/FASTQ files preprocessing. 
+  Short-Reads FASTA/FASTQ files preprocessing.
 
 .. _EMBOSS: http://emboss.sourceforge.net/
 .. _GROK: http://csbi.ltdk.helsinki.fi/grok/
