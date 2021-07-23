@@ -125,6 +125,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-i", "--min-chunk-size", dest="min_chunk_size", type=int,
         help="minimum chunk size.")

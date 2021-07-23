@@ -58,6 +58,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                         help="input is gtf.")
 

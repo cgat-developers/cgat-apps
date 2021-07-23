@@ -264,6 +264,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type=float,
         help="sample size. If less than 0, take a proportion of the chromosome size. "

@@ -99,6 +99,8 @@ def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-i", "--input-vcf", dest="input_vcf_file", type=str,
         help="input vcf file")
