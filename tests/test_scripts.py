@@ -242,7 +242,7 @@ def test_scripts():
     config_file = os.path.join(testing_dir, "_test_scripts.yml")
 
     if os.path.exists(config_file):
-        config = yaml.load(open(config_file))
+        config = yaml.safe_load(open(config_file))
         if config is not None:
             if "restrict" in config and config["restrict"]:
                 values = config["restrict"]
@@ -294,7 +294,7 @@ def test_scripts():
         if not os.path.exists(fn):
             continue
 
-        script_tests = yaml.load(open(fn))
+        script_tests = yaml.safe_load(open(fn))
 
         for test, values in sorted(list(script_tests.items())):
             check_script.description = os.path.join(script_name, test)

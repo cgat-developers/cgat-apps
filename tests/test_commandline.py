@@ -83,7 +83,7 @@ def filter_files(files):
     config_file = os.path.join(testing_dir, "_test_commandline.yml")
 
     if os.path.exists(config_file):
-        config = yaml.load(open(config_file))
+        config = yaml.safe_load(open(config_file))
         if config is not None:
             if "restrict" in config and config["restrict"]:
                 values = config["restrict"]
