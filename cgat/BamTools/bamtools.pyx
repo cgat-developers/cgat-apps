@@ -8,7 +8,7 @@ with :term:`bam` formatted files.
 """
 
 from pysam.libchtslib cimport *
-from pysam.libcalignmentfile cimport *
+from pysam.libcalignmentfile cimport AlignmentFile, AlignedSegment
 from pysam.libcalignedsegment cimport pysam_bam_get_cigar, \
     pysam_bam_get_qname, pysam_get_n_cigar
 from pysam.libcfaidx cimport *
