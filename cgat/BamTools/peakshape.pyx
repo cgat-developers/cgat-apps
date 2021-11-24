@@ -1,6 +1,6 @@
 #cimport csamtools
 
-from pysam.libcalignmentfile cimport *
+from pysam.libcalignmentfile cimport AlignmentFile, AlignedSegment
 import collections
 import cgatcore.experiment as E
 import numpy
