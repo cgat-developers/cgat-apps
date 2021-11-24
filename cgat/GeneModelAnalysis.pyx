@@ -1,7 +1,7 @@
 # cython: profile=True
 #cimport csamtools
 from pysam.libchtslib cimport *
-from pysam.libcalignmentfile cimport *
+from pysam.libcalignmentfile cimport AlignedSegment
 from posix.stdlib cimport drand48
 
 import collections, array, struct
