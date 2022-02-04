@@ -39,6 +39,8 @@ dependencies:
 - htslib
 - samtools
 - tar
+- openssl=1
+- compilers
 - ucsc-bedgraphtobigwig
 - ucsc-wigtobigwig
 # does not exist on OSX
