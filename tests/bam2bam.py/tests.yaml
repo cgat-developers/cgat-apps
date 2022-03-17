@@ -32,7 +32,7 @@ unstrip:
 set_flag:
     stdin: unstrip.bam
     outputs: [stdout]
-    references: [nh_flag.bam]
+    references: [nh_flag_new.bam]
     options: -v 0 --log=/dev/null --method=set-nh
 
 filter_unique_mapped_sam:
