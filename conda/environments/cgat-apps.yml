@@ -24,7 +24,7 @@ dependencies:
 - pep8
 - pybedtools
 - pybigwig
-- pysam
+- pysam>=0.18.0
 - pyyaml
 - pytest<=5.4.3
 - quicksect
