@@ -26,7 +26,7 @@ strip_match:
 unstrip:
     stdin: strip_quality.bam
     outputs: [stdout]
-    references: [paired.bam]
+    references: [unstrip.bam]
     options: -v 0 --log=/dev/null --method=unstrip --first-fastq-file=<DIR>/paired.fastq.1.gz --second-fastq-file=<DIR>/paired.fastq.2.gz
 
 set_flag:
