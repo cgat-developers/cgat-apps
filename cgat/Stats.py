@@ -313,8 +313,8 @@ class DistributionalParameters:
         self.mMin = min(n)
         self.mMax = max(n)
         self.mMean = numpy.mean(n)
-        self.mMedian = scipy.median(n)
-        self.mSampleStd = scipy.std(n)
+        self.mMedian = numpy.median(n)
+        self.mSampleStd = numpy.std(n)
         self.mSum = reduce(lambda x, y: x + y, n)
 
     def getZScore(self, value):
@@ -442,8 +442,8 @@ class Summary(Result):
             self.min = min(n)
             self.max = max(n)
             self.mean = numpy.mean(n)
-            self.median = scipy.median(n)
-            self.samplestd = scipy.std(n)
+            self.median = numpy.median(n)
+            self.samplestd = numpy.std(n)
             self.sum = reduce(lambda x, y: x + y, n)
 
     def getHeaders(self):
