@@ -160,7 +160,7 @@ def main(argv=None):
     parser.add_argument("--allow-duplicates", dest="allow_duplicates",
                         action="store_true",
                         help="allow duplicate identifiers. Further occurances "
-                        "of an identifier are suffixed by an '_\\%i' ")
+                        "of an identifier are suffixed by an '_%%i' ")
 
     parser.add_argument("--regex-identifier", dest="regex_identifier",
                         type=str,
