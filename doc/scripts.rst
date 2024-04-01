@@ -49,7 +49,6 @@ Genomics
    scripts/combine_gff.rst
    scripts/quality2fasta.rst
    scripts/bam2wiggle.rst
-   scripts/bed2annotator.rst
    scripts/bed2graph.rst
    scripts/bed2psl.rst
    scripts/chain2psl.rst
@@ -164,11 +163,9 @@ Unsorted
    :maxdepth: 1
 
    scripts/add_random_reads_to_bam.rst
-   scripts/bam2UniquePairs.rst
    scripts/bam2bam.rst
    scripts/bam2bed.rst
    scripts/bam2fastq.rst
-   scripts/bam2peakshape.rst
    scripts/bam2stats.rst
    scripts/bam2transcriptContribution.rst
    scripts/barplotGo.rst
@@ -219,12 +216,8 @@ Unsorted
    scripts/rnaseq_junction_bam2bam.rst
    scripts/split_gff.rst
    scripts/annotator_distance.rst
-   scripts/bam2bidirectionaltranscription.rst
    scripts/bam2profile.rst
-   scripts/bam2species_map.rst
    scripts/bams2bam.rst
-   scripts/bed2plot.rst
-   scripts/bigwig2hilbert.rst
    scripts/cgat.rst
    scripts/cgat2dot.rst
    scripts/cgat_add_preamble.rst
