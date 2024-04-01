@@ -51,7 +51,7 @@ cdef class Counter:
                                                  **kwargs )
 
         nbins = len(bins) - 1
-        hist = numpy.zeros(nbins, dtype=numpy.int)
+        hist = numpy.zeros(nbins, dtype=numpy.int64)
         cdef int lcounts = len(counts)
 
         if self.smooth_method is not None:
@@ -196,7 +196,7 @@ cdef class Counter:
         #################################################
         # compute histogram
         nbins = len(bins) - 1
-        hist = numpy.zeros(nbins, dtype = numpy.int)
+        hist = numpy.zeros(nbins, dtype = numpy.int64)
 
         # decide in which region to count - interval or window
         if use_interval:
@@ -337,7 +337,7 @@ cdef class CounterBam(Counter):
                 for i from rstart <= i < rend: ccounts[i] += 1
 
         # transfer to numpy count object
-        counts = numpy.zeros( interval_width, dtype = numpy.int )
+        counts = numpy.zeros( interval_width, dtype = numpy.int64)
         for i from 0 <= i < interval_width: counts[i] = ccounts[i]
 
         free( ccounts )
