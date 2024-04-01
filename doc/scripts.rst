@@ -164,7 +164,6 @@ Unsorted
    :maxdepth: 1
 
    scripts/add_random_reads_to_bam.rst
-   scripts/bam2UniquePairs.rst
    scripts/bam2bam.rst
    scripts/bam2bed.rst
    scripts/bam2fastq.rst
