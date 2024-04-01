@@ -901,7 +901,7 @@ class cgatIndexedFasta:
 
         if self.mNoSeek:
             # read directly from position
-            p.fromstring(
+            p.frombytes(
                 self.mDatabaseFile.read(block_size, data[3],
                                         first_pos, last_pos))
         else:
@@ -909,7 +909,7 @@ class cgatIndexedFasta:
             last_pos += pos_seq
 
             self.mDatabaseFile.seek(first_pos)
-            p.fromstring(self.mDatabaseFile.read(last_pos - first_pos))
+            p.frombytes(self.mDatabaseFile.read(last_pos - first_pos))
 
         if str(strand) in ("-", "0", "-1"):
             p = AString(Genomics.reverse_complement(str(p)))
