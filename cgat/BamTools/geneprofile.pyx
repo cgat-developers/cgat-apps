@@ -560,7 +560,7 @@ class IntervalsCounter:
         self.fields.append(field)
         self.nbins.append(length)
         if self.normalization in ("max", "sum", "total-max", "total-sum"):
-            self.dtype = numpy.float
+            self.dtype = numpy.float64
         else:
             self.dtype = numpy.int64
         self.aggregate_counts.append(numpy.zeros(length, dtype=self.dtype))
@@ -584,7 +584,7 @@ class IntervalsCounter:
         self.normalization = normalization
 
         if self.normalization in ("max", "sum", "total-max", "total-sum" ):
-            self.dtype = numpy.float
+            self.dtype = numpy.float64
             self.format = "%6.4f"
         else:
             self.dtype = numpy.int64
@@ -671,7 +671,7 @@ class IntervalsCounter:
 
         elif normalize in ("area", "background"):
             profile = numpy.concatenate(self.aggregate_counts)
-            profile = numpy.array(profile, dtype=numpy.float)
+            profile = numpy.array(profile, dtype=numpy.float64)
 
             if normalize == "area":
                 background = profile.sum()
@@ -688,7 +688,7 @@ class IntervalsCounter:
 
         elif normalize == "counts":
             profile = numpy.concatenate(
-                [numpy.array(x, dtype=numpy.float) / y
+                [numpy.array(x, dtype=numpy.float64) / y
                  for x, y in zip(self.aggregate_counts,
                                  self.counts)])
 
