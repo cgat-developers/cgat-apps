@@ -470,7 +470,6 @@ def annotateGenome(iterator, fasta, options, default_code=DEFAULT_CODE):
 
     E.info("started output")
     for k in sorted(annotations.keys()):
-        # options.stdout.write(">%s\n%s\n" % (k, annotations[k].tostring()))
         options.stdout.write(">%s\n%s\n" % (k, "".join(annotations[k])))
 
 
