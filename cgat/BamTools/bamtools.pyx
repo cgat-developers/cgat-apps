@@ -278,7 +278,7 @@ def bam2stats_count(AlignmentFile samfile,
                 if outfile_readmap:
                     outfile_readmap.write("{}\t{}\n".format(
                         read_name,
-                        base64.encodestring(md5)[:-1]))
+                        base64.encodebytes(md5)[:-1]))
 
         samfile.seek(old_pos)
         nalignments = iteration
@@ -711,7 +711,7 @@ def bam2stats_count(AlignmentFile samfile,
                     fastq_count = &fastq_counts[read_index]
                     # remove "\n" from base64 encoded md5
                     outfile_details.write("%s\t%s" % (
-                        base64.encodestring(qname)[:-1].decode("ascii"),
+                        base64.encodebytes(qname)[:-1].decode("ascii"),
                         "\t".join( \
                                    map(str,
                                        (fastq_count.read_length,

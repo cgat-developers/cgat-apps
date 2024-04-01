@@ -919,7 +919,7 @@ class cgatIndexedFasta:
         elif as_array:
             return p
         else:
-            return p.tostring().decode("ascii")
+            return p.tobytes().decode("ascii")
 
     def getRandomCoordinates(self, size):
         """returns coordinates for a random fragment of size #.
