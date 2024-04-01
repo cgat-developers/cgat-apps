@@ -619,17 +619,17 @@ def main(argv=None):
         for foreground, bed, controls, shifted in features_per_interval:
             foreground = foreground._replace(
                 counts=numpy.array(foreground.counts,
-                                   dtype=numpy.float) / norm)
+                                   dtype=numpy.float64) / norm)
             new_controls = []
             for control in controls:
                 new_controls.append(
                     control._replace(
                         counts=numpy.array(control.counts,
-                                           dtype=numpy.float) / norm))
+                                           dtype=numpy.float64) / norm))
             if shifted:
                 shifted = shifted._replace(
                     counts=numpy.array(shifted.counts,
-                                       dtype=numpy.float) / norm)
+                                       dtype=numpy.float64) / norm)
             new_data.append(IntervalData._make((
                 foreground, bed, new_controls, shifted)))
         features_per_interval = new_data

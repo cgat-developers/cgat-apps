@@ -208,7 +208,6 @@ Unsorted
    scripts/bam_vs_bam.rst
    scripts/bam_vs_bed.rst
    scripts/bam_vs_gtf.rst
-   scripts/cgat2rdf.rst
    scripts/diff_bam.rst
    scripts/fasta2fasta.rst
    scripts/fasta2kmercontent.rst

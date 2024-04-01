@@ -222,7 +222,7 @@ def main(argv=None):
         "-l", "--template-identifier", dest="template_identifier",
         type=str,
         help="template for numerical identifier"
-        "for the operation --build-map. A %i is replaced by the position "
+        "for the operation --build-map. A %%i is replaced by the position "
         "of the sequence in the file.")
 
     parser.add_argument(

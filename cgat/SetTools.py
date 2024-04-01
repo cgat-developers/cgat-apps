@@ -97,7 +97,7 @@ def unionIntersectionMatrix(list_of_sets):
     '''
 
     l = len(list_of_sets)
-    matrix = numpy.zeros((l, l), dtype=numpy.int)
+    matrix = numpy.zeros((l, l), dtype=numpy.int64)
     for x in range(l):
         xx = list_of_sets[x]
         for y in range(x):

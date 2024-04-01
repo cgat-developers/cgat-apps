@@ -210,7 +210,7 @@ def getMatrixFromEdges(lines, options,
     return matrix
 
 
-def buildMatrixFromLists(lists, dtype=numpy.float, default=None):
+def buildMatrixFromLists(lists, dtype=numpy.float64, default=None):
     '''build a matrix from a list of lists.
 
     Each list is a list of tuples (row, value).
@@ -235,7 +235,7 @@ def buildMatrixFromLists(lists, dtype=numpy.float, default=None):
     return matrix, list(all_rows.keys())
 
 
-def buildMatrixFromTables(infiles, column, column_header=0, dtype=numpy.float,
+def buildMatrixFromTables(infiles, column, column_header=0, dtype=numpy.float64,
                           default=None):
     '''build a matrix from a column called *column* in a series of input files.
 
@@ -260,7 +260,7 @@ def buildMatrixFromEdges(edges,
                          is_symmetric=False,
                          missing_value=0,
                          diagonal_value=0,
-                         dtype=numpy.int):
+                         dtype=numpy.int64):
     """build a matrix from an edge-list representation.
 
     For example, the following list of tuples::

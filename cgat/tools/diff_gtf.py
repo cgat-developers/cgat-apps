@@ -194,7 +194,7 @@ class Counter:
             overlapping_genes.add(this.gene_id)
             nexons_overlapping += 1
             start, end = this.start, this.end
-            counts = numpy.zeros(end - start, numpy.int)
+            counts = numpy.zeros(end - start, numpy.int64)
             for other_start, other_end, other_value in intervals:
                 for x in range(max(start, other_start) - start, min(end, other_end) - start):
                     counts[x] += 1

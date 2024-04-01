@@ -307,9 +307,9 @@ class Counter:
         return utr5, utr3
     
 cimport numpy
-DTYPE_INT = numpy.int
+DTYPE_INT = numpy.int64
 ctypedef numpy.int_t DTYPE_INT_t
-DTYPE_FLOAT = numpy.float
+DTYPE_FLOAT = numpy.float64
 ctypedef numpy.float_t DTYPE_FLOAT_t
 
 
@@ -360,8 +360,8 @@ class CounterReadCoverage(Counter):
             return
 
         cdef int length = sum( [x[1] - x[0] for x in segments ] )
-        cdef numpy.ndarray[DTYPE_INT_t, ndim=1] counts_sense = numpy.zeros( length, dtype = numpy.int )
-        cdef numpy.ndarray[DTYPE_INT_t, ndim=1] counts_antisense = numpy.zeros( length, dtype = numpy.int )
+        cdef numpy.ndarray[DTYPE_INT_t, ndim=1] counts_sense = numpy.zeros( length, dtype = numpy.int64)
+        cdef numpy.ndarray[DTYPE_INT_t, ndim=1] counts_antisense = numpy.zeros( length, dtype = numpy.int64)
         cdef int p, pos, offset
 
         reads_sense, reads_antisense = set(), set()
@@ -893,11 +893,11 @@ class CounterReadCountsFull(CounterBAM):
                          x=ndirection_status, 
                          y=nexons_status,
                          z=nspliced_status):
-            counters = numpy.zeros(n, dtype=numpy.float)
+            counters = numpy.zeros(n, dtype=numpy.float64)
             counters.shape = (x,y,z)
             return counters
             
-        # counters = numpy.zeros(ncounters, dtype=numpy.float)
+        # counters = numpy.zeros(ncounters, dtype=numpy.float64)
         # counters.shape = (ndirection_status,
         #                   nexons_status,
         #                   nspliced_status)
@@ -1072,7 +1072,7 @@ class CounterReadCountsFull(CounterBAM):
 
         if not weight_multi_mapping:
             # convert to full counts
-            counters = numpy.array(counters, dtype=numpy.int)
+            counters = numpy.array(counters, dtype=numpy.int64)
 
         self.counters = counters
         self.reads_below_quality = quality_read_status
@@ -1415,7 +1415,7 @@ class CounterReadPairCountsFull(CounterBAM):
         cdef AlignedSegment read1
 
         # define counters, add 1 for quality filtered reads
-        counters = numpy.zeros(ncounters, dtype=numpy.float)
+        counters = numpy.zeros(ncounters, dtype=numpy.float64)
         counters.shape = (npair_status,
                           ndirection_status,
                           nexons_status,
@@ -1667,7 +1667,7 @@ class CounterReadPairCountsFull(CounterBAM):
 
         if not weight_multi_mapping:
             # convert to full counts
-            counters = numpy.array(counters, dtype=numpy.int)
+            counters = numpy.array(counters, dtype=numpy.int64)
 
         self.counters = counters
         
@@ -2308,7 +2308,7 @@ class CounterCoverage(CounterOverlap):
 
         l = sum([x[1] - x[0] for x in segments])
 
-        counts = numpy.zeros(l, numpy.int)
+        counts = numpy.zeros(l, numpy.int64)
 
         intervals = set()
         if contig in self.mIntersectors:
@@ -4864,8 +4864,8 @@ class CounterReadExtension(Counter):
                 # create dummy counts vector
                 start, end = 0, 1
 
-            counts.append([numpy.zeros(end - start, numpy.int),
-                           numpy.zeros(end - start, numpy.int)])
+            counts.append([numpy.zeros(end - start, numpy.int64),
+                           numpy.zeros(end - start, numpy.int64)])
 
         def __add(counts, positions, offset):
             l = len(counts)
