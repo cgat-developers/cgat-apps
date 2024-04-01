@@ -30,7 +30,7 @@ dependencies:
 - quicksect
 - rdflib
 - scikit-learn
-- scipy==1.5.3
+- scipy
 - setuptools
 - six
 - sortedcontainers
