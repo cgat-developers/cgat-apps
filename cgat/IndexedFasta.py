@@ -487,7 +487,6 @@ def createDatabase(db, iterator,
 
         is_new, identifier, fragment = result
 
-        print(is_new, identifier, fragment)
         if is_new:
             # check for duplicate identifiers
             if identifier in identifiers:
