@@ -666,12 +666,12 @@ def bam2stats_count(AlignmentFile samfile,
         counter.total_read2_is_unmapped = total_read2_is_unmapped
         counter.total_read2_is_missing = total_read2_is_missing
 
-        substitution_rates = numpy.zeros(fastq_nreads, dtype=numpy.float)
-        insertion_rates = numpy.zeros(fastq_nreads, dtype=numpy.float)
-        deletion_rates = numpy.zeros(fastq_nreads, dtype=numpy.float)
-        error_rates = numpy.zeros(fastq_nreads, dtype=numpy.float)
-        coverages = numpy.zeros(fastq_nreads, dtype=numpy.float)
-        mask = numpy.ones(fastq_nreads, dtype=numpy.int)
+        substitution_rates = numpy.zeros(fastq_nreads, dtype=numpy.float64)
+        insertion_rates = numpy.zeros(fastq_nreads, dtype=numpy.float64)
+        deletion_rates = numpy.zeros(fastq_nreads, dtype=numpy.float64)
+        error_rates = numpy.zeros(fastq_nreads, dtype=numpy.float64)
+        coverages = numpy.zeros(fastq_nreads, dtype=numpy.float64)
+        mask = numpy.ones(fastq_nreads, dtype=numpy.int64)
 
         if outfile_details:
             header = ["read_md5",
@@ -1558,7 +1558,7 @@ def bam2stats_window_count(AlignmentFile samfile,
     cdef uint32_t ncontigs = len(contigs)
     cdef int ncolumns = len(columns)
     cdef numpy.ndarray offsets = numpy.zeros(
-        ncontigs + 1, dtype=numpy.int32)
+        ncontigs + 1, dtype=numpy.int64)
 
     for idx, length in enumerate(lengths):
         offsets[idx] = offset
@@ -1570,7 +1570,7 @@ def bam2stats_window_count(AlignmentFile samfile,
 
     cdef numpy.ndarray window_counts = numpy.zeros(
         (total_windows, ncolumns),
-        dtype=numpy.int32)
+        dtype=numpy.int64)
 
     cdef int32_t [:, :] window_counts_view = window_counts
 

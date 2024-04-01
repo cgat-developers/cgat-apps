@@ -55,7 +55,6 @@ Algorithms
    modules/Genomics.rst
    modules/Intervals.rst
    modules/Motifs.rst
-   modules/SequencePairProperties.rst
    modules/SequenceProperties.rst
    modules/Variants.rst
 
@@ -69,7 +68,6 @@ output.
 .. toctree::
    :maxdepth: 1
 
-   modules/WrapperCodeML.rst
    modules/Bioprospector.rst
    modules/MAST.rst
    modules/IGV.rst
@@ -116,7 +114,6 @@ CGAT infrastructure such as logging, dependency tracking, etc.
 
    modules/Requirements.rst
    modules/Logfile.rst
-   modules/CSV2DB.rst
 
 Other
 -----

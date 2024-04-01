@@ -1475,7 +1475,7 @@ def AlignedPair2SubstitutionMatrix(seq1, seq2, alphabet):
         raise ValueError("two sequences of unequal length submitted")
 
     nchars = len(alphabet)
-    matrix = numpy.zeros((nchars, nchars), numpy.int)
+    matrix = numpy.zeros((nchars, nchars), numpy.int64)
 
     map_char2pos = {}
     for x in alphabet:

@@ -594,7 +594,7 @@ def doFDRPython(pvalues,
     # v[i] = number of observations less than or equal to pvalue[i]
     # could this be done more elegantly?
     val2bin = len(bins) - numpy.digitize(pvalues, bins)
-    v = numpy.zeros(m, dtype=numpy.int)
+    v = numpy.zeros(m, dtype=numpy.int64)
     lastbin = None
     for x in range(m - 1, -1, -1):
         bin = val2bin[idx[x]]
@@ -1155,8 +1155,8 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     """
 
     try:
-        window_size = numpy.abs(numpy.int(window_size))
-        order = numpy.abs(numpy.int(order))
+        window_size = numpy.abs(numpy.int64(window_size))
+        order = numpy.abs(numpy.int64(order))
     except ValueError:
         raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
