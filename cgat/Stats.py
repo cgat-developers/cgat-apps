@@ -11,7 +11,7 @@ Code
 import math
 import numpy
 import scipy
-import scipy.stats
+from scipy import stats
 import scipy.interpolate
 import collections
 from functools import reduce
@@ -312,7 +312,7 @@ class DistributionalParameters:
         self.mCounts = len(n)
         self.mMin = min(n)
         self.mMax = max(n)
-        self.mMean = scipy.mean(n)
+        self.mMean = numpy.mean(n)
         self.mMedian = scipy.median(n)
         self.mSampleStd = scipy.std(n)
         self.mSum = reduce(lambda x, y: x + y, n)
@@ -441,7 +441,7 @@ class Summary(Result):
             self.counts = len(n)
             self.min = min(n)
             self.max = max(n)
-            self.mean = scipy.mean(n)
+            self.mean = numpy.mean(n)
             self.median = scipy.median(n)
             self.samplestd = scipy.std(n)
             self.sum = reduce(lambda x, y: x + y, n)
