@@ -562,7 +562,7 @@ class IntervalsCounter:
         if self.normalization in ("max", "sum", "total-max", "total-sum"):
             self.dtype = numpy.float
         else:
-            self.dtype = numpy.int
+            self.dtype = numpy.int64
         self.aggregate_counts.append(numpy.zeros(length, dtype=self.dtype))
 
     def setOutputProfiles(self, outfile_profiles):
@@ -587,7 +587,7 @@ class IntervalsCounter:
             self.dtype = numpy.float
             self.format = "%6.4f"
         else:
-            self.dtype = numpy.int
+            self.dtype = numpy.int64
             self.format = "%i"
 
         for x,c in enumerate(self.aggregate_counts):

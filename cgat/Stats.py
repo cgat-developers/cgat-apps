@@ -502,7 +502,7 @@ def doFDRPython(pvalues,
         vlambda = numpy.arange(0, 0.95, 0.05)
 
     m = len(pvalues)
-    pvalues = numpy.array(pvalues, dtype=numpy.float)
+    pvalues = numpy.array(pvalues, dtype=numpy.float64)
 
     if pi0 is None:
         if type(vlambda) == float:
@@ -525,7 +525,7 @@ def doFDRPython(pvalues,
             pi0 = min(pi0, 1.0)
         else:
 
-            pi0 = numpy.zeros(len(vlambda), numpy.float)
+            pi0 = numpy.zeros(len(vlambda), numpy.float64)
 
             for i in range(len(vlambda)):
                 pi0[i] = numpy.mean([x >= vlambda[i]
@@ -558,8 +558,8 @@ def doFDRPython(pvalues,
 
                 minpi0 = min(pi0)
 
-                mse = numpy.zeros(len(vlambda), numpy.float)
-                pi0_boot = numpy.zeros(len(vlambda), numpy.float)
+                mse = numpy.zeros(len(vlambda), numpy.float64)
+                pi0_boot = numpy.zeros(len(vlambda), numpy.float64)
 
                 for i in range(100):
                     # sample pvalues
@@ -674,7 +674,7 @@ class CorrelationTest:
 
 
 def filterMasked(xvals, yvals, missing=("na", "Nan", None, ""),
-                 dtype=numpy.float):
+                 dtype=numpy.float64):
     """convert xvals and yvals to numpy array skipping pairs with
     one or more missing values."""
     xmask = [i in missing for i in xvals]
@@ -1041,7 +1041,7 @@ def adjustPValues(pvalues, method='fdr', n=None):
         method = "BH"
 
     # optional, remove NA values
-    p = numpy.array(pvalues, dtype=numpy.float)
+    p = numpy.array(pvalues, dtype=numpy.float64)
     lp = len(p)
 
     assert n <= lp
