@@ -68,7 +68,6 @@ output.
 .. toctree::
    :maxdepth: 1
 
-   modules/WrapperCodeML.rst
    modules/Bioprospector.rst
    modules/MAST.rst
    modules/IGV.rst
