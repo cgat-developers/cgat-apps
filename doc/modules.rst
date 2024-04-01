@@ -114,7 +114,6 @@ CGAT infrastructure such as logging, dependency tracking, etc.
 
    modules/Requirements.rst
    modules/Logfile.rst
-   modules/CSV2DB.rst
 
 Other
 -----
