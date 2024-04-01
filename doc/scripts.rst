@@ -49,7 +49,6 @@ Genomics
    scripts/combine_gff.rst
    scripts/quality2fasta.rst
    scripts/bam2wiggle.rst
-   scripts/bed2annotator.rst
    scripts/bed2graph.rst
    scripts/bed2psl.rst
    scripts/chain2psl.rst
