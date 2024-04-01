@@ -55,7 +55,6 @@ Algorithms
    modules/Genomics.rst
    modules/Intervals.rst
    modules/Motifs.rst
-   modules/SequencePairProperties.rst
    modules/SequenceProperties.rst
    modules/Variants.rst
 
