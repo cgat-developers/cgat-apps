@@ -168,7 +168,6 @@ Unsorted
    scripts/bam2bam.rst
    scripts/bam2bed.rst
    scripts/bam2fastq.rst
-   scripts/bam2peakshape.rst
    scripts/bam2stats.rst
    scripts/bam2transcriptContribution.rst
    scripts/barplotGo.rst

@@ -152,10 +152,6 @@ NGS data
     Save sequence and quality information from a :term:`bam` 
     formatted file.
 
-:doc:`scripts/bam2peakshape`
-    Compute read densities over a collection of intervals. Also 
-    accepts :term:`bed` or :term:`bigwig` formatted files.
-
 :doc:`scripts/bam2stats`
     Compute summary statistics of a :term:`bam` formatted file.
 
