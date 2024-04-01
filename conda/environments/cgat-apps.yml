@@ -26,11 +26,10 @@ dependencies:
 - pybigwig
 - pysam>=0.18.0
 - pyyaml
-- pytest<=5.4.3
 - quicksect
 - rdflib
 - scikit-learn
-- scipy==1.5.3
+- scipy
 - setuptools
 - six
 - sortedcontainers

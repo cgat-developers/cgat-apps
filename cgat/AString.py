@@ -55,7 +55,7 @@ class AString(array):
         """return slice as a string."""
 
         if IS_PY3:
-            return array.__getitem__(self, *args).tostring().decode("ascii")
+            return array.__getitem__(self, *args).tobytes().decode("ascii")
         else:
             return array.__getitem__(self, *args).tostring()
 
@@ -67,6 +67,6 @@ class AString(array):
 
     def __str__(self):
         if IS_PY3:
-            return self.tostring().decode("ascii")
+            return self.tobytes().decode("ascii")
         else:
             return self.tostring()

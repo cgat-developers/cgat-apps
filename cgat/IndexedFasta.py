@@ -901,15 +901,15 @@ class cgatIndexedFasta:
 
         if self.mNoSeek:
             # read directly from position
-            p.fromstring(
+            p.frombytes(
                 self.mDatabaseFile.read(block_size, data[3],
-                                        first_pos, last_pos))
+                                        first_pos, last_pos).encode('utf-8'))
         else:
             first_pos += pos_seq
             last_pos += pos_seq
 
             self.mDatabaseFile.seek(first_pos)
-            p.fromstring(self.mDatabaseFile.read(last_pos - first_pos))
+            p.frombytes(self.mDatabaseFile.read(last_pos - first_pos).encode('utf-8'))
 
         if str(strand) in ("-", "0", "-1"):
             p = AString(Genomics.reverse_complement(str(p)))
@@ -919,7 +919,7 @@ class cgatIndexedFasta:
         elif as_array:
             return p
         else:
-            return p.tostring().decode("ascii")
+            return p.tobytes().decode("ascii")
 
     def getRandomCoordinates(self, size):
         """returns coordinates for a random fragment of size #.

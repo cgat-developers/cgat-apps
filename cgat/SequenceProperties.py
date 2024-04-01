@@ -141,7 +141,7 @@ class SequencePropertiesHid(SequenceProperties):
         # map to printable letters: hid has length 22, so the padded '=' are
         # truncated. You have to add them, if you ever want to decode,
         # but who would do such a thing :=)
-        r = base64.encodestring(h)[0:22].decode("ascii")
+        r = base64.encodebytes(h)[0:22].decode("ascii")
 
         # finally substitute some characters:
         # '/' for '_', so we have legal file names
