@@ -42,7 +42,6 @@ import math
 import hashlib
 import base64
 import itertools
-import six
 
 from cgat import Genomics as Genomics
 
@@ -137,7 +136,7 @@ class SequencePropertiesHid(SequenceProperties):
         SequenceProperties.loadSequence(self, sequence, seqtype)
 
         # do the encryption
-        h = hashlib.md5(six.b(sequence)).digest()
+        h = hashlib.md5(sequence.encode()).digest()
         # map to printable letters: hid has length 22, so the padded '=' are
         # truncated. You have to add them, if you ever want to decode,
         # but who would do such a thing :=)

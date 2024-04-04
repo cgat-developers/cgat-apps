@@ -31,7 +31,6 @@ dependencies:
 - scikit-learn
 - scipy
 - setuptools
-- six
 - sortedcontainers
 - bedtools
 - grep
