@@ -9,6 +9,7 @@ Code
 
 """
 
+import functools
 
 def deprecated_class(cls):
     orig_init = cls.__init__
