@@ -60,9 +60,11 @@ EXCLUDE = [
 # Filename for the black/white list of options
 FILENAME_OPTIONLIST = "tests/option_list.tsv"
 
+
 class DummyError(Exception):
     """Custom exception for controlling test flow."""
     pass
+
 
 def filter_files(files):
     '''Filter list of files according to filters set in the configuration file tests/_test_commandline.yml'''
@@ -84,12 +86,14 @@ def filter_files(files):
                     files = list(filter(rx.search, files))
     return files
 
+
 def LocalStart(parser, *args, **kwargs):
     '''Stub for E.start - captures the parser for inspection.'''
     global PARSER
     kwargs.update({'return_parser': True})
     PARSER = ORIGINAL_START(parser, **kwargs)
     raise DummyError()
+
 
 def load_script(script_name):
     '''Attempts to import a script as a module for inspection.'''
@@ -109,6 +113,7 @@ def load_script(script_name):
         return None, None
 
     return module, module_name
+
 
 def test_cmdline():
     '''Test command line interfaces of scripts for style and conformity.'''
@@ -166,6 +171,7 @@ def test_cmdline():
         # Reset module to avoid conflicts
         if module_name in sys.modules:
             del sys.modules[module_name]
+
 
 def check_option(option, script_name, option_actions):
     print(f"Checking option: {option} in script: {script_name}")  # Diagnostic print
