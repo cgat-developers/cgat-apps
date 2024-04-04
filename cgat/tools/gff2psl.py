@@ -4,6 +4,8 @@ gff2psl.py - convert from gff to psl
 
 :Tags: Genomics Intervals GFF PSL Conversion
 
+Note: This script is scheduled for deprecation in May 2024. 
+
 Purpose
 -------
 
@@ -46,12 +48,17 @@ import cgat.GTF as GTF
 import alignlib_lite
 import cgat.Intervals as Intervals
 
+def print_deprecation_warning():
+    warning_message = ("""WARNING: 'gff2psl.py' is deprecated and will be removed in May 2024.""")
+    print(warning_message, file=sys.stderr)
+
 
 def main(argv=None):
     """script main.
 
     parses command line options in sys.argv, unless *argv* is given.
     """
+    print_deprecation_warning()
 
     if argv is None:
         argv = sys.argv
