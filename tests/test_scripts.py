@@ -19,8 +19,6 @@ CGAT_TASK_STEPSIZE
 
 """
 
-from __future__ import print_function
-
 import subprocess
 import tempfile
 import os

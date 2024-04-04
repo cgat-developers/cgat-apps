@@ -1,11 +1,18 @@
 '''Blat.py - tools for working with PSL formatted files and data
 =============================================================
 
+IMPORTANT NOTICE:
+Several functions within this module are scheduled for
+deprecation in May 2024.
+Details regarding the specific functions to be deprecated
+can be found in the documentation of each function.
+
+
 This module provides a class to parse :term:`PSL` formatted
 files such as those output by the BLAT tool.
 
 This module defines the :class:`Blat.Match` class representing a
-single entry and a series of iterators to iterate of :term:`PSL`
+single entry and a series of iterators to iterate of :term:`SL`
 formatted files (:func:`iterator`, :func:`iterator_target_overlap`,
 ...).
 
@@ -16,6 +23,8 @@ Reference
 import copy
 import string
 import collections
+import warnings
+import functools
 
 try:
     import alignlib_lite
@@ -26,6 +35,19 @@ from cgat import Components as Components
 from cgatcore import experiment as E
 
 
+def deprecated_class(cls):
+    orig_init = cls.__init__
+
+    @functools.wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        warnings.warn(f"{cls.__name__} is deprecated and will be removed in May 2024.", DeprecationWarning)
+        orig_init(self, *args, **kwargs)
+
+    cls.__init__ = new_init
+    return cls
+
+
+@deprecated_class
 class Error(Exception):
     """Base class for exceptions in this module."""
 
@@ -40,6 +62,7 @@ class Error(Exception):
     message = property(_get_message, _set_message)
 
 
+@deprecated_class
 class ParsingError(Error):
 
     """Exception raised for errors while parsing
@@ -61,6 +84,7 @@ match   mis-    rep.    N's     Q gap   Q gap   T gap   T gap   strand  Q       
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------"""
 
 
+@deprecated_class
 class Match:
 
     """a :term:`psl` formatted alignment.
@@ -479,6 +503,7 @@ class Match:
                 "qStarts", "tStarts")
 
 
+@deprecated_class
 class MatchPSLX(Match):
 
     def __init__(self):
@@ -601,6 +626,7 @@ def _iterate(infile):
         yield match
 
 
+@deprecated_class
 class BlatIterator:
 
     def __init__(self, f, *args, **kwargs):

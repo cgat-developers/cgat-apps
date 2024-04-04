@@ -15,7 +15,6 @@ dependencies:
 - alignlib-lite
 - biopython
 - cython
-- jinja2
 - cgatcore
 - matplotlib
 - nose
@@ -31,7 +30,6 @@ dependencies:
 - scikit-learn
 - scipy
 - setuptools
-- six
 - sortedcontainers
 - bedtools
 - grep
