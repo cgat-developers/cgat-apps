@@ -3,6 +3,8 @@
 
 :Tags: Genomics Intervals GFF Manipulation
 
+Note: The script can parse AGP files but this functionality
+is scheduled for deprecation in the next release.
 
 Purpose
 -------
