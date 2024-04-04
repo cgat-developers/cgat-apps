@@ -37,12 +37,12 @@ from cgatcore import experiment as E
 
 def deprecated_class(cls):
     orig_init = cls.__init__
-    
+
     @functools.wraps(orig_init)
     def new_init(self, *args, **kwargs):
         warnings.warn(f"{cls.__name__} is deprecated and will be removed in May 2024.", DeprecationWarning)
         orig_init(self, *args, **kwargs)
-    
+
     cls.__init__ = new_init
     return cls
 
