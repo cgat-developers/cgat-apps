@@ -137,6 +137,37 @@ REPO_REQUIREMENT = re.compile(
 HTTPS_REQUIREMENT = re.compile(
     r'^-e (?P<link>.*).+#(?P<package>.+)-(?P<version>\d(?:\.\d)*)$')
 install_requires = []
+dependency_links = []
+
+for requirement in (
+        l.strip() for l in open('requires.txt') if not l.startswith("#")):
+    match = REPO_REQUIREMENT.match(requirement)
+    if match:
+        assert which(match.group('vcs')) is not None, \
+            ("VCS '%(vcs)s' must be installed in order to "
+             "install %(link)s" % match.groupdict())
+        install_requires.append("%(package)s==%(version)s" % match.groupdict())
+        dependency_links.append(match.group('link'))
+        continue
+
+    if requirement.startswith("https"):
+        install_requires.append(requirement)
+        continue
+
+    match = HTTPS_REQUIREMENT.match(requirement)
+    if match:
+        install_requires.append("%(package)s>=%(version)s" % match.groupdict())
+        dependency_links.append(match.group('link'))
+        continue
+
+    install_requires.append(requirement)
+
+if major == 2:
+    install_requires.extend(['web.py>=0.37',
+                             'xlwt>=0.7.4',
+                             'matplotlib-venn>=0.5'])
+elif major == 3:
+    pass
 
 cgat_packages = find_packages()
 cgat_package_dirs = {'cgat': 'cgat'}
@@ -286,6 +317,7 @@ setup(
     },
     # dependencies
     install_requires=install_requires,
+    dependency_links=dependency_links,
     # extension modules
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
