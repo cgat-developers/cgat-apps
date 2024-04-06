@@ -169,7 +169,7 @@ if major == 2:
 elif major == 3:
     pass
 
-cgat_packages = find_packages()
+cgat_packages = find_packages(exclude=['tests'])
 cgat_package_dirs = {'cgat': 'cgat'}
 
 ##########################################################
