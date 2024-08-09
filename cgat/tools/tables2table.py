@@ -280,8 +280,8 @@ def main(argv=sys.argv):
 
     E.info("combining %i tables" % len(args.filenames))
 
-    if args.cat:
-        table = concatenate_tables(args.filenames,
+#    if args.cat:
+    table = concatenate_tables(args.filenames,
                                    regex_filename=args.regex_filename,
                                    separator=args.separator,
                                    headers=args.headers,
