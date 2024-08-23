@@ -74,7 +74,7 @@ def main(argv=None):
                         "sequences, one in each direction, for each bed "
                         "interval. 'segments' can be used to output "
                         "sequence from bed12 files so that sequence only covers "
-                        "the segements ")
+                        "the segments ")
 
     parser.add_argument("--min-sequence-length", dest="min_length", type=int,
                         help="require a minimum sequence length ")
@@ -130,6 +130,13 @@ def main(argv=None):
         else:
             strand = bed.strand
 
+        # Apply the --extend-by logic
+        if args.extend_by:
+            if args.extend_at in ("both", "3", "3only"):
+                bed.end = min(bed.end + args.extend_by, lcontig)
+            if args.extend_at in ("both", "5", "5only"):
+                bed.start = max(0, bed.start - args.extend_by)
+
         if args.output_mode == "segments" and bed.columns == 12:
             ids.append("%s %s:%i..%i (%s) %s %s" %
                        (bed.name, bed.contig, bed.start, bed.end, strand,
@@ -175,3 +182,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
+
