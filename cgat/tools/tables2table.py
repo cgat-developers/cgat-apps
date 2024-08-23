@@ -280,16 +280,19 @@ def main(argv=sys.argv):
 
     E.info("combining %i tables" % len(args.filenames))
 
-    if args.cat:
-        table = concatenate_tables(args.filenames,
-                                   regex_filename=args.regex_filename,
-                                   separator=args.separator,
-                                   headers=args.headers,
-                                   missing_value=args.missing_value,
-                                   cat=args.cat)
+    # Remove the if statement and call concatenate_tables directly
+    table = concatenate_tables(args.filenames,
+                               regex_filename=args.regex_filename,
+                               separator=args.separator,
+                               headers=args.headers,
+                               missing_value=args.missing_value,
+                               cat=args.cat)
 
-    table.to_csv(args.stdout, sep=args.separator, index=False)
-    E.stop()
+    # Ensure the table object is not None before attempting to write it
+    if table is not None:
+        table.to_csv(args.stdout, sep=args.separator, index=False)
+    else:
+        E.warn("No tables were concatenated.")
 
 
 if __name__ == '__main__':
