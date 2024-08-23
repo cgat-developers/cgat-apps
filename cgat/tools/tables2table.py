@@ -294,6 +294,8 @@ def main(argv=sys.argv):
     else:
         E.warn("No tables were concatenated.")
 
+    E.stop()
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
