@@ -23,7 +23,7 @@ dependencies:
 - pep8
 - pybedtools
 - pybigwig
-- pysam>=0.18.0
+- pysam
 - pyyaml
 - quicksect
 - rdflib
