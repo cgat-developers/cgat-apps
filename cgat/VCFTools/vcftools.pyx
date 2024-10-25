@@ -1,17 +1,16 @@
 """Utility functions for the bam2stats utility."""
 
+# Specific imports
 import pysam
-from pysam.libchtslib cimport *
+from pysam.libchtslib cimport cts_bamfile_t, cts_alignment_t, bam_aux_get
 from pysam.libcbcf cimport VariantFile, VariantRecord, VariantRecordSample
 from pysam.libcfaidx cimport FastaFile
-from pysam.libctabix cimport TabixFile
-from libc.string cimport strchr
+from pysam.libctabix cimport TabixFile, ctbx_index_t, ctbx_iter_t
 from libc.stdint cimport int8_t
 from libc.stdio cimport puts, printf
 from cpython cimport array as c_array
 import array
 import base64
-import collections
 import collections
 import hashlib
 import itertools
@@ -22,7 +21,6 @@ import re
 import string
 import sys
 import cgatcore.experiment as E
-
 
 # deprecated: avoid R dependencies in cgat-apps
 # import rpy2.robjects

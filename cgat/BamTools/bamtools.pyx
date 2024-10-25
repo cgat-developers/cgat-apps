@@ -6,18 +6,25 @@ This module brings together convenience function for working
 with :term:`bam` formatted files.
 
 """
+"""
+BamTools - Utilities for working with BAM files
+===============================================
 
-from pysam.libchtslib cimport *
+This module brings together convenience function for working
+with :term:`bam` formatted files.
+
+"""
+
 from pysam.libcalignmentfile cimport AlignmentFile, AlignedSegment
-from pysam.libcalignedsegment cimport pysam_bam_get_cigar, \
-    pysam_bam_get_qname, pysam_get_n_cigar
-from pysam.libcfaidx cimport *
+from pysam.libcalignedsegment cimport pysam_bam_get_cigar, pysam_bam_get_qname, pysam_get_n_cigar
+from pysam.libcfaidx cimport Faidx
+from pysam.libchtslib cimport VariantFile
 from libc.string cimport strchr
 from libc.stdint cimport int8_t
 from libc.stdio cimport puts, printf
 from libc.stdlib cimport abs
 from cpython cimport PyErr_SetString, PyBytes_FromStringAndSize
-from cpython cimport array as c_array
+from cpython.array cimport array as c_array
 from sortedcontainers import SortedList
 
 import array
