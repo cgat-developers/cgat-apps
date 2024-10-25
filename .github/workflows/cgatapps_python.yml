@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.11", "3.12"]
 
     defaults:
       run:
@@ -19,32 +19,36 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Cache conda
-        uses: actions/cache@v1
+        uses: actions/cache@v3  # Updated to the latest cache action version
         env:
           # Increase this value to reset cache if conda/environments/cgat-core.yml has not changed
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('conda/environments/cgat-apps.yml') }}
-      - uses: conda-incubator/setup-miniconda@v2
+          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('conda/environments/cgat-apps.yml') }}
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          mamba-version: "*"
+          mamba-version: "*"  # Optional: if you prefer using mamba
           python-version: ${{ matrix.python-version }}
+          miniforge-version: "latest"  # Added to ensure Miniforge is installed
           channels: conda-forge, bioconda, defaults
           channel-priority: true
           activate-environment: cgat-a
           environment-file: conda/environments/cgat-apps.yml
+
       - name: Show conda
         run: |
           conda info
           conda list
+
       - name: Test
         run: |
           pip install -e .
-          pip install nose
-          nosetests -v tests/test_style.py
-          nosetests -v tests/test_scripts.py
-          nosetests -v tests/test_import.py
+          pip install pytest
+          pytest -v tests/test_style.py
+          pytest -v tests/test_scripts.py
+          pytest -v tests/test_import.py

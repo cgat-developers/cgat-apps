@@ -1,7 +1,7 @@
 '''test_import - test importing all modules and pipelines
 =========================================================
 
-:Author: Andreas Heger
+:Author: Adam Cribbs
 :Release: $Id$
 :Date: |today|
 :Tags: Python
@@ -22,13 +22,10 @@ This script is best run within nosetests::
 
 
 '''
-
 import os
 import glob
 import traceback
-import imp
-
-from nose.tools import ok_
+import importlib.util
 
 # DIRECTORIES to examine for python modules/scripts
 EXPRESSIONS = (
@@ -38,27 +35,12 @@ EXPRESSIONS = (
 
 # Scripts to exclude as they fail imports.
 EXCLUDE = (
-    # The following fail because of pybedtools
-    # compilation fails. Reason why it triggers
-    # recompilation or why it fails is unknown
-    # (it seems using C compiler for C++ code).
-    'pipeline_intervals',
-    'PipelinePeakcalling',
-    'IndexedFasta',  # fails with relative import error in py2
-    'pipeline_peakcalling',
-    'bam2transcriptContribution',
-    'beds2counts',
-    'fasta2bed',
-    # The following fail because of pyximport
-    # problems
-    'bed2table',
-    # The following fail because of version imports from cgat-core table(s)
-    "table2table",
-    "combine_tables")
+    'pipeline_intervals', 'PipelinePeakcalling', 'IndexedFasta',
+    'pipeline_peakcalling', 'bam2transcriptContribution', 'beds2counts',
+    'fasta2bed', 'bed2table', 'table2table', 'combine_tables')
 
 
 def check_import(filename, outfile):
-
     prefix, suffix = os.path.splitext(filename)
     dirname, basename = os.path.split(prefix)
 
@@ -71,53 +53,40 @@ def check_import(filename, outfile):
         except OSError:
             pass
 
-    # ignore script with pyximport for now, something does not work
-    # which can lead to errors in downstream files. Issues for
-    # example:
-    # When a pyximport script is imported before one that imports a module
-    # with a cython extension is being re-compiled, but without the proper
-    # flags.
+    # ignore scripts with pyximport for now
     blob = open(filename).read()
     if "import pyximport" in blob:
         return
 
     try:
-        imp.load_source(basename, filename)
+        # Use importlib to load the module dynamically
+        spec = importlib.util.spec_from_file_location(basename, filename)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
 
     except ImportError as msg:
-        outfile.write("FAIL %s\n%s\n" % (basename, msg))
+        outfile.write(f"FAIL {basename}\n{msg}\n")
         outfile.flush()
         traceback.print_exc(file=outfile)
-        ok_(False, '%s scripts/modules - ImportError: %s' %
-            (basename, msg))
+        assert False, f'{basename} scripts/modules - ImportError: {msg}'
     except Exception as msg:
-        outfile.write("FAIL %s\n%s\n" % (basename, msg))
+        outfile.write(f"FAIL {basename}\n{msg}\n")
         outfile.flush()
-
         traceback.print_exc(file=outfile)
-        ok_(False, '%s scripts/modules - Exception: %s' %
-            (basename, msg))
+        assert False, f'{basename} scripts/modules - Exception: {msg}'
 
-    ok_(True)
+    assert True
 
 
 def test_imports():
-    '''test importing
+    '''test importing modules and scripts'''
 
-    Relative imports will cause a failure because imp.load_source does
-    not import modules that are in the same directory as the module
-    being loaded from source.
+    with open('test_import.log', 'a') as outfile:
+        for label, expression in EXPRESSIONS:
+            files = glob.glob(expression)
+            files.sort()
 
-    '''
-    outfile = open('test_import.log', 'a')
-    for label, expression in EXPRESSIONS:
-
-        files = glob.glob(expression)
-        files.sort()
-
-        for f in files:
-
-            if os.path.isdir(f):
-                continue
-            check_import.description = os.path.abspath(f)
-            yield(check_import, os.path.abspath(f), outfile)
+            for f in files:
+                if os.path.isdir(f):
+                    continue
+                check_import(os.path.abspath(f), outfile)
