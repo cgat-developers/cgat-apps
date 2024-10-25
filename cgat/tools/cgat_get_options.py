@@ -34,11 +34,10 @@ Command line options
 --------------------
 
 '''
-
 import sys
 import os
 import glob
-import imp
+import importlib.util  # Use importlib instead of imp
 import collections
 import pandas
 import cgatcore.experiment as E
@@ -72,7 +71,6 @@ def LocalStart(parser, *args, **kwargs):
 def collectOptionsFromScript(script_name):
     '''collect options used in script *script_name*.'''
 
-    # call other script
     prefix, suffix = os.path.splitext(script_name)
 
     dirname = os.path.dirname(script_name)
@@ -81,14 +79,16 @@ def collectOptionsFromScript(script_name):
     if os.path.exists(prefix + ".pyc"):
         os.remove(prefix + ".pyc")
 
-    # check if script contains getopt
     with iotools.open_file(script_name) as inf:
         if "getopt" in inf.read():
             E.warn("script %s uses getopt directly" % script_name)
             return []
 
     try:
-        module = imp.load_source(basename, script_name)
+        # Using importlib to load the module dynamically
+        spec = importlib.util.spec_from_file_location(basename, script_name)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
     except ImportError as msg:
         E.warn('could not import %s - skipped: %s' % (basename, msg))
         return []
@@ -108,7 +108,6 @@ def collectOptionsFromScript(script_name):
 
     result = []
     for option in PARSER.option_list:
-        # ignore options added by optparse
         if option.dest is None:
             continue
 
@@ -128,7 +127,6 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
     parser.add_argument(
@@ -146,8 +144,7 @@ def main(argv=None):
         inplace=False,
         tsv_file=None)
 
-    # add common options (-h/--help, ...) and parse command line
-    (args) = E.start(parser, argv=argv)
+    args = E.start(parser, argv=argv)
 
     old_options = None
     if args.tsv_file:
@@ -183,7 +180,6 @@ def main(argv=None):
             for o in collected_options:
                 all_options[o].append(f)
 
-    # add old options
     for x in old_options.index:
         if x not in all_options:
             all_options[x].append("--")
@@ -198,7 +194,6 @@ def main(argv=None):
     for o, v in sorted(all_options.items()):
         try:
             action, comment, alternative, ff = old_options.xs(o)
-
         except KeyError:
             action, comment, alternative, ff = "", "", "", ""
 
@@ -213,7 +208,6 @@ def main(argv=None):
     if outfile != args.stdout:
         outfile.close()
 
-    # write footer and output benchmark information.
     E.stop()
 
 if __name__ == "__main__":
