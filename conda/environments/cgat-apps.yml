@@ -17,7 +17,7 @@ dependencies:
 - cython
 - cgatcore
 - matplotlib
-- nose
+- pytest
 - numpy
 - pandas
 - pep8

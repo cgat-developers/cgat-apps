@@ -2,7 +2,7 @@
 test_commandline - Tests coding style conformity of CGAT code collection.
 ==========================================================================
 
-:Author: Andreas Heger
+:Author: Adam Cribbs
 :Release: $Id$
 :Date: |today|
 :Tags: Python
@@ -20,7 +20,6 @@ Before running these tests, ensure to execute:
 
 to make all package scripts available for import and testing.
 '''
-
 import glob
 import os
 import importlib
@@ -30,7 +29,6 @@ import sys
 import copy
 import argparse
 
-from nose.tools import ok_
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import TestUtils
@@ -52,9 +50,9 @@ EXCLUDE = [
     "__init__.py",
     "version.py",
     "cgat.py",
-    "gtf2table.py",   # Fails with pysam include issue
-    "bed2table.py",   # Fails with pysam include issue
-    "fasta2bed.py",   # Fails due to pybedtools rebuild requirements
+    "gtf2table.py",
+    "bed2table.py",
+    "fasta2bed.py",
 ]
 
 # Filename for the black/white list of options
@@ -101,7 +99,6 @@ def load_script(script_name):
     script_dir, script_base = os.path.split(script_path)
     module_name = ".".join(filter(None, [script_dir.replace(os.sep, '.'), script_base]))
 
-    # Remove compiled files to ensure fresh import
     compiled_script = script_path + ".pyc"
     if os.path.exists(compiled_script):
         os.remove(compiled_script)
@@ -139,9 +136,7 @@ def test_cmdline():
 
         script_name = os.path.abspath(script)
         module, module_name = load_script(script)
-        if not module:
-            yield fail_, f"Module {script_name} could not be imported."
-            continue
+        assert module is not None, f"Module {script_name} could not be imported."
 
         # Replace the start function to capture parser
         E.start = LocalStart
@@ -153,20 +148,19 @@ def test_cmdline():
             # Expected flow interruption by LocalStart
             pass
         except Exception as e:
-            yield fail_, f"Error invoking main of {script_name}: {e}"
-            continue
+            assert False, f"Error invoking main of {script_name}: {e}"
 
         if PARSER:
-            for action in PARSER._actions:  # Iterate through the actions stored in the parser
-                if isinstance(action, argparse._HelpAction):  # Skip help actions
+            for action in PARSER._actions:
+                if isinstance(action, argparse._HelpAction):
                     continue
-                opt_strings = action.option_strings  # Get the list of CLI flags
-                if not opt_strings:  # This skips positional arguments
+                opt_strings = action.option_strings
+                if not opt_strings:
                     continue
                 for opt_string in opt_strings:
                     if opt_string.startswith("--"):
                         opt_string = opt_string[2:]
-                    yield check_option, opt_string, script_name, option_actions
+                    check_option(opt_string, script_name, option_actions)
 
         # Reset module to avoid conflicts
         if module_name in sys.modules:
@@ -174,14 +168,5 @@ def test_cmdline():
 
 
 def check_option(option, script_name, option_actions):
-    print(f"Checking option: {option} in script: {script_name}")  # Diagnostic print
     assert option in option_actions, f"Option {option} in script {script_name} is unknown or not allowed."
     assert option_actions[option] == "ok", f"Option {option} in script {script_name} is not allowed."
-
-
-def fail_(msg):
-    '''Generate a failing test with the provided message.'''
-    ok_(False, msg)
-
-# Reset E.start to its original function after testing
-E.start = ORIGINAL_START
