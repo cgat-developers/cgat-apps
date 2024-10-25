@@ -308,7 +308,7 @@ class Counter:
     
 cimport numpy
 DTYPE_INT = numpy.int64
-ctypedef numpy.int_t DTYPE_INT_t
+ctypedef numpy.int64_t DTYPE_INT_t
 DTYPE_FLOAT = numpy.float64
 ctypedef numpy.float_t DTYPE_FLOAT_t
 
