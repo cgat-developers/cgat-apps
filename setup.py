@@ -2,24 +2,11 @@ import sysconfig
 import sys
 import os
 import subprocess
-import re
-
-# Import setuptools at the beginning
-import setuptools
 from setuptools import setup, find_packages, Extension
 from distutils.version import LooseVersion
 from Cython.Distutils import build_ext
 
-# Ensure dependencies are installed before setup
-try:
-    import numpy
-    import Cython
-    import pysam
-except ImportError as e:
-    missing_package = str(e).split("'")[1]
-    raise ImportError(f"{missing_package} must be installed before running setup.py")
-
-# Enforce Python 3 requirement
+# Check for Python version compatibility
 if sys.version_info < (3, 6):
     raise SystemExit("Python 3.6 or later is required to install this package.")
 
@@ -34,37 +21,12 @@ version = version.__version__
 
 IS_OSX = sys.platform == 'darwin'
 
-# External dependency check
+# External dependency check (e.g., UCSC tools)
 external_dependencies = [("wigToBigWig", "UCSC tools", 255), ("bedtools", "bedtools", 0)]
 for tool, toolkit, expected in external_dependencies:
     retcode = subprocess.call(tool, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if retcode != expected:
         print(f"WARNING: Dependency check for {toolkit} ({tool}) failed with error code {retcode}")
-
-# Dependency and package configuration
-install_requires = []
-dependency_links = []
-with open('requires.txt') as req_file:
-    for line in req_file:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("https"):
-            install_requires.append(line)
-        else:
-            REPO_REQUIREMENT = re.compile(r'^-e (?P<link>(?P<vcs>git|svn|hg|bzr).+#egg=(?P<package>.+)-(?P<version>\d(?:\.\d)*))$')
-            HTTPS_REQUIREMENT = re.compile(r'^-e (?P<link>.*).+#(?P<package>.+)-(?P<version>\d(?:\.\d)*)$')
-            match = REPO_REQUIREMENT.match(line)
-            if match:
-                install_requires.append(f"{match.group('package')}=={match.group('version')}")
-                dependency_links.append(match.group('link'))
-            else:
-                match = HTTPS_REQUIREMENT.match(line)
-                if match:
-                    install_requires.append(f"{match.group('package')}=={match.group('version')}")
-                    dependency_links.append(match.group('link'))
-                else:
-                    install_requires.append(line)
 
 # Adjust packages and directories
 cgat_packages = find_packages(include=["cgat", "cgat.*"], exclude=['tests'])
@@ -179,8 +141,6 @@ setup(
     package_dir=cgat_package_dirs,
     include_package_data=True,
     entry_points={'console_scripts': ['cgat = cgat.cgat:main']},
-    install_requires=install_requires,
-    dependency_links=dependency_links,
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
