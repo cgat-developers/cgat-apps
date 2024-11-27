@@ -28,13 +28,6 @@ if sys.version_info < (3, 6):
 if LooseVersion(setuptools.__version__) < LooseVersion('1.1'):
     raise ImportError("Setuptools version >=1.1 is required")
 
-# Define version and other package information
-sys.path.insert(0, "cgat")
-import version
-version = version.__version__
-
-IS_OSX = sys.platform == 'darwin'
-
 # External dependency check
 external_dependencies = [("wigToBigWig", "UCSC tools", 255), ("bedtools", "bedtools", 0)]
 for tool, toolkit, expected in external_dependencies:
@@ -49,7 +42,7 @@ cgat_package_dirs = {'cgat': 'cgat'}
 # Build setup configuration
 setup(
     name='cgat',
-    version=version,
+    version='0.7.4.1',
     description='cgat : the Computational Genomics Analysis Toolkit',
     author='Andreas Heger',
     author_email='andreas.heger@gmail.com',

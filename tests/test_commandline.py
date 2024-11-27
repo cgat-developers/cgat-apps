@@ -48,7 +48,6 @@ EXPRESSIONS = (
 # Files to exclude from checks
 EXCLUDE = [
     "__init__.py",
-    "version.py",
     "cgat.py",
     "gtf2table.py",
     "bed2table.py",
