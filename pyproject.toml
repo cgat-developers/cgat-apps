@@ -1,3 +1,4 @@
+# pyproject.toml
 [build-system]
 requires = [
     "setuptools>=64.0",
@@ -7,3 +8,70 @@ requires = [
     "pysam",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "cgat"
+version = "0.7.4.1"
+description = "cgat : the Computational Genomics Analysis Toolkit"
+authors = [
+    {name = "Andreas Heger", email = "andreas.heger@gmail.com"},
+]
+license = "MIT"
+keywords = ["computational genomics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
+readme = "README.md"
+requires-python = ">=3.6"
+
+[tool.setuptools]
+packages = ["cgat", "cgat.*"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+cgat = "cgat"
+
+[tool.setuptools.entry-points]
+console_scripts = [
+    "cgat = cgat.cgat:main",
+]
+
+[tool.setuptools.extensions]
+cgat.Components = {
+    sources = ["cgat/Components/Components.pyx", "cgat/Components/connected_components.cpp"],
+    include-dirs = ["cgat/Components"]
+    language = "c++"
+}
+
+cgat.NCL.cnestedlist = {
+    sources = ["cgat/NCL/cnestedlist.pyx", "cgat/NCL/intervaldb.c"],
+    language = "c"
+}
+
+cgat.GeneModelAnalysis = {
+    sources = ["cgat/GeneModelAnalysis.pyx"],
+    include-dirs = ["numpy.get_include()", "pysam.get_include()"]
+    language = "c"
+    define-macros = "pysam.get_defines()"
+}
+
+cgat.BamTools.bamtools = {
+    sources = ["cgat/BamTools/bamtools.pyx"],
+    include-dirs = ["numpy.get_include()", "pysam.get_include()"]
+    library-dirs = ["pysam_libdirs"]
+    libraries = ["pysam_libs"]
+    language = "c"
+}
+
+
+
+
