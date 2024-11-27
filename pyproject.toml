@@ -16,7 +16,7 @@ description = "cgat : the Computational Genomics Analysis Toolkit"
 authors = [
     {name = "Andreas Heger", email = "andreas.heger@gmail.com"},
 ]
-license = "MIT"
+license = { text = "MIT" }
 keywords = ["computational genomics"]
 classifiers = [
     "Development Status :: 3 - Alpha",
