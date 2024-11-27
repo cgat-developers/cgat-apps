@@ -44,34 +44,3 @@ cgat = "cgat"
 console_scripts = [
     "cgat = cgat.cgat:main",
 ]
-
-[tool.setuptools.extensions]
-cgat.Components = {
-    sources = ["cgat/Components/Components.pyx", "cgat/Components/connected_components.cpp"],
-    include-dirs = ["cgat/Components"]
-    language = "c++"
-}
-
-cgat.NCL.cnestedlist = {
-    sources = ["cgat/NCL/cnestedlist.pyx", "cgat/NCL/intervaldb.c"],
-    language = "c"
-}
-
-cgat.GeneModelAnalysis = {
-    sources = ["cgat/GeneModelAnalysis.pyx"],
-    include-dirs = ["numpy.get_include()", "pysam.get_include()"]
-    language = "c"
-    define-macros = "pysam.get_defines()"
-}
-
-cgat.BamTools.bamtools = {
-    sources = ["cgat/BamTools/bamtools.pyx"],
-    include-dirs = ["numpy.get_include()", "pysam.get_include()"]
-    library-dirs = ["pysam_libdirs"]
-    libraries = ["pysam_libs"]
-    language = "c"
-}
-
-
-
-

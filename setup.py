@@ -7,7 +7,7 @@ import re
 
 # Import setuptools at the beginning
 import setuptools
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 from distutils.version import LooseVersion
 from Cython.Distutils import build_ext
 
@@ -39,22 +39,52 @@ for tool, toolkit, expected in external_dependencies:
 cgat_packages = find_packages(include=["cgat", "cgat.*"], exclude=['tests'])
 cgat_package_dirs = {'cgat': 'cgat'}
 
+# Cython extensions and paths
+conda_includes = [os.path.dirname(sysconfig.get_paths()["include"])]
+conda_libdirs = [os.path.dirname(sysconfig.get_paths()["stdlib"])]
+pysam_libraries = pysam.get_libraries()
+pysam_libdirs = list(set(os.path.dirname(x) for x in pysam_libraries)) + conda_libdirs
+pysam_libs = ["hts"] + [os.path.basename(x)[3:-3] for x in pysam_libraries]
+pysam_dirname = os.path.dirname(pysam.__file__)
+extra_link_args_pysam = [f'-Wl,-rpath,{x}' for x in pysam_libdirs + conda_libdirs]
+
+extensions = [
+    Extension(
+        'cgat.Components',
+        ['cgat/Components/Components.pyx', 'cgat/Components/connected_components.cpp'],
+        include_dirs=[os.path.join('cgat', 'Components')] + conda_includes,
+        language="c++",
+    ),
+    Extension(
+        "cgat.NCL.cnestedlist",
+        ["cgat/NCL/cnestedlist.pyx", "cgat/NCL/intervaldb.c"],
+        language="c",
+    ),
+    Extension(
+        "cgat.GeneModelAnalysis",
+        ["cgat/GeneModelAnalysis.pyx"],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
+        define_macros=pysam.get_defines(),
+        language="c",
+    ),
+    Extension(
+        "cgat.BamTools.bamtools",
+        ["cgat/BamTools/bamtools.pyx"],
+        include_dirs=conda_includes + pysam.get_include() + [numpy.get_include()],
+        library_dirs=pysam_libdirs,
+        libraries=pysam_libs,
+        define_macros=pysam.get_defines(),
+        language="c",
+        extra_link_args=extra_link_args_pysam,
+    ),
+]
+
 # Build setup configuration
 setup(
-    name='cgat',
-    version='0.7.4.1',
-    description='cgat : the Computational Genomics Analysis Toolkit',
-    author='Andreas Heger',
-    author_email='andreas.heger@gmail.com',
-    license="MIT",
-    platforms=["any"],
-    keywords="computational genomics",
-    long_description='cgat : the Computational Genomics Analysis Toolkit',
-    python_requires=">=3.6",
     packages=cgat_packages,
     package_dir=cgat_package_dirs,
     include_package_data=True,
-    entry_points={'console_scripts': ['cgat = cgat.cgat:main']},
+    ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
     test_suite="tests",
