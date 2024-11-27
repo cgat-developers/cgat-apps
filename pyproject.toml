@@ -38,7 +38,5 @@ packages = { find = { where = ["cgat"] } }
 include-package-data = true
 
 
-[tool.setuptools.entry-points]
-console_scripts = [
-    "cgat = cgat.cgat:main",
-]
+[project.scripts]
+cgat = "cgat.cgat:main"
