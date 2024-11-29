@@ -124,6 +124,9 @@ setup(
     packages=cgat_packages,
     package_dir=cgat_package_dirs,
     include_package_data=True,
+    package_data={
+        "cgat.Components": ["*.h"],
+    },
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
