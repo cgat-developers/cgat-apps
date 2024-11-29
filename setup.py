@@ -1,3 +1,4 @@
+# setup.py
 import sysconfig
 import sys
 import os
@@ -27,20 +28,12 @@ if sys.version_info < (3, 6):
 if LooseVersion(setuptools.__version__) < LooseVersion('1.1'):
     raise ImportError("Setuptools version >=1.1 is required")
 
-# Define version and other package information
-sys.path.insert(0, "cgat")
-import version
-version = version.__version__
-
-IS_OSX = sys.platform == 'darwin'
-
 # External dependency check
 external_dependencies = [("wigToBigWig", "UCSC tools", 255), ("bedtools", "bedtools", 0)]
 for tool, toolkit, expected in external_dependencies:
     retcode = subprocess.call(tool, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if retcode != expected:
         print(f"WARNING: Dependency check for {toolkit} ({tool}) failed with error code {retcode}")
-
 
 # Adjust packages and directories
 cgat_packages = find_packages(include=["cgat", "cgat.*"], exclude=['tests'])
@@ -128,33 +121,9 @@ extensions = [
 
 # Build setup configuration
 setup(
-    name='cgat',
-    version=version,
-    description='cgat : the Computational Genomics Analysis Toolkit',
-    author='Andreas Heger',
-    author_email='andreas.heger@gmail.com',
-    license="MIT",
-    platforms=["any"],
-    keywords="computational genomics",
-    long_description='cgat : the Computational Genomics Analysis Toolkit',
-    classifiers=[_f for _f in """
-        Development Status :: 3 - Alpha
-        Intended Audience :: Science/Research
-        Intended Audience :: Developers
-        License :: OSI Approved
-        Programming Language :: Python
-        Topic :: Software Development
-        Topic :: Scientific/Engineering
-        Operating System :: POSIX
-        Operating System :: Unix
-        Operating System :: MacOS
-    """.splitlines() if _f],
-    url="http://www.cgat.org/cgat/Tools/",
-    python_requires=">=3.6",
     packages=cgat_packages,
     package_dir=cgat_package_dirs,
     include_package_data=True,
-    entry_points={'console_scripts': ['cgat = cgat.cgat:main']},
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
