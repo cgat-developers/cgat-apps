@@ -41,7 +41,7 @@ include-package-data = true
 cgat = "cgat.cgat:main"
 
 [tool.setuptools.package-data]
-cgat = ["*.txt", "*.yaml", "*.yml"]
+cgat = ["*.txt", "*.yaml", "*.yml", "*.h"]
 
 [project.urls]
 Source = "https://github.com/cgat-developers/cgat-apps/"

@@ -124,9 +124,17 @@ setup(
     packages=cgat_packages,
     package_dir=cgat_package_dirs,
     include_package_data=True,
+    package_data={
+        "cgat.Components": ["*.h"],
+    },
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
+    install_requires=[
+        "Cython>=0.29.35",
+        "numpy",
+        "pysam",
+    ],
     entry_points={
         'console_scripts': [
             'cgat = cgat.cgat.main',
