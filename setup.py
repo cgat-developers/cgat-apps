@@ -51,7 +51,7 @@ extra_link_args_pysam = [f'-Wl,-rpath,{x}' for x in pysam_libdirs + conda_libdir
 extensions = [
     Extension(
         'cgat.Components',
-        ['cgat/Components/Components.pyx', 'cgat/Components/connected_components.cpp', 'cgat/Components/connected_components.h'],
+        ['cgat/Components/Components.pyx', 'cgat/Components/connected_components.cpp'],
         include_dirs=[os.path.join('cgat', 'Components')] + conda_includes,
         language="c++",
     ),
