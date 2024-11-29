@@ -127,5 +127,10 @@ setup(
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
+    entry_points={
+        'console_scripts': [
+            'cgat = cgat.cgat.main',
+            ],
+        },
     test_suite="tests",
 )
