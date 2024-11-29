@@ -6,12 +6,13 @@ requires = [
     "Cython>=0.29.35",
     "numpy",
     "pysam",
+    "setuptools_scm",  # Added for dynamic versioning
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cgat"
-version = "0.7.4.1"
+version = "0.7.5"
 description = "cgat : the Computational Genomics Analysis Toolkit"
 authors = [
     {name = "Andreas Heger", email = "andreas.heger@gmail.com"},
@@ -31,12 +32,25 @@ classifiers = [
     "Operating System :: MacOS",
 ]
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.10"  # Updated Python version requirement
 
 [tool.setuptools]
 packages = { find = { where = ["cgat"] } }
 include-package-data = true
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cgat"]
+exclude = ["tests"]
+namespaces = false
 
-[project.scripts]
-cgat = "cgat.cgat:main"
+[tool.setuptools.package-data]
+cgat = ["*.txt", "*.yaml", "*.yml"]
+
+[project.urls]
+Source = "https://github.com/cgat-developers/cgat-apps/"
+Bug_Tracker = "https://github.com/cgat-developers/cgat-apps/issues/"
+Documentation = "https://cgat-developers.github.io/cgat-core/"
+
+[tool.setuptools_scm]
+write_to = "cgat/_version.py"
