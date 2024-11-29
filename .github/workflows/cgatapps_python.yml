@@ -47,7 +47,7 @@ jobs:
 
       - name: Test
         run: |
-          pip install -e .
+          pip install .
           pip install pytest
           pytest -v tests/test_style.py
           pytest -v tests/test_scripts.py
