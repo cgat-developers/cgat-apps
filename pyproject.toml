@@ -6,18 +6,16 @@ requires = [
     "Cython>=0.29.35",
     "numpy",
     "pysam",
-    "setuptools_scm",  # Added for dynamic versioning
+    "setuptools_scm",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cgat"
-version = "0.7.5"  # Updated version to follow semantic versioning
-
-# description of the project
+version = "0.7.4.1"
 description = "cgat : the Computational Genomics Analysis Toolkit"
 authors = [
-    {name = "Andreas Heger", email = "andreas.heger@gmail.com"},
+    {name = "Adam Cribbs", email = "adam.cribbs@ndorms.ox.ac.uk"},
 ]
 license = { text = "MIT" }
 keywords = ["computational genomics"]
@@ -34,11 +32,15 @@ classifiers = [
     "Operating System :: MacOS",
 ]
 readme = "README.md"
-requires-python = ">=3.10"  # Updated Python version requirement
+requires-python = ">=3.10"
 
 [tool.setuptools]
 packages = { find = { where = ["cgat"] } }
 include-package-data = true
+
+
+[project.scripts]
+cgat = "cgat.cgat:main"
 
 [tool.setuptools.package-data]
 cgat = ["*.txt", "*.yaml", "*.yml"]
