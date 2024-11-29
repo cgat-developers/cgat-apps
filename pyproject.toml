@@ -6,7 +6,6 @@ requires = [
     "Cython>=0.29.35",
     "numpy",
     "pysam",
-    "setuptools_scm",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -38,7 +37,6 @@ requires-python = ">=3.10"
 packages = { find = { where = ["cgat"] } }
 include-package-data = true
 
-
 [project.scripts]
 cgat = "cgat.cgat:main"
 
@@ -49,6 +47,3 @@ cgat = ["*.txt", "*.yaml", "*.yml"]
 Source = "https://github.com/cgat-developers/cgat-apps/"
 Bug_Tracker = "https://github.com/cgat-developers/cgat-apps/issues/"
 Documentation = "https://cgat-developers.github.io/cgat-core/"
-
-[tool.setuptools_scm]
-write_to = "cgat/_version.py"
