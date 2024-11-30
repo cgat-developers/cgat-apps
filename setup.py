@@ -72,6 +72,7 @@ extensions = [
     Extension(
         "cgat.NCL.cnestedlist",
         ["cgat/NCL/cnestedlist.pyx", "cgat/NCL/intervaldb.c"],
+        include_dirs=["cgat/NCL", numpy.get_include()],  # Include NCL directory
         language="c",
     ),
     Extension(

@@ -1,2 +1,3 @@
+recursive-include cgat/NCL *.h
 include cgat/Components/*.h
 recursive-exclude tests *
