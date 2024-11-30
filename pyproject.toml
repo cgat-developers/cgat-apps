@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cgat"
-version = "0.7.8"
+version = "0.7.9"
 description = "cgat : the Computational Genomics Analysis Toolkit"
 authors = [
     {name = "Adam Cribbs", email = "adam.cribbs@ndorms.ox.ac.uk"},
