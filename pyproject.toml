@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cgat"
-version = "0.7.7"
+version = "0.7.8"
 description = "cgat : the Computational Genomics Analysis Toolkit"
 authors = [
     {name = "Adam Cribbs", email = "adam.cribbs@ndorms.ox.ac.uk"},
@@ -32,9 +32,14 @@ classifiers = [
 ]
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "Cython>=0.29.35",
+    "numpy",
+    "pysam",
+]
 
 [tool.setuptools]
-packages = { find = { where = ["cgat"] } }
+packages = { find = { where = ["."] } }
 include-package-data = true
 
 [project.scripts]
