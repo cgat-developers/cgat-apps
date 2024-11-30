@@ -1,4 +1,4 @@
-# setup.py
+1# setup.py
 import sysconfig
 import sys
 import os
@@ -10,6 +10,7 @@ import setuptools
 from setuptools import setup, find_packages, Extension
 from distutils.version import LooseVersion
 from Cython.Distutils import build_ext
+from setuptools.command.build_py import build_py
 
 # Ensure dependencies are installed before setup
 try:
@@ -19,6 +20,18 @@ try:
 except ImportError as e:
     missing_package = str(e).split("'")[1]
     raise ImportError(f"{missing_package} must be installed before running setup.py")
+
+
+class CustomBuildPy(build_py):
+    def find_package_modules(self, package, package_dir):
+        # Call the parent method
+        modules = super().find_package_modules(package, package_dir)
+        # Filter out `.py` directories
+        filtered_modules = [
+            module for module in modules
+            if not os.path.isdir(os.path.join(package_dir, module[1] + '.py'))
+        ]
+        return filtered_modules
 
 # Enforce Python 3 requirement
 if sys.version_info < (3, 6):
@@ -36,8 +49,9 @@ for tool, toolkit, expected in external_dependencies:
         print(f"WARNING: Dependency check for {toolkit} ({tool}) failed with error code {retcode}")
 
 # Adjust packages and directories
-cgat_packages = find_packages(include=["cgat", "cgat.*"], exclude=['tests'])
+cgat_packages = find_packages(where=".", include=["cgat", "cgat.*"], exclude=['tests', "tests.*"])
 cgat_package_dirs = {'cgat': 'cgat'}
+print("Discovered packages:", cgat_packages)
 
 # Cython extensions and paths
 conda_includes = [os.path.dirname(sysconfig.get_paths()["include"])]
@@ -128,17 +142,11 @@ setup(
         "cgat.Components": ["*.h"],
     },
     ext_modules=extensions,
-    cmdclass={'build_ext': build_ext},
+    cmdclass={'build_py': CustomBuildPy},
     zip_safe=False,
-    install_requires=[
-        "Cython>=0.29.35",
-        "numpy",
-        "pysam",
-    ],
     entry_points={
         'console_scripts': [
             'cgat = cgat.cgat.main',
             ],
         },
-    test_suite="tests",
 )

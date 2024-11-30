@@ -1,1 +1,2 @@
+include cgat/Components/*.h
 recursive-exclude tests *
