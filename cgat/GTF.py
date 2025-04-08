@@ -106,7 +106,7 @@ def transcript_iterator(gff_iterator, strict=True):
 
     return a list of entries with the same transcript id.
 
-    Any features without a transcript_id will be ignored.
+    Any features without a transcript_id or gene_id will be ignored.
 
     The entries for the same transcript have to be consecutive
     in the file. If *strict* is set an AssertionError will be
