@@ -65,8 +65,13 @@ jobs:
       - name: Apply macOS-specific patches
         if: matrix.os == 'macos-latest'
         run: |
-          # Apply patch to skip BigWig tests on macOS
-          patch -p1 < tests/skip_bigwig_tests_macos.patch
+          # Check if the patch needs to be applied
+          if grep -q "Skip BigWig tests on macOS" tests/test_scripts.py; then
+            echo "Patch already applied, skipping"
+          else
+            # Apply patch to skip BigWig tests on macOS
+            patch -p1 < tests/skip_bigwig_tests_macos.patch
+          fi
           
       - name: Test
         run: |
