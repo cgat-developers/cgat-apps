@@ -1,0 +1,40 @@
+# Modified environment file for macOS arm64 architecture
+# Based on cgat-apps.yml but without the unavailable packages
+
+name: cgat-a
+
+channels:
+- conda-forge
+- bioconda
+- defaults
+
+dependencies:
+# python dependencies
+- python
+- alignlib-lite
+- biopython
+- cython
+- cgatcore
+- matplotlib
+- pytest
+- numpy
+- pandas
+- pep8
+- pybedtools
+- pybigwig
+- pysam
+- pyyaml
+- quicksect
+- rdflib
+- scikit-learn
+- scipy
+- setuptools
+- sortedcontainers
+- bedtools
+- grep
+- htslib
+- samtools
+- tar
+# Removed ucsc-bedgraphtobigwig and ucsc-wigtobigwig as they're not available for arm64
+- wget
+- zlib
