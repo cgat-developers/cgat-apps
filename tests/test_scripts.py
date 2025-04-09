@@ -326,9 +326,9 @@ def test_scripts(test_case, request):
     import pytest
     
     description = test_case["description"]
-    if platform.system() == "Darwin" and ("bigwig" in description.lower() or 
-                                         "bedgraphtobigwig" in description.lower() or
-                                         "wigtobigwig" in description.lower()):
+    if platform.system() == "Darwin" and ("bigwig" in description.lower() or
+                                          "bedgraphtobigwig" in description.lower() or
+                                          "wigtobigwig" in description.lower()):
         pytest.skip(f"Skipping {description} on macOS as UCSC tools are not available")
     
     func = test_case["func"]  # Directly retrieve the function object
