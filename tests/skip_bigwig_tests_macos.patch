@@ -23,4 +23,3 @@ index xxxxxxx..xxxxxxx 100644
      func = test_case["func"]  # Directly retrieve the function object
      args = test_case["args"]
      func(*args)
--

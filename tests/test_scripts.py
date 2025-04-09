@@ -318,8 +318,19 @@ TEST_CASES = collect_test_cases()
 
 
 @pytest.mark.parametrize("test_case", TEST_CASES, ids=[tc["description"] for tc in TEST_CASES])
-def test_scripts(test_case):
+def test_scripts(test_case, request):
     '''Run parametrized script tests.'''
+    
+    # Skip BigWig tests on macOS as the required tools are not available
+    import platform
+    import pytest
+    
+    description = test_case["description"]
+    if platform.system() == "Darwin" and ("bigwig" in description.lower() or 
+                                         "bedgraphtobigwig" in description.lower() or
+                                         "wigtobigwig" in description.lower()):
+        pytest.skip(f"Skipping {description} on macOS as UCSC tools are not available")
+    
     func = test_case["func"]  # Directly retrieve the function object
     args = test_case["args"]
     func(*args)
