@@ -55,7 +55,8 @@ def main(argv=None):
     parser.add_argument("-c", "--columns", dest="columns", type=str,
                         help="columns to take for calculating histograms.")
     parser.add_argument("--min-data", dest="min_data", type=int,
-                        help="minimum amount of data required, if less data, then the histogram will be empty [default=%default].")
+                        help="minimum amount of data required; if less data, "
+                        "then the histogram will be empty.")
     parser.add_argument("--min-value", dest="min_value", type=float,
                         help="minimum value for histogram.")
     parser.add_argument("--max-value", dest="max_value", type=float,

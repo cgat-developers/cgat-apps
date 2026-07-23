@@ -160,7 +160,7 @@ def main(argv=None):
                         type=str,
                         choices=("bedgraph", "wiggle", "bigbed",
                                  "bigwig", "bed"),
-                        help="output format [default=%default]")
+                        help="output format.")
 
     parser.add_argument("-s", "--shift-size", dest="shift", type=int,
                         help="shift reads by a certain amount (ChIP-Seq) "
@@ -177,7 +177,7 @@ def main(argv=None):
     parser.add_argument("-m", "--merge-pairs", dest="merge_pairs",
                         action="store_true",
                         help="merge paired-ended reads into a single "
-                        "bed interval [default=%default].")
+                        "bed interval.")
 
     parser.add_argument("--scale-base", dest="scale_base", type=float,
                         help="number of reads/pairs to scale bigwig file to. "
