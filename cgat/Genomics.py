@@ -15,14 +15,9 @@ import string
 import re
 import hashlib
 import base64
-import tempfile
 from functools import reduce
 
-try:
-    import alignlib_lite
-except ImportError:
-    pass
-
+from cgat.AlignmentCoordinates import Alignment, addDiagonal2Alignment
 from cgat import AString as AString
 
 global_last_filename_genome = None
@@ -553,11 +548,11 @@ def Alignment2DNA(alignment, query_from=0, sbjct_from=0):
 
     Returns
     -------
-    alignment : object
-       The alignment as an alignlib.AlignmentVector object.
+    alignment : Alignment
+       The alignment as an AlignmentCoordinates.Alignment object.
     """
 
-    map_query2sbjct = alignlib_lite.py_makeAlignmentVector()
+    map_query2sbjct = Alignment()
 
     # count in nucleotides for query
     query_pos = query_from * 3
@@ -590,10 +585,10 @@ def Alignment2DNA(alignment, query_from=0, sbjct_from=0):
             l_query = l_sbjct
 
         if l_query > 0 and l_sbjct > 0:
-            alignlib_lite.addDiagonal2Alignment(map_query2sbjct,
-                                                query_pos, query_pos +
-                                                l_query,
-                                                sbjct_pos - query_pos)
+            addDiagonal2Alignment(map_query2sbjct,
+                                  query_pos, query_pos +
+                                  l_query,
+                                  sbjct_pos - query_pos)
 
         query_pos += l_query
         sbjct_pos += l_sbjct
@@ -1037,7 +1032,7 @@ def Alignment2PeptideAlignment(alignment,
     How to handle frameshifts?
     """
 
-    map_query2sbjct = alignlib_lite.py_makeAlignmentVector()
+    map_query2sbjct = Alignment()
 
     query_pos = query_from
     sbjct_pos = 0
@@ -1079,10 +1074,10 @@ def Alignment2PeptideAlignment(alignment,
             query_increment = l_query
 
         if query_increment and sbjct_increment:
-            alignlib_lite.py_addDiagonal2Alignment(map_query2sbjct,
-                                                   query_pos, query_pos +
-                                                   query_increment,
-                                                   sbjct_pos - query_pos)
+            addDiagonal2Alignment(map_query2sbjct,
+                                  query_pos, query_pos +
+                                  query_increment,
+                                  sbjct_pos - query_pos)
 
         if sbjct_increment and genomic_sequence:
             for x in range(0, len(codon), 3):
@@ -1155,7 +1150,7 @@ def Alignment2CDNA(alignment,
 
     fragments = []
     sbjct_pos = 0
-    map_query2sbjct = alignlib_lite.py_makeAlignmentVector()
+    map_query2sbjct = Alignment()
 
     # count in nucleotides for query
     query_pos = query_from * 3
@@ -1187,16 +1182,16 @@ def Alignment2CDNA(alignment,
                 fragments.append(genome[sbjct_pos:sbjct_pos + l_sbjct])
 
             if l_query > 0 and l_sbjct > 0:
-                alignlib_lite.py_addDiagonal2Alignment(map_query2sbjct,
-                                                       query_pos,
-                                                       query_pos + l_query,
-                                                       cdna_pos - query_pos)
+                addDiagonal2Alignment(map_query2sbjct,
+                                      query_pos,
+                                      query_pos + l_query,
+                                      cdna_pos - query_pos)
             cdna_pos += l_sbjct
 
         query_pos += l_query
         sbjct_pos += l_sbjct
 
-    return map_query2sbjct, fragments.join("")
+    return map_query2sbjct, "".join(fragments)
 
 
 def GetExon(exons, first_aa):
@@ -1639,14 +1634,7 @@ def makeSubstitutionMatrix(type="EMBOSS"):
         for x in (0, 1, 5, 11, 16, 17, 19):
             matrix[x][11] = matrix[11][x] = match
 
-    handle_tmpfile, filename_tmpfile = tempfile.mkstemp()
-    for m in matrix:
-        os.write(handle_tmpfile, "\t".join(list(map(str, m))) + "\n")
-    os.close(handle_tmpfile)
-
-    smatrix = alignlib_lite.py_readSubstitutionMatrixAA(filename_tmpfile)
-    os.remove(filename_tmpfile)
-    return smatrix, gop, gep
+    return matrix, gop, gep
 
 
 def CalculateCodonFrequenciesFromCounts(counts, pseudo_counts=0):

@@ -9,7 +9,6 @@ channels:
 
 dependencies:
 - python
-- alignlib-lite
 - biopython
 - cython>=0.29.35
 - cgatcore

@@ -45,7 +45,7 @@ import cgatcore.experiment as E
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Blat as Blat
 import cgat.GTF as GTF
-import alignlib_lite
+from cgat.AlignmentCoordinates import Alignment
 import cgat.Intervals as Intervals
 
 
@@ -122,7 +122,7 @@ def main(argv=None):
 
         ninput += 1
 
-        result = alignlib_lite.py_makeAlignmentBlocks()
+        result = Alignment()
 
         xstart = 0
 

@@ -35,10 +35,7 @@ import cgat.IndexedGenome as IndexedGenome
 import numpy
 import pysam
 
-try:
-    import alignlib_lite
-except ImportError:
-    pass
+from cgat.AlignmentCoordinates import Alignment
 
 
 def readIntervalsFromGFF(filename_gff, source, feature,
@@ -2297,7 +2294,7 @@ class CounterCoverage(CounterOverlap):
         segments = self.getSegments()
         segments.sort()
 
-        map_genome2transcript = alignlib_lite.py_makeAlignmentBlocks()
+        map_genome2transcript = Alignment()
 
         x = 0
         for start, end in segments:

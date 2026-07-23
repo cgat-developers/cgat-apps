@@ -26,11 +26,11 @@ import collections
 import warnings
 import functools
 
-try:
-    import alignlib_lite
-except ImportError:
-    pass
-
+from cgat.AlignmentCoordinates import (
+    Alignment,
+    getAlignmentOverlap,
+    getAlignmentShortestDistance,
+)
 from cgat import Components as Components
 from cgatcore import experiment as E
 
@@ -331,20 +331,11 @@ class Match:
         If the strand is "-", the coordinates for query are on
         the negative strand.
         """
-
-        map_query2target = alignlib_lite.py_makeAlignmentBlocks()
-
-        f = alignlib_lite.py_AlignmentFormatBlat(
-            "%i\t%i\t%i\t%i\t%s\t%s\t%s\n" % (
-                min(self.mQueryBlockStarts),
-                max(self.mQueryBlockStarts),
-                min(self.mSbjctBlockStarts),
-                max(self.mSbjctBlockStarts),
-                ",".join([str(x) for x in self.mQueryBlockStarts]) + ",",
-                ",".join([str(x) for x in self.mSbjctBlockStarts]) + ",",
-                ",".join([str(x) for x in self.mBlockSizes]) + ","))
-        f.copy(map_query2target)
-
+        map_query2target = Alignment()
+        map_query2target.addBlocks(
+            self.mQueryBlockStarts,
+            self.mSbjctBlockStarts,
+            self.mBlockSizes)
         return map_query2target
 
     def getMapTarget2Query(self):
@@ -353,51 +344,38 @@ class Match:
         If the strand is "-", the coordinates for query are on
         the negative strand.
         """
-
-        map_target2query = alignlib_lite.py_makeAlignmentBlocks()
-
-        f = alignlib_lite.py_AlignmentFormatBlat(
-            "%i\t%i\t%i\t%i\t%s\t%s\t%s\n" % (
-                min(self.mSbjctBlockStarts),
-                max(self.mSbjctBlockStarts),
-                min(self.mQueryBlockStarts),
-                max(self.mQueryBlockStarts),
-                ",".join([str(x) for x in self.mSbjctBlockStarts]) + ",",
-                ",".join([str(x) for x in self.mQueryBlockStarts]) + ",",
-                ",".join([str(x) for x in self.mBlockSizes]) + ","))
-        f.copy(map_target2query)
+        map_target2query = Alignment()
+        map_target2query.addBlocks(
+            self.mSbjctBlockStarts,
+            self.mQueryBlockStarts,
+            self.mBlockSizes)
         return map_target2query
 
     def copy(self):
         return copy.copy(self)
 
     def fromMap(self, map_query2target, use_strand=None):
-        """return a map between query to target."""
+        """Fill this match from a query-to-target coordinate map."""
 
         self.mNMatches = map_query2target.getNumAligned()
-        f = str(alignlib_lite.py_AlignmentFormatBlat(map_query2target))
+        blocks = map_query2target.getBlocks()
 
-        self.mQueryFrom, self.mQueryTo, self.mSbjctFrom, self.mSbjctTo, \
-            self.mQueryBlockStarts, self.mSbjctBlockStarts, self.mBlockSizes = f.split(
-                "\t")
-
-        if self.mBlockSizes:
-            self.mBlockSizes = list(map(int, self.mBlockSizes[:-1].split(",")))
-            self.mQueryBlockStarts = list(map(
-                int, self.mQueryBlockStarts[:-1].split(",")))
-            self.mSbjctBlockStarts = list(map(
-                int, self.mSbjctBlockStarts[:-1].split(",")))
+        if blocks:
+            self.mQueryBlockStarts = [b[0] for b in blocks]
+            self.mSbjctBlockStarts = [b[1] for b in blocks]
+            self.mBlockSizes = [b[2] for b in blocks]
+            self.mQueryFrom = map_query2target.getRowFrom()
+            self.mQueryTo = map_query2target.getRowTo()
+            self.mSbjctFrom = map_query2target.getColFrom()
+            self.mSbjctTo = map_query2target.getColTo()
         else:
             self.mBlockSizes = []
             self.mQueryBlockStarts = []
             self.mSbjctBlockStarts = []
+            self.mQueryFrom = self.mQueryTo = 0
+            self.mSbjctFrom = self.mSbjctTo = 0
 
         self.mNBlocks = len(self.mBlockSizes)
-
-        self.mQueryFrom, self.mQueryTo, self.mSbjctFrom, self.mSbjctTo = \
-            list(map(int,
-                     (self.mQueryFrom, self.mQueryTo,
-                      self.mSbjctFrom, self.mSbjctTo)))
 
         # queryfrom and queryto are always forward strand coordinates
         if use_strand and self.strand == "-":
@@ -414,7 +392,7 @@ class Match:
         self.mQueryLength = query_size
         self.mSbjctLength = target_size
 
-        map_query2target = alignlib_lite.py_makeAlignmentBlocks()
+        map_query2target = Alignment()
 
         assert len(query_seq) == len(target_seq)
 
@@ -904,26 +882,22 @@ def getComponents(matches, max_distance=0, min_overlap=0, by_query=False):
 
     if by_query:
         if min_overlap > 0:
-            f = lambda x, y: alignlib_lite.py_getAlignmentOverlap(
+            f = lambda x, y: getAlignmentOverlap(
                 matches[x].mMapQuery2Target,
-                matches[y].mMapQuery2Target,
-                alignlib_lite.py_RR) >= min_overlap
+                matches[y].mMapQuery2Target) >= min_overlap
         else:
-            f = lambda x, y: alignlib_lite.py_getAlignmentShortestDistance(
+            f = lambda x, y: getAlignmentShortestDistance(
                 matches[x].mMapQuery2Target,
-                matches[y].mMapQuery2Target,
-                alignlib_lite.py_RR) <= max_distance
+                matches[y].mMapQuery2Target) <= max_distance
     else:
         if min_overlap > 0:
-            f = lambda x, y: alignlib_lite.py_getAlignmentOverlap(
+            f = lambda x, y: getAlignmentOverlap(
                 matches[x].mMapTarget2Query,
-                matches[y].mMapTarget2Query,
-                alignlib_lite.py_RR) >= min_overlap
+                matches[y].mMapTarget2Query) >= min_overlap
         else:
-            f = lambda x, y: alignlib_lite.py_getAlignmentShortestDistance(
+            f = lambda x, y: getAlignmentShortestDistance(
                 matches[x].mMapTarget2Query,
-                matches[y].mMapTarget2Query,
-                alignlib_lite.py_RR) <= max_distance
+                matches[y].mMapTarget2Query) <= max_distance
 
     for x in range(len(matches)):
         for y in range(0, x):

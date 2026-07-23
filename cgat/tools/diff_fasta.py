@@ -124,8 +124,7 @@ def main(argv=None):
     parser.add_argument(
         "-s", "--correct-gap-shift", dest="correct_shift",
         action="store_true",
-        help="correct gap length shifts in alignments. "
-        "Requires alignlib_lite.py ")
+        help="correct gap length shifts in alignments.")
 
     parser.add_argument(
         "-1", "--pattern1", dest="pattern1", type=str,
@@ -154,12 +153,7 @@ def main(argv=None):
         raise ValueError("two files needed to compare.")
 
     if args.correct_shift:
-        try:
-            import alignlib_lite
-        except ImportError:
-            raise ImportError(
-                "option --correct-shift requires alignlib_lite.py_ "
-                "but alignlib not found")
+        from cgat.AlignmentCoordinates import Alignment, formatEmissions
 
     seqs1 = dict([
         (x.title, x.sequence) for x in FastaIterator.iterate(
@@ -246,7 +240,7 @@ def main(argv=None):
             # correct for different gap lengths
             if args.correct_shift:
 
-                map_a2b = alignlib_lite.py_makeAlignmentVector()
+                map_a2b = Alignment()
 
                 a, b = 0, 0
                 keep = False
@@ -273,8 +267,7 @@ def main(argv=None):
                 else:
                     keep = True
                     nfixed += 1
-                    f = alignlib_lite.py_AlignmentFormatEmissions(map_a2b)
-                    print("fix\t%s\t%s" % (k, str(f)))
+                    print("fix\t%s\t%s" % (k, formatEmissions(map_a2b)))
 
                 if not keep:
                     print("# warning: not fixable: %s" % k)
