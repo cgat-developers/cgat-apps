@@ -55,7 +55,47 @@ def compute_checksum(filename):
         return hashlib.md5(f.read()).hexdigest()
 
 
+def _read_bam(fn):
+    '''Return BAM contents as comparable text lines via pysam.
+
+    Raw BAM bytes are not stable across pysam/htslib versions (BGZF
+    encoding), so compare header + alignment fields instead.
+    '''
+    import pysam
+
+    lines = []
+    with pysam.AlignmentFile(fn, "rb") as inf:
+        for line in str(inf.header).splitlines():
+            # @PG often embeds library/tool versions
+            if not line.startswith("@PG"):
+                lines.append(line)
+        for r in inf.fetch(until_eof=True):
+            tags = "\t".join("%s:%s" % (k, v) for k, v in r.get_tags())
+            if r.query_qualities is None:
+                quals = "*"
+            else:
+                quals = "".join(chr(33 + q) for q in r.query_qualities)
+            lines.append("\t".join([
+                r.query_name or "*",
+                str(r.flag),
+                str(r.reference_id),
+                str(r.reference_start),
+                str(r.mapping_quality),
+                r.cigarstring or "*",
+                str(r.next_reference_id),
+                str(r.next_reference_start),
+                str(r.template_length),
+                r.query_sequence or "*",
+                quals,
+                tags,
+            ]))
+    return lines
+
+
 def _read(fn):
+    if fn.endswith(".bam"):
+        return _read_bam(fn)
+
     if fn.endswith(".gz"):
         with gzip.open(fn) as inf:
             data = inf.read()
@@ -147,8 +187,16 @@ def _check_script(test_name, script, stdin,
                 msg = f"reference file '{reference_path}' does not exist ({tmpdir}): {statement}"
                 break
 
-            a = _read(output_path)
-            b = _read(reference_path)
+            # BAM stdout is often written to a nameless temp file; use the
+            # reference extension (or BAM reader) so we compare records, not
+            # unstable BGZF bytes from different pysam/htslib builds.
+            if (reference_path.endswith(".bam") or
+                    output_path.endswith(".bam")):
+                a = _read_bam(output_path)
+                b = _read_bam(reference_path)
+            else:
+                a = _read(output_path)
+                b = _read(reference_path)
             if a != b:
                 fail = True
                 msg = (f"files {output_path} and {reference_path} are not the same\n"
