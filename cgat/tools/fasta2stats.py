@@ -20,7 +20,9 @@ import cgatcore.iotools as iotools
 
 def main(argv=None):
 
-    parser = E.ArgumentParser(descriptin=__doc__)
+    parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version="1.0")
 
     parser.add_argument(
         "-f", "--fasta", dest="input_filename_fasta",
@@ -40,8 +42,8 @@ def main(argv=None):
                               argv=argv,
                               unknowns=True)
 
-    if len(unnowns) > 0:
-        args.input_filename_fasta = args[0]
+    if len(unknown) > 0:
+        args.input_filename_fasta = unknown[0]
 
     sequence_pairs = []
 

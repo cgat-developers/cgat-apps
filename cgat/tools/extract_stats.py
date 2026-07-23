@@ -205,6 +205,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("--task", dest="task", type=str,
                         choices=["extract_table", "get_coverage",
                                  "clean_table"],

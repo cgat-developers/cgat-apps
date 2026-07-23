@@ -198,6 +198,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "--output-quality-format", dest="q_format", type=int,
         help="sequence quality format, e.g 33 = +33/Sanger")

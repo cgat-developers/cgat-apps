@@ -233,7 +233,8 @@ def main(argv=sys.argv):
             iterator = GTF.iterator(infile)
             counters.append(counter_gff(iterator))
 
-        c = counters[-1]
+        for _ in counters[-1]:
+            pass
 
         for c in counters:
             args.stdout.write("\t%s" % str(c))

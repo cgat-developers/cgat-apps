@@ -30,6 +30,8 @@ def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-i", "--input-fastq", dest="input_fastq_file", type=str,
         help="input fastq file")

@@ -95,13 +95,13 @@ def iterate(infile, comment="#", fold=False):
     h = infile.readline()[:-1]
 
     if not h:
-        raise StopIteration
+        return
 
     # skip everything until first fasta entry starts
     while h[0] != ">":
         h = infile.readline()[:-1]
         if not h:
-            raise StopIteration
+            return
         continue
 
     h = h[1:]
@@ -143,8 +143,11 @@ def iterate_together(*args):
 
     iterators = [FastaIterator(x) for x in args]
 
-    while 1:
-        yield [next(x) for x in iterators]
+    while True:
+        try:
+            yield [next(x) for x in iterators]
+        except StopIteration:
+            break
 
 
 def count(filename):

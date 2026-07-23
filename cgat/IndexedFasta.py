@@ -347,8 +347,6 @@ class MultipleFastaIterator:
             if filename != "-":
                 infile.close()
 
-        raise StopIteration
-
 
 def createDatabase(db, iterator,
                    force=False,

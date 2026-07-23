@@ -74,6 +74,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "--guess-format", dest="guess_format", type=str,
         choices=('sanger', 'solexa', 'phred64',

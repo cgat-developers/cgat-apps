@@ -60,6 +60,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser()
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,
         help="input fastq file. "

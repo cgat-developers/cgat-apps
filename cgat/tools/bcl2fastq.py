@@ -69,6 +69,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser()
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument("-p", "--arguments", type=str, dest="arguments",   
                         default="",
                         help="Pass options and arguments to the executable. Please surround options in \"\"")

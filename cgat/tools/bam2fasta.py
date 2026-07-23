@@ -171,6 +171,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-e", "--input-bed-file", dest="input_bed_file", type=str,
         help="input file with intervals. Tab-delimited file of intervals "

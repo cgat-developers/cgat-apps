@@ -23,6 +23,8 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "--input-filename-fasta", dest="input_filename_fasta", type=str,
         help="filename with reference sequence in fasta format ")

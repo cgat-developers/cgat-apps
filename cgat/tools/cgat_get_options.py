@@ -129,6 +129,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "--inplace", dest="inplace", action="store_true",
         help="update option list in place. New options will"
@@ -180,9 +182,10 @@ def main(argv=None):
             for o in collected_options:
                 all_options[o].append(f)
 
-    for x in old_options.index:
-        if x not in all_options:
-            all_options[x].append("--")
+    if old_options is not None:
+        for x in old_options.index:
+            if x not in all_options:
+                all_options[x].append("--")
 
     if args.inplace:
         outfile = iotools.open_file(args.tsv_file, "w")

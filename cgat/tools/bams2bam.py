@@ -75,8 +75,9 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.ArgumentParser(version="%prog version: $Id$",
-                              usage=globals()["__doc__"])
+    parser = E.ArgumentParser(usage=globals()["__doc__"])
+
+    parser.add_argument("--version", action='version', version="1.0")
 
     parser.add_argument(
         "-g", "--gtf-file", dest="filename_gtf", type=str,

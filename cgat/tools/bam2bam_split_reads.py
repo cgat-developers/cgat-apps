@@ -15,6 +15,8 @@ def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version="1.0")
+
     parser.add_argument(
         "-i", "--input-bam", dest="input_bam_file", type=str,
         help="input bam file ")
