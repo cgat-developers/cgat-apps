@@ -59,9 +59,9 @@ class MidPointRootingCheck(unittest.TestCase):
             t.root_midpoint()
 
             for n, node in t.chain.items():
-                self.failIf(node.data.branchlength < 0,
-                            "assertion error: negative branchlength for tree %s -> %s" %
-                            (tree, t.to_string(branchlengths_only=True)))
+                self.assertFalse(node.data.branchlength < 0,
+                                 "assertion error: negative branchlength for tree %s -> %s" %
+                                 (tree, t.to_string(branchlengths_only=True)))
 
     def testTruncate(self):
 
