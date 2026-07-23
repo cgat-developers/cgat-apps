@@ -474,7 +474,7 @@ def createDatabase(db, iterator,
         try:
             result = next(iterator)
         except StopIteration:
-            return
+            break
 
         if not result:
             break
