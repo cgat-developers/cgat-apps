@@ -1,8 +1,12 @@
 ##########################################################################
 """unit testing module for the Tree.py class."""
 
+import shutil
+
 import cgat.Masker as Masker
 import unittest
+
+HAS_SEGMASKER = shutil.which("segmasker") is not None
 
 
 class SegCheck(unittest.TestCase):
@@ -13,12 +17,14 @@ class SegCheck(unittest.TestCase):
         """test empty input."""
         self.assertEqual(self.mMasker(""), "")
 
+    @unittest.skipUnless(HAS_SEGMASKER, "requires segmasker")
     def testProtein(self):
         """test protein input."""
         self.assertEqual(self.mMasker(
             "ACDEFGHIKLWWWWWWWWWWWWWWwwwwwwwwwwwacdefghikl"),
             "ACDEFGHIKLXXXXXXXXXXXXXXxxxxxxxxxxxacdefghikl")
 
+    @unittest.skipUnless(HAS_SEGMASKER, "requires segmasker")
     def testCoding(self):
         """test coding sequence input."""
         self.assertEqual(self.mMasker(
