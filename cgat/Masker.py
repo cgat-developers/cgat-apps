@@ -9,6 +9,7 @@ Code
 
 '''
 import os
+import shlex
 import subprocess
 import tempfile
 import string
@@ -110,7 +111,7 @@ class Masker:
         if hasattr(self, "mArgv"):
             return [part.format(infile=infile) if "{infile}" in part else part
                     for part in self.mArgv]
-        return self.mCommand.format(infile=infile).split()
+        return shlex.split(self.mCommand.format(infile=infile))
 
     def _run_masker(self, infile):
         cmd = self.getCommand(infile)

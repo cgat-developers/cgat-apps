@@ -649,7 +649,6 @@ def Reroot(tree, taxa):
         # if more than two nodes (i.e, if all_true is True)
         nchildren = GetNumChildren(tree)
         nodes.sort(key=lambda x: nchildren[x], reverse=True)
-        nodes.reverse()
 
     subtree_node = nodes[0]
 

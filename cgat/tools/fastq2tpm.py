@@ -156,12 +156,16 @@ def runSailfishQuant(fasta_index, fastq_files, output_dir,
 
     if process.returncode != 0:
         stderr_text = stderr.decode() if isinstance(stderr, bytes) else stderr
+        if process.returncode < 0:
+            detail = "Child was terminated by signal %i" % (-process.returncode)
+        else:
+            detail = "Child exited with status %i" % process.returncode
         raise OSError(
             "-------------------------------------------\n"
-            "Child was terminated by signal %i: \n"
+            "%s: \n"
             "The stderr was \n%s\n%s\n"
             "-------------------------------------------" %
-            (-process.returncode, stderr_text, statement))
+            (detail, stderr_text, statement))
 
 
 def runKallistoIndex(fasta_file, outfile, kmer=31):

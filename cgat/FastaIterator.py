@@ -172,14 +172,14 @@ def count(filename):
         The number of sequences in the file.
     '''
 
+    if not os.path.exists(filename):
+        raise OSError("file '%s' does not exist" % filename)
+
     if filename.endswith(".gz"):
         import gzip
         open_file = gzip.open(filename, "rt")
     else:
         open_file = open(filename, "rt")
-
-    if not os.path.exists(filename):
-        raise OSError("file '%s' does not exist" % filename)
 
     try:
         with open_file as inf:
