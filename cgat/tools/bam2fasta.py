@@ -111,7 +111,7 @@ def global_align(seqj, seqi, gap=-1, match=1, mismatch=-1, nmatch=0):
             align_i += seqi[i - 1]
             i -= 1
         else:
-            raise Exception('wtf!')
+            raise ValueError("unexpected alignment path in get_alignment")
 
     return align_j[::-1], align_i[::-1]
 

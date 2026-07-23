@@ -37,5 +37,11 @@ class SegCheck(unittest.TestCase):
 class DustMaskerCheck(unittest.TestCase):
     mMasker = Masker.MaskerDustMasker()
 
+    def test_get_command(self):
+        """test argv list is built without shell interpolation."""
+        cmd = self.mMasker.getCommand("/tmp/test.fa")
+        self.assertEqual(cmd[0], "dustmasker")
+        self.assertIn("/tmp/test.fa", cmd)
+
 if __name__ == "__main__":
     unittest.main()

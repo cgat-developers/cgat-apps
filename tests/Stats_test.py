@@ -4,6 +4,13 @@ import scipy.stats
 import unittest
 import cgat.Stats as Stats
 
+try:
+    import rpy2.robjects as ro
+    from rpy2.robjects import R
+    HAS_RPY2 = True
+except ImportError:
+    HAS_RPY2 = False
+
 
 class TestStats(unittest.TestCase):
 
@@ -196,6 +203,7 @@ class TestFDRPythonAgainstRDataset1(unittest.TestCase):
         self.checkFDR(vlambda=(0.5,))
 
 
+@unittest.skipUnless(HAS_RPY2, "requires rpy2")
 class TestPValueAdust(unittest.TestCase):
 
     def setUp(self):

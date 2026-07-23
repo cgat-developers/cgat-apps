@@ -364,7 +364,7 @@ def iterator_overlapping_genes(gtf_iterator, min_overlap=0):
     genes = []
     for gene in flat_gene_iterator(gtf_iterator):
         gene.sort(key=lambda x: x.start)
-        genes.append(gene[0].contig, gene[0].start, gene)
+        genes.append((gene[0].contig, gene[0].start, gene))
 
     genes.sort()
 
@@ -516,8 +516,7 @@ def CombineOverlaps(old_gff, method="combine"):
     only the first letter is important.
     """
 
-    old_gff.sort(lambda x, y: cmp((x.contig, x.strand, x.start, x.end),
-                                  (y.contig, y.strand, y.start, y.end)))
+    old_gff.sort(key=lambda x: (x.contig, x.strand, x.start, x.end))
 
     new_gff = []
 
@@ -546,7 +545,7 @@ def SortPerContig(gff):
     if len(gff) == 0:
         return map_contig2start
 
-    gff.sort(lambda x, y: cmp(x.contig, y.contig))
+    gff.sort(key=lambda x: x.contig)
 
     last_contig = None
     start = 0
@@ -1025,12 +1024,6 @@ class Entry:
     def addAttribute(self, key, value=None):
         self.attributes[key] = value
 
-    def __cmp__(self, other):
-        # note: does compare by strand as well!
-        return cmp((self.contig, self.strand, self.start),
-                   (other.contig, other.strand, other.start))
-
-    # python 3 compatibility
     def __lt__(self, other):
         # note: does compare by strand as well!
         return (self.contig, self.strand, self.start) < \

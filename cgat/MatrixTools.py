@@ -197,9 +197,9 @@ def getMatrixFromEdges(lines, options,
             m.mReplicates = replicates
 
         col_tokens = list(map_token2col.items())
-        col_tokens.sort(lambda x, y: cmp(x[1], y[1]))
+        col_tokens.sort(key=lambda x: x[1])
         row_tokens = list(map_token2row.items())
-        row_tokens.sort(lambda x, y: cmp(x[1], y[1]))
+        row_tokens.sort(key=lambda x: x[1])
 
         m.mMatrix = matrix
         m.mMapRow2Token = row_tokens
@@ -364,8 +364,8 @@ def buildMatrixFromEdges(edges,
                 "got %i" % (len(edges[0])))
 
     col_tokens = list(map_token2col.items())
-    col_tokens.sort(lambda x, y: cmp(x[1], y[1]))
+    col_tokens.sort(key=lambda x: x[1])
     row_tokens = list(map_token2row.items())
-    row_tokens.sort(lambda x, y: cmp(x[1], y[1]))
+    row_tokens.sort(key=lambda x: x[1])
 
     return matrix, row_tokens, col_tokens

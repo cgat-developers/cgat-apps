@@ -214,7 +214,7 @@ def main(argv=None):
             row_keys = [data[x] for x in args.columns]
             if args.sort_keys:
                 if args.sort_keys == "numeric":
-                    row_keys.sort(lambda x, y: cmp(float(x), float(y)))
+                    row_keys.sort(key=lambda x: float(x))
                 else:
                     row_keys.sort()
             if args.merge:
@@ -302,7 +302,7 @@ def main(argv=None):
         if args.sort_keys:
             if args.sort_keys:
                 if args.sort_keys == "numeric":
-                    sorted_keys.sort(lambda x, y: cmp(float(x), float(y)))
+                    sorted_keys.sort(key=lambda x: float(x))
                 else:
                     sorted_keys.sort()
 

@@ -477,8 +477,7 @@ def Transcript2GeneTree(tree,
     ids = tree.get_terminals()
 
     # sort identities by taxa
-    ids.sort(
-        lambda x, y: cmp(tree.node(x).get_data().taxon, tree.node(y).get_data().taxon))
+    ids.sort(key=lambda x: tree.node(x).get_data().taxon)
     taxa = [tree.node(x).get_data().taxon for x in ids]
 
     print(ids)
@@ -649,7 +648,7 @@ def Reroot(tree, taxa):
     elif len(nodes) > 1:
         # if more than two nodes (i.e, if all_true is True)
         nchildren = GetNumChildren(tree)
-        nodes.sort(lambda x, y: cmp(nchildren[x], nchildren[y]))
+        nodes.sort(key=lambda x: nchildren[x], reverse=True)
         nodes.reverse()
 
     subtree_node = nodes[0]
@@ -1450,9 +1449,11 @@ def GetDistanceToRoot(tree):
     return distance_to_root
 
 
-def traverseGraph(graph, start, block=[]):
+def traverseGraph(graph, start, block=None):
     """traverse graph, go not passed nodes in block.
     """
+    if block is None:
+        block = []
 
     to_visit = [start, ]
     visited = {}

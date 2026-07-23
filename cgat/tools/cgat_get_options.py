@@ -48,7 +48,7 @@ ORIGINAL_START = None
 PARSER = None
 
 EXPRESSIONS = (
-    ('scripts', 'scripts/*.py'),)
+    ('tools', 'cgat/tools/*.py'),)
 
 EXCLUDE = ("__init__.py",
            "cgat.py",)

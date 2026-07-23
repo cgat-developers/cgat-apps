@@ -1,9 +1,10 @@
-1# setup.py
+# setup.py
 import sysconfig
 import sys
 import os
 import subprocess
 import re
+import shutil
 
 # Import setuptools at the beginning
 import setuptools
@@ -34,19 +35,18 @@ class CustomBuildPy(build_py):
         return filtered_modules
 
 # Enforce Python 3 requirement
-if sys.version_info < (3, 6):
-    raise SystemExit("Python 3.6 or later is required to install this package.")
+if sys.version_info < (3, 10):
+    raise SystemExit("Python 3.10 or later is required to install this package.")
 
 # Minimum setuptools version requirement
 if LooseVersion(setuptools.__version__) < LooseVersion('1.1'):
     raise ImportError("Setuptools version >=1.1 is required")
 
 # External dependency check
-external_dependencies = [("wigToBigWig", "UCSC tools", 255), ("bedtools", "bedtools", 0)]
-for tool, toolkit, expected in external_dependencies:
-    retcode = subprocess.call(tool, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    if retcode != expected:
-        print(f"WARNING: Dependency check for {toolkit} ({tool}) failed with error code {retcode}")
+external_dependencies = ["wigToBigWig", "bedtools"]
+for tool in external_dependencies:
+    if shutil.which(tool) is None:
+        print(f"WARNING: Dependency check for {tool} failed: not found in PATH")
 
 # Adjust packages and directories
 cgat_packages = find_packages(where=".", include=["cgat", "cgat.*"], exclude=['tests', "tests.*"])
@@ -143,11 +143,11 @@ setup(
         "cgat.Components": ["*.h"],
     },
     ext_modules=extensions,
-    cmdclass={'build_py': CustomBuildPy},
+    cmdclass={'build_py': CustomBuildPy, 'build_ext': build_ext},
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'cgat = cgat.cgat.main',
+            'cgat = cgat.cgat:main',
             ],
         },
 )

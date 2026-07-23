@@ -441,11 +441,7 @@ def main(argv=None):
             E.info("starting %s conversion" % executable)
             try:
                 retcode = subprocess.call(
-                    " ".join((executable,
-                              tmpfile_wig,
-                              tmpfile_sizes,
-                              output_filename_pattern)),
-                    shell=True)
+                    [executable, tmpfile_wig, tmpfile_sizes, output_filename_pattern])
                 if retcode != 0:
                     E.warn("%s terminated with signal: %i" %
                            (executable, -retcode))

@@ -107,7 +107,7 @@ sys.path.insert(0, "../cgat/tools")
 # built documents.
 #
 # The short X.Y version.
-version = "0.6.2"
+version = "0.7.10"
 #version.__version__
 # The full version, including alpha/beta/rc tags.
 release = version

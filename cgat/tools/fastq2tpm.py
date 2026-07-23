@@ -36,6 +36,7 @@ import cgatcore.experiment as E
 import os
 import subprocess
 import re
+import shlex
 
 
 # ------------------------------------------------------- #
@@ -55,11 +56,14 @@ def runSailfishIndex(fasta_file, outdir, threads,
     else:
         E.warn("are you sure this is a fasta file?")
 
-    command = '''
-    sailfish index --transcripts %s --out %s --threads %i --kmerSize %i
-    ''' % (fasta_file, outdir, threads, kmer)
-
-    os.system(command)
+    command = [
+        "sailfish", "index",
+        "--transcripts", fasta_file,
+        "--out", outdir,
+        "--threads", str(threads),
+        "--kmerSize", str(kmer),
+    ]
+    subprocess.run(command, check=True)
 
 
 def runSailfishQuant(fasta_index, fastq_files, output_dir,
@@ -87,86 +91,77 @@ def runSailfishQuant(fasta_index, fastq_files, output_dir,
     else:
         out_dir = os.path.abspath(output_dir)
 
-    states = []
-    command = " sailfish quant --index %s -l %s  -o %s " % (fasta_index,
-                                                            library,
-                                                            output_dir)
-
-    states.append(command)
+    states = ["sailfish", "quant", "--index", fasta_index, "-l", library, "-o", output_dir]
 
     if threads:
-        states.append(" --threads %i " % threads)
-    else:
-        pass
+        states.extend(["--threads", str(threads)])
 
     if gene_gtf:
-        states.append(" --geneMap %s " % gene_gtf)
-    else:
-        pass
+        states.extend(["--geneMap", gene_gtf])
 
-    # sailfish does not handle compress files natively,
-    # need to decompress on the fly with advanced
-    # bash syntax
+    # sailfish does not handle compressed files natively;
+    # use bash process substitution with quoted paths when decompressing
     if decompress and paired:
-        first_mates = tuple([fq for fq in fastq_files if re.search("fastq.1.gz",
-                                                                   fq)])
-        fstr_format = " ".join(["%s" for hq in first_mates])
-        fdecomp_format = fstr_format % first_mates
-        decomp_first = " -1 <( zcat %s )" % fdecomp_format
-
-        states.append(decomp_first)
-
-        second_mates = tuple([sq for sq in fastq_files if re.search("fastq.2.gz",
-                                                                    sq)])
-        sstr_format = " ".join(["%s" for aq in second_mates])
-        sdecomp_format = sstr_format % second_mates
-        decomp_second = " -2 <( zcat %s )" % sdecomp_format
-
-        states.append(decomp_second)
+        first_mates = [fq for fq in fastq_files if re.search("fastq.1.gz", fq)]
+        second_mates = [sq for sq in fastq_files if re.search("fastq.2.gz", sq)]
+        decomp_first = " ".join(
+            shlex.quote(path) for path in first_mates)
+        decomp_second = " ".join(
+            shlex.quote(path) for path in second_mates)
+        bash_cmd = (
+            f"sailfish quant --index {shlex.quote(fasta_index)} -l {shlex.quote(library)} "
+            f"-o {shlex.quote(output_dir)} "
+            f"{'--threads ' + str(threads) if threads else ''} "
+            f"{'--geneMap ' + shlex.quote(gene_gtf) if gene_gtf else ''} "
+            f"-1 <( zcat {decomp_first} ) -2 <( zcat {decomp_second} )"
+        )
+        process = subprocess.Popen(
+            ["/bin/bash", "-c", bash_cmd],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        statement = bash_cmd
 
     elif decompress and not paired:
-        first_mates = tuple([fq for fq in fastq_files if re.search("fastq.gz",
-                                                                   fq)])
-        fstr_format = " ".join(["%s" for sq in first_mates])
-        fdecomp_format = fstr_format % first_mates
-        decomp_first = " -r <( zcat %s )" % fdecomp_format
-
-        states.append(decomp_first)
+        first_mates = [fq for fq in fastq_files if re.search("fastq.gz", fq)]
+        decomp_first = " ".join(shlex.quote(path) for path in first_mates)
+        bash_cmd = (
+            f"sailfish quant --index {shlex.quote(fasta_index)} -l {shlex.quote(library)} "
+            f"-o {shlex.quote(output_dir)} "
+            f"{'--threads ' + str(threads) if threads else ''} "
+            f"{'--geneMap ' + shlex.quote(gene_gtf) if gene_gtf else ''} "
+            f"-r <( zcat {decomp_first} )"
+        )
+        process = subprocess.Popen(
+            ["/bin/bash", "-c", bash_cmd],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        statement = bash_cmd
 
     elif paired and not decompress:
-        first_mates = tuple([fq for fq in fastq_files if re.search("fastq.1",
-                                                                   fq)])
-        fstr_format = " ".join(["%s" for sq in first_mates])
-        fdecomp_format = fstr_format % first_mates
-        decomp_first = " -1 %s " % fdecomp_format
+        first_mates = [fq for fq in fastq_files if re.search("fastq.1", fq)]
+        second_mates = [sq for sq in fastq_files if re.search("fastq.2", sq)]
+        states.extend(["-1"] + first_mates)
+        states.extend(["-2"] + second_mates)
+        process = subprocess.run(states, capture_output=True, check=False)
+        stdout, stderr = process.stdout, process.stderr
+        statement = " ".join(states)
 
-        states.append(decomp_first)
-
-        second_mates = tuple([sq for sq in fastq_files if re.search("fastq.2",
-                                                                    sq)])
-        sstr_format = " ".join(["%s" for aq in second_mates])
-        sdecomp_format = sstr_format % second_mates
-        decomp_second = " -2 %s " % sdecomp_format
-
-        states.append(decomp_second)
-
-    statement = " ".join(states)
-
-    # subprocess cannot handle process substitution
-    # therefore needs to be wrapped in /bin/bash -c '...'
-    # for bash to interpret the substitution correctly
-    process = subprocess.Popen(statement, shell=True,
-                               executable="/bin/bash")
-
-    stdout, stderr = process.communicate()
+    else:
+        states.extend(fastq_files)
+        process = subprocess.run(states, capture_output=True, check=False)
+        stdout, stderr = process.stdout, process.stderr
+        statement = " ".join(states)
 
     if process.returncode != 0:
+        stderr_text = stderr.decode() if isinstance(stderr, bytes) else stderr
         raise OSError(
             "-------------------------------------------\n"
             "Child was terminated by signal %i: \n"
             "The stderr was \n%s\n%s\n"
             "-------------------------------------------" %
-            (-process.returncode, stderr, statement))
+            (-process.returncode, stderr_text, statement))
 
 
 def runKallistoIndex(fasta_file, outfile, kmer=31):
@@ -181,10 +176,8 @@ def runKallistoIndex(fasta_file, outfile, kmer=31):
     else:
         E.warn("are you sure this is a fasta file?")
 
-    command = "kallisto index --index=%s  %s" % (outfile,
-                                                 fasta_file)
-
-    os.system(command)
+    command = ["kallisto", "index", f"--index={outfile}", fasta_file]
+    subprocess.run(command, check=True)
 
 
 def runKallistoQuant(fasta_index, fastq_files, output_dir,
@@ -194,56 +187,31 @@ def runKallistoQuant(fasta_index, fastq_files, output_dir,
     Wrapper for kallisto quant command
     '''
 
-    if len(fastq_files) > 1:
-        fastqs = " ".join(fastq_files)
+    if isinstance(fastq_files, str):
+        fastq_file_list = [fastq_files]
     else:
-        fastqs = fastq_files
+        fastq_file_list = list(fastq_files)
 
     # check output directory is an absolute path
-    if os.path.isabs(output_dir):
-        pass
-    else:
-        out_dir = os.path.abspath(output_dir)
+    if not os.path.isabs(output_dir):
+        output_dir = os.path.abspath(output_dir)
 
-    states = []
-    command = " kallisto quant --index=%s --output-dir=%s" % (fasta_index,
-                                                              output_dir)
-    states.append(command)
-
+    cmd = [
+        "kallisto", "quant",
+        f"--index={fasta_index}",
+        f"--output-dir={output_dir}",
+    ]
     if bias:
-        states.append(" --use-bias ")
-    else:
-        pass
-
+        cmd.append("--use-bias")
     if bootstrap:
-        states.append(" --bootstrap=%i --seed=%i " % (bootstrap,
-                                                      seed))
-    else:
-        pass
-
+        cmd.extend([f"--bootstrap={bootstrap}", f"--seed={seed}"])
     if plaintext:
-        states.append(" --plaintext ")
-    else:
-        pass
-
+        cmd.append("--plaintext")
     if threads:
-        states.append(" --threads=%i " % threads)
-    else:
-        pass
+        cmd.extend([f"--threads={threads}"])
+    cmd.extend(fastq_file_list)
 
-    states.append(" %s " % fastqs)
-
-    statement = " ".join(states)
-
-    # need to rename output files to conform to input/output
-    # pattern as required.  Default name is abundance*.txt
-    # when using plaintext output
-    # kaliisto requires an output directory - create many small
-    # directories, one for each file.
-    # then extract the abundance.txt file and rename using the
-    # input/output pattern
-
-    os.system(statement)
+    subprocess.run(cmd, check=True)
 
 
 def main(argv=None):
@@ -339,7 +307,7 @@ def main(argv=None):
         if os.path.exists(args.outdir):
             pass
         else:
-            os.system("mkdir %s" % args.outdir)
+            os.makedirs(args.outdir, exist_ok=True)
 
         if args.program == "kallisto":
             runKallistoQuant(fasta_index=args.index_file,

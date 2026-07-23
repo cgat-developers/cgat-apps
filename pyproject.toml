@@ -39,7 +39,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = { find = { where = ["."] } }
+packages = { find = { where = ["."], exclude = ["tests", "tests.*"] } }
 include-package-data = true
 
 [project.scripts]
@@ -51,4 +51,4 @@ cgat = ["*.txt", "*.yaml", "*.yml", "*.h"]
 [project.urls]
 Source = "https://github.com/cgat-developers/cgat-apps/"
 Bug_Tracker = "https://github.com/cgat-developers/cgat-apps/issues/"
-Documentation = "https://cgat-developers.github.io/cgat-core/"
+Documentation = "https://cgat-apps.readthedocs.io/en/latest/"

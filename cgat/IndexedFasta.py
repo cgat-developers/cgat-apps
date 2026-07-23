@@ -272,10 +272,7 @@ class MultipleFastaIterator:
         return self
 
     def __next__(self):
-        try:
-            return next(self.iterator)
-        except:
-            return
+        return next(self.iterator)
 
     def next(self):
         return next(self.iterator)

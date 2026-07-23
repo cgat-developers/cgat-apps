@@ -170,15 +170,16 @@ def count(filename):
     '''
 
     if filename.endswith(".gz"):
-        statement = "zcat %s | grep -c '>'" % filename
+        import gzip
+        open_file = gzip.open(filename, "rt")
     else:
-        statement = "cat %s | grep -c '>'" % filename
+        open_file = open(filename, "rt")
 
     if not os.path.exists(filename):
         raise OSError("file '%s' does not exist" % filename)
 
-    # grep returns error if no match is found
     try:
-        return subprocess.check_output(statement, shell=True)
-    except subprocess.CalledProcessError:
+        with open_file as inf:
+            return sum(1 for line in inf if line.startswith(">"))
+    except OSError:
         return 0

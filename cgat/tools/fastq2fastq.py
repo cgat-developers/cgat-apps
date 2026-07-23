@@ -131,6 +131,7 @@ import sys
 import os
 import re
 import random
+import subprocess
 import pysam
 import numpy
 import cgatcore.experiment as E
@@ -233,8 +234,9 @@ def process_cgat(options):
     elif options.method == "sort":
         if not options.pair:
             # This is quicker for a single fastq file
-            statement = "paste - - - - | sort -k1,1 -t ' ' | tr '\t' '\n'"
-            os.system(statement)
+            subprocess.run(
+                ["/bin/bash", "-c", "paste - - - - | sort -k1,1 -t ' ' | tr '\\t' '\\n'"],
+                check=False)
         else:
             if not options.output_filename_pattern:
                 raise ValueError(

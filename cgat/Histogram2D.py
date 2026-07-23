@@ -28,7 +28,7 @@ def Calculate(values, mode=0, bin_function=None):
     bb = list(bins.items())
 
     if mode:
-        bb.sort(lambda x, y: cmp(y[1], x[1]))
+        bb.sort(key=lambda x: x[1], reverse=True)
     else:
         bb.sort()
 

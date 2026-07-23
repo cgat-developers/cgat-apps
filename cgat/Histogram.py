@@ -645,9 +645,9 @@ def histogram(values, mode=0, bin_function=None):
     for val in values:
         bins[val] = bins.get(val, 0) + 1
         if mode:
-            return sort(list(bins.items()), lambda x, y: cmp(y[1], x[1]))
+            return sorted(bins.items(), key=lambda x: x[1], reverse=True)
         else:
-            return sort(list(bins.items()))
+            return sorted(bins.items())
 
 
 def cumulate(histogram):

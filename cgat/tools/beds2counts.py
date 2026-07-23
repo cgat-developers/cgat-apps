@@ -55,6 +55,7 @@ Command line options
 '''
 import tempfile
 import sys
+import os
 
 try:
     import pybedtools
@@ -103,51 +104,56 @@ def main(argv=None):
     # concatenate the list of files
     tmp = tempfile.NamedTemporaryFile(delete=False, mode="w")
     tmp_merge = tempfile.NamedTemporaryFile(delete=False, mode="w")
-    infs = args.infiles
-    for inf in infs:
-        for bed in Bed.iterator(iotools.open_file(inf)):
-            tmp.write("%s\n" % bed)
-    tmp.close()
+    try:
+        infs = args.infiles
+        for inf in infs:
+            for bed in Bed.iterator(iotools.open_file(inf)):
+                tmp.write("%s\n" % bed)
+        tmp.close()
 
-    E.info("merging bed entries")
-    # merge the bed entries in the file
-    name = tmp.name
-    tmp_bed = pybedtools.BedTool(name)
-    tmp_bed.sort().merge().saveas(tmp_merge.name)
-    tmp_merge.close()
+        E.info("merging bed entries")
+        # merge the bed entries in the file
+        name = tmp.name
+        tmp_bed = pybedtools.BedTool(name)
+        tmp_bed.sort().merge().saveas(tmp_merge.name)
+        tmp_merge.close()
 
-    E.info("indexing bed entries")
-    # index the bed entries
-    merged = IndexedGenome.Simple()
-    for bed in Bed.iterator(iotools.open_file(tmp_merge.name)):
-        merged.add(bed.contig, bed.start, bed.end)
+        E.info("indexing bed entries")
+        # index the bed entries
+        merged = IndexedGenome.Simple()
+        for bed in Bed.iterator(iotools.open_file(tmp_merge.name)):
+            merged.add(bed.contig, bed.start, bed.end)
 
-    counts = collections.defaultdict(int)
-    # list of samples
-    samples = args.infiles
+        counts = collections.defaultdict(int)
+        # list of samples
+        samples = args.infiles
 
-    E.info("counting no. samples overlapping each interval")
-    for sample in samples:
-        found = set()
-        for bed in Bed.iterator(iotools.open_file(sample)):
-            if merged.contains(bed.contig, bed.start, bed.end):
-                key = [bed.contig] + \
-                    [x for x in merged.get(bed.contig, bed.start, bed.end)]
-                key = (key[0], key[1][0], key[1][1])
-                if key in found:
-                    continue
-                found.add(key)
+        E.info("counting no. samples overlapping each interval")
+        for sample in samples:
+            found = set()
+            for bed in Bed.iterator(iotools.open_file(sample)):
+                if merged.contains(bed.contig, bed.start, bed.end):
+                    key = [bed.contig] + \
+                        [x for x in merged.get(bed.contig, bed.start, bed.end)]
+                    key = (key[0], key[1][0], key[1][1])
+                    if key in found:
+                        continue
+                    found.add(key)
 
-                # tuple of interval description as key - (contig, start, end)
-                counts[key] += 1
+                    # tuple of interval description as key - (contig, start, end)
+                    counts[key] += 1
 
-    # open outfile
-    args.stdout.write("contig\tstart\tend\tcount\n")
+        # open outfile
+        args.stdout.write("contig\tstart\tend\tcount\n")
 
-    E.info("outputting result")
-    for interval, count in sorted(counts.items()):
-        args.stdout.write(
-            "\t".join(map(str, interval)) + "\t" + str(count) + "\n")
+        E.info("outputting result")
+        for interval, count in sorted(counts.items()):
+            args.stdout.write(
+                "\t".join(map(str, interval)) + "\t" + str(count) + "\n")
+    finally:
+        for path in (tmp.name, tmp_merge.name):
+            if os.path.exists(path):
+                os.unlink(path)
 
     # write footer and output benchmark information.
     E.stop()

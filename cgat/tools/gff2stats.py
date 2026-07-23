@@ -234,8 +234,6 @@ def main(argv=sys.argv):
             counters.append(counter_gff(iterator))
 
         c = counters[-1]
-        for x in c:
-            pass
 
         for c in counters:
             args.stdout.write("\t%s" % str(c))
