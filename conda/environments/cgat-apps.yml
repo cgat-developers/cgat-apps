@@ -1,5 +1,8 @@
 # cgat-apps development and CI environment
 # Python 3.10+ required (see pyproject.toml)
+#
+# Packages without reliable conda builds for Python 3.13+
+# (pybedtools, pyBigWig, quicksect) are installed via pip.
 
 name: cgat-a
 
@@ -17,11 +20,8 @@ dependencies:
 - numpy
 - pandas
 - pep8
-- pybedtools
-- pybigwig
 - pysam
 - pyyaml
-- quicksect
 - rdflib
 - scikit-learn
 - scipy
@@ -35,4 +35,8 @@ dependencies:
 - ucsc-bedgraphtobigwig
 - ucsc-wigtobigwig
 - wget
-- zlib
+- pip
+- pip:
+  - pybedtools
+  - pyBigWig
+  - quicksect
