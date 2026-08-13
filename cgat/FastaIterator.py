@@ -13,8 +13,8 @@ Reference
 ---------
 
 """
-import subprocess
 import os
+import subprocess
 
 
 class FastaRecord:
@@ -142,19 +142,15 @@ def iterate_together(*args):
     """
 
     iterators = [FastaIterator(x) for x in args]
-
-    while True:
-        try:
-            yield [next(x) for x in iterators]
-        except StopIteration:
-            break
+    for records in zip(*iterators):
+        yield list(records)
 
 
 def count(filename):
     '''count number of sequences in fasta file.
 
-    This method uses the ``grep`` utility to count
-    lines starting with ``>``.
+    Uses ``grep -c`` (and ``gzip -dc`` for ``.gz`` files) so that
+    counting stays fast on large FASTA files.
 
     Arguments
     ---------
@@ -175,14 +171,37 @@ def count(filename):
     if not os.path.exists(filename):
         raise OSError("file '%s' does not exist" % filename)
 
-    if filename.endswith(".gz"):
-        import gzip
-        open_file = gzip.open(filename, "rt")
-    else:
-        open_file = open(filename, "rt")
-
+    grep = ["grep", "-c", "^>"]
     try:
-        with open_file as inf:
-            return sum(1 for line in inf if line.startswith(">"))
-    except OSError:
+        if filename.endswith(".gz"):
+            gzip_proc = subprocess.Popen(
+                ["gzip", "-dc", filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL)
+            result = subprocess.run(
+                grep,
+                stdin=gzip_proc.stdout,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False)
+            if gzip_proc.stdout is not None:
+                gzip_proc.stdout.close()
+            gzip_proc.wait()
+        else:
+            result = subprocess.run(
+                grep + [filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False)
+    except FileNotFoundError:
+        raise OSError(
+            "grep/gzip is required to count sequences in '%s'" % filename)
+
+    # grep -c exits 1 when there are no matches
+    if result.returncode == 1:
         return 0
+    if result.returncode != 0:
+        stderr = result.stderr.decode() if result.stderr else ""
+        raise OSError(
+            "failed to count sequences in '%s': %s" % (filename, stderr))
+    return int(result.stdout.strip() or 0)

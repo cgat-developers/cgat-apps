@@ -5,6 +5,7 @@ import collections
 import pysam
 import sys
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 import quicksect
 
@@ -21,7 +22,7 @@ def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-b", "--reference-bed-file", dest="reference_bed_file", type=str,

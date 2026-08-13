@@ -99,16 +99,15 @@ rst_epilog = '''
 .. _alignlib: https://github.com/AndreasHeger/alignlib
 '''
 
-sys.path.insert(0, "../cgat/tools")
-#import cgat.version
+sys.path.insert(0, os.path.abspath(".."))
+from cgat.version import __version__
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = "0.7.10"
-#version.__version__
+version = __version__
 # The full version, including alpha/beta/rc tags.
 release = version
 

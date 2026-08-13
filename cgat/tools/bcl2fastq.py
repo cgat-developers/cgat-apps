@@ -50,6 +50,7 @@ Command line options
 """
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 import subprocess
 import sys
 import glob
@@ -69,7 +70,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser()
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-p", "--arguments", type=str, dest="arguments",   
                         default="",

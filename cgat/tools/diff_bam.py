@@ -77,6 +77,7 @@ import sys
 import itertools
 import pysam
 import cgatcore.experiment as E
+from cgat.version import __version__
 
 
 class multiway_groupby(object):
@@ -152,7 +153,7 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "--header-names", dest="headers", type=str,

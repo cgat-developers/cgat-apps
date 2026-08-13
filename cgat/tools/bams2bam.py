@@ -58,6 +58,7 @@ import sys
 import pysam
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgat.GTF as GTF
 import cgatcore.iotools as iotools
 import cgat.Bed as Bed
@@ -77,7 +78,7 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(usage=globals()["__doc__"])
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-g", "--gtf-file", dest="filename_gtf", type=str,

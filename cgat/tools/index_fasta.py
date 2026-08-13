@@ -80,6 +80,7 @@ Command line options
 '''
 import cgat.IndexedFasta as IndexedFasta
 import cgatcore.experiment as E
+from cgat.version import __version__
 import sys
 
 
@@ -90,7 +91,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-e", "--extract", dest="extract", type=str,
