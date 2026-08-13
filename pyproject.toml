@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cgat"
-version = "0.7.10"
+dynamic = ["version"]
 description = "cgat : the Computational Genomics Analysis Toolkit"
 authors = [
     {name = "Adam Cribbs", email = "adam.cribbs@ndorms.ox.ac.uk"},
@@ -39,8 +39,11 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = { find = { where = ["."] } }
+packages = { find = { where = ["."], exclude = ["tests", "tests.*"] } }
 include-package-data = true
+
+[tool.setuptools.dynamic]
+version = { attr = "cgat.version.__version__" }
 
 [project.scripts]
 cgat = "cgat.cgat:main"
@@ -51,4 +54,4 @@ cgat = ["*.txt", "*.yaml", "*.yml", "*.h"]
 [project.urls]
 Source = "https://github.com/cgat-developers/cgat-apps/"
 Bug_Tracker = "https://github.com/cgat-developers/cgat-apps/issues/"
-Documentation = "https://cgat-developers.github.io/cgat-core/"
+Documentation = "https://cgat-apps.readthedocs.io/en/latest/"

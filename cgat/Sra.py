@@ -21,6 +21,7 @@ import cgatcore.experiment as E
 import cgat.Fastq as Fastq
 import cgatcore.iotools as iotools
 from urllib.request import urlopen
+from urllib.error import URLError, HTTPError
 
 
 def peek(sra, outdir=None):
@@ -140,8 +141,8 @@ def fetch_ENA_files(accession):
 
     try:
         paths = urlopen(url).readlines()[1:]
-    except:
-        E.debug("couldn't access %s" % url)
+    except (URLError, HTTPError, OSError) as exc:
+        E.debug("couldn't access %s: %s" % (url, exc))
         raise
 
     paths = list(itertools.chain.from_iterable(

@@ -2,6 +2,7 @@
 import sys
 import os
 import shutil
+import subprocess
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
 import cgat.GTF as GTF
@@ -92,8 +93,32 @@ support greater than 3
 
 
 def getGTF(path):
-    statement = "wget %(path)s" % locals()
-    os.system(statement)
+    subprocess.run(["wget", path], check=True)
+
+
+def filter_contig_gtf(gtf, outfile, remove_contigs=None, keep_contigs=None):
+    """Filter GTF by contig names without invoking a shell pipeline."""
+    remove = set(remove_contigs.split("|")) if remove_contigs else None
+    keep = set(keep_contigs.split("|")) if keep_contigs else None
+
+    with iotools.open_file(gtf) as inf:
+        filtered_lines = []
+        for line in inf:
+            if line.startswith("#") or not line.strip():
+                filtered_lines.append(line)
+                continue
+            contig = line.split("\t", 1)[0]
+            if remove and contig in remove:
+                continue
+            if keep and contig not in keep:
+                continue
+            filtered_lines.append(line)
+
+    if not outfile.endswith(".gz"):
+        outfile = outfile + ".gz"
+
+    with iotools.open_file(outfile, "w") as outf:
+        outf.writelines(filtered_lines)
 
 
 def filterGTF(gtf, filterstring, tempout):
@@ -158,14 +183,6 @@ def filterGTF(gtf, filterstring, tempout):
     gfile.close()
 
 
-def removeNamedContigs(contigs):
-    return """awk '$1 !~ /(%(contigs)s)$/' |""" % locals()
-
-
-def keepOnlyNamedContigs(contigs):
-    return """awk '$1 ~ /(%(contigs)s)$/' |""" % locals()
-
-
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -221,22 +238,11 @@ def main(argv=None):
     d = 0
     if options.remove_contigs or options.keep_contigs:
         d += 1
-        statement = 'zcat %s |' % gtf
-
-        if options.remove_contigs:
-            statement += removeNamedContigs(options.remove_contigs)
-
-        if options.keep_contigs:
-            statement += keepOnlyNamedContigs(options.keep_contigs)
-
-        if options.outfile.endswith(".gz"):
-            outfile = options.outfile
-        else:
-            outfile = options.outfile + ".gz"
-
-        statement += "gzip > %s " % outfile
-
-        os.system(statement)
+        filter_contig_gtf(
+            gtf,
+            options.outfile,
+            remove_contigs=options.remove_contigs,
+            keep_contigs=options.keep_contigs)
 
     T1 = gtf
     if options.filters:

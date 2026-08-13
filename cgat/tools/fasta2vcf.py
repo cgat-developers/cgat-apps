@@ -10,12 +10,15 @@ to a fasta file.
 import sys
 import random
 import cgatcore.experiment as E
+from cgat.version import __version__
 import pysam
 
 
 def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-s", "--sample-size", dest="sample_size", type=float,

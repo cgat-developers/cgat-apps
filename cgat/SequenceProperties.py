@@ -213,7 +213,7 @@ class SequencePropertiesNA(SequenceProperties):
 
     """
 
-    def __init__(self, reference_usage=[]):
+    def __init__(self, reference_usage=None):
         SequenceProperties.__init__(self)
         self.mCountsGC = 0
         self.mCountsAT = 0
@@ -305,7 +305,7 @@ class SequencePropertiesDN(SequenceProperties):
         Unknown dinucleotides
     """
 
-    def __init__(self, reference_usage=[]):
+    def __init__(self, reference_usage=None):
 
         SequenceProperties.__init__(self)
         self.mCountsDinuc = {}
@@ -365,7 +365,7 @@ class SequencePropertiesCpg(SequencePropertiesNA, SequencePropertiesDN):
 
     """
 
-    def __init__(self, reference_usage=[]):
+    def __init__(self, reference_usage=None):
 
         SequencePropertiesNA.__init__(self)
         SequencePropertiesDN.__init__(self)
@@ -748,10 +748,12 @@ class SequencePropertiesAA(SequenceProperties):
 
     """
 
-    def __init__(self, reference_usage=[]):
+    def __init__(self, reference_usage=None):
 
         SequenceProperties.__init__(self)
 
+        if reference_usage is None:
+            reference_usage = []
         self.mReferenceUsage = reference_usage
 
         # counts of amino acids
@@ -815,7 +817,7 @@ class SequencePropertiesAminoAcids(SequenceProperties):
         Amino acid frequencies.
     """
 
-    def __init__(self, reference_usage=[]):
+    def __init__(self, reference_usage=None):
 
         SequenceProperties.__init__(self)
 
@@ -1095,9 +1097,11 @@ class SequencePropertiesBias(SequencePropertiesCodons):
         Pseudo-counts to add
     """
 
-    def __init__(self, reference_usage=[], pseudocounts=0):
+    def __init__(self, reference_usage=None, pseudocounts=0):
 
         SequencePropertiesCodons.__init__(self)
+        if reference_usage is None:
+            reference_usage = []
         self.mReferenceUsage = reference_usage
         self.mEntropy = 0
         self.mPseudoCounts = pseudocounts

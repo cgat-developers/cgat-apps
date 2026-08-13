@@ -13,8 +13,8 @@ Reference
 ---------
 
 """
-import subprocess
 import os
+import subprocess
 
 
 class FastaRecord:
@@ -95,13 +95,13 @@ def iterate(infile, comment="#", fold=False):
     h = infile.readline()[:-1]
 
     if not h:
-        raise StopIteration
+        return
 
     # skip everything until first fasta entry starts
     while h[0] != ">":
         h = infile.readline()[:-1]
         if not h:
-            raise StopIteration
+            return
         continue
 
     h = h[1:]
@@ -142,16 +142,15 @@ def iterate_together(*args):
     """
 
     iterators = [FastaIterator(x) for x in args]
-
-    while 1:
-        yield [next(x) for x in iterators]
+    for records in zip(*iterators):
+        yield list(records)
 
 
 def count(filename):
     '''count number of sequences in fasta file.
 
-    This method uses the ``grep`` utility to count
-    lines starting with ``>``.
+    Uses ``grep -c`` (and ``gzip -dc`` for ``.gz`` files) so that
+    counting stays fast on large FASTA files.
 
     Arguments
     ---------
@@ -169,16 +168,40 @@ def count(filename):
         The number of sequences in the file.
     '''
 
-    if filename.endswith(".gz"):
-        statement = "zcat %s | grep -c '>'" % filename
-    else:
-        statement = "cat %s | grep -c '>'" % filename
-
     if not os.path.exists(filename):
         raise OSError("file '%s' does not exist" % filename)
 
-    # grep returns error if no match is found
+    grep = ["grep", "-c", "^>"]
     try:
-        return subprocess.check_output(statement, shell=True)
-    except subprocess.CalledProcessError:
+        if filename.endswith(".gz"):
+            gzip_proc = subprocess.Popen(
+                ["gzip", "-dc", filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL)
+            result = subprocess.run(
+                grep,
+                stdin=gzip_proc.stdout,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False)
+            if gzip_proc.stdout is not None:
+                gzip_proc.stdout.close()
+            gzip_proc.wait()
+        else:
+            result = subprocess.run(
+                grep + [filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False)
+    except FileNotFoundError:
+        raise OSError(
+            "grep/gzip is required to count sequences in '%s'" % filename)
+
+    # grep -c exits 1 when there are no matches
+    if result.returncode == 1:
         return 0
+    if result.returncode != 0:
+        stderr = result.stderr.decode() if result.stderr else ""
+        raise OSError(
+            "failed to count sequences in '%s': %s" % (filename, stderr))
+    return int(result.stdout.strip() or 0)

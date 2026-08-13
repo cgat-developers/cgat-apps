@@ -8,12 +8,15 @@ import tempfile
 import copy
 import cgatcore.iotools as iotools
 import cgatcore.experiment as E
+from cgat.version import __version__
 from cgat.BamTools.bamtools import bam2bam_split_reads
 
 
 def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-i", "--input-bam", dest="input_bam_file", type=str,

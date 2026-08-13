@@ -10,6 +10,7 @@ iterating over the file. The metrics output are:
 import pysam
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 from cgat.BamTools.bamtools import bam2stats_window_count
 
 
@@ -24,6 +25,8 @@ def main(argv=None):
 
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "--region", dest="region", type=str,

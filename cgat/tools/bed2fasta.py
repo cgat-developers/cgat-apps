@@ -45,6 +45,7 @@ Command line options
 '''
 import sys
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgat.Bed as Bed
 import cgat.IndexedFasta as IndexedFasta
 import cgat.Masker as Masker
@@ -56,7 +57,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-g", "--genome-file", dest="genome_file", type=str,
                         help="filename with genomic sequence to retrieve "

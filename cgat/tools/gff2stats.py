@@ -72,6 +72,7 @@ Command line options
 import sys
 import collections
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgat.GTF as GTF
 import cgat.Stats as Stats
 import cgatcore.iotools as iotools
@@ -192,7 +193,7 @@ def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("--is-gtf", dest="is_gtf", action="store_true",
                         help="input is gtf.")
@@ -233,8 +234,7 @@ def main(argv=sys.argv):
             iterator = GTF.iterator(infile)
             counters.append(counter_gff(iterator))
 
-        c = counters[-1]
-        for x in c:
+        for _ in counters[-1]:
             pass
 
         for c in counters:

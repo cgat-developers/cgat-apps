@@ -5,6 +5,7 @@ import collections
 import pysam
 import sys
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 import quicksect
 
@@ -20,6 +21,8 @@ def get_size_bin(size, size_bins):
 def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-b", "--reference-bed-file", dest="reference_bed_file", type=str,

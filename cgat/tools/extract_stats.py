@@ -50,6 +50,7 @@ import pandas
 import numpy
 import re
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.database as database
 
 
@@ -204,6 +205,8 @@ def main(argv=None):
 
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("--task", dest="task", type=str,
                         choices=["extract_table", "get_coverage",

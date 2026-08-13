@@ -37,6 +37,7 @@ import pysam
 import numpy
 import pandas
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 
 
@@ -111,7 +112,7 @@ def global_align(seqj, seqi, gap=-1, match=1, mismatch=-1, nmatch=0):
             align_i += seqi[i - 1]
             i -= 1
         else:
-            raise Exception('wtf!')
+            raise ValueError("unexpected alignment path in get_alignment")
 
     return align_j[::-1], align_i[::-1]
 
@@ -170,6 +171,8 @@ def main(argv=None):
 
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-e", "--input-bed-file", dest="input_bed_file", type=str,

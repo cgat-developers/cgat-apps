@@ -6,10 +6,10 @@ channels:
  - defaults
 
 dependencies:
- - python==3.8
+ - python>=3.10
  - cgat-apps
  - pip:
    - sphinx==3.4.3
    - sphinx_rtd_theme==0.5.1
    - readthedocs-sphinx-search==0.1.0rc3
-   - pip install sphinxcontrib-programoutput==0.17
+   - sphinxcontrib-programoutput==0.17

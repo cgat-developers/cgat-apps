@@ -1649,13 +1649,6 @@ def makeSubstitutionMatrix(type="EMBOSS"):
     return smatrix, gop, gep
 
 
-def CalculateRCSUValuesFromCounts(counts, pseudo_counts=0):
-    """calculate RCSU values for codons.
-
-    RCSU = relative frequency / uniform frequency
-    """
-
-
 def CalculateCodonFrequenciesFromCounts(counts, pseudo_counts=0):
     """calculate codon frequencies from codon counts per amino acid.
     pseudo_counts are added if desired.

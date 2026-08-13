@@ -41,6 +41,7 @@ import importlib.util  # Use importlib instead of imp
 import collections
 import pandas
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 
 ORIGINAL_START = None
@@ -48,7 +49,7 @@ ORIGINAL_START = None
 PARSER = None
 
 EXPRESSIONS = (
-    ('scripts', 'scripts/*.py'),)
+    ('tools', 'cgat/tools/*.py'),)
 
 EXCLUDE = ("__init__.py",
            "cgat.py",)
@@ -129,6 +130,8 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
+    parser.add_argument("--version", action='version', version=__version__)
+
     parser.add_argument(
         "--inplace", dest="inplace", action="store_true",
         help="update option list in place. New options will"
@@ -180,9 +183,10 @@ def main(argv=None):
             for o in collected_options:
                 all_options[o].append(f)
 
-    for x in old_options.index:
-        if x not in all_options:
-            all_options[x].append("--")
+    if old_options is not None:
+        for x in old_options.index:
+            if x not in all_options:
+                all_options[x].append("--")
 
     if args.inplace:
         outfile = iotools.open_file(args.tsv_file, "w")

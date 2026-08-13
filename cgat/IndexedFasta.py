@@ -272,10 +272,7 @@ class MultipleFastaIterator:
         return self
 
     def __next__(self):
-        try:
-            return next(self.iterator)
-        except:
-            return
+        return next(self.iterator)
 
     def next(self):
         return next(self.iterator)
@@ -349,8 +346,6 @@ class MultipleFastaIterator:
                 yield x
             if filename != "-":
                 infile.close()
-
-        raise StopIteration
 
 
 def createDatabase(db, iterator,
@@ -479,7 +474,7 @@ def createDatabase(db, iterator,
         try:
             result = next(iterator)
         except StopIteration:
-            return
+            break
 
         if not result:
             break

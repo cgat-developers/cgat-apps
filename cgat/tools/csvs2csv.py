@@ -36,6 +36,7 @@ import os
 import glob
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 
 
 def main(argv=None):
@@ -49,7 +50,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-t", "--no-titles", dest="titles", action="store_false",
@@ -214,7 +215,7 @@ def main(argv=None):
             row_keys = [data[x] for x in args.columns]
             if args.sort_keys:
                 if args.sort_keys == "numeric":
-                    row_keys.sort(lambda x, y: cmp(float(x), float(y)))
+                    row_keys.sort(key=lambda x: float(x))
                 else:
                     row_keys.sort()
             if args.merge:
@@ -302,7 +303,7 @@ def main(argv=None):
         if args.sort_keys:
             if args.sort_keys:
                 if args.sort_keys == "numeric":
-                    sorted_keys.sort(lambda x, y: cmp(float(x), float(y)))
+                    sorted_keys.sort(key=lambda x: float(x))
                 else:
                     sorted_keys.sort()
 

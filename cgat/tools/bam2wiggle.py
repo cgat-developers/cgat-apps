@@ -50,6 +50,7 @@ import tempfile
 import shutil
 import subprocess
 import cgatcore.experiment as E
+from cgat.version import __version__
 import pysam
 import cgatcore.iotools as iotools
 from cgat.BamTools.bamtools import merge_pairs
@@ -154,7 +155,7 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-o", "--output-format", dest="output_format",
                         type=str,
@@ -441,11 +442,7 @@ def main(argv=None):
             E.info("starting %s conversion" % executable)
             try:
                 retcode = subprocess.call(
-                    " ".join((executable,
-                              tmpfile_wig,
-                              tmpfile_sizes,
-                              output_filename_pattern)),
-                    shell=True)
+                    [executable, tmpfile_wig, tmpfile_sizes, output_filename_pattern])
                 if retcode != 0:
                     E.warn("%s terminated with signal: %i" %
                            (executable, -retcode))

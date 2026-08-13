@@ -33,8 +33,16 @@ import re
 import glob
 import importlib.util
 import collections
+import traceback
 import cgatcore.iotools as iotools
 import cgat
+
+
+def _debug_enabled(argv):
+    """Return True if full tracebacks should be shown."""
+    if os.environ.get("CGAT_DEBUG"):
+        return True
+    return "--debug" in argv
 
 
 def mapKeyword2Script(path):
@@ -122,6 +130,10 @@ def main(argv=None):
 
     command = argv[1]
 
+    debug = _debug_enabled(argv)
+    if "--debug" in sys.argv:
+        sys.argv.remove("--debug")
+
     # Replace hyphens with underscores to match Python module naming conventions
     command = re.sub("-", "_", command)
 
@@ -142,6 +154,8 @@ def main(argv=None):
         spec.loader.exec_module(module)
     except Exception as e:
         print(f"Error: Failed to load module '{command}': {e}", file=sys.stderr)
+        if debug:
+            traceback.print_exc()
         sys.exit(1)
 
     # Remove 'cgat' from sys.argv to pass the remaining arguments to the module's main function
@@ -158,6 +172,8 @@ def main(argv=None):
         module.main(sys.argv)
     except Exception as e:
         print(f"Error: An exception occurred while executing the 'main' function of '{command}': {e}", file=sys.stderr)
+        if debug:
+            traceback.print_exc()
         sys.exit(1)
 
 

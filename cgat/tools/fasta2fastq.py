@@ -114,6 +114,7 @@ import numpy as np
 import collections
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 
 import cgat.FastaIterator as FastaIterator
@@ -197,6 +198,8 @@ def main(argv=None):
         argv = sys.argv
 
     parser = E.ArgumentParser(description=__doc__)
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "--output-quality-format", dest="q_format", type=int,

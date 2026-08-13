@@ -142,6 +142,7 @@ import numpy
 import quicksect
 import pandas as pd
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 import cgat.GTF as GTF
 import cgat.AGP as AGP
@@ -401,7 +402,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
                         choices=("add-flank",

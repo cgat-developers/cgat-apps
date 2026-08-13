@@ -50,10 +50,13 @@ Command line options
 """
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 import subprocess
 import sys
 import glob
 import gzip
+import shlex
+import shutil
 
 
 def main(argv=None):
@@ -66,6 +69,8 @@ def main(argv=None):
         argv = sys.argv
 
     parser = E.ArgumentParser()
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-p", "--arguments", type=str, dest="arguments",   
                         default="",
@@ -89,14 +94,19 @@ def main(argv=None):
 
     (args) = E.start(parser)
 
-    if subprocess.run("which bcl2fastq", shell=True).returncode:
+    if shutil.which("bcl2fastq") is None:
         raise ValueError("bcl2fastq cannot be found")
 
     if args.bcl2fastq_help:
-        subprocess.run("bcl2fastq --help", shell=True)
+        subprocess.run(["bcl2fastq", "--help"], check=False)
         return
-    else:
-        subprocess.run(f"bcl2fastq {args.arguments} -o {args.output}", shell=True)
+
+    bcl2fastq_cmd = ["bcl2fastq", "-o", args.output]
+    if args.arguments:
+        bcl2fastq_cmd[1:1] = shlex.split(args.arguments)
+    result = subprocess.run(bcl2fastq_cmd, check=False)
+    if result.returncode != 0:
+        raise RuntimeError(f"bcl2fastq failed with exit code {result.returncode}")
 
     for infile in glob.glob(f"{args.output}/**/*.fastq.gz", recursive=True):
         with gzip.GzipFile(f"{infile}", "r") as f:
@@ -104,8 +114,9 @@ def main(argv=None):
                 raise ValueError(f"{infile} is either corrupt or incomplete.")
 
     if args.fastqc:
+        fastqc_options = shlex.split(args.fastqc_options) if args.fastqc_options else []
         for infile in glob.glob(f"{args.output}/**/*.fastq.gz", recursive=True):
-            subprocess.run(f"fastqc {infile} {args.fastqc_options}", shell=True)
+            subprocess.run(["fastqc", infile] + fastqc_options, check=False)
 
 
 if __name__ == "__main__":

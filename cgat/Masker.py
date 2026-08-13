@@ -9,6 +9,7 @@ Code
 
 '''
 import os
+import shlex
 import subprocess
 import tempfile
 import string
@@ -105,6 +106,22 @@ class Masker:
 
         return "".join(seq)
 
+    def getCommand(self, infile):
+        """Return argv list for the masker executable."""
+        if hasattr(self, "mArgv"):
+            return [part.format(infile=infile) if "{infile}" in part else part
+                    for part in self.mArgv]
+        return shlex.split(self.mCommand.format(infile=infile))
+
+    def _run_masker(self, infile):
+        cmd = self.getCommand(infile)
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False)
+        return result
+
     def maskSequence(self, peptide_sequence):
         """mask peptide sequence
         """
@@ -116,21 +133,15 @@ class Masker:
         os.close(outfile)
 
         infile = filename_peptide
-        statement = self.mCommand % locals()
+        E.debug("statement: %s" % self.getCommand(infile))
 
-        E.debug("statement: %s" % statement)
+        s = self._run_masker(infile)
 
-        s = subprocess.Popen(statement,
-                             shell=True,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             close_fds=True)
-
-        (out, err) = s.communicate()
+        out, err = s.stdout, s.stderr
         if s.returncode != 0:
             raise RuntimeError(
                 "Error in running %s \n%s\nTemporary directory" %
-                (statement, err))
+                (self.getCommand(infile), err))
 
         os.remove(filename_peptide)
 
@@ -145,41 +156,39 @@ class Masker:
                 outf.write(">%i\n%s\n" % (x, s))
 
         infile = outf.name
-        statement = self.mCommand % locals()
+        E.debug("statement: %s" % self.getCommand(infile))
 
-        E.debug("statement: %s" % statement)
+        try:
+            s = self._run_masker(infile)
 
-        s = subprocess.Popen(statement,
-                             shell=True,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             close_fds=True)
+            out, err = s.stdout, s.stderr
 
-        (out, err) = s.communicate()
+            if s.returncode != 0:
+                raise RuntimeError(
+                    "Error in running %s \n%s\nTemporary directory" %
+                    (self.getCommand(infile), err))
 
-        if s.returncode != 0:
-            raise RuntimeError(
-                "Error in running %s \n%s\nTemporary directory" %
-                (statement, err))
-        
-        result = [
-            x.sequence for x in FastaIterator.iterate(StringIO(out.decode()))]
-
-        os.remove(infile)
+            result = [
+                x.sequence for x in FastaIterator.iterate(StringIO(out.decode()))]
+        finally:
+            if os.path.exists(infile):
+                os.remove(infile)
 
         return result
 
 
 class MaskerBias (Masker):
 
-    mCommand = "biasdb.pl %(infile)s"
+    mCommand = "biasdb.pl {infile}"
+    mArgv = ["biasdb.pl", "{infile}"]
     mHasPeptideMasking = True
 
 
 class MaskerSeg (Masker):
-    # mCommand = "seg %(infile)s 12 2.2 2.5 -x"
-    mCommand = ("segmasker -in %(infile)s -window 12 -locut 2.2 "
+    mCommand = ("segmasker -in {infile} -window 12 -locut 2.2 "
                 "-hicut 2.5 -outfmt fasta")
+    mArgv = ["segmasker", "-in", "{infile}", "-window", "12", "-locut", "2.2",
+             "-hicut", "2.5", "-outfmt", "fasta"]
     mHasPeptideMasking = True
     soft_mask = True
 
@@ -189,7 +198,8 @@ class MaskerDustMasker(Masker):
     '''use dustmasker. masked chars are returned as
     lower case characters.'''
 
-    mCommand = "dustmasker -outfmt fasta -in %(infile)s"
+    mCommand = "dustmasker -outfmt fasta -in {infile}"
+    mArgv = ["dustmasker", "-outfmt", "fasta", "-in", "{infile}"]
     mHasNucleicAcidMasking = True
 
 

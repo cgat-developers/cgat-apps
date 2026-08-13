@@ -33,6 +33,7 @@ import re
 import pandas
 import pysam
 import cgatcore.experiment as E
+from cgat.version import __version__
 
 
 def generate_from_bed(bam_file, bed_file, **kwargs):
@@ -59,6 +60,8 @@ def main(argv=None):
         argv = sys.argv
 
     parser = E.ArgumentParser()
+
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-i", "--input-fastq-file", dest="input_fastq_file", type=str,

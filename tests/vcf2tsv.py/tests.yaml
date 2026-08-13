@@ -1,0 +1,12 @@
+
+version:
+    stdin: null
+    outputs: [stdout]
+    references: []
+    options: --version
+
+basic:
+    stdin: null
+    outputs: [stdout]
+    references: [basic.tsv]
+    options: "%DIR%/../vcf2vcf.py/example_human_g1k.vcf"

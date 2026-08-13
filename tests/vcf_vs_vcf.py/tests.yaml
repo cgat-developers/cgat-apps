@@ -1,0 +1,12 @@
+
+version:
+    stdin: null
+    outputs: [stdout]
+    references: []
+    options: --version
+
+compare_self:
+    stdin: null
+    outputs: [stdout]
+    references: [compare_self.tsv]
+    options: "%DIR%/example.vcf.gz %DIR%/example.vcf.gz"
