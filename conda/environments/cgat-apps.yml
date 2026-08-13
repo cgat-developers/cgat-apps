@@ -1,5 +1,8 @@
 # cgat-apps development and CI environment
 # Python 3.10+ required (see pyproject.toml)
+#
+# Python packages without reliable conda builds across 3.13/3.14
+# (especially Linux) are installed via pip.
 
 name: cgat-a
 
@@ -9,7 +12,6 @@ channels:
 
 dependencies:
 - python
-- alignlib-lite
 - biopython
 - cython>=0.29.35
 - cgatcore
@@ -18,11 +20,7 @@ dependencies:
 - numpy
 - pandas
 - pep8
-- pybedtools
-- pybigwig
-- pysam
 - pyyaml
-- quicksect
 - rdflib
 - scikit-learn
 - scipy
@@ -36,4 +34,9 @@ dependencies:
 - ucsc-bedgraphtobigwig
 - ucsc-wigtobigwig
 - wget
-- zlib
+- pip
+- pip:
+  - pysam
+  - pybedtools
+  - pyBigWig
+  - quicksect

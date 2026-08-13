@@ -454,8 +454,8 @@ def main(argv=sys.argv):
     parser.add_argument(
         "--sample-size", dest="sample_size", type=float,
         help="proportion of reads to sample. "
-        "Provide a proportion of reads to sample, e.g. 0.1 for 10%, "
-        "0.5 for 50%, etc.")
+        "Provide a proportion of reads to sample, e.g. 0.1 for 10%%, "
+        "0.5 for 50%%, etc.")
 
     parser.add_argument(
         "--pair-fastq-file", dest="pair", type=str,

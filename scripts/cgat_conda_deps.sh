@@ -35,7 +35,6 @@ declare -A PY_DEPS
 PY_DEPS[Bio]="biopython"
 PY_DEPS[MySQLdb]="mysqlclient"
 PY_DEPS[SphinxReport]="ignore"
-PY_DEPS[alignlib_lite]="alignlib-lite"
 PY_DEPS[bashlex]="ignore"
 PY_DEPS[brewer2mpl]="brewer2mpl"
 PY_DEPS[bs4]="beautifulsoup4"
