@@ -34,6 +34,7 @@ import os
 import cgat.FastaIterator as FastaIterator
 import cgatcore.iotools as iotools
 import cgatcore.experiment as E
+from cgat.version import __version__
 
 
 class Files:
@@ -140,7 +141,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+    parser.add_argument('--version', action='version', version=__version__)
 
     parser.add_argument("-f", "--file", dest="input_filename", type=str,
                         help="input filename. If not given, stdin is used.")

@@ -70,6 +70,7 @@ import sys
 import collections
 import cgat.Bed as Bed
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgat.IndexedFasta as IndexedFasta
 
 
@@ -113,7 +114,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-g", "--genome-file", dest="genome_file", type=str,

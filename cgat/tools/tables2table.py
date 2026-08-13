@@ -40,6 +40,7 @@ import pandas
 
 import cgatcore.iotools as iotools
 import cgatcore.experiment as E
+from cgat.version import __version__
 
 
 def read_tables(filenames, *args, **kwargs):
@@ -108,7 +109,7 @@ def main(argv=sys.argv):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-t", "--no-titles",
                         dest="input_has_titles",

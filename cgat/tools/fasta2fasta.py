@@ -121,6 +121,7 @@ from itertools import zip_longest
 import pysam
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 import cgat.Genomics as Genomics
 import cgat.FastaIterator as FastaIterator
@@ -155,7 +156,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-m", "--method", dest="methods", type=str, action="append",

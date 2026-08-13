@@ -2,7 +2,6 @@
 import sys
 import os
 import shutil
-import gzip
 import subprocess
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
@@ -102,28 +101,23 @@ def filter_contig_gtf(gtf, outfile, remove_contigs=None, keep_contigs=None):
     remove = set(remove_contigs.split("|")) if remove_contigs else None
     keep = set(keep_contigs.split("|")) if keep_contigs else None
 
-    if gtf.endswith(".gz"):
-        inf = gzip.open(gtf, "rt")
-    else:
-        inf = open(gtf, "rt")
-
-    filtered_lines = []
-    for line in inf:
-        if line.startswith("#") or not line.strip():
+    with iotools.open_file(gtf) as inf:
+        filtered_lines = []
+        for line in inf:
+            if line.startswith("#") or not line.strip():
+                filtered_lines.append(line)
+                continue
+            contig = line.split("\t", 1)[0]
+            if remove and contig in remove:
+                continue
+            if keep and contig not in keep:
+                continue
             filtered_lines.append(line)
-            continue
-        contig = line.split("\t", 1)[0]
-        if remove and contig in remove:
-            continue
-        if keep and contig not in keep:
-            continue
-        filtered_lines.append(line)
-    inf.close()
 
     if not outfile.endswith(".gz"):
         outfile = outfile + ".gz"
 
-    with gzip.open(outfile, "wt") as outf:
+    with iotools.open_file(outfile, "w") as outf:
         outf.writelines(filtered_lines)
 
 

@@ -90,6 +90,7 @@ import pysam
 
 import cgatcore.iotools as iotools
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgat.FastqTools as fastqtools
 
 
@@ -118,7 +119,7 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-m", "--method", dest="method", type=str,
                         choices=('reconcile', 'filter-by-sequence'),

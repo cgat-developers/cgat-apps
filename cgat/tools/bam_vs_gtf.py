@@ -87,6 +87,7 @@ reference genome annotation database (Ensembl, UCSC etc.).
 
 import sys
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 import pysam
 import cgat.GTF as GTF
@@ -104,7 +105,7 @@ def main(argv=None):
     # setup command line parser
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-e", "--exons-file", "--gtf-file",

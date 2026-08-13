@@ -131,7 +131,7 @@ def main(argv=None):
     command = argv[1]
 
     debug = _debug_enabled(argv)
-    if debug and "--debug" in sys.argv:
+    if "--debug" in sys.argv:
         sys.argv.remove("--debug")
 
     # Replace hyphens with underscores to match Python module naming conventions

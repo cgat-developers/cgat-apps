@@ -35,6 +35,7 @@ import os
 import getopt
 import cgatcore.experiment as E
 import cgatcore.iotools as iotools
+from cgat.version import __version__
 
 USAGE = """python %s < stdin > stdout
 
@@ -131,7 +132,7 @@ def main(argv=None):
         if o in ("-v", "--verbose"):
             param_loglevel = int(a)
         elif o in ("--version", ):
-            print("version=")
+            print(__version__)
             sys.exit(0)
         elif o in ("-h", "--help"):
             print(USAGE)

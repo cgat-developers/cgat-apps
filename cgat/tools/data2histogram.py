@@ -29,6 +29,7 @@ Command line options
 '''
 import sys
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgat.Histogram as Histogram
 import numpy
 
@@ -40,7 +41,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument("-r", "--range", dest="range", type=str,
                         help="range to calculate histogram for.")

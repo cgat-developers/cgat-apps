@@ -41,6 +41,7 @@ import importlib.util  # Use importlib instead of imp
 import collections
 import pandas
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 
 ORIGINAL_START = None
@@ -129,7 +130,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "--inplace", dest="inplace", action="store_true",

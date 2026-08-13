@@ -15,6 +15,7 @@ import numpy
 import pysam
 
 import cgatcore.experiment as E
+from cgat.version import __version__
 import cgatcore.iotools as iotools
 
 
@@ -22,7 +23,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-f", "--fasta", dest="input_filename_fasta",

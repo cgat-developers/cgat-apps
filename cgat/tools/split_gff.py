@@ -68,6 +68,7 @@ import os
 import cgat.GTF as GTF
 import cgatcore.iotools as iotools
 import cgatcore.experiment as E
+from cgat.version import __version__
 
 
 class OutputChunk:
@@ -125,7 +126,7 @@ def main(argv=None):
 
     parser = E.ArgumentParser(description=__doc__)
 
-    parser.add_argument("--version", action='version', version="1.0")
+    parser.add_argument("--version", action='version', version=__version__)
 
     parser.add_argument(
         "-i", "--min-chunk-size", dest="min_chunk_size", type=int,
