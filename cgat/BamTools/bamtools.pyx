@@ -1944,12 +1944,12 @@ def isStripped(bamfile):
     '''
     Check if the sequence is stripped in a bam file.
     '''
-    bam = pysam.AlignmentFile(bamfile)
-    read = bam.next()
-    if read.seq is None:
-        return True
-    else:
-        return False
+    bam = pysam.AlignmentFile(bamfile).fetch(until_eof=True)
+    for read in bam:
+        if read.seq is None:
+            return True
+        else:
+            return False
 
 
 def merge_pairs(AlignmentFile input_samfile,
